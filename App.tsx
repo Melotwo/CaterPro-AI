@@ -29,6 +29,7 @@ const LOADING_MESSAGES = [
 // ========= MAIN APP COMPONENT =========
 const App: React.FC = () => {
   const [eventType, setEventType] = useState('');
+  const [customEventType, setCustomEventType] = useState('');
   const [guestCount, setGuestCount] = useState('');
   const [budget, setBudget] = useState('$$');
   const [cuisine, setCuisine] = useState('');
@@ -114,6 +115,7 @@ const App: React.FC = () => {
     setCuisine(scenario.cuisine);
     setDietaryRestrictions(scenario.dietaryRestrictions);
     setValidationErrors({});
+    setCustomEventType('');
   };
 
   const showToast = (message: string) => {
@@ -122,7 +124,11 @@ const App: React.FC = () => {
 
   const generateMenu = async () => {
     const newValidationErrors: ValidationErrors = {};
-    if (!eventType) newValidationErrors.eventType = "Please select an event type.";
+    if (!eventType) {
+      newValidationErrors.eventType = "Please select an event type.";
+    } else if (eventType === 'Other...' && !customEventType.trim()) {
+      newValidationErrors.eventType = "Please specify your custom event type.";
+    }
     if (!guestCount) newValidationErrors.guestCount = "Please select a guest count.";
     if (!cuisine) newValidationErrors.cuisine = "Please select a cuisine type.";
     
@@ -138,9 +144,11 @@ const App: React.FC = () => {
     setCheckedItems(new Set());
     setTotalChecklistItems(0);
 
+    const finalEventType = eventType === 'Other...' ? customEventType : eventType;
+
     try {
       const result = await generateMenuFromApi({
-        eventType,
+        eventType: finalEventType,
         guestCount,
         budget,
         cuisine,
@@ -152,7 +160,7 @@ const App: React.FC = () => {
 
       const newHistoryItem: GenerationHistoryItem = {
         id: Date.now(),
-        eventType,
+        eventType: finalEventType,
         guestCount,
         cuisine,
         dietaryRestrictions,
@@ -298,7 +306,14 @@ const App: React.FC = () => {
   };
 
   const handleHistoryItemClick = (item: GenerationHistoryItem) => {
-    setEventType(item.eventType);
+    const isPredefined = EVENT_TYPES.includes(item.eventType);
+    if (isPredefined) {
+        setEventType(item.eventType);
+        setCustomEventType('');
+    } else {
+        setEventType('Other...');
+        setCustomEventType(item.eventType);
+    }
     setGuestCount(item.guestCount);
     setCuisine(item.cuisine);
     setDietaryRestrictions(item.dietaryRestrictions);
@@ -332,10 +347,35 @@ const App: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label htmlFor="event-type" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Event Type <span className="text-red-500">*</span></label>
-              <select id="event-type" value={eventType} onChange={e => setEventType(e.target.value)} aria-required="true" className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+              <select
+                id="event-type"
+                value={eventType}
+                onChange={(e) => {
+                  setEventType(e.target.value);
+                  if (e.target.value !== 'Other...') {
+                    setCustomEventType('');
+                  }
+                }}
+                aria-required="true"
+                className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500"
+              >
                 <option value="" disabled>Select an event...</option>
-                {EVENT_TYPES.map(e => <option key={e} value={e}>{e}</option>)}
+                {EVENT_TYPES.map((e) => <option key={e} value={e}>{e}</option>)}
               </select>
+              {eventType === 'Other...' && (
+                <div className="mt-2 animate-slide-in" style={{ animationDuration: '0.3s' }}>
+                  <label htmlFor="custom-event-type" className="sr-only">Custom Event Type</label>
+                  <input
+                    type="text"
+                    id="custom-event-type"
+                    value={customEventType}
+                    onChange={(e) => setCustomEventType(e.target.value)}
+                    placeholder="Please specify your event type"
+                    className="block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500"
+                    required
+                  />
+                </div>
+              )}
               {validationErrors.eventType && <p className="text-red-500 text-sm mt-1">{validationErrors.eventType}</p>}
             </div>
             <div>
