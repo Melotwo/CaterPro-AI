@@ -13,7 +13,7 @@ import QrCodeModal from './components/QrCodeModal.tsx';
 import MultiSelectDropdown from './components/MultiSelectDropdown.tsx';
 import GenerationHistory from './components/GenerationHistory.tsx';
 import CustomizationModal from './components/CustomizationModal.tsx';
-import { exampleScenarios, CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, EDITABLE_MENU_SECTIONS } from './constants.ts';
+import { exampleScenarios, CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, EDITABLE_MENU_SECTIONS } from './constants.ts';
 import { SavedMenu, ErrorState, ValidationErrors, GenerationHistoryItem, Menu, MenuSection } from './types.ts';
 import { getApiErrorState } from './services/errorHandler.ts';
 import { generateMenuFromApi, regenerateMenuItemFromApi, generateCustomMenuItemFromApi } from './services/geminiService.ts';
@@ -32,6 +32,7 @@ const App: React.FC = () => {
   const [customEventType, setCustomEventType] = useState('');
   const [guestCount, setGuestCount] = useState('');
   const [budget, setBudget] = useState('$$');
+  const [serviceStyle, setServiceStyle] = useState('Standard Catering');
   const [cuisine, setCuisine] = useState('');
   const [dietaryRestrictions, setDietaryRestrictions] = useState<string[]>([]);
   
@@ -112,6 +113,7 @@ const App: React.FC = () => {
     setEventType(scenario.eventType);
     setGuestCount(scenario.guestCount);
     setBudget(scenario.budget);
+    setServiceStyle(scenario.serviceStyle);
     setCuisine(scenario.cuisine);
     setDietaryRestrictions(scenario.dietaryRestrictions);
     setValidationErrors({});
@@ -151,6 +153,7 @@ const App: React.FC = () => {
         eventType: finalEventType,
         guestCount,
         budget,
+        serviceStyle,
         cuisine,
         dietaryRestrictions,
       });
@@ -163,6 +166,7 @@ const App: React.FC = () => {
         eventType: finalEventType,
         guestCount,
         cuisine,
+        serviceStyle,
         dietaryRestrictions,
         timestamp: new Date().toLocaleString(),
       };
@@ -316,6 +320,7 @@ const App: React.FC = () => {
     }
     setGuestCount(item.guestCount);
     setCuisine(item.cuisine);
+    setServiceStyle(item.serviceStyle);
     setDietaryRestrictions(item.dietaryRestrictions);
     setMenu(null);
     setError(null);
@@ -357,7 +362,7 @@ const App: React.FC = () => {
                   }
                 }}
                 aria-required="true"
-                className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500"
+                className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500"
               >
                 <option value="" disabled>Select an event...</option>
                 {EVENT_TYPES.map((e) => <option key={e} value={e}>{e}</option>)}
@@ -371,7 +376,7 @@ const App: React.FC = () => {
                     value={customEventType}
                     onChange={(e) => setCustomEventType(e.target.value)}
                     placeholder="Please specify your event type"
-                    className="block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500"
+                    className="block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500"
                     required
                   />
                 </div>
@@ -380,21 +385,27 @@ const App: React.FC = () => {
             </div>
             <div>
               <label htmlFor="guest-count" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Number of Guests <span className="text-red-500">*</span></label>
-              <select id="guest-count" value={guestCount} onChange={e => setGuestCount(e.target.value)} aria-required="true" className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+              <select id="guest-count" value={guestCount} onChange={e => setGuestCount(e.target.value)} aria-required="true" className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500">
                 <option value="" disabled>Select guest range...</option>
                 {GUEST_COUNT_OPTIONS.map(g => <option key={g} value={g}>{g}</option>)}
               </select>
               {validationErrors.guestCount && <p className="text-red-500 text-sm mt-1">{validationErrors.guestCount}</p>}
             </div>
-             <div className="md:col-span-2">
+             <div>
               <label htmlFor="budget" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Budget Level</label>
-              <select id="budget" value={budget} onChange={e => setBudget(e.target.value)} className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+              <select id="budget" value={budget} onChange={e => setBudget(e.target.value)} className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500">
                 {BUDGET_LEVELS.map(b => <option key={b.value} value={b.value}>{b.label}</option>)}
               </select>
             </div>
              <div>
+              <label htmlFor="service-style" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Service Style</label>
+              <select id="service-style" value={serviceStyle} onChange={e => setServiceStyle(e.target.value)} className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                {SERVICE_STYLES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+             <div>
               <label htmlFor="cuisine" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Cuisine Style <span className="text-red-500">*</span></label>
-              <select id="cuisine" value={cuisine} onChange={(e) => setCuisine(e.target.value)} aria-required="true" className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+              <select id="cuisine" value={cuisine} onChange={(e) => setCuisine(e.target.value)} aria-required="true" className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500">
                 <option value="" disabled>Select a cuisine...</option>
                 {CUISINES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -415,11 +426,11 @@ const App: React.FC = () => {
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Need inspiration? Try one of these scenarios:</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {exampleScenarios.map(scenario => (
-                <button key={scenario.title} onClick={() => handleExampleClick(scenario)} className="group text-left p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 border-2 border-slate-200 dark:border-slate-800 hover:border-amber-200 dark:hover:border-amber-800 transition-all">
+                <button key={scenario.title} onClick={() => handleExampleClick(scenario)} className="group text-left p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 border-2 border-slate-200 dark:border-slate-800 hover:border-primary-200 dark:hover:border-primary-800 transition-all">
                   <div className="flex items-start gap-4">
-                    <scenario.IconComponent className="w-8 h-8 text-amber-500 flex-shrink-0" />
+                    <scenario.IconComponent className="w-8 h-8 text-primary-500 flex-shrink-0" />
                     <div>
-                      <h3 className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-amber-700 dark:group-hover:text-amber-300">{scenario.title}</h3>
+                      <h3 className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-primary-700 dark:group-hover:text-primary-300">{scenario.title}</h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400">{scenario.eventType}</p>
                     </div>
                   </div>
@@ -432,7 +443,7 @@ const App: React.FC = () => {
             <button
               onClick={generateMenu}
               disabled={isLoading}
-              className="inline-flex items-center justify-center px-8 py-3 text-base font-semibold text-slate-900 bg-amber-500 border border-transparent rounded-lg shadow-sm hover:bg-amber-600 disabled:opacity-70 disabled:cursor-not-allowed transform hover:scale-105 transition-transform"
+              className="inline-flex items-center justify-center px-8 py-3 text-base font-semibold text-white bg-primary-500 border border-transparent rounded-lg shadow-sm hover:bg-primary-600 disabled:opacity-70 disabled:cursor-not-allowed transform hover:scale-105 transition-transform"
             >
               {isLoading ? (
                 <>
@@ -511,7 +522,7 @@ const App: React.FC = () => {
             <section id="custom-item-generator" aria-labelledby="custom-item-title" className="mt-12 animate-slide-in" style={{ animationDelay: '0.2s' }}>
               <div className="bg-white dark:bg-slate-900/50 p-6 sm:p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800">
                   <h2 id="custom-item-title" className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center">
-                      <Sparkles className="w-7 h-7 mr-3 text-amber-500" />
+                      <Sparkles className="w-7 h-7 mr-3 text-primary-500" />
                       Add a Custom Item
                   </h2>
                   <p className="mt-2 text-slate-600 dark:text-slate-400">
@@ -526,7 +537,7 @@ const App: React.FC = () => {
                               value={customItemDescription}
                               onChange={e => setCustomItemDescription(e.target.value)}
                               placeholder="e.g., A light, summery appetizer with strawberries, goat cheese, and a balsamic glaze."
-                              className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500"
+                              className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500"
                           />
                       </div>
                       <div>
@@ -535,7 +546,7 @@ const App: React.FC = () => {
                               id="custom-item-cat"
                               value={customItemCategory}
                               onChange={e => setCustomItemCategory(e.target.value as MenuSection)}
-                              className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500"
+                              className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500"
                           >
                               {EDITABLE_MENU_SECTIONS.map(section => (
                                   <option key={section.key} value={section.key}>{section.title}</option>
@@ -546,7 +557,7 @@ const App: React.FC = () => {
                           <button
                               onClick={handleGenerateCustomItem}
                               disabled={isGeneratingCustomItem || !customItemDescription.trim()}
-                              className="inline-flex items-center justify-center px-6 py-2.5 text-base font-semibold text-slate-900 bg-amber-500 border border-transparent rounded-lg shadow-sm hover:bg-amber-600 disabled:opacity-70 disabled:cursor-not-allowed"
+                              className="inline-flex items-center justify-center px-6 py-2.5 text-base font-semibold text-white bg-primary-500 border border-transparent rounded-lg shadow-sm hover:bg-primary-600 disabled:opacity-70 disabled:cursor-not-allowed"
                           >
                               {isGeneratingCustomItem ? (
                                   <>
