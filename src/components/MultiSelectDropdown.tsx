@@ -64,7 +64,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
           <div className="flex flex-wrap gap-1">
             {selectedItems.length > 0 ? (
               selectedItems.map(item => (
-                <span key={item} className="flex items-center gap-1 bg-amber-100 dark:bg-amber-900/50 text-amber-800 dark:text-amber-200 text-xs font-medium px-2 py-0.5 rounded-full">
+                <span key={item} className="flex items-center gap-1 bg-primary-100 dark:bg-primary-900/50 text-primary-800 dark:text-primary-200 text-xs font-medium px-2 py-0.5 rounded-full">
                   {item}
                   <button
                     type="button"
@@ -72,7 +72,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
                       e.stopPropagation();
                       handleToggle(item);
                     }}
-                    className="text-amber-600 dark:text-amber-400 hover:text-amber-800 dark:hover:text-amber-200"
+                    className="text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-200"
                     aria-label={`Remove ${item}`}
                   >
                     <X size={12} />
@@ -97,7 +97,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
                     placeholder="Search options..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-9 pr-3 py-1.5 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 dark:bg-slate-700 dark:text-white sm:text-sm"
+                    className="w-full pl-9 pr-3 py-1.5 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-slate-700 dark:text-white sm:text-sm"
                 />
              </div>
           </div>
@@ -119,7 +119,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
                             type="checkbox"
                             checked={selectedItems.includes(item)}
                             readOnly
-                            className="w-4 h-4 text-amber-500 rounded border-slate-300 dark:border-slate-500 focus:ring-amber-500 cursor-pointer"
+                            className="w-4 h-4 text-primary-500 rounded border-slate-300 dark:border-slate-500 focus:ring-primary-500 cursor-pointer"
                         />
                         <span className="ml-3 text-sm text-slate-700 dark:text-slate-300">{item}</span>
                         </li>
