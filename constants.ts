@@ -8,6 +8,7 @@ export const EVENT_TYPES = [
   'Birthday Dinner',
   'Holiday Gathering',
   'Private Brunch',
+  'Other...',
 ];
 
 export const GUEST_COUNT_OPTIONS = [
