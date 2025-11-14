@@ -28,7 +28,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ menu, checkedItems,
         return (
             <div key={key} className="border-2 border-slate-100 dark:border-slate-800 p-4 sm:p-6 rounded-xl">
               <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-4 flex items-center gap-3">
-                 <span className="w-8 h-8 bg-amber-500 text-white rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0">
+                 <span className="w-8 h-8 bg-primary-500 text-white rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0">
                      {catIdx + 1}
                  </span>
                 {title}
@@ -44,7 +44,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ menu, checkedItems,
                                 type="checkbox"
                                 checked={isChecked}
                                 onChange={() => onToggleItem(checkKey)}
-                                className="mt-1 w-5 h-5 text-amber-500 rounded-md border-slate-300 dark:border-slate-600 focus:ring-2 focus:ring-amber-400 cursor-pointer bg-white dark:bg-slate-900"
+                                className="mt-1 w-5 h-5 text-primary-500 rounded-md border-slate-300 dark:border-slate-600 focus:ring-2 focus:ring-primary-400 cursor-pointer bg-white dark:bg-slate-900"
                             />
                             <span className={`flex-1 transition-colors ${isChecked ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-700 dark:text-slate-300'}`}>
                                 {item}
