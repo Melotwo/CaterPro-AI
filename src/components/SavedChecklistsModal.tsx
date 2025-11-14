@@ -82,22 +82,28 @@ const SavedMenusModal: React.FC<{
       <div onClick={onClose} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity animate-[fade-in_0.2s_ease-out]"></div>
       <div ref={modalRef} className="relative w-full max-w-2xl bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 transition-all animate-[scale-up_0.2s_ease-out] flex flex-col" style={{maxHeight: '85vh'}}>
         <div className="flex-shrink-0 p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
-          <h3 id="saved-modal-title" className="text-lg font-semibold text-slate-900 dark:text-white">
+          <h3 id="saved-modal-title" className="text-lg font-semibold text-slate-900 dark:text-white truncate pr-4">
             {viewingMenu ? viewingMenu.title : 'Saved Menus'}
           </h3>
           {viewingMenu && (
-            <button onClick={() => setViewingMenu(null)} className="flex items-center text-sm font-medium text-amber-600 dark:text-amber-400 hover:underline">
+            <button onClick={() => setViewingMenu(null)} className="flex items-center text-sm font-medium text-primary-600 dark:text-primary-400 hover:underline flex-shrink-0">
               <ArrowLeft size={16} className="mr-1"/>
               Back to List
             </button>
           )}
-          <button onClick={onClose} className="p-2 -mr-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="Close modal">
+          <button onClick={onClose} className="p-2 -ml-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="Close modal">
             <X size={20} />
           </button>
         </div>
         <div className="flex-grow overflow-y-auto p-6">
           {viewingMenu ? (
-            <MarkdownRenderer text={viewingMenu.content} checkedItems={checkedItems} onToggleItem={toggleItem} />
+             <MarkdownRenderer 
+                menu={viewingMenu.content} 
+                checkedItems={checkedItems} 
+                onToggleItem={toggleItem} 
+                isEditable={false} 
+                onEditItem={() => {}} // No-op for read-only view
+              />
           ) : (
             savedMenus.length > 0 ? (
               <ul className="space-y-3">
