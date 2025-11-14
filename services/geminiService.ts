@@ -5,6 +5,7 @@ export interface MenuGenerationParams {
   eventType: string;
   guestCount: string;
   budget: string;
+  serviceStyle: string;
   cuisine: string;
   dietaryRestrictions: string[];
 }
@@ -18,6 +19,7 @@ export const generateMenuFromApi = async ({
   eventType,
   guestCount,
   budget,
+  serviceStyle,
   cuisine,
   dietaryRestrictions,
 }: MenuGenerationParams): Promise<MenuGenerationResult> => {
@@ -76,6 +78,7 @@ export const generateMenuFromApi = async ({
     - **Event Type:** ${eventType}
     - **Number of Guests:** ${guestCount}
     - **Budget Level:** ${budget}
+    - **Service Style:** ${serviceStyle}
     - **Cuisine Style:** ${cuisine === 'Any' ? 'Be creative and globally inspired' : cuisine}
   `;
 
