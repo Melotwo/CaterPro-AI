@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -12,10 +12,11 @@ import AiChatBot from './components/AiChatBot.tsx';
 import QrCodeModal from './components/QrCodeModal.tsx';
 import MultiSelectDropdown from './components/MultiSelectDropdown.tsx';
 import GenerationHistory from './components/GenerationHistory.tsx';
-import { exampleScenarios, CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS } from './constants.ts';
-import { SavedMenu, ErrorState, ValidationErrors, GenerationHistoryItem } from './types.ts';
+import CustomizationModal from './components/CustomizationModal.tsx';
+import { exampleScenarios, CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, EDITABLE_MENU_SECTIONS } from './constants.ts';
+import { SavedMenu, ErrorState, ValidationErrors, GenerationHistoryItem, Menu, MenuSection } from './types.ts';
 import { getApiErrorState } from './services/errorHandler.ts';
-import { generateMenuFromApi } from './services/geminiService.ts';
+import { generateMenuFromApi, regenerateMenuItemFromApi, generateCustomMenuItemFromApi } from './services/geminiService.ts';
 
 
 const LOADING_MESSAGES = [
@@ -28,14 +29,16 @@ const LOADING_MESSAGES = [
 // ========= MAIN APP COMPONENT =========
 const App: React.FC = () => {
   const [eventType, setEventType] = useState('');
+  const [customEventType, setCustomEventType] = useState('');
   const [guestCount, setGuestCount] = useState('');
   const [budget, setBudget] = useState('$$');
+  const [serviceStyle, setServiceStyle] = useState('Standard Catering');
   const [cuisine, setCuisine] = useState('');
   const [dietaryRestrictions, setDietaryRestrictions] = useState<string[]>([]);
   
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<ErrorState | null>(null);
-  const [menu, setMenu] = useState<string | null>(null);
+  const [menu, setMenu] = useState<Menu | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [savedMenus, setSavedMenus] = useState<SavedMenu[]>([]);
   const [generationHistory, setGenerationHistory] = useState<GenerationHistoryItem[]>([]);
@@ -46,6 +49,16 @@ const App: React.FC = () => {
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
   const [totalChecklistItems, setTotalChecklistItems] = useState(0);
+
+  // State for the item customization modal
+  const [isCustomizationModalOpen, setIsCustomizationModalOpen] = useState(false);
+  const [itemToEdit, setItemToEdit] = useState<{ section: MenuSection; index: number; text: string } | null>(null);
+
+  // State for the new custom item generator
+  const [customItemDescription, setCustomItemDescription] = useState('');
+  const [customItemCategory, setCustomItemCategory] = useState<MenuSection>('appetizers');
+  const [isGeneratingCustomItem, setIsGeneratingCustomItem] = useState(false);
+  const [customItemError, setCustomItemError] = useState<ErrorState | null>(null);
 
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -100,9 +113,11 @@ const App: React.FC = () => {
     setEventType(scenario.eventType);
     setGuestCount(scenario.guestCount);
     setBudget(scenario.budget);
+    setServiceStyle(scenario.serviceStyle);
     setCuisine(scenario.cuisine);
     setDietaryRestrictions(scenario.dietaryRestrictions);
     setValidationErrors({});
+    setCustomEventType('');
   };
 
   const showToast = (message: string) => {
@@ -111,7 +126,11 @@ const App: React.FC = () => {
 
   const generateMenu = async () => {
     const newValidationErrors: ValidationErrors = {};
-    if (!eventType) newValidationErrors.eventType = "Please select an event type.";
+    if (!eventType) {
+      newValidationErrors.eventType = "Please select an event type.";
+    } else if (eventType === 'Other...' && !customEventType.trim()) {
+      newValidationErrors.eventType = "Please specify your custom event type.";
+    }
     if (!guestCount) newValidationErrors.guestCount = "Please select a guest count.";
     if (!cuisine) newValidationErrors.cuisine = "Please select a cuisine type.";
     
@@ -127,23 +146,27 @@ const App: React.FC = () => {
     setCheckedItems(new Set());
     setTotalChecklistItems(0);
 
+    const finalEventType = eventType === 'Other...' ? customEventType : eventType;
+
     try {
       const result = await generateMenuFromApi({
-        eventType,
+        eventType: finalEventType,
         guestCount,
         budget,
+        serviceStyle,
         cuisine,
         dietaryRestrictions,
       });
 
       setTotalChecklistItems(result.totalChecklistItems);
-      setMenu(result.menuMarkdown);
+      setMenu(result.menu);
 
       const newHistoryItem: GenerationHistoryItem = {
         id: Date.now(),
-        eventType,
+        eventType: finalEventType,
         guestCount,
         cuisine,
+        serviceStyle,
         dietaryRestrictions,
         timestamp: new Date().toLocaleString(),
       };
@@ -160,6 +183,32 @@ const App: React.FC = () => {
     }
   };
 
+  const handleGenerateCustomItem = async () => {
+    if (!customItemDescription.trim()) return;
+
+    setIsGeneratingCustomItem(true);
+    setCustomItemError(null);
+    try {
+        const newItem = await generateCustomMenuItemFromApi(customItemDescription, customItemCategory);
+        setMenu(prevMenu => {
+            if (!prevMenu) return null;
+            const updatedMenu = { ...prevMenu };
+            const currentSection = updatedMenu[customItemCategory] || [];
+            const updatedSection = [...currentSection, newItem];
+            (updatedMenu as any)[customItemCategory] = updatedSection;
+            return updatedMenu;
+        });
+        setTotalChecklistItems(prev => prev + 1);
+        setCustomItemDescription('');
+        showToast('Custom item added successfully!');
+    } catch (e) {
+        setCustomItemError(getApiErrorState(e));
+    } finally {
+        setIsGeneratingCustomItem(false);
+    }
+  };
+
+
   const handleToggleChecklistItem = (key: string) => {
     const newChecked = new Set(checkedItems);
     if (newChecked.has(key)) {
@@ -169,15 +218,35 @@ const App: React.FC = () => {
     }
     setCheckedItems(newChecked);
   };
+  
+  const handleOpenCustomizationModal = (section: MenuSection, index: number) => {
+    if (!menu) return;
+    const text = menu[section][index];
+    setItemToEdit({ section, index, text });
+    setIsCustomizationModalOpen(true);
+  };
+
+  const handleSaveCustomization = (section: MenuSection, index: number, newText: string) => {
+    if (!menu) return;
+
+    const updatedMenu = { ...menu };
+    const updatedSection = [...updatedMenu[section]];
+    updatedSection[index] = newText;
+    (updatedMenu as any)[section] = updatedSection;
+    
+    setMenu(updatedMenu);
+    setIsCustomizationModalOpen(false);
+    showToast('Menu item updated successfully!');
+  };
+
 
   const completionPercentage = totalChecklistItems > 0 ? (checkedItems.size / totalChecklistItems) * 100 : 0;
 
   const saveMenu = () => {
     if (!menu) return;
-    const title = menu.split('\n')[0].replace('## ', '').substring(0, 50);
     const newMenu: SavedMenu = {
       id: Date.now(),
-      title: title,
+      title: menu.menuTitle,
       content: menu,
       savedAt: new Date().toLocaleDateString(),
     };
@@ -206,6 +275,7 @@ const App: React.FC = () => {
         useCORS: true,
         onclone: (doc) => {
           doc.querySelectorAll('input[type=checkbox]').forEach(el => (el as HTMLElement).style.display = 'none');
+          doc.querySelectorAll('.edit-btn').forEach(el => (el as HTMLElement).style.display = 'none');
           doc.querySelector('.print-area')?.classList.add('dark:bg-slate-900');
         }
       }).then(canvas => {
@@ -227,17 +297,30 @@ const App: React.FC = () => {
   };
 
   const copyToClipboard = () => {
-    if (menu) {
-      navigator.clipboard.writeText(menu)
-        .then(() => showToast('Menu copied to clipboard!'))
-        .catch(err => console.error('Failed to copy: ', err));
+    if (menuRef.current) {
+        // Create a temporary element to exclude non-copyable elements
+        const tempDiv = menuRef.current.cloneNode(true) as HTMLElement;
+        tempDiv.querySelectorAll('.no-copy').forEach(el => el.remove());
+        const textToCopy = tempDiv.innerText || tempDiv.textContent || '';
+        
+        navigator.clipboard.writeText(textToCopy)
+            .then(() => showToast('Menu copied to clipboard!'))
+            .catch(err => console.error('Failed to copy: ', err));
     }
   };
 
   const handleHistoryItemClick = (item: GenerationHistoryItem) => {
-    setEventType(item.eventType);
+    const isPredefined = EVENT_TYPES.includes(item.eventType);
+    if (isPredefined) {
+        setEventType(item.eventType);
+        setCustomEventType('');
+    } else {
+        setEventType('Other...');
+        setCustomEventType(item.eventType);
+    }
     setGuestCount(item.guestCount);
     setCuisine(item.cuisine);
+    setServiceStyle(item.serviceStyle);
     setDietaryRestrictions(item.dietaryRestrictions);
     setMenu(null);
     setError(null);
@@ -269,29 +352,60 @@ const App: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label htmlFor="event-type" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Event Type <span className="text-red-500">*</span></label>
-              <select id="event-type" value={eventType} onChange={e => setEventType(e.target.value)} aria-required="true" className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+              <select
+                id="event-type"
+                value={eventType}
+                onChange={(e) => {
+                  setEventType(e.target.value);
+                  if (e.target.value !== 'Other...') {
+                    setCustomEventType('');
+                  }
+                }}
+                aria-required="true"
+                className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+              >
                 <option value="" disabled>Select an event...</option>
-                {EVENT_TYPES.map(e => <option key={e} value={e}>{e}</option>)}
+                {EVENT_TYPES.map((e) => <option key={e} value={e}>{e}</option>)}
               </select>
+              {eventType === 'Other...' && (
+                <div className="mt-2 animate-slide-in" style={{ animationDuration: '0.3s' }}>
+                  <label htmlFor="custom-event-type" className="sr-only">Custom Event Type</label>
+                  <input
+                    type="text"
+                    id="custom-event-type"
+                    value={customEventType}
+                    onChange={(e) => setCustomEventType(e.target.value)}
+                    placeholder="Please specify your event type"
+                    className="block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                    required
+                  />
+                </div>
+              )}
               {validationErrors.eventType && <p className="text-red-500 text-sm mt-1">{validationErrors.eventType}</p>}
             </div>
             <div>
               <label htmlFor="guest-count" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Number of Guests <span className="text-red-500">*</span></label>
-              <select id="guest-count" value={guestCount} onChange={e => setGuestCount(e.target.value)} aria-required="true" className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+              <select id="guest-count" value={guestCount} onChange={e => setGuestCount(e.target.value)} aria-required="true" className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500">
                 <option value="" disabled>Select guest range...</option>
                 {GUEST_COUNT_OPTIONS.map(g => <option key={g} value={g}>{g}</option>)}
               </select>
               {validationErrors.guestCount && <p className="text-red-500 text-sm mt-1">{validationErrors.guestCount}</p>}
             </div>
-             <div className="md:col-span-2">
+             <div>
               <label htmlFor="budget" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Budget Level</label>
-              <select id="budget" value={budget} onChange={e => setBudget(e.target.value)} className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+              <select id="budget" value={budget} onChange={e => setBudget(e.target.value)} className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500">
                 {BUDGET_LEVELS.map(b => <option key={b.value} value={b.value}>{b.label}</option>)}
               </select>
             </div>
              <div>
+              <label htmlFor="service-style" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Service Style</label>
+              <select id="service-style" value={serviceStyle} onChange={e => setServiceStyle(e.target.value)} className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500">
+                {SERVICE_STYLES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+             <div>
               <label htmlFor="cuisine" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Cuisine Style <span className="text-red-500">*</span></label>
-              <select id="cuisine" value={cuisine} onChange={(e) => setCuisine(e.target.value)} aria-required="true" className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-amber-500 focus:border-amber-500">
+              <select id="cuisine" value={cuisine} onChange={(e) => setCuisine(e.target.value)} aria-required="true" className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500">
                 <option value="" disabled>Select a cuisine...</option>
                 {CUISINES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
@@ -312,11 +426,11 @@ const App: React.FC = () => {
             <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Need inspiration? Try one of these scenarios:</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {exampleScenarios.map(scenario => (
-                <button key={scenario.title} onClick={() => handleExampleClick(scenario)} className="group text-left p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg hover:bg-amber-50 dark:hover:bg-amber-900/20 border-2 border-slate-200 dark:border-slate-800 hover:border-amber-200 dark:hover:border-amber-800 transition-all">
+                <button key={scenario.title} onClick={() => handleExampleClick(scenario)} className="group text-left p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 border-2 border-slate-200 dark:border-slate-800 hover:border-primary-200 dark:hover:border-primary-800 transition-all">
                   <div className="flex items-start gap-4">
-                    <scenario.IconComponent className="w-8 h-8 text-amber-500 flex-shrink-0" />
+                    <scenario.IconComponent className="w-8 h-8 text-primary-500 flex-shrink-0" />
                     <div>
-                      <h3 className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-amber-700 dark:group-hover:text-amber-300">{scenario.title}</h3>
+                      <h3 className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-primary-700 dark:group-hover:text-primary-300">{scenario.title}</h3>
                       <p className="text-xs text-slate-500 dark:text-slate-400">{scenario.eventType}</p>
                     </div>
                   </div>
@@ -329,7 +443,7 @@ const App: React.FC = () => {
             <button
               onClick={generateMenu}
               disabled={isLoading}
-              className="inline-flex items-center justify-center px-8 py-3 text-base font-semibold text-slate-900 bg-amber-500 border border-transparent rounded-lg shadow-sm hover:bg-amber-600 disabled:opacity-70 disabled:cursor-not-allowed transform hover:scale-105 transition-transform"
+              className="inline-flex items-center justify-center px-8 py-3 text-base font-semibold text-white bg-primary-500 border border-transparent rounded-lg shadow-sm hover:bg-primary-600 disabled:opacity-70 disabled:cursor-not-allowed transform hover:scale-105 transition-transform"
             >
               {isLoading ? (
                 <>
@@ -362,41 +476,117 @@ const App: React.FC = () => {
         )}
 
         {menu && !isLoading && (
-          <section id="menu-results" aria-live="polite" className="mt-12 animate-slide-in" style={{ animationDelay: '0.1s' }}>
-            <div className="bg-white dark:bg-slate-900/50 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
-                <div className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex flex-wrap gap-4 items-center justify-between">
-                    <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center">
-                        <Presentation className="w-7 h-7 mr-3 text-green-500" />
-                        Your Menu Proposal
-                    </h2>
-                    <div className="flex items-center space-x-2">
-                        <button onClick={saveMenu} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700" aria-label="Save menu">
-                            <Save size={18} />
-                        </button>
-                        <button onClick={copyToClipboard} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700" aria-label="Copy menu text">
-                            <Copy size={18} />
-                        </button>
-                        <button onClick={downloadPdf} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700" aria-label="Download as PDF">
-                            <FileDown size={18} />
-                        </button>
-                        <button onClick={() => window.print()} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700" aria-label="Print menu">
-                            <Printer size={18} />
-                        </button>
-                    </div>
-                </div>
+          <>
+            <section id="menu-results" aria-live="polite" className="mt-12 animate-slide-in" style={{ animationDelay: '0.1s' }}>
+              <div className="bg-white dark:bg-slate-900/50 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
+                  <div className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex flex-wrap gap-4 items-center justify-between">
+                      <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center">
+                          <Presentation className="w-7 h-7 mr-3 text-green-500" />
+                          Your Menu Proposal
+                      </h2>
+                      <div className="flex items-center space-x-2">
+                          <button onClick={saveMenu} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700" aria-label="Save menu">
+                              <Save size={18} />
+                          </button>
+                          <button onClick={copyToClipboard} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700" aria-label="Copy menu text">
+                              <Copy size={18} />
+                          </button>
+                          <button onClick={downloadPdf} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700" aria-label="Download as PDF">
+                              <FileDown size={18} />
+                          </button>
+                          <button onClick={() => window.print()} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700" aria-label="Print menu">
+                              <Printer size={18} />
+                          </button>
+                      </div>
+                  </div>
 
-                <div className="p-2 sm:p-4 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-                    <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5">
-                        <div className="bg-green-500 h-2.5 rounded-full" style={{ width: `${completionPercentage}%`, transition: 'width 0.5s ease-in-out' }}></div>
-                    </div>
-                    <p className="text-xs text-right mt-1 text-slate-500 dark:text-slate-400">Proposal Checklist: {Math.round(completionPercentage)}% Complete ({checkedItems.size}/{totalChecklistItems})</p>
-                </div>
+                  <div className="p-2 sm:p-4 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
+                      <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5">
+                          <div className="bg-green-500 h-2.5 rounded-full" style={{ width: `${completionPercentage}%`, transition: 'width 0.5s ease-in-out' }}></div>
+                      </div>
+                      <p className="text-xs text-right mt-1 text-slate-500 dark:text-slate-400">Proposal Checklist: {Math.round(completionPercentage)}% Complete ({checkedItems.size}/{totalChecklistItems})</p>
+                  </div>
 
-                <div ref={menuRef} className="print-area p-4 sm:p-6 bg-white dark:bg-slate-900">
-                    <MarkdownRenderer text={menu} checkedItems={checkedItems} onToggleItem={handleToggleChecklistItem} />
-                </div>
-            </div>
-          </section>
+                  <div ref={menuRef} className="print-area p-4 sm:p-6 bg-white dark:bg-slate-900">
+                      <MarkdownRenderer 
+                        menu={menu} 
+                        checkedItems={checkedItems} 
+                        onToggleItem={handleToggleChecklistItem} 
+                        isEditable={true}
+                        onEditItem={handleOpenCustomizationModal}
+                      />
+                  </div>
+              </div>
+            </section>
+
+            <section id="custom-item-generator" aria-labelledby="custom-item-title" className="mt-12 animate-slide-in" style={{ animationDelay: '0.2s' }}>
+              <div className="bg-white dark:bg-slate-900/50 p-6 sm:p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800">
+                  <h2 id="custom-item-title" className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center">
+                      <Sparkles className="w-7 h-7 mr-3 text-primary-500" />
+                      Add a Custom Item
+                  </h2>
+                  <p className="mt-2 text-slate-600 dark:text-slate-400">
+                      Describe a dish you have in mind, and our AI will write it up for your menu.
+                  </p>
+                  <div className="mt-6 space-y-4">
+                      <div>
+                          <label htmlFor="custom-item-desc" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Dish Description</label>
+                          <textarea
+                              id="custom-item-desc"
+                              rows={3}
+                              value={customItemDescription}
+                              onChange={e => setCustomItemDescription(e.target.value)}
+                              placeholder="e.g., A light, summery appetizer with strawberries, goat cheese, and a balsamic glaze."
+                              className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                          />
+                      </div>
+                      <div>
+                          <label htmlFor="custom-item-cat" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Menu Category</label>
+                          <select 
+                              id="custom-item-cat"
+                              value={customItemCategory}
+                              onChange={e => setCustomItemCategory(e.target.value as MenuSection)}
+                              className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                          >
+                              {EDITABLE_MENU_SECTIONS.map(section => (
+                                  <option key={section.key} value={section.key}>{section.title}</option>
+                              ))}
+                          </select>
+                      </div>
+                      <div className="text-right">
+                          <button
+                              onClick={handleGenerateCustomItem}
+                              disabled={isGeneratingCustomItem || !customItemDescription.trim()}
+                              className="inline-flex items-center justify-center px-6 py-2.5 text-base font-semibold text-white bg-primary-500 border border-transparent rounded-lg shadow-sm hover:bg-primary-600 disabled:opacity-70 disabled:cursor-not-allowed"
+                          >
+                              {isGeneratingCustomItem ? (
+                                  <>
+                                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                      <span>Adding...</span>
+                                  </>
+                              ) : (
+                                <>
+                                  <PlusCircle className="mr-2 h-5 w-5" />
+                                  <span>Generate & Add Item</span>
+                                </>
+                              )}
+                          </button>
+                      </div>
+                      {customItemError && (
+                          <div role="alert" className="mt-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800">
+                            <div className="flex items-start">
+                              <AlertTriangle className="h-5 w-5 text-red-500 dark:text-red-400 flex-shrink-0 mr-3" />
+                              <div>
+                                <h3 className="text-md font-semibold text-red-800 dark:text-red-200">{customItemError.title}</h3>
+                                <div className="text-sm text-red-700 dark:text-red-300 mt-1">{customItemError.message}</div>
+                              </div>
+                            </div>
+                          </div>
+                      )}
+                  </div>
+              </div>
+            </section>
+          </>
         )}
       </main>
 
@@ -404,6 +594,12 @@ const App: React.FC = () => {
 
       <SavedMenusModal isOpen={isSavedModalOpen} onClose={() => setIsSavedModalOpen(false)} savedMenus={savedMenus} onDelete={deleteMenu} />
       <QrCodeModal isOpen={isQrModalOpen} onClose={() => setIsQrModalOpen(false)} />
+      <CustomizationModal 
+        isOpen={isCustomizationModalOpen}
+        onClose={() => setIsCustomizationModalOpen(false)}
+        itemToEdit={itemToEdit}
+        onSave={handleSaveCustomization}
+      />
       <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
       <AiChatBot />
     </div>
