@@ -43,7 +43,7 @@ const AiChatBot: React.FC = () => {
             chatRef.current = ai.chats.create({
               model: 'gemini-2.5-flash',
               config: {
-                systemInstruction: 'You are a friendly and professional AI Catering Consultant. Your primary role is to assist users with questions about event planning, menu proposals, food pairings, and catering logistics. Provide specific, actionable advice. For example, you can suggest wine pairings for specific dishes (e.g., "A Sauvignon Blanc would pair nicely with the goat cheese tartlets"), or advise on service styles (e.g., "For a 100-guest wedding, a buffet can be more cost-effective, but plated service offers a more formal experience."). Keep your answers concise, helpful, and encouraging. Do not generate full menu proposals, only answer questions about them.',
+                systemInstruction: 'You are a friendly and professional AI Catering Consultant and culinary expert. Your primary role is to help users refine their generated menu proposals by providing specific, actionable advice about individual dishes. Focus on suggesting ingredient substitutions (e.g., "To make the risotto dairy-free, you can use a high-quality olive oil instead of butter and nutritional yeast for a cheesy flavor.") and alternative cooking methods (e.g., "For a lighter version of the chicken piccata, you could bake the chicken instead of pan-frying it."). Also, continue to offer advice on wine pairings and service logistics. Keep your answers concise, helpful, and encouraging. Do not generate full menu proposals, only answer questions about them.',
               },
             });
         } catch (e) {
@@ -109,7 +109,7 @@ const AiChatBot: React.FC = () => {
             <div className="no-print fixed bottom-6 right-6 z-40">
                 <button
                     onClick={() => setIsOpen(!isOpen)}
-                    className="bg-amber-500 text-slate-900 rounded-full p-4 shadow-lg hover:bg-amber-600 transition-transform transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-amber-500"
+                    className="bg-primary-500 text-white rounded-full p-4 shadow-lg hover:bg-primary-600 transition-transform transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500"
                     aria-label={isOpen ? "Close chat" : "Open chat"}
                 >
                     {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
@@ -120,7 +120,7 @@ const AiChatBot: React.FC = () => {
                 <div role="dialog" aria-labelledby="chat-heading" className="no-print fixed bottom-24 right-6 z-50 w-[calc(100vw-3rem)] max-w-sm h-[60vh] max-h-[700px] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col animate-slide-in">
                     <header className="flex-shrink-0 p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                           <Bot className="w-6 h-6 text-amber-500" />
+                           <Bot className="w-6 h-6 text-primary-500" />
                            <h2 id="chat-heading" className="text-lg font-semibold text-slate-900 dark:text-white">AI Catering Consultant</h2>
                         </div>
                     </header>
@@ -131,7 +131,7 @@ const AiChatBot: React.FC = () => {
                                 {msg.role === 'model' && <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center"><Bot className="w-5 h-5 text-slate-500" /></div>}
                                 <div className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${
                                     msg.role === 'user'
-                                        ? 'bg-amber-500 text-slate-900 rounded-br-none'
+                                        ? 'bg-primary-500 text-white rounded-br-none'
                                         : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-bl-none'
                                 }`}>
                                     {msg.content}
@@ -172,13 +172,13 @@ const AiChatBot: React.FC = () => {
                                 onChange={(e) => setUserInput(e.target.value)}
                                 placeholder="Ask a question..."
                                 disabled={isLoading}
-                                className="w-full px-4 py-2 border-2 border-slate-200 dark:border-slate-600 rounded-full focus:border-amber-500 focus:outline-none transition-colors bg-white dark:bg-slate-800 disabled:opacity-60"
+                                className="w-full px-4 py-2 border-2 border-slate-200 dark:border-slate-600 rounded-full focus:border-primary-500 focus:outline-none transition-colors bg-white dark:bg-slate-800 disabled:opacity-60"
                                 aria-label="Your message"
                             />
                             <button
                                 type="submit"
                                 disabled={isLoading || !userInput.trim()}
-                                className="bg-amber-500 text-slate-900 rounded-full p-3 shadow-sm hover:bg-amber-600 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+                                className="bg-primary-500 text-white rounded-full p-3 shadow-sm hover:bg-primary-600 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
                                 aria-label="Send message"
                             >
                                 <Send size={18} />
