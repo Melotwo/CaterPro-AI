@@ -98,37 +98,37 @@ const QuoteModal: React.FC<{
               </div>
               <h3 id="modal-title" className="mt-4 text-lg font-semibold text-slate-900 dark:text-white">Request Sent!</h3>
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Thank you, {name}. We will be in touch shortly.</p>
-              <button onClick={handleClose} className="mt-6 w-full inline-flex justify-center rounded-md border border-transparent bg-amber-500 px-4 py-2 text-base font-semibold text-slate-900 shadow-sm hover:bg-amber-600 focus:outline-none sm:text-sm">
+              <button onClick={handleClose} className="mt-6 w-full inline-flex justify-center rounded-md border border-transparent bg-primary-500 px-4 py-2 text-base font-semibold text-white shadow-sm hover:bg-primary-600 focus:outline-none sm:text-sm">
                 Close
               </button>
             </div>
           ) : (
             <>
               <h3 id="modal-title" className="text-lg font-semibold text-slate-900 dark:text-white">Request a Quote</h3>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">For: <span className="font-medium text-amber-600 dark:text-amber-400">{product.name}</span></p>
+              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">For: <span className="font-medium text-primary-600 dark:text-primary-400">{product.name}</span></p>
               <form onSubmit={handleSubmit} className="mt-6 space-y-4">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Full Name</label>
                   <div className="relative mt-1">
                     <User className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-3 h-5 w-5 text-slate-400" />
-                    <input type="text" id="name" value={name} onChange={e => setName(e.target.value)} required className="w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 dark:bg-slate-700 dark:text-white sm:text-sm" />
+                    <input type="text" id="name" value={name} onChange={e => setName(e.target.value)} required className="w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-slate-700 dark:text-white sm:text-sm" />
                   </div>
                 </div>
                 <div>
                   <label htmlFor="company" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Company</label>
                   <div className="relative mt-1">
                     <Building className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-3 h-5 w-5 text-slate-400" />
-                    <input type="text" id="company" value={company} onChange={e => setCompany(e.target.value)} required className="w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 dark:bg-slate-700 dark:text-white sm:text-sm" />
+                    <input type="text" id="company" value={company} onChange={e => setCompany(e.target.value)} required className="w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-slate-700 dark:text-white sm:text-sm" />
                   </div>
                 </div>
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Email Address</label>
                   <div className="relative mt-1">
                     <Mail className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-3 h-5 w-5 text-slate-400" />
-                    <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-amber-500 focus:border-amber-500 dark:bg-slate-700 dark:text-white sm:text-sm" />
+                    <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-slate-700 dark:text-white sm:text-sm" />
                   </div>
                 </div>
-                <button type="submit" disabled={!isFormValid || isSubmitting} className="w-full mt-4 flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-slate-900 bg-amber-500 hover:bg-amber-600 focus:outline-none disabled:opacity-70 disabled:cursor-not-allowed">
+                <button type="submit" disabled={!isFormValid || isSubmitting} className="w-full mt-4 flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 focus:outline-none disabled:opacity-70 disabled:cursor-not-allowed">
                   {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {isSubmitting ? 'Sending...' : 'Submit Request'}
                 </button>
