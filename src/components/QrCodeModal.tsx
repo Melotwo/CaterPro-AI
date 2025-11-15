@@ -80,7 +80,7 @@ const QrCodeModal: React.FC<{
             type="text"
             readOnly
             value={appUrl}
-            className="block w-full flex-1 rounded-none rounded-l-md border-0 py-2 pl-3 text-slate-900 dark:text-white ring-1 ring-inset ring-slate-300 dark:ring-slate-600 focus:ring-2 focus:ring-inset focus:ring-amber-500 sm:text-sm bg-slate-50 dark:bg-slate-700"
+            className="block w-full flex-1 rounded-none rounded-l-md border-0 py-2 pl-3 text-slate-900 dark:text-white ring-1 ring-inset ring-slate-300 dark:ring-slate-600 focus:ring-2 focus:ring-inset focus:ring-primary-500 sm:text-sm bg-slate-50 dark:bg-slate-700"
             aria-label="Application URL"
           />
           <button
