@@ -1,5 +1,5 @@
-import { GoogleGenAI, Type } from "@google/genai";
-import { Menu } from "../types.ts";
+import { GoogleGenAI, Modality, Type } from "@google/genai";
+import { Menu, ShoppingListItem } from "../types.ts";
 
 export interface MenuGenerationParams {
   eventType: string;
@@ -8,6 +8,8 @@ export interface MenuGenerationParams {
   serviceStyle: string;
   cuisine: string;
   dietaryRestrictions: string[];
+  latitude?: number;
+  longitude?: number;
 }
 
 export interface MenuGenerationResult {
@@ -22,6 +24,8 @@ export const generateMenuFromApi = async ({
   serviceStyle,
   cuisine,
   dietaryRestrictions,
+  latitude,
+  longitude,
 }: MenuGenerationParams): Promise<MenuGenerationResult> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
@@ -63,14 +67,42 @@ export const generateMenuFromApi = async ({
       },
       deliveryLogistics: {
         type: Type.ARRAY,
-        description: "A plan for delivery and setup. Include items like suggested delivery radius with fees (e.g., 'Standard Delivery (up to 10 miles): $25'), packaging notes for hot/cold items, and an on-site setup checklist.",
+        description: "A plan for delivery and setup. Include items like suggested delivery radius with fees (e.g., 'Standard Delivery (up to 10 miles): $25'), packaging notes for hot/cold items, and an on-site setup checklist. If user location is provided, suggest 1-2 specific, real local stores or online services for ingredient sourcing.",
         items: { type: Type.STRING },
       },
+      shoppingList: {
+        type: Type.ARRAY,
+        description: "A comprehensive shopping list. For 3-5 key non-perishable or specialty items (e.g., high-quality olive oil, specific spices), provide an enticing `description` and a relevant `affiliateSearchTerm` optimized for South African online retailers. For all other items, omit these two fields.",
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            store: { type: Type.STRING, description: "The suggested store or type of store for purchasing the item. e.g., 'Local Grocer (e.g., Safeway)', 'Specialty Butcher', 'Online Spice Shop'." },
+            category: { type: Type.STRING, description: "e.g., 'Produce', 'Meat & Seafood', 'Pantry'" },
+            item: { type: Type.STRING, description: "e.g., 'Roma Tomatoes'" },
+            quantity: { type: Type.STRING, description: "e.g., '5 lbs', '2 dozen', '1 bottle'" },
+            description: { type: Type.STRING, description: "For key specialty items, a brief, enticing description of why this specific type of item is recommended." },
+            affiliateSearchTerm: { type: Type.STRING, description: "For key specialty items, a search term optimized for South African e-commerce sites like Takealot (e.g., 'organic coconut milk')." }
+          },
+          required: ['store', 'category', 'item', 'quantity']
+        }
+      },
+      recommendedEquipment: {
+        type: Type.ARRAY,
+        description: "A list of 3-5 essential but potentially overlooked pieces of catering equipment or high-quality supplies relevant to the generated menu. For each item, provide a brief description of its use or why it's recommended.",
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            item: { type: Type.STRING, description: "The name of the equipment or supply. e.g., 'Insulated Food Pan Carrier', 'High-Quality Chef's Knife', 'Disposable Chafing Dishes'." },
+            description: { type: Type.STRING, description: "A brief, helpful description. e.g., 'Crucial for maintaining safe food temperatures during transport and service.', 'A sharp, reliable knife is a chef's best friend for prep work.'." }
+          },
+          required: ['item', 'description']
+        }
+      }
     },
-    required: ['menuTitle', 'description', 'appetizers', 'mainCourses', 'sideDishes', 'dessert', 'serviceNotes', 'deliveryLogistics'],
+    required: ['menuTitle', 'description', 'appetizers', 'mainCourses', 'sideDishes', 'dessert', 'serviceNotes', 'deliveryLogistics', 'shoppingList', 'recommendedEquipment'],
   };
 
-  const systemInstruction = `You are a world-class catering consultant and event planner with experience from high-end hospitality brands like Disney. Your tone is professional, creative, and meticulous. Your entire response must conform to the provided JSON schema. Create a cohesive and detailed menu proposal based on the user's event criteria, including a practical delivery and logistics plan.`;
+  const systemInstruction = `You are a world-class catering consultant and event planner with experience from high-end hospitality brands like Disney. Your tone is professional, creative, and meticulous. Your entire response must conform to the provided JSON schema. Create a cohesive and detailed menu proposal based on the user's event criteria, including a practical delivery and logistics plan, a comprehensive shopping list with quantities appropriate for the number of guests, and a list of recommended equipment or supplies that would be helpful for executing this menu, which can be used for affiliate marketing.`;
 
   let prompt = `
     Generate a complete catering menu proposal based on the following criteria:
@@ -85,18 +117,43 @@ export const generateMenuFromApi = async ({
   if (dietaryRestrictions.length > 0) {
       prompt += `\n- **Important Dietary Restrictions to Accommodate:** ${dietaryRestrictions.join(', ')}. Ensure some options are suitable.`;
   }
+  
+  if (latitude && longitude) {
+      prompt += `\n- **User Location:** Latitude ${latitude}, Longitude ${longitude}. Use this information to suggest specific, real local grocery stores or specialty shops in the 'Delivery & Logistics' section where the user could purchase the ingredients.`;
+  }
+
+  const config: any = {
+      systemInstruction: systemInstruction,
+      responseMimeType: "application/json",
+      responseSchema: responseSchema,
+  };
+
+  if (latitude && longitude) {
+      config.tools = [{ googleMaps: {} }];
+      config.toolConfig = {
+          retrievalConfig: {
+              latLng: {
+                  latitude: latitude,
+                  longitude: longitude
+              }
+          }
+      };
+  }
+
 
   const response = await ai.models.generateContent({
     model: 'gemini-2.5-flash',
     contents: prompt,
-    config: {
-        systemInstruction: systemInstruction,
-        responseMimeType: "application/json",
-        responseSchema: responseSchema,
-    },
+    config: config,
   });
   
   const menuObject: Menu = JSON.parse(response.text);
+
+  // Extract grounding chunks and add them to the menu object
+  const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
+  if (groundingChunks) {
+      menuObject.groundingChunks = groundingChunks;
+  }
 
   const totalItems = [
     ...(menuObject.appetizers || []),
@@ -104,7 +161,8 @@ export const generateMenuFromApi = async ({
     ...(menuObject.sideDishes || []),
     ...(menuObject.dessert || []),
     ...(menuObject.serviceNotes || []),
-    ...(menuObject.deliveryLogistics || [])
+    ...(menuObject.deliveryLogistics || []),
+    ...(menuObject.shoppingList || [])
   ].length;
 
   return {
@@ -160,4 +218,33 @@ export const generateCustomMenuItemFromApi = async (description: string, categor
     });
 
     return response.text.trim();
+};
+
+export const generateMenuImageFromApi = async (menuTitle: string, description: string): Promise<string> => {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+    const prompt = `Generate a highly detailed, photorealistic image in the style of professional food photography with natural lighting. This image is for a menu proposal and should be beautiful, elegant, high-quality, and evoke a sense of fine dining or a celebratory event. Do not include any text, logos, or borders in the image.
+    
+    Menu Title: "${menuTitle}"
+    Menu Description: "${description}"
+    
+    The image should visually capture the essence of this menu. For example, if it's an Italian wedding menu, an image of a beautifully set table in a rustic Tuscan villa would be appropriate. If it's a modern corporate lunch, a clean, bright shot of elegant, minimalist dishes would be suitable.`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash-image',
+      contents: {
+        parts: [{ text: prompt }],
+      },
+      config: {
+          responseModalities: [Modality.IMAGE],
+      },
+    });
+
+    for (const part of response.candidates[0].content.parts) {
+      if (part.inlineData) {
+        return part.inlineData.data;
+      }
+    }
+
+    throw new Error("No image data found in API response.");
 };
