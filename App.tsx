@@ -514,6 +514,7 @@ const App: React.FC = () => {
                         onToggleItem={handleToggleChecklistItem} 
                         isEditable={true}
                         onEditItem={handleOpenCustomizationModal}
+                        showToast={showToast}
                       />
                   </div>
               </div>
