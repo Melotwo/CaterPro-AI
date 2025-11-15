@@ -1,5 +1,7 @@
 {
   "name": "CaterPro AI",
   "description": "An AI-powered assistant for caterers and event planners. Generate complete, professional menu proposals, from appetizers to desserts, with service notes and shopping lists.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [
+    "geolocation"
+  ]
 }
