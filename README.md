@@ -4,63 +4,51 @@
 
 # CaterPro AI 🍽️✨
 
-**CaterPro AI** is a revolutionary tool designed to streamline the menu planning process for caterers, event planners, and private chefs. Leveraging the power of the Google Gemini API, this application transforms simple event parameters—like event type, guest count, and budget—into comprehensive, beautifully formatted menu proposals in seconds.
+CaterPro AI instantly generates professional catering proposals using the Google Gemini API.
+
+**[Live Demo](https://melotwo.github.io/CaterPro-AI/)**
 
 ## Key Features
-
--   **⚡ Instant Menu Generation:** Craft detailed, multi-course menus tailored to any event.
--   **📄 Professional Proposals:** Output includes creative themes, appetizers, mains, sides, desserts, and expert service/plating notes.
--   **🔧 Highly Customizable:** Tailor menus based on event type, guest count, budget, cuisine style, and specific dietary restrictions.
--   **📥 Download & Share:** Easily save, print, or download your professional menu proposals as a PDF.
--   **🤖 AI Chat Assistant:** Get expert advice on pairings, planning, and logistics from an integrated AI consultant.
+- **Instant Menu Generation:** Create detailed menus tailored to any event.
+- **Customizable:** Adjust for event type, guest count, budget, and dietary needs.
+- **Download & Share:** Save proposals as PDF, print, or share via a link.
+- **AI Chat Assistant:** Get expert advice on pairings and planning.
 
 ## Tech Stack
-
--   **Frontend:** React, TypeScript, Vite
--   **Styling:** Tailwind CSS
--   **AI:** Google Gemini API
-
-This project demonstrates a modern, responsive, and powerful front-end application that solves a real-world business problem.
+- **Frontend:** React, TypeScript, Vite
+- **Styling:** Tailwind CSS
+- **AI:** Google Gemini API
 
 ---
 
 ## Running Locally
 
-To get a local copy up and running, follow these simple steps.
-
 ### Prerequisites
+*   Node.js (v18+)
 
-*   Node.js (v18 or later)
-*   npm
+### Setup Instructions
 
-### Installation & Setup
-
-1.  **Clone the repo**
+1.  **Clone the repository:**
     ```sh
-    git clone https://github.com/Melotwo/caterpro-ai.git
+    git clone https://github.com/Melotwo/CaterPro-AI.git
+    cd CaterPro-AI
     ```
-2.  **Install NPM packages**
+
+2.  **Install dependencies:**
     ```sh
     npm install
     ```
-3.  **Set up your environment variables**
-    Create a new file named `.env.local` in the root of your project and add your Google Gemini API key:
+
+3.  **Set up your API Key:**
+    Create a `.env.local` file in the root and add your Gemini API key.
     ```
     API_KEY=YOUR_GEMINI_API_KEY
     ```
-4.  **Run the development server**
+
+4.  **Run the development server:**
     ```sh
     npm run dev
     ```
-    Open [http://localhost:5173](http://localhost:5173) (or whichever port the console indicates) to view it in the browser.
 
-## Deployment to GitHub Pages
-
-This project is set up for easy deployment to GitHub Pages.
-
-1.  Ensure the `homepage` property in your `package.json` file is set to `https://Melotwo.github.io/caterpro-ai/`.
-2.  Run the deployment script:
-    ```sh
-    npm run deploy
-    ```
-This will build the app and push the contents of the `dist` folder to a `gh-pages` branch on your repository. GitHub will then automatically serve this branch as your live site.
+## Deployment
+This project deploys automatically to GitHub Pages via a GitHub Action whenever changes are pushed to the `main` branch.
