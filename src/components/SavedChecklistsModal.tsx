@@ -103,6 +103,7 @@ const SavedMenusModal: React.FC<{
                 onToggleItem={toggleItem} 
                 isEditable={false} 
                 onEditItem={() => {}} // No-op for read-only view
+                showToast={() => {}} // No-op for toast
               />
           ) : (
             savedMenus.length > 0 ? (
@@ -114,21 +115,21 @@ const SavedMenusModal: React.FC<{
                       <p className="text-sm text-slate-500 dark:text-slate-400">Saved: {menu.savedAt}</p>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <button onClick={() => setViewingMenu(menu)} className="p-2 rounded-full text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700" aria-label={`View ${menu.title}`}>
-                        <Eye size={18} />
-                      </button>
-                      <button onClick={() => onDelete(menu.id)} className="p-2 rounded-full text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50" aria-label={`Delete ${menu.title}`}>
-                        <Trash2 size={18} />
-                      </button>
+                        <button onClick={() => setViewingMenu(menu)} className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700" aria-label={`View ${menu.title}`}>
+                            <Eye size={18} />
+                        </button>
+                        <button onClick={() => onDelete(menu.id)} className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-red-100 dark:hover:bg-red-900/50 hover:text-red-600 dark:hover:text-red-400" aria-label={`Delete ${menu.title}`}>
+                            <Trash2 size={18} />
+                        </button>
                     </div>
                   </li>
                 ))}
               </ul>
             ) : (
               <div className="text-center py-8">
-                <Bookmark size={48} className="mx-auto text-slate-400 dark:text-slate-500" />
-                <p className="mt-4 text-slate-600 dark:text-slate-400">You haven't saved any menus yet.</p>
-                <p className="text-sm text-slate-500 dark:text-slate-500">Generate a menu and click the "Save" button to store it here.</p>
+                <Bookmark className="mx-auto h-12 w-12 text-slate-300 dark:text-slate-600" />
+                <h4 className="mt-4 text-lg font-semibold text-slate-700 dark:text-slate-300">No Saved Menus Yet</h4>
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Generate a menu and click the save icon to keep it here.</p>
               </div>
             )
           )}
