@@ -14,6 +14,7 @@ import ShareModal from './components/ShareModal.tsx';
 import MultiSelectDropdown from './components/MultiSelectDropdown.tsx';
 import GenerationHistory from './components/GenerationHistory.tsx';
 import CustomizationModal from './components/CustomizationModal.tsx';
+import EmailCapture from './components/EmailCapture.tsx';
 import { exampleScenarios, CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, EDITABLE_MENU_SECTIONS } from './constants.ts';
 import { SavedMenu, ErrorState, ValidationErrors, GenerationHistoryItem, Menu, MenuSection } from './types.ts';
 import { getApiErrorState } from './services/errorHandler.ts';
@@ -64,6 +65,9 @@ const App: React.FC = () => {
   // State for sharing
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [shareUrl, setShareUrl] = useState('');
+
+  // State for email capture
+  const [isEmailCaptureModalOpen, setIsEmailCaptureModalOpen] = useState(false);
 
   // State for the new custom item generator
   const [customItemDescription, setCustomItemDescription] = useState('');
@@ -267,6 +271,12 @@ const App: React.FC = () => {
         localStorage.setItem('generationHistory', JSON.stringify(updatedHistory));
         return updatedHistory;
       });
+
+      // Prompt for email if not already captured
+      const storedEmail = localStorage.getItem('caterpro_user_email');
+      if (!storedEmail) {
+          setIsEmailCaptureModalOpen(true);
+      }
 
       // Non-blocking call to generate the image
       (async () => {
@@ -569,6 +579,15 @@ const App: React.FC = () => {
     localStorage.removeItem('generationHistory');
     showToast('Generation history cleared.');
   };
+  
+  const handleEmailCapture = (email: string, whatsapp: string) => {
+    localStorage.setItem('caterpro_user_email', email);
+    if (whatsapp) {
+      localStorage.setItem('caterpro_user_whatsapp', whatsapp);
+    }
+    setIsEmailCaptureModalOpen(false);
+    showToast('Thank you! Your information has been saved.');
+  };
 
   return (
     <div className={`flex flex-col min-h-screen font-sans antialiased ${isDarkMode ? 'dark' : ''}`}>
@@ -856,6 +875,11 @@ const App: React.FC = () => {
         isOpen={isShareModalOpen} 
         onClose={() => setIsShareModalOpen(false)} 
         shareUrl={shareUrl}
+      />
+      <EmailCapture
+        isOpen={isEmailCaptureModalOpen}
+        onClose={() => setIsEmailCaptureModalOpen(false)}
+        onSave={handleEmailCapture}
       />
       <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
       <AiChatBot />
