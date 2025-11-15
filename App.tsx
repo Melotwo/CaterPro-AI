@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle, Link, RefreshCw } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -10,13 +10,14 @@ import SavedMenusModal from './components/SavedChecklistsModal.tsx';
 import Toast from './components/Toast.tsx';
 import AiChatBot from './components/AiChatBot.tsx';
 import QrCodeModal from './components/QrCodeModal.tsx';
+import ShareModal from './components/ShareModal.tsx';
 import MultiSelectDropdown from './components/MultiSelectDropdown.tsx';
 import GenerationHistory from './components/GenerationHistory.tsx';
 import CustomizationModal from './components/CustomizationModal.tsx';
 import { exampleScenarios, CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, EDITABLE_MENU_SECTIONS } from './constants.ts';
 import { SavedMenu, ErrorState, ValidationErrors, GenerationHistoryItem, Menu, MenuSection } from './types.ts';
 import { getApiErrorState } from './services/errorHandler.ts';
-import { generateMenuFromApi, regenerateMenuItemFromApi, generateCustomMenuItemFromApi } from './services/geminiService.ts';
+import { generateMenuFromApi, generateCustomMenuItemFromApi, generateMenuImageFromApi } from './services/geminiService.ts';
 
 
 const LOADING_MESSAGES = [
@@ -25,6 +26,8 @@ const LOADING_MESSAGES = [
   'Finalizing the menu details...',
   'Preparing your proposal...',
 ];
+
+const CHECKED_ITEMS_STORAGE_KEY = 'caterpro-checked-items';
 
 // ========= MAIN APP COMPONENT =========
 const App: React.FC = () => {
@@ -37,6 +40,7 @@ const App: React.FC = () => {
   const [dietaryRestrictions, setDietaryRestrictions] = useState<string[]>([]);
   
   const [isLoading, setIsLoading] = useState(false);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [error, setError] = useState<ErrorState | null>(null);
   const [menu, setMenu] = useState<Menu | null>(null);
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -53,6 +57,13 @@ const App: React.FC = () => {
   // State for the item customization modal
   const [isCustomizationModalOpen, setIsCustomizationModalOpen] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<{ section: MenuSection; index: number; text: string } | null>(null);
+  
+  // State for bulk shopping list editing
+  const [bulkSelectedItems, setBulkSelectedItems] = useState<Set<string>>(new Set());
+
+  // State for sharing
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [shareUrl, setShareUrl] = useState('');
 
   // State for the new custom item generator
   const [customItemDescription, setCustomItemDescription] = useState('');
@@ -90,7 +101,64 @@ const App: React.FC = () => {
     } catch (e) {
       console.error("Failed to parse data from localStorage", e);
     }
+    
+    if (window.location.hash && window.location.hash.startsWith('#share=')) {
+      try {
+        const encodedString = window.location.hash.substring(7);
+        const base64String = decodeURIComponent(encodedString);
+        const binaryString = atob(base64String);
+        const utf8Bytes = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+          utf8Bytes[i] = binaryString.charCodeAt(i);
+        }
+        const jsonString = new TextDecoder().decode(utf8Bytes);
+        const loadedMenu: Menu = JSON.parse(jsonString);
+        
+        setMenu(loadedMenu);
+        const totalItems = [
+          ...(loadedMenu.appetizers || []),
+          ...(loadedMenu.mainCourses || []),
+          ...(loadedMenu.sideDishes || []),
+          ...(loadedMenu.dessert || []),
+          ...(loadedMenu.serviceNotes || []),
+          ...(loadedMenu.deliveryLogistics || []),
+          ...(loadedMenu.shoppingList || []),
+        ].length;
+        setTotalChecklistItems(totalItems);
+        
+        // A new menu was loaded, so clear any previous checklist progress
+        setCheckedItems(new Set());
+        localStorage.removeItem(CHECKED_ITEMS_STORAGE_KEY);
+
+        showToast("Menu loaded from share link!");
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      } catch (error) {
+        console.error("Failed to load menu from share link:", error);
+        setError({
+          title: "Invalid Share Link",
+          message: "The provided share link is corrupted or invalid. Please check the link and try again."
+        });
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+    } else {
+        // No shared menu, so try to load any saved checklist progress
+        try {
+            const storedCheckedItems = localStorage.getItem(CHECKED_ITEMS_STORAGE_KEY);
+            if (storedCheckedItems) {
+                setCheckedItems(new Set(JSON.parse(storedCheckedItems)));
+            }
+        } catch(e) {
+            console.error("Failed to load checked items from localStorage", e);
+        }
+    }
+
   }, []);
+
+  // Save checklist progress to local storage
+  useEffect(() => {
+    localStorage.setItem(CHECKED_ITEMS_STORAGE_KEY, JSON.stringify(Array.from(checkedItems)));
+  }, [checkedItems]);
+
 
   useEffect(() => {
     let messageInterval: number | undefined;
@@ -124,6 +192,26 @@ const App: React.FC = () => {
     setToastMessage(message);
   }
 
+  const getUserLocation = (): Promise<{ lat: number; lon: number } | null> => {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        resolve(null);
+      }
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            lat: position.coords.latitude,
+            lon: position.coords.longitude,
+          });
+        },
+        () => {
+          // Error or permission denied
+          resolve(null);
+        }
+      );
+    });
+  };
+
   const generateMenu = async () => {
     const newValidationErrors: ValidationErrors = {};
     if (!eventType) {
@@ -144,9 +232,11 @@ const App: React.FC = () => {
     setError(null);
     setMenu(null);
     setCheckedItems(new Set());
+    setBulkSelectedItems(new Set());
     setTotalChecklistItems(0);
 
     const finalEventType = eventType === 'Other...' ? customEventType : eventType;
+    const location = await getUserLocation();
 
     try {
       const result = await generateMenuFromApi({
@@ -156,6 +246,8 @@ const App: React.FC = () => {
         serviceStyle,
         cuisine,
         dietaryRestrictions,
+        latitude: location?.lat,
+        longitude: location?.lon,
       });
 
       setTotalChecklistItems(result.totalChecklistItems);
@@ -176,6 +268,19 @@ const App: React.FC = () => {
         return updatedHistory;
       });
 
+      // Non-blocking call to generate the image
+      (async () => {
+        setIsGeneratingImage(true);
+        try {
+            const image = await generateMenuImageFromApi(result.menu.menuTitle, result.menu.description);
+            setMenu(prevMenu => prevMenu ? { ...prevMenu, image } : null);
+        } catch (imageError) {
+            console.error("Failed to generate menu image:", imageError);
+        } finally {
+            setIsGeneratingImage(false);
+        }
+      })();
+
     } catch (e) {
       setError(getApiErrorState(e));
     } finally {
@@ -193,7 +298,7 @@ const App: React.FC = () => {
         setMenu(prevMenu => {
             if (!prevMenu) return null;
             const updatedMenu = { ...prevMenu };
-            const currentSection = updatedMenu[customItemCategory] || [];
+            const currentSection = (updatedMenu[customItemCategory] as string[]) || [];
             const updatedSection = [...currentSection, newItem];
             (updatedMenu as any)[customItemCategory] = updatedSection;
             return updatedMenu;
@@ -221,22 +326,98 @@ const App: React.FC = () => {
   
   const handleOpenCustomizationModal = (section: MenuSection, index: number) => {
     if (!menu) return;
-    const text = menu[section][index];
-    setItemToEdit({ section, index, text });
-    setIsCustomizationModalOpen(true);
+    const items = menu[section];
+    // Ensure items is an array of strings before accessing
+    if (Array.isArray(items) && typeof items[index] === 'string') {
+        const text = items[index] as string;
+        setItemToEdit({ section, index, text });
+        setIsCustomizationModalOpen(true);
+    }
   };
 
   const handleSaveCustomization = (section: MenuSection, index: number, newText: string) => {
     if (!menu) return;
 
     const updatedMenu = { ...menu };
-    const updatedSection = [...updatedMenu[section]];
-    updatedSection[index] = newText;
-    (updatedMenu as any)[section] = updatedSection;
+    const sectionItems = updatedMenu[section];
+
+    if (Array.isArray(sectionItems)) {
+        const updatedSection = [...sectionItems];
+        updatedSection[index] = newText;
+        (updatedMenu as any)[section] = updatedSection;
+        
+        setMenu(updatedMenu);
+    }
     
-    setMenu(updatedMenu);
     setIsCustomizationModalOpen(false);
     showToast('Menu item updated successfully!');
+  };
+
+  const handleUpdateShoppingItemQuantity = (originalIndex: number, newQuantity: string) => {
+      setMenu(prevMenu => {
+          if (!prevMenu) return null;
+          
+          const updatedShoppingList = [...prevMenu.shoppingList];
+          if (updatedShoppingList[originalIndex]) {
+              updatedShoppingList[originalIndex] = {
+                  ...updatedShoppingList[originalIndex],
+                  quantity: newQuantity,
+              };
+          }
+
+          return {
+              ...prevMenu,
+              shoppingList: updatedShoppingList,
+          };
+      });
+  };
+
+  // Bulk edit handlers
+  const handleToggleBulkSelect = (key: string) => {
+    setBulkSelectedItems(prev => {
+      const newSelection = new Set(prev);
+      if (newSelection.has(key)) {
+        newSelection.delete(key);
+      } else {
+        newSelection.add(key);
+      }
+      return newSelection;
+    });
+  };
+
+  const handleClearBulkSelection = () => setBulkSelectedItems(new Set());
+
+  const handleSelectAllShoppingListItems = () => {
+    if (!menu) return;
+    const allItemKeys = new Set(menu.shoppingList.map((_, index) => `shoppingList-${index}`));
+    setBulkSelectedItems(allItemKeys);
+  };
+
+  const handleBulkCheck = () => {
+    setCheckedItems(prev => {
+        const newChecked = new Set(prev);
+        bulkSelectedItems.forEach(item => newChecked.add(item));
+        return newChecked;
+    });
+    showToast(`${bulkSelectedItems.size} items marked as purchased.`);
+  };
+
+  const handleBulkUpdateQuantity = (newQuantity: string) => {
+    if (!menu || !newQuantity.trim() || bulkSelectedItems.size === 0) return;
+
+    const selectedIndices = new Set(
+      Array.from(bulkSelectedItems).map(key => parseInt(key.split('-')[1], 10))
+    );
+
+    const updatedShoppingList = menu.shoppingList.map((item, index) => {
+      if (selectedIndices.has(index)) {
+        return { ...item, quantity: newQuantity };
+      }
+      return item;
+    });
+
+    setMenu(prev => prev ? { ...prev, shoppingList: updatedShoppingList } : null);
+    showToast(`${selectedIndices.size} item quantities updated.`);
   };
 
 
@@ -266,33 +447,69 @@ const App: React.FC = () => {
   const downloadPdf = () => {
     const input = menuRef.current;
     if (input) {
-      const wasDark = document.documentElement.classList.contains('dark');
-      if (wasDark) document.documentElement.classList.remove('dark');
-  
-      html2canvas(input, {
-        scale: 2,
-        backgroundColor: wasDark ? '#0f172a' : '#ffffff',
-        useCORS: true,
-        onclone: (doc) => {
-          doc.querySelectorAll('input[type=checkbox]').forEach(el => (el as HTMLElement).style.display = 'none');
-          doc.querySelectorAll('.edit-btn').forEach(el => (el as HTMLElement).style.display = 'none');
-          doc.querySelector('.print-area')?.classList.add('dark:bg-slate-900');
+        showToast("Preparing your PDF...");
+        const wasDark = document.documentElement.classList.contains('dark');
+        
+        // Temporarily switch to light mode for PDF generation if needed
+        if (wasDark) {
+            document.documentElement.classList.remove('dark');
         }
-      }).then(canvas => {
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = pdf.internal.pageSize.getHeight();
-        const imgWidth = canvas.width;
-        const imgHeight = canvas.height;
-        const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-        const imgX = (pdfWidth - imgWidth * ratio) / 2;
-        const imgY = 10;
-        pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-        pdf.save('caterpro-ai-menu.pdf');
-  
-        if(wasDark) document.documentElement.classList.add('dark');
-      });
+
+        // Use a higher scale for better resolution
+        html2canvas(input, {
+            scale: 3, // Increased scale for higher fidelity
+            backgroundColor: '#ffffff',
+            useCORS: true,
+            onclone: (doc) => {
+                // Ensure the background is white in the cloned document
+                const printArea = doc.querySelector('.print-area');
+                if(printArea) {
+                    (printArea as HTMLElement).style.backgroundColor = '#ffffff';
+                }
+                // Remove elements that shouldn't be in the PDF
+                doc.querySelectorAll('.no-print, .no-copy, .edit-btn').forEach(el => {
+                    if(el && (el as HTMLElement).style) {
+                        (el as HTMLElement).style.display = 'none';
+                    }
+                });
+            }
+        }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png', 0.95); // Use high-quality PNG
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const canvasWidth = canvas.width;
+            const canvasHeight = canvas.height;
+            
+            const ratio = canvasWidth / canvasHeight;
+            const widthInPdf = pdfWidth - 20; // pdfWidth with 10mm margins
+            const heightInPdf = widthInPdf / ratio;
+
+            // Check if content exceeds page height
+            if (heightInPdf > pdfHeight - 20) {
+              // This is a simplified handling. For multi-page, a more complex logic is needed.
+              console.warn("PDF content might be too long for a single page.");
+            }
+
+            const x = 10; // 10mm margin from left
+            const y = 10; // 10mm margin from top
+
+            pdf.addImage(imgData, 'PNG', x, y, widthInPdf, heightInPdf);
+            pdf.save(`${menu?.menuTitle.replace(/\s/g, '_') || 'caterpro-ai-menu'}.pdf`);
+            
+            // Restore dark mode if it was originally enabled
+            if (wasDark) {
+                document.documentElement.classList.add('dark');
+            }
+
+        }).catch(err => {
+            console.error("Error generating PDF:", err);
+            showToast("Failed to generate PDF.");
+             if (wasDark) {
+                document.documentElement.classList.add('dark');
+            }
+        });
     }
   };
 
@@ -308,6 +525,26 @@ const App: React.FC = () => {
             .catch(err => console.error('Failed to copy: ', err));
     }
   };
+
+  const handleOpenShareModal = () => {
+    if (!menu) return;
+    try {
+      const jsonString = JSON.stringify(menu);
+      const utf8Bytes = new TextEncoder().encode(jsonString);
+      let binary = '';
+      utf8Bytes.forEach(byte => { binary += String.fromCharCode(byte); });
+      const base64String = btoa(binary);
+
+      const encodedString = encodeURIComponent(base64String);
+      const url = `${window.location.origin}${window.location.pathname}#share=${encodedString}`;
+      setShareUrl(url);
+      setIsShareModalOpen(true);
+    } catch (error) {
+      console.error("Failed to create share link:", error);
+      showToast("Could not create share link.");
+    }
+  };
+
 
   const handleHistoryItemClick = (item: GenerationHistoryItem) => {
     const isPredefined = EVENT_TYPES.includes(item.eventType);
@@ -375,7 +612,7 @@ const App: React.FC = () => {
                     id="custom-event-type"
                     value={customEventType}
                     onChange={(e) => setCustomEventType(e.target.value)}
-                    placeholder="Please specify your event type"
+                    placeholder="e.g., Baby Shower, Product Launch..."
                     className="block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500"
                     required
                   />
@@ -485,16 +722,22 @@ const App: React.FC = () => {
                           Your Menu Proposal
                       </h2>
                       <div className="flex items-center space-x-2">
-                          <button onClick={saveMenu} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700" aria-label="Save menu">
+                          <button onClick={generateMenu} disabled={isLoading} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Regenerate all sections">
+                              <RefreshCw size={18} />
+                          </button>
+                          <button onClick={handleOpenShareModal} disabled={isLoading} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Share menu">
+                              <Link size={18} />
+                          </button>
+                          <button onClick={saveMenu} disabled={isLoading} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Save menu">
                               <Save size={18} />
                           </button>
-                          <button onClick={copyToClipboard} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700" aria-label="Copy menu text">
+                          <button onClick={copyToClipboard} disabled={isLoading} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Copy menu text">
                               <Copy size={18} />
                           </button>
-                          <button onClick={downloadPdf} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700" aria-label="Download as PDF">
+                          <button onClick={downloadPdf} disabled={isLoading} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Download as PDF">
                               <FileDown size={18} />
                           </button>
-                          <button onClick={() => window.print()} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700" aria-label="Print menu">
+                          <button onClick={() => window.print()} disabled={isLoading} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Print menu">
                               <Printer size={18} />
                           </button>
                       </div>
@@ -515,6 +758,14 @@ const App: React.FC = () => {
                         isEditable={true}
                         onEditItem={handleOpenCustomizationModal}
                         showToast={showToast}
+                        isGeneratingImage={isGeneratingImage}
+                        onUpdateShoppingItemQuantity={handleUpdateShoppingItemQuantity}
+                        bulkSelectedItems={bulkSelectedItems}
+                        onToggleBulkSelect={handleToggleBulkSelect}
+                        onBulkCheck={handleBulkCheck}
+                        onBulkUpdateQuantity={handleBulkUpdateQuantity}
+                        onClearBulkSelection={handleClearBulkSelection}
+                        onSelectAllShoppingListItems={handleSelectAllShoppingListItems}
                       />
                   </div>
               </div>
@@ -600,6 +851,11 @@ const App: React.FC = () => {
         onClose={() => setIsCustomizationModalOpen(false)}
         itemToEdit={itemToEdit}
         onSave={handleSaveCustomization}
+      />
+      <ShareModal 
+        isOpen={isShareModalOpen} 
+        onClose={() => setIsShareModalOpen(false)} 
+        shareUrl={shareUrl}
       />
       <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
       <AiChatBot />
