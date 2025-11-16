@@ -1,5 +1,5 @@
 import { GoogleGenAI, Modality, Type } from "@google/genai";
-import { Menu, ShoppingListItem, Supplier, BeveragePairing } from "../types.ts";
+import { Menu, ShoppingListItem, Supplier } from "../types.ts";
 
 export interface MenuGenerationParams {
   eventType: string;
@@ -17,19 +17,12 @@ export interface MenuGenerationResult {
   totalChecklistItems: number;
 }
 
-export const generateMenuFromApi = async ({
-  eventType,
-  guestCount,
-  budget,
-  serviceStyle,
-  cuisine,
-  dietaryRestrictions,
-  latitude,
-  longitude,
-}: MenuGenerationParams): Promise<MenuGenerationResult> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Instantiate the GoogleGenAI client once and reuse it for all API calls.
+// This is more efficient than creating a new instance for every function call.
+// FIX: The API key must be obtained from `process.env.API_KEY` as per the coding guidelines.
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-  const responseSchema = {
+const responseSchema = {
     type: Type.OBJECT,
     properties: {
       menuTitle: {
@@ -67,235 +60,218 @@ export const generateMenuFromApi = async ({
           type: Type.OBJECT,
           properties: {
             menuItem: { type: Type.STRING, description: "The exact name of the appetizer or main course item from the generated menu." },
-            pairingSuggestion: { type: Type.STRING, description: "A concise beverage pairing suggestion. e.g., 'A crisp Sauvignon Blanc or a sparkling elderflower pressé'." }
+            pairingSuggestion: { type: Type.STRING, description: "The name of the suggested wine, beer, or non-alcoholic drink and a brief reason for the pairing." }
           },
-          required: ['menuItem', 'pairingSuggestion']
-        }
+          required: ["menuItem", "pairingSuggestion"],
+        },
       },
       miseEnPlace: {
-        type: Type.ARRAY,
-        description: "A detailed checklist of preparation tasks (mise en place) to be done hours or a day before the event. e.g., 'Wash and chop all vegetables for the salad', 'Prepare the marinade for the chicken', 'Pre-portion dessert garnishes'.",
-        items: { type: Type.STRING },
+          type: Type.ARRAY,
+          description: "A detailed checklist of prep tasks that need to be done before the event (e.g., 'chop vegetables', 'prepare sauces').",
+          items: { type: Type.STRING },
       },
       serviceNotes: {
-        type: Type.ARRAY,
-        description: "Expert tips on plating, presentation, and service flow suitable for the event type. e.g., 'Serve appetizers on circulating platters'.",
-        items: { type: Type.STRING },
+          type: Type.ARRAY,
+          description: "Notes on how the food should be served and presented (e.g., 'serve main course on warm plates', 'garnish dessert with fresh mint').",
+          items: { type: Type.STRING },
       },
       deliveryLogistics: {
         type: Type.ARRAY,
-        description: "A plan for delivery and setup. Include items like suggested delivery radius with fees (e.g., 'Standard Delivery (up to 10 miles): $25'), packaging notes for hot/cold items, and an on-site setup checklist. If user location is provided, suggest 1-2 specific, real local stores or online services for ingredient sourcing.",
+        description: "A checklist of logistics for delivery and setup (e.g., 'confirm venue access time', 'pack hot food in insulated carriers').",
         items: { type: Type.STRING },
       },
       shoppingList: {
         type: Type.ARRAY,
-        description: "A comprehensive shopping list. For 3-5 key non-perishable or specialty items (e.g., high-quality olive oil, specific spices), provide an enticing `description`, a relevant `affiliateSearchTerm`, an `estimatedCost` in ZAR (e.g., 'R80 - R120'), and a `brandSuggestion` (e.g., 'Woolworths, Knorr'). For all other items, omit these four fields.",
+        description: "A comprehensive shopping list grouped by store, then by category (e.g., 'Produce', 'Meat', 'Pantry'). Include quantities appropriate for the guest count.",
         items: {
           type: Type.OBJECT,
           properties: {
-            store: { type: Type.STRING, description: "The suggested store or type of store for purchasing the item. e.g., 'Local Grocer (e.g., Safeway)', 'Specialty Butcher', 'Online Spice Shop'." },
-            category: { type: Type.STRING, description: "e.g., 'Produce', 'Meat & Seafood', 'Pantry'" },
-            item: { type: Type.STRING, description: "e.g., 'Roma Tomatoes'" },
-            quantity: { type: Type.STRING, description: "e.g., '5 lbs', '2 dozen', '1 bottle'" },
-            description: { type: Type.STRING, description: "For key specialty items, a brief, enticing description of why this specific type of item is recommended." },
-            affiliateSearchTerm: { type: Type.STRING, description: "For key specialty items, a search term optimized for South African e-commerce sites like Takealot (e.g., 'organic coconut milk')." },
-            estimatedCost: { type: Type.STRING, description: "For key specialty items, provide an estimated cost range in South African Rand (ZAR), e.g., 'R 80 - R 120'." },
-            brandSuggestion: { type: Type.STRING, description: "For key specialty items, suggest 1-2 specific, well-known brands available in major South African retailers like Woolworths, Pick n Pay, or Checkers." }
+            store: { type: Type.STRING, description: "The suggested store type (e.g., 'Local Supermarket', 'Butcher Shop', 'Specialty Spice Store')." },
+            category: { type: Type.STRING, description: "The category of the item (e.g., 'Dairy & Eggs', 'Canned Goods')." },
+            item: { type: Type.STRING, description: "The name of the ingredient or supply." },
+            quantity: { type: Type.STRING, description: "The quantity needed (e.g., '2 lbs', '1 gallon', '3 bunches')." },
+            description: { type: Type.STRING, description: "Optional: A brief, enticing description for specialty or hard-to-find items, useful for affiliate marketing." },
+            affiliateSearchTerm: { type: Type.STRING, description: "Optional: A concise search term for finding this item online, optimized for affiliate links." },
+            estimatedCost: { type: Type.STRING, description: "Optional: A rough cost estimate for the item, e.g., '$5-7'." },
+            brandSuggestion: { type: Type.STRING, description: "Optional: A specific brand recommendation, e.g., 'King Arthur Flour'." },
           },
-          required: ['store', 'category', 'item', 'quantity']
-        }
+          required: ["store", "category", "item", "quantity"],
+        },
       },
       recommendedEquipment: {
         type: Type.ARRAY,
-        description: "A list of 3-5 essential but potentially overlooked pieces of catering equipment or high-quality supplies relevant to the generated menu. For each item, provide a brief description of its use or why it's recommended.",
+        description: "A list of 2-3 essential pieces of equipment or supplies for this event (e.g., '8-Quart Chafing Dish', 'Insulated Beverage Dispenser'). These are for affiliate marketing.",
         items: {
           type: Type.OBJECT,
           properties: {
-            item: { type: Type.STRING, description: "The name of the equipment or supply. e.g., 'Insulated Food Pan Carrier', 'High-Quality Chef's Knife', 'Disposable Chafing Dishes'." },
-            description: { type: Type.STRING, description: "A brief, helpful description. e.g., 'Crucial for maintaining safe food temperatures during transport and service.', 'A sharp, reliable knife is a chef's best friend for prep work.'." }
+            item: { type: Type.STRING, description: "The name of the equipment." },
+            description: { type: Type.STRING, description: "A brief description of why it's useful for this event." },
           },
-          required: ['item', 'description']
-        }
+          required: ["item", "description"],
+        },
       },
       deliveryFeeStructure: {
-        type: Type.OBJECT,
-        description: "A structured object for calculating delivery fees. Use South African Rand (ZAR) for currency. The unit should be 'km'. The base fee should be between R30-R80 and perUnitRate between R10-R25.",
-        properties: {
-            baseFee: { type: Type.NUMBER, description: "A base fee for any delivery, e.g., 50." },
-            perUnitRate: { type: Type.NUMBER, description: "The cost per unit of distance, e.g., 15." },
-            unit: { type: Type.STRING, description: "The unit of distance, either 'km' or 'mile'. Default to 'km'." },
-            currency: { type: Type.STRING, description: "The currency code, e.g., 'ZAR'." }
-        },
-        required: ['baseFee', 'perUnitRate', 'unit', 'currency']
-      }
+          type: Type.OBJECT,
+          description: "A structured object for calculating delivery fees based on distance.",
+          properties: {
+            baseFee: { type: Type.NUMBER, description: "A flat base fee for any delivery." },
+            perUnitRate: { type: Type.NUMBER, description: "The cost per mile or km." },
+            unit: { type: Type.STRING, description: "The unit of distance, either 'mile' or 'km'." },
+            currency: { type: Type.STRING, description: "The ISO 4217 currency code (e.g., 'USD', 'ZAR')." }
+          },
+          required: ["baseFee", "perUnitRate", "unit", "currency"],
+      },
     },
-    required: ['menuTitle', 'description', 'appetizers', 'mainCourses', 'sideDishes', 'dessert', 'beveragePairings', 'miseEnPlace', 'serviceNotes', 'deliveryLogistics', 'shoppingList', 'recommendedEquipment', 'deliveryFeeStructure'],
+    required: [
+      "menuTitle", "description", "appetizers", "mainCourses", "sideDishes", "dessert",
+      "beveragePairings", "miseEnPlace", "serviceNotes", "deliveryLogistics", "shoppingList", "recommendedEquipment", "deliveryFeeStructure"
+    ],
   };
 
-  const systemInstruction = `You are a world-class catering consultant and event planner with experience from high-end hospitality brands like Disney. Your tone is professional, creative, and meticulous. Your entire response must conform to the provided JSON schema. Create a cohesive and detailed menu proposal based on the user's event criteria, including a detailed mise en place checklist, beverage pairings for appetizers and main courses, a practical delivery and logistics plan, a comprehensive shopping list with quantities appropriate for the number of guests, a list of recommended equipment or supplies that would be helpful for executing this menu, and a realistic delivery fee structure.`;
+export const generateMenuFromApi = async ({
+  eventType,
+  guestCount,
+  budget,
+  serviceStyle,
+  cuisine,
+  dietaryRestrictions,
+  latitude,
+  longitude,
+}: MenuGenerationParams): Promise<MenuGenerationResult> => {
+  
+  const prompt = `
+    You are an expert catering menu planner. Your task is to generate a complete, professional, and well-structured catering proposal based on the user's requirements.
 
-  let prompt = `
-    Generate a complete catering menu proposal based on the following criteria:
-
+    **Event Details:**
     - **Event Type:** ${eventType}
     - **Number of Guests:** ${guestCount}
-    - **Budget Level:** ${budget}
+    - **Budget Level:** ${budget} (Translate this to menu complexity and ingredient choices: $ = simple, delicious, budget-friendly; $$ = elegant, higher-quality ingredients; $$$ = luxurious, premium, and specialty ingredients).
     - **Service Style:** ${serviceStyle}
-    - **Cuisine Style:** ${cuisine === 'Any' ? 'Be creative and globally inspired' : cuisine}
+    - **Cuisine Style:** ${cuisine}
+    - **Dietary Restrictions:** ${dietaryRestrictions.join(', ') || 'None'}
+
+    **Instructions:**
+    1.  **Create a Full Menu:** Generate a cohesive menu with appetizers, main courses, sides, and dessert. Ensure the menu fits all the event details provided. For dietary restrictions, either make the whole menu compliant or offer specific, clearly labeled alternatives.
+    2.  **Generate Checklists:** Provide detailed checklists for 'Mise en Place', 'Service & Plating Notes', and 'Delivery & Logistics'. These should be practical and actionable for a caterer.
+    3.  **Create a Shopping List:** The shopping list is critical. It must be comprehensive. Group items logically by store type (e.g., 'Supermarket', 'Butcher'), then by category (e.g., 'Produce', 'Meat'). Calculate quantities that are appropriate for the specified number of guests.
+    4.  **Suggest Pairings & Equipment:** Recommend beverage pairings and 2-3 essential pieces of catering equipment relevant to the menu.
+    5.  **Location Grounding:** If latitude and longitude are provided, use this information to ground your suggestions for the shopping list (e.g., suggest store types that would exist in that region) and potentially suggest a local ingredient if relevant.
+    6. **Delivery Fee Structure**: Provide a reasonable delivery fee structure. For South Africa, use ZAR. For USA, use USD. Base fee around 10-20 units of currency, per-unit rate around 1-2.
+
+    Return the response ONLY in the specified JSON format.
   `;
-
-  if (dietaryRestrictions.length > 0) {
-      prompt += `\n- **Important Dietary Restrictions to Accommodate:** ${dietaryRestrictions.join(', ')}. Ensure some options are suitable.`;
-  }
   
-  if (latitude && longitude) {
-      prompt += `\n- **User Location:** Latitude ${latitude}, Longitude ${longitude}. Use this information to suggest specific, real local grocery stores or specialty shops in the 'Delivery & Logistics' section where the user could purchase the ingredients.`;
-  }
-
-  const config: any = {
-      systemInstruction: systemInstruction,
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: prompt,
+    config: {
       responseMimeType: "application/json",
       responseSchema: responseSchema,
-  };
-
-  if (latitude && longitude) {
-      config.tools = [{ googleMaps: {} }];
-      config.toolConfig = {
-          retrievalConfig: {
-              latLng: {
-                  latitude: latitude,
-                  longitude: longitude
-              }
-          }
-      };
-  }
-
-
-  const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash',
-    contents: prompt,
-    config: config,
+      tools: [{ googleMaps: {} }],
+      toolConfig: latitude && longitude ? {
+        retrievalConfig: {
+          latLng: { latitude, longitude }
+        }
+      } : undefined
+    }
   });
-  
-  const menuObject: Menu = JSON.parse(response.text);
 
-  // Extract grounding chunks and add them to the menu object
-  const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks;
-  if (groundingChunks) {
-      menuObject.groundingChunks = groundingChunks;
+  const menu: Menu = JSON.parse(response.text);
+
+  if (response.candidates?.[0]?.groundingMetadata?.groundingChunks) {
+    menu.groundingChunks = response.candidates[0].groundingMetadata.groundingChunks;
   }
 
-  const totalItems = [
-    ...(menuObject.appetizers || []),
-    ...(menuObject.mainCourses || []),
-    ...(menuObject.sideDishes || []),
-    ...(menuObject.dessert || []),
-    ...(menuObject.beveragePairings || []),
-    ...(menuObject.miseEnPlace || []),
-    ...(menuObject.serviceNotes || []),
-    ...(menuObject.deliveryLogistics || []),
-    ...(menuObject.shoppingList || [])
+  const totalChecklistItems = [
+    ...(menu.appetizers || []),
+    ...(menu.mainCourses || []),
+    ...(menu.sideDishes || []),
+    ...(menu.dessert || []),
+    ...(menu.beveragePairings || []),
+    ...(menu.miseEnPlace || []),
+    ...(menu.serviceNotes || []),
+    ...(menu.deliveryLogistics || []),
+    ...(menu.shoppingList || []),
   ].length;
-
-  return {
-    menu: menuObject,
-    totalChecklistItems: totalItems
-  };
+  
+  return { menu, totalChecklistItems };
 };
 
 export const regenerateMenuItemFromApi = async (originalItem: string, instruction: string): Promise<string> => {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
     const prompt = `
-    Original menu item: "${originalItem}"
-    User instruction: "${instruction}"
-    
-    Based on the user instruction, regenerate the menu item. Return only the new text for the menu item, without any labels or markdown.
+      You are an expert chef modifying a menu item.
+      Original item: "${originalItem}"
+      Instruction: "${instruction}"
+      Generate a new version of the menu item based on the instruction.
+      Return ONLY the new item text, nothing else. For example, if the original is "Classic Beef Lasagna" and the instruction is "make it vegetarian", a good response would be "Mushroom and Spinach Lasagna with a Rich Tomato Sauce".
     `;
-
+    
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
-        contents: prompt,
-        config: {
-            // Keep the response focused on the task
-            temperature: 0.7,
-            topP: 0.95,
-        }
+        contents: prompt
     });
 
     return response.text.trim();
 };
 
 export const generateCustomMenuItemFromApi = async (description: string, category: string): Promise<string> => {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
-    const systemInstruction = `You are an expert menu writer for a high-end catering company. Your tone is creative and appealing.`;
     const prompt = `
-    A user wants to add a custom item to their menu in the '${category}' section.
-    Based on their description, create a single, compelling menu item. This should include a creative name and a brief, mouth-watering description.
-    
-    User's Description: "${description}"
-    
-    Return ONLY the new text for the menu item, formatted as a single string. Do not include any labels, markdown, or introductory phrases like "Here is the item:".
-    For example, if the user describes a spicy shrimp taco, a good response would be: "Chili-Lime Shrimp Tacos: Pan-seared shrimp with a zesty chili-lime slaw, avocado crema, and fresh cilantro, served on a warm corn tortilla."
+        You are an expert chef creating a new menu item.
+        Description: "${description}"
+        Category: "${category}"
+        Based on the description, create a concise, appealing menu item name and a brief description.
+        Example: If the description is "A light, summery appetizer with strawberries, goat cheese, and a balsamic glaze.", a good response would be "Whipped Goat Cheese Crostini with Balsamic Strawberries".
+        Return ONLY the item name and its brief description as a single string.
     `;
-
+    
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
-        contents: prompt,
-        config: {
-            systemInstruction: systemInstruction,
-            temperature: 0.8,
-        }
+        contents: prompt
     });
 
     return response.text.trim();
 };
 
-export const generateMenuImageFromApi = async (menuTitle: string, description: string): Promise<string> => {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
-    const prompt = `Generate a highly detailed, photorealistic image in the style of professional food photography with natural lighting. This image is for a menu proposal and should be beautiful, elegant, high-quality, and evoke a sense of fine dining or a celebratory event. Do not include any text, logos, or borders in the image.
-    
-    Menu Title: "${menuTitle}"
-    Menu Description: "${description}"
-    
-    The image should visually capture the essence of this menu. For example, if it's an Italian wedding menu, an image of a beautifully set table in a rustic Tuscan villa would be appropriate. If it's a modern corporate lunch, a clean, bright shot of elegant, minimalist dishes would be suitable.`;
-
+export const generateMenuImageFromApi = async (title: string, description: string): Promise<string> => {
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
-      contents: {
-        parts: [{ text: prompt }],
-      },
-      config: {
-          responseModalities: [Modality.IMAGE],
-      },
+        model: 'gemini-2.5-flash-image',
+        contents: {
+            parts: [{ text: `Generate a photorealistic, appetizing, high-quality photograph of a catering spread that perfectly matches this title and description. Focus on beautiful lighting and presentation. Do not include any text or logos in the image. Title: "${title}". Description: "${description}".` }],
+        },
+        config: {
+            responseModalities: [Modality.IMAGE],
+        },
     });
 
     for (const part of response.candidates[0].content.parts) {
-      if (part.inlineData) {
-        return part.inlineData.data;
-      }
+        if (part.inlineData) {
+            return part.inlineData.data;
+        }
     }
-
-    throw new Error("No image data found in API response.");
+    throw new Error("No image was generated.");
 };
 
 export const findSuppliersNearby = async (latitude: number, longitude: number): Promise<Supplier[]> => {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const prompt = "Find local catering suppliers, specialty food wholesalers, and commercial kitchen rental services near me. For each, provide its name and a brief description of its specialty.";
 
-    const prompt = `
-        Find up to 5 highly-rated local food wholesalers, specialty suppliers, or small catering businesses near the provided location. 
-        For each one, provide their name and a brief description of their specialty (e.g., "Wholesale produce", "Artisanal bakery", "Farm-to-table catering").
-        Format the output as a simple list. For example:
-        - The Produce Market: Specializes in wholesale fresh fruits and vegetables.
-        - The Catering Co.: Known for large-scale corporate event catering.
-    `;
+    const responseSchema = {
+        type: Type.ARRAY,
+        items: {
+            type: Type.OBJECT,
+            properties: {
+                name: { type: Type.STRING, description: "The name of the business." },
+                specialty: { type: Type.STRING, description: "A brief description of what the business specializes in (e.g., 'Wholesale produce supplier', 'Gourmet cheese and charcuterie importer')." },
+            },
+            required: ["name", "specialty"],
+        },
+    };
 
     const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
         contents: prompt,
         config: {
+            responseMimeType: "application/json",
+            responseSchema,
             tools: [{ googleMaps: {} }],
             toolConfig: {
                 retrievalConfig: {
@@ -305,42 +281,18 @@ export const findSuppliersNearby = async (latitude: number, longitude: number): 
         },
     });
 
-    const textResponse = response.text;
-    const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-
-    // Simple text parsing for the supplier list
-    const suppliersFromText: Supplier[] = textResponse.split('\n')
-        .filter(line => line.trim().startsWith('-'))
-        .map(line => {
-            const parts = line.replace('-', '').trim().split(':');
-            const name = parts[0]?.trim() || 'Unknown Supplier';
-            const specialty = parts[1]?.trim() || 'No specialty listed.';
-            return { name, specialty };
-        });
-
-    if (suppliersFromText.length === 0 && groundingChunks.length > 0) {
-        // Fallback to using only grounding chunks if text parsing fails
-        return groundingChunks
-            .filter(chunk => chunk.maps && chunk.maps.title)
-            .map(chunk => ({
-                name: chunk.maps!.title!,
-                specialty: 'Supplier found nearby.',
-                mapsUri: chunk.maps!.uri,
-                title: chunk.maps!.title
-            }));
-    }
-
-    // Try to match grounding chunks to the parsed text to add map links
-    const suppliersWithMaps: Supplier[] = suppliersFromText.map(supplier => {
-        const matchedChunk = groundingChunks.find(chunk => 
-            chunk.maps && chunk.maps.title && chunk.maps.title.toLowerCase().includes(supplier.name.toLowerCase())
-        );
+    const suppliers: Omit<Supplier, 'mapsUri' | 'title'>[] = JSON.parse(response.text);
+    
+    // Correlate grounding chunks with the generated suppliers
+    const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+    const mappedSuppliers: Supplier[] = suppliers.map(supplier => {
+        const matchingChunk = chunks.find(chunk => chunk.maps?.title?.toLowerCase().includes(supplier.name.toLowerCase()));
         return {
             ...supplier,
-            mapsUri: matchedChunk?.maps?.uri,
-            title: matchedChunk?.maps?.title,
+            mapsUri: matchingChunk?.maps?.uri,
+            title: matchingChunk?.maps?.title,
         };
     });
 
-    return suppliersWithMaps;
+    return mappedSuppliers;
 };
