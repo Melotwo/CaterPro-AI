@@ -64,7 +64,7 @@ export const useSubscription = () => {
         return subscription.plan === 'premium' || subscription.plan === 'pro';
       case 'shareableLinks':
         return subscription.plan === 'pro';
-      case 'findChefs':
+      case 'findSuppliers':
         return subscription.plan === 'pro';
       case 'bulkEdit':
         return subscription.plan === 'pro';
