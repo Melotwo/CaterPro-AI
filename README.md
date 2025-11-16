@@ -57,10 +57,11 @@ CaterPro AI offers multiple tiers to fit your business needs.
     ```
 
 3.  **Set up your API Key:**
-    Create a `.env.local` file in the root and add your Gemini API key.
+    Create a `.env` file in the root by copying the example file:
+    ```sh
+    cp .env.example .env
     ```
-    API_KEY=YOUR_GEMINI_API_KEY
-    ```
+    Then, open the new `.env` file and add your Gemini API key.
 
 4.  **Run the development server:**
     ```sh
@@ -68,44 +69,51 @@ CaterPro AI offers multiple tiers to fit your business needs.
     ```
 
 ---
-## Deploying Your App (The Easy, Automated Way!)
+## 🚀 Deploying to Firebase (One-Time Setup)
 
-This project is set up for **automated deployment**. Don't worry about pasting code into Firebase—that's not how it works! The process is much simpler.
+This project is set up to deploy automatically when you push code to the `main` branch. To make this work, you must complete the following **three steps** on the GitHub website.
 
-**Here's the magic:** Whenever you push new code to the `main` branch of your GitHub repository, a special process (a "GitHub Action") automatically builds your app and deploys the new version to Firebase Hosting for you.
+### Step 1: 🛑 Disable the Conflicting Workflow
 
-You only need to do a **one-time setup** to securely connect your GitHub and Firebase projects.
+Your screenshots show the "pages build and deployment" workflow running. This is for a different service and it's blocking our Firebase deployment. You **must** disable it.
 
-### One-Time Setup: Connecting GitHub and Firebase
+1.  In your GitHub repository, go to **Settings** > **Pages**.
+2.  Under "Build and deployment", find the **Source** setting.
+3.  Change the source from "Deploy from a branch" to **GitHub Actions**. This tells GitHub to only use the workflow file in our repository.
 
-You'll create a special key in Firebase and give it to GitHub so it has permission to deploy your site.
+### Step 2: 🔑 Add Your Secret Keys to GitHub
 
-**Step 1: Get Your Firebase Service Account Key**
+The automated workflow needs two secret keys to access Firebase and the Gemini API securely.
+
+**A. Get Your Firebase Service Account Key**
 
 1.  Go to the [Firebase Console](https://console.firebase.google.com/) and select your `caterpro-ai` project.
-2.  Click the **Gear icon** ⚙️ next to "Project Overview" (top-left) and select **Project settings**.
+2.  Click the **Gear icon** ⚙️ next to "Project Overview" and select **Project settings**.
 3.  Go to the **Service accounts** tab.
-4.  Click the **Generate new private key** button. A warning will appear; click **Generate key**.
-5.  A JSON file (e.g., `caterpro-ai-firebase-adminsdk-....json`) will download. Keep it safe.
+4.  Click **Generate new private key**, then confirm by clicking **Generate key**.
+5.  A JSON file will download. Open it with a text editor and **copy the entire content**.
 
-**Step 2: Add the Key to GitHub Secrets**
+**B. Add Both Secrets to GitHub**
 
-1.  Open the downloaded JSON file in a text editor and **copy its entire content**.
-2.  Go to your project's GitHub repository page.
-3.  Click the **Settings** tab.
-4.  In the left sidebar, find "Security" -> **Secrets and variables** -> **Actions**.
-5.  Click **New repository secret**.
-6.  For the **Name**, type exactly: `FIREBASE_SERVICE_ACCOUNT`
-7.  In the **Secret** box, paste the entire JSON content you copied.
-8.  Click **Add secret**.
+1.  In your GitHub repository, go to **Settings** > **Secrets and variables** > **Actions**.
+2.  Click **New repository secret**.
+3.  Create the **Firebase secret**:
+    *   Name: `FIREBASE_SERVICE_ACCOUNT`
+    *   Secret: Paste the entire JSON content you copied.
+    *   Click **Add secret**.
+4.  Click **New repository secret** again.
+5.  Create the **Gemini API secret**:
+    *   Name: `GEMINI_API_KEY`
+    *   Secret: Paste your Gemini API Key.
+    *   Click **Add secret**.
 
-**Step 3: Push Your Code & Verify Deployment**
+### Step 3: ✅ Push & Verify Deployment
 
-You're all set! From now on, every time you push a change to your `main` branch, the deployment will start automatically.
+Now you're ready!
 
-1.  **Push your changes** to the `main` branch on GitHub.
-2.  Go to your project's GitHub repository and click the **Actions** tab.
-3.  You should see a new workflow running named **`✅ Deploy to Firebase`**.
-4.  Wait for it to complete with a green checkmark ✔️.
+1.  **Commit and push** the latest changes to your `main` branch.
+2.  Go to the **Actions** tab in your GitHub repository.
+3.  You should now see a new workflow running with the name **`🚀 Deploy to Firebase Hosting`**.
+4.  Wait for it to complete. A **green checkmark ✔️** means success!
 
-Once it's successful, your site is live! You can find the URL in the **Hosting** section of your [Firebase Console](https://console.firebase.google.com/project/caterpro-ai/hosting).
+Once it succeeds, your site is live! You can find the URL in the **Hosting** section of your [Firebase Console](https://console.firebase.google.com/project/caterpro-ai/hosting).
