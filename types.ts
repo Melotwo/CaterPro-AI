@@ -10,6 +10,8 @@ export interface Menu {
   mainCourses: string[];
   sideDishes: string[];
   dessert: string[];
+  beveragePairings: BeveragePairing[];
+  miseEnPlace: string[];
   serviceNotes: string[];
   deliveryLogistics: string[];
   shoppingList: ShoppingListItem[];
@@ -22,6 +24,18 @@ export interface Menu {
    * Sourcing information from Google Search or Maps.
    */
   groundingChunks?: GroundingChunk[];
+  /**
+   * The visual theme identifier for the proposal.
+   */
+  theme?: string;
+}
+
+/**
+ * Represents a suggested beverage pairing for a menu item.
+ */
+export interface BeveragePairing {
+  menuItem: string;
+  pairingSuggestion: string;
 }
 
 /**
@@ -140,7 +154,19 @@ export type MenuSection =
   | 'mainCourses'
   | 'sideDishes'
   | 'dessert'
+  | 'beveragePairings'
+  | 'miseEnPlace'
   | 'serviceNotes'
   | 'deliveryLogistics'
   | 'shoppingList'
   | 'recommendedEquipment';
+
+/**
+ * Represents a chef or catering service found via Google Maps.
+ */
+export interface Chef {
+  name: string;
+  specialty: string;
+  mapsUri?: string;
+  title?: string;
+}
