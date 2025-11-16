@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle, Link, RefreshCw } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle, Link, RefreshCw, ShoppingBag } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
 import Navbar from './components/Navbar.tsx';
 import Footer from './components/Footer.tsx';
 import MarkdownRenderer from './components/MarkdownRenderer.tsx';
-import SavedMenusModal from './components/SavedChecklistsModal.tsx';
+import SavedChecklistsModal from './components/SavedChecklistsModal.tsx';
 import Toast from './components/Toast.tsx';
 import AiChatBot from './components/AiChatBot.tsx';
 import QrCodeModal from './components/QrCodeModal.tsx';
@@ -15,8 +15,11 @@ import MultiSelectDropdown from './components/MultiSelectDropdown.tsx';
 import GenerationHistory from './components/GenerationHistory.tsx';
 import CustomizationModal from './components/CustomizationModal.tsx';
 import EmailCapture from './components/EmailCapture.tsx';
-import { exampleScenarios, CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, EDITABLE_MENU_SECTIONS } from './constants.ts';
-import { SavedMenu, ErrorState, ValidationErrors, GenerationHistoryItem, Menu, MenuSection } from './types.ts';
+import ProductCard from './components/ProductCard.tsx';
+import QuoteModal from './components/QuoteModal.tsx';
+import ProductSearchBar from './components/ProductSearchBar.tsx';
+import { exampleScenarios, CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, EDITABLE_MENU_SECTIONS, RECOMMENDED_PRODUCTS } from './constants.ts';
+import { SavedMenu, ErrorState, ValidationErrors, GenerationHistoryItem, Menu, MenuSection, PpeProduct } from './types.ts';
 import { getApiErrorState } from './services/errorHandler.ts';
 import { generateMenuFromApi, generateCustomMenuItemFromApi, generateMenuImageFromApi } from './services/geminiService.ts';
 
@@ -74,6 +77,12 @@ const App: React.FC = () => {
   const [customItemCategory, setCustomItemCategory] = useState<MenuSection>('appetizers');
   const [isGeneratingCustomItem, setIsGeneratingCustomItem] = useState(false);
   const [customItemError, setCustomItemError] = useState<ErrorState | null>(null);
+  
+  // State for products and quote modal
+  const [selectedBudget, setSelectedBudget] = useState<'All' | '$' | '$$' | '$$$'>('All');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<PpeProduct | null>(null);
 
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -589,6 +598,11 @@ const App: React.FC = () => {
     showToast('Thank you! Your information has been saved.');
   };
 
+  const handleGetQuote = (product: PpeProduct) => {
+    setSelectedProduct(product);
+    setIsQuoteModalOpen(true);
+  };
+
   return (
     <div className={`flex flex-col min-h-screen font-sans antialiased ${isDarkMode ? 'dark' : ''}`}>
       <Navbar onThemeToggle={toggleTheme} isDarkMode={isDarkMode} onOpenSaved={() => setIsSavedModalOpen(true)} savedCount={savedMenus.length} onOpenQrCode={() => setIsQrModalOpen(true)} />
@@ -710,6 +724,49 @@ const App: React.FC = () => {
                 'Generate Menu Proposal'
               )}
             </button>
+          </div>
+        </section>
+
+        <section aria-labelledby="recommended-products-title" className="mt-12 animate-slide-in" style={{ animationDelay: '0.3s' }}>
+          <div className="text-center">
+            <h2 id="recommended-products-title" className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white flex items-center justify-center">
+              <ShoppingBag className="w-8 h-8 mr-3 text-primary-500" />
+              Recommended Catering Supplies
+            </h2>
+            <p className="mt-2 max-w-2xl mx-auto text-slate-600 dark:text-slate-400">
+              Essential equipment to make your event a success. Get a quote today.
+            </p>
+          </div>
+
+          <ProductSearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+
+          <div className="flex justify-center gap-2 my-8">
+            {(['All', '$', '$$', '$$$'] as const).map(budgetOption => (
+              <button
+                key={budgetOption}
+                onClick={() => setSelectedBudget(budgetOption)}
+                className={`px-6 py-2 text-sm font-semibold rounded-full transition-colors border-2 ${
+                  selectedBudget === budgetOption
+                    ? 'bg-primary-500 text-white border-primary-500'
+                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                }`}
+                aria-pressed={selectedBudget === budgetOption}
+              >
+                {budgetOption}
+              </button>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {RECOMMENDED_PRODUCTS
+              .filter(p => {
+                const budgetMatch = selectedBudget === 'All' || p.priceRange === selectedBudget;
+                const searchMatch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
+                return budgetMatch && searchMatch;
+              })
+              .map(product => (
+                <ProductCard key={product.id} product={product} onGetQuote={handleGetQuote} />
+            ))}
           </div>
         </section>
         
@@ -863,7 +920,7 @@ const App: React.FC = () => {
 
       <Footer />
 
-      <SavedMenusModal isOpen={isSavedModalOpen} onClose={() => setIsSavedModalOpen(false)} savedMenus={savedMenus} onDelete={deleteMenu} />
+      <SavedChecklistsModal isOpen={isSavedModalOpen} onClose={() => setIsSavedModalOpen(false)} savedMenus={savedMenus} onDelete={deleteMenu} />
       <QrCodeModal isOpen={isQrModalOpen} onClose={() => setIsQrModalOpen(false)} />
       <CustomizationModal 
         isOpen={isCustomizationModalOpen}
@@ -880,6 +937,11 @@ const App: React.FC = () => {
         isOpen={isEmailCaptureModalOpen}
         onClose={() => setIsEmailCaptureModalOpen(false)}
         onSave={handleEmailCapture}
+      />
+      <QuoteModal 
+        isOpen={isQuoteModalOpen} 
+        onClose={() => setIsQuoteModalOpen(false)} 
+        product={selectedProduct} 
       />
       <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
       <AiChatBot />
