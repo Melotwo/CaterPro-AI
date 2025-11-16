@@ -385,7 +385,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
                 <div className="flex justify-between items-center mb-4 group">
                   <h3 className={`text-lg font-bold ${t.sectionTitle} flex items-center gap-3`}>
                     <span className={`w-8 h-8 ${t.sectionIcon} rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0`}>
-                        {catIdx + 1}
+                        {key === 'miseEnPlace' ? <ListTodo size={16} /> : (catIdx + 1)}
                     </span>
                     {title}
                   </h3>
