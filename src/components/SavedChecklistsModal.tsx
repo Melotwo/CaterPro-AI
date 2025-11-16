@@ -95,7 +95,7 @@ const SavedChecklistsModal: React.FC<{
             <X size={20} />
           </button>
         </div>
-        <div className="flex-grow overflow-y-auto p-6">
+        <div className="flex-grow overflow-y-auto">
           {viewingMenu ? (
              <MarkdownRenderer 
                 menu={viewingMenu.content} 
@@ -106,17 +106,21 @@ const SavedChecklistsModal: React.FC<{
                 showToast={() => {}} // No-op for toast
                 isGeneratingImage={false}
                 onUpdateShoppingItemQuantity={() => {}} // No-op for read-only view
-                // Fix: Add missing props for bulk editing to satisfy MarkdownRendererProps.
-                // Since this is a read-only view, empty sets and no-op functions are sufficient.
                 bulkSelectedItems={new Set<string>()}
                 onToggleBulkSelect={() => {}}
                 onBulkCheck={() => {}}
                 onBulkUpdateQuantity={() => {}}
                 onClearBulkSelection={() => {}}
                 onSelectAllShoppingListItems={() => {}}
+                proposalTheme={viewingMenu.content.theme || 'classic'}
+                // Fix: Pass required props for feature access.
+                // In a read-only saved view, we assume the user can see all features they previously generated.
+                canAccessFeature={() => true}
+                onAttemptAccess={() => true}
               />
           ) : (
-            savedMenus.length > 0 ? (
+            <div className="p-6">
+            {savedMenus.length > 0 ? (
               <ul className="space-y-3">
                 {savedMenus.map((menu) => (
                   <li key={menu.id} className="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg flex justify-between items-center">
@@ -141,7 +145,8 @@ const SavedChecklistsModal: React.FC<{
                 <h4 className="mt-4 text-lg font-semibold text-slate-700 dark:text-slate-300">No Saved Menus Yet</h4>
                 <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Generate a menu and click the save icon to keep it here.</p>
               </div>
-            )
+            )}
+            </div>
           )}
         </div>
       </div>
