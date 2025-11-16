@@ -3,7 +3,7 @@ import { X, Bookmark, Eye, Trash2, ArrowLeft } from 'lucide-react';
 import { SavedMenu } from '../types.ts';
 import MarkdownRenderer from './MarkdownRenderer.tsx';
 
-const SavedMenusModal: React.FC<{
+const SavedChecklistsModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
   savedMenus: SavedMenu[];
@@ -104,6 +104,16 @@ const SavedMenusModal: React.FC<{
                 isEditable={false} 
                 onEditItem={() => {}} // No-op for read-only view
                 showToast={() => {}} // No-op for toast
+                isGeneratingImage={false}
+                onUpdateShoppingItemQuantity={() => {}} // No-op for read-only view
+                // Fix: Add missing props for bulk editing to satisfy MarkdownRendererProps.
+                // Since this is a read-only view, empty sets and no-op functions are sufficient.
+                bulkSelectedItems={new Set<string>()}
+                onToggleBulkSelect={() => {}}
+                onBulkCheck={() => {}}
+                onBulkUpdateQuantity={() => {}}
+                onClearBulkSelection={() => {}}
+                onSelectAllShoppingListItems={() => {}}
               />
           ) : (
             savedMenus.length > 0 ? (
@@ -139,4 +149,4 @@ const SavedMenusModal: React.FC<{
   );
 };
 
-export default SavedMenusModal;
+export default SavedChecklistsModal;
