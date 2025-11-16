@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle, Link, RefreshCw, ShoppingBag } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle, Link, RefreshCw, ShoppingBag, ChefHat, ShieldCheck } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -18,10 +18,14 @@ import EmailCapture from './components/EmailCapture.tsx';
 import ProductCard from './components/ProductCard.tsx';
 import QuoteModal from './components/QuoteModal.tsx';
 import ProductSearchBar from './components/ProductSearchBar.tsx';
-import { exampleScenarios, CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, EDITABLE_MENU_SECTIONS, RECOMMENDED_PRODUCTS } from './constants.ts';
-import { SavedMenu, ErrorState, ValidationErrors, GenerationHistoryItem, Menu, MenuSection, PpeProduct } from './types.ts';
+import FindChef from './components/FindChef.tsx';
+import PricingPage from './components/PricingPage.tsx';
+import UpgradeModal from './components/UpgradeModal.tsx';
+import { useSubscription, SubscriptionPlan } from './hooks/useSubscription.ts';
+import { exampleScenarios, CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, EDITABLE_MENU_SECTIONS, RECOMMENDED_PRODUCTS, PROPOSAL_THEMES } from './constants.ts';
+import { SavedMenu, ErrorState, ValidationErrors, GenerationHistoryItem, Menu, MenuSection, PpeProduct, Chef } from './types.ts';
 import { getApiErrorState } from './services/errorHandler.ts';
-import { generateMenuFromApi, generateCustomMenuItemFromApi, generateMenuImageFromApi } from './services/geminiService.ts';
+import { generateMenuFromApi, generateCustomMenuItemFromApi, generateMenuImageFromApi, findChefsNearby } from './services/geminiService.ts';
 
 
 const LOADING_MESSAGES = [
@@ -33,6 +37,9 @@ const LOADING_MESSAGES = [
 
 const CHECKED_ITEMS_STORAGE_KEY = 'caterpro-checked-items';
 
+const formInputStyle = "mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-slate-950 transition-colors sm:text-sm";
+
+
 // ========= MAIN APP COMPONENT =========
 const App: React.FC = () => {
   const [eventType, setEventType] = useState('');
@@ -42,6 +49,7 @@ const App: React.FC = () => {
   const [serviceStyle, setServiceStyle] = useState('Standard Catering');
   const [cuisine, setCuisine] = useState('');
   const [dietaryRestrictions, setDietaryRestrictions] = useState<string[]>([]);
+  const [proposalTheme, setProposalTheme] = useState('classic');
   
   const [isLoading, setIsLoading] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
@@ -57,6 +65,19 @@ const App: React.FC = () => {
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
   const [totalChecklistItems, setTotalChecklistItems] = useState(0);
+  const [isAppVisible, setIsAppVisible] = useState(false);
+
+  const { 
+    subscription, 
+    selectPlan, 
+    recordGeneration, 
+    showUpgradeModal, 
+    setShowUpgradeModal, 
+    attemptAccess, 
+    generationsLeft,
+    canAccessFeature
+  } = useSubscription();
+
 
   // State for the item customization modal
   const [isCustomizationModalOpen, setIsCustomizationModalOpen] = useState(false);
@@ -84,11 +105,22 @@ const App: React.FC = () => {
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<PpeProduct | null>(null);
 
+  // State for chefs feature
+  const [chefs, setChefs] = useState<Chef[] | null>(null);
+  const [isFindingChefs, setIsFindingChefs] = useState(false);
+  const [findChefsError, setFindChefsError] = useState<ErrorState | null>(null);
+
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const isDark = localStorage.getItem('theme') === 'dark';
     setIsDarkMode(isDark);
+
+    const hasSelectedPlan = localStorage.getItem('caterpro-subscription');
+    if (hasSelectedPlan) {
+      setIsAppVisible(true);
+    }
+
   }, []);
   
   useEffect(() => {
@@ -127,19 +159,28 @@ const App: React.FC = () => {
         const jsonString = new TextDecoder().decode(utf8Bytes);
         const loadedMenu: Menu = JSON.parse(jsonString);
         
+        // If user has a plan, show app, otherwise show pricing page with a toast
+        if (localStorage.getItem('caterpro-subscription')) {
+          setIsAppVisible(true);
+        }
+
         setMenu(loadedMenu);
+        if (loadedMenu.theme) {
+            setProposalTheme(loadedMenu.theme);
+        }
         const totalItems = [
           ...(loadedMenu.appetizers || []),
           ...(loadedMenu.mainCourses || []),
           ...(loadedMenu.sideDishes || []),
           ...(loadedMenu.dessert || []),
+          ...(loadedMenu.beveragePairings || []),
+          ...(loadedMenu.miseEnPlace || []),
           ...(loadedMenu.serviceNotes || []),
           ...(loadedMenu.deliveryLogistics || []),
           ...(loadedMenu.shoppingList || []),
         ].length;
         setTotalChecklistItems(totalItems);
         
-        // A new menu was loaded, so clear any previous checklist progress
         setCheckedItems(new Set());
         localStorage.removeItem(CHECKED_ITEMS_STORAGE_KEY);
 
@@ -154,7 +195,6 @@ const App: React.FC = () => {
         window.history.replaceState(null, '', window.location.pathname + window.location.search);
       }
     } else {
-        // No shared menu, so try to load any saved checklist progress
         try {
             const storedCheckedItems = localStorage.getItem(CHECKED_ITEMS_STORAGE_KEY);
             if (storedCheckedItems) {
@@ -167,7 +207,6 @@ const App: React.FC = () => {
 
   }, []);
 
-  // Save checklist progress to local storage
   useEffect(() => {
     localStorage.setItem(CHECKED_ITEMS_STORAGE_KEY, JSON.stringify(Array.from(checkedItems)));
   }, [checkedItems]);
@@ -187,6 +226,17 @@ const App: React.FC = () => {
       if (messageInterval) clearInterval(messageInterval);
     };
   }, [isLoading]);
+
+  const handleSelectPlan = (plan: SubscriptionPlan) => {
+    selectPlan(plan);
+    setIsAppVisible(true);
+  };
+
+  const handleUpgrade = (plan: SubscriptionPlan) => {
+    selectPlan(plan);
+    setShowUpgradeModal(false);
+    showToast(`Successfully upgraded to ${plan.charAt(0).toUpperCase() + plan.slice(1)}!`);
+  };
 
   const toggleTheme = () => setIsDarkMode(prev => !prev);
 
@@ -218,7 +268,6 @@ const App: React.FC = () => {
           });
         },
         () => {
-          // Error or permission denied
           resolve(null);
         }
       );
@@ -226,6 +275,8 @@ const App: React.FC = () => {
   };
 
   const generateMenu = async () => {
+    if (!recordGeneration()) return;
+
     const newValidationErrors: ValidationErrors = {};
     if (!eventType) {
       newValidationErrors.eventType = "Please select an event type.";
@@ -262,9 +313,10 @@ const App: React.FC = () => {
         latitude: location?.lat,
         longitude: location?.lon,
       });
-
+      
+      const menuWithTheme = { ...result.menu, theme: proposalTheme };
+      setMenu(menuWithTheme);
       setTotalChecklistItems(result.totalChecklistItems);
-      setMenu(result.menu);
 
       const newHistoryItem: GenerationHistoryItem = {
         id: Date.now(),
@@ -281,13 +333,11 @@ const App: React.FC = () => {
         return updatedHistory;
       });
 
-      // Prompt for email if not already captured
       const storedEmail = localStorage.getItem('caterpro_user_email');
       if (!storedEmail) {
           setIsEmailCaptureModalOpen(true);
       }
 
-      // Non-blocking call to generate the image
       (async () => {
         setIsGeneratingImage(true);
         try {
@@ -308,7 +358,7 @@ const App: React.FC = () => {
   };
 
   const handleGenerateCustomItem = async () => {
-    if (!customItemDescription.trim()) return;
+    if (!attemptAccess('customItemGeneration') || !customItemDescription.trim()) return;
 
     setIsGeneratingCustomItem(true);
     setCustomItemError(null);
@@ -344,9 +394,8 @@ const App: React.FC = () => {
   };
   
   const handleOpenCustomizationModal = (section: MenuSection, index: number) => {
-    if (!menu) return;
+    if (!attemptAccess('itemEditing') || !menu) return;
     const items = menu[section];
-    // Ensure items is an array of strings before accessing
     if (Array.isArray(items) && typeof items[index] === 'string') {
         const text = items[index] as string;
         setItemToEdit({ section, index, text });
@@ -391,7 +440,6 @@ const App: React.FC = () => {
       });
   };
 
-  // Bulk edit handlers
   const handleToggleBulkSelect = (key: string) => {
     setBulkSelectedItems(prev => {
       const newSelection = new Set(prev);
@@ -439,11 +487,50 @@ const App: React.FC = () => {
     showToast(`${selectedIndices.size} item quantities updated.`);
   };
 
+  const handleFindChefs = async () => {
+    if (!attemptAccess('findChefs')) return;
+
+    setIsFindingChefs(true);
+    setFindChefsError(null);
+    setChefs(null);
+
+    try {
+        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
+        const { latitude, longitude } = position.coords;
+
+        const foundChefs = await findChefsNearby(latitude, longitude);
+        setChefs(foundChefs);
+    } catch (err: any) {
+        let errorState: ErrorState;
+        if (err.code === err.PERMISSION_DENIED) {
+            errorState = {
+                title: "Location Access Denied",
+                message: "To find chefs near you, please enable location services in your browser settings and try again."
+            };
+        } else {
+             errorState = getApiErrorState(err);
+        }
+        setFindChefsError(errorState);
+    } finally {
+        setIsFindingChefs(false);
+    }
+  };
+
 
   const completionPercentage = totalChecklistItems > 0 ? (checkedItems.size / totalChecklistItems) * 100 : 0;
 
   const saveMenu = () => {
-    if (!menu) return;
+    if (!attemptAccess('saveMenus') || !menu) return;
+
+    const maxSaved = subscription.plan === 'premium' ? 10 : Infinity;
+    if (savedMenus.length >= maxSaved) {
+        showToast('You have reached your limit for saved menus. Upgrade to Pro for unlimited saves.');
+        setShowUpgradeModal(true);
+        return;
+    }
+
     const newMenu: SavedMenu = {
       id: Date.now(),
       title: menu.menuTitle,
@@ -467,25 +554,21 @@ const App: React.FC = () => {
     const input = menuRef.current;
     if (input) {
         showToast("Preparing your PDF...");
-        const wasDark = document.documentElement.classList.contains('dark');
         
-        // Temporarily switch to light mode for PDF generation if needed
-        if (wasDark) {
-            document.documentElement.classList.remove('dark');
-        }
-
-        // Use a higher scale for better resolution
         html2canvas(input, {
-            scale: 3, // Increased scale for higher fidelity
-            backgroundColor: '#ffffff',
+            scale: 2,
             useCORS: true,
             onclone: (doc) => {
-                // Ensure the background is white in the cloned document
-                const printArea = doc.querySelector('.print-area');
-                if(printArea) {
-                    (printArea as HTMLElement).style.backgroundColor = '#ffffff';
+                const themeKey = menu?.theme || 'classic';
+                if (themeKey === 'modern-dark') {
+                  const container = doc.querySelector('.theme-container') as HTMLElement;
+                   if (container) {
+                       container.style.backgroundColor = 'white';
+                       container.style.color = 'black';
+                       doc.querySelectorAll('.print\\:text-black').forEach(el => (el as HTMLElement).style.color = 'black');
+                       doc.querySelectorAll('.print\\:bg-white').forEach(el => (el as HTMLElement).style.backgroundColor = 'white');
+                   }
                 }
-                // Remove elements that shouldn't be in the PDF
                 doc.querySelectorAll('.no-print, .no-copy, .edit-btn').forEach(el => {
                     if(el && (el as HTMLElement).style) {
                         (el as HTMLElement).style.display = 'none';
@@ -493,48 +576,37 @@ const App: React.FC = () => {
                 });
             }
         }).then(canvas => {
-            const imgData = canvas.toDataURL('image/png', 0.95); // Use high-quality PNG
+            const imgData = canvas.toDataURL('image/png', 0.95);
             const pdf = new jsPDF('p', 'mm', 'a4');
             
+            if (!canAccessFeature('noWatermark')) {
+              pdf.setFontSize(10);
+              pdf.setTextColor(150);
+              const pageWidth = pdf.internal.pageSize.getWidth();
+              const pageHeight = pdf.internal.pageSize.getHeight();
+              pdf.text('Generated with CaterPro AI', pageWidth / 2, pageHeight - 10, { align: 'center' });
+            }
+
             const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
             const canvasWidth = canvas.width;
             const canvasHeight = canvas.height;
-            
             const ratio = canvasWidth / canvasHeight;
-            const widthInPdf = pdfWidth - 20; // pdfWidth with 10mm margins
+            const widthInPdf = pdfWidth - 20;
             const heightInPdf = widthInPdf / ratio;
+            
+            pdf.addImage(imgData, 'PNG', 10, 10, widthInPdf, heightInPdf);
 
-            // Check if content exceeds page height
-            if (heightInPdf > pdfHeight - 20) {
-              // This is a simplified handling. For multi-page, a more complex logic is needed.
-              console.warn("PDF content might be too long for a single page.");
-            }
-
-            const x = 10; // 10mm margin from left
-            const y = 10; // 10mm margin from top
-
-            pdf.addImage(imgData, 'PNG', x, y, widthInPdf, heightInPdf);
             pdf.save(`${menu?.menuTitle.replace(/\s/g, '_') || 'caterpro-ai-menu'}.pdf`);
             
-            // Restore dark mode if it was originally enabled
-            if (wasDark) {
-                document.documentElement.classList.add('dark');
-            }
-
         }).catch(err => {
             console.error("Error generating PDF:", err);
             showToast("Failed to generate PDF.");
-             if (wasDark) {
-                document.documentElement.classList.add('dark');
-            }
         });
     }
   };
 
   const copyToClipboard = () => {
     if (menuRef.current) {
-        // Create a temporary element to exclude non-copyable elements
         const tempDiv = menuRef.current.cloneNode(true) as HTMLElement;
         tempDiv.querySelectorAll('.no-copy').forEach(el => el.remove());
         const textToCopy = tempDiv.innerText || tempDiv.textContent || '';
@@ -546,7 +618,7 @@ const App: React.FC = () => {
   };
 
   const handleOpenShareModal = () => {
-    if (!menu) return;
+    if (!attemptAccess('shareableLinks') || !menu) return;
     try {
       const jsonString = JSON.stringify(menu);
       const utf8Bytes = new TextEncoder().encode(jsonString);
@@ -602,132 +674,169 @@ const App: React.FC = () => {
     setSelectedProduct(product);
     setIsQuoteModalOpen(true);
   };
+  
+  if (!isAppVisible) {
+    return <PricingPage onSelectPlan={handleSelectPlan} />;
+  }
 
   return (
     <div className={`flex flex-col min-h-screen font-sans antialiased ${isDarkMode ? 'dark' : ''}`}>
-      <Navbar onThemeToggle={toggleTheme} isDarkMode={isDarkMode} onOpenSaved={() => setIsSavedModalOpen(true)} savedCount={savedMenus.length} onOpenQrCode={() => setIsQrModalOpen(true)} />
+      <Navbar onThemeToggle={toggleTheme} isDarkMode={isDarkMode} onOpenSaved={() => attemptAccess('saveMenus') && setIsSavedModalOpen(true)} savedCount={savedMenus.length} onOpenQrCode={() => setIsQrModalOpen(true)} />
       
       <main className="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <header className="text-center animate-slide-in" style={{ animationDelay: '0.1s' }}>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-            CaterPro AI
+          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-800 dark:text-slate-200">
+             CaterPro AI
           </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-lg text-slate-600 dark:text-slate-400">
-            Your expert assistant for crafting unforgettable event menus. Instantly generate professional catering proposals.
+          <p className="mt-4 max-w-2xl mx-auto text-lg text-slate-600 dark:text-slate-300">
+            Instantly generate professional catering proposals for any event.
           </p>
+          <div className="mt-4 flex items-center justify-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400">
+            <ShieldCheck className="w-5 h-5 text-green-500" />
+            <span>{subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1)} Plan</span>
+            {!canAccessFeature('unlimitedGenerations') && (
+              <span>&bull; {generationsLeft} generations left today</span>
+            )}
+          </div>
         </header>
 
-        <section aria-labelledby="menu-generator" className="mt-12 bg-white dark:bg-slate-900/50 p-6 sm:p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 animate-slide-in" style={{ animationDelay: '0.2s' }}>
-          <h2 id="menu-generator" className="sr-only">Menu Generator Form</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="event-type" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Event Type <span className="text-red-500">*</span></label>
-              <select
-                id="event-type"
-                value={eventType}
-                onChange={(e) => {
-                  setEventType(e.target.value);
-                  if (e.target.value !== 'Other...') {
-                    setCustomEventType('');
-                  }
-                }}
-                aria-required="true"
-                className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500"
-              >
-                <option value="" disabled>Select an event...</option>
-                {EVENT_TYPES.map((e) => <option key={e} value={e}>{e}</option>)}
-              </select>
-              {eventType === 'Other...' && (
-                <div className="mt-2 animate-slide-in" style={{ animationDuration: '0.3s' }}>
-                  <label htmlFor="custom-event-type" className="sr-only">Custom Event Type</label>
-                  <input
-                    type="text"
-                    id="custom-event-type"
-                    value={customEventType}
-                    onChange={(e) => setCustomEventType(e.target.value)}
-                    placeholder="e.g., Baby Shower, Product Launch..."
-                    className="block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500"
-                    required
+        <section aria-labelledby="menu-generator-title" className="mt-12 bg-white dark:bg-slate-800/50 p-6 sm:p-8 rounded-lg shadow-md border border-slate-200 dark:border-slate-700/80 animate-slide-in" style={{ animationDelay: '0.2s' }}>
+            <h2 id="menu-generator-title" className="text-2xl font-bold text-slate-900 dark:text-white">Get started with CaterPro AI</h2>
+            <p className="text-slate-600 dark:text-slate-400 mt-1">Fill out your event details to generate a complete proposal.</p>
+            
+            <div className="mt-8 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label htmlFor="event-type" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Event Type <span className="text-red-500">*</span></label>
+                  <select id="event-type" value={eventType} onChange={(e) => { setEventType(e.target.value); if (e.target.value !== 'Other...') setCustomEventType(''); }} aria-required="true" className={formInputStyle}>
+                    <option value="" disabled>Select an event...</option>
+                    {EVENT_TYPES.map((e) => <option key={e} value={e}>{e}</option>)}
+                  </select>
+                  {eventType === 'Other...' && (
+                    <div className="mt-2 animate-slide-in" style={{ animationDuration: '0.3s' }}>
+                      <label htmlFor="custom-event-type" className="sr-only">Custom Event Type</label>
+                      <input type="text" id="custom-event-type" value={customEventType} onChange={(e) => setCustomEventType(e.target.value)} placeholder="e.g., Baby Shower..." className={formInputStyle} required />
+                    </div>
+                  )}
+                  {validationErrors.eventType && <p className="text-red-500 text-sm mt-1">{validationErrors.eventType}</p>}
+                </div>
+                <div>
+                  <label htmlFor="guest-count" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Number of Guests <span className="text-red-500">*</span></label>
+                  <select id="guest-count" value={guestCount} onChange={e => setGuestCount(e.target.value)} aria-required="true" className={formInputStyle}>
+                    <option value="" disabled>Select guest range...</option>
+                    {GUEST_COUNT_OPTIONS.map(g => <option key={g} value={g}>{g}</option>)}
+                  </select>
+                  {validationErrors.guestCount && <p className="text-red-500 text-sm mt-1">{validationErrors.guestCount}</p>}
+                </div>
+                <div>
+                  <label htmlFor="budget" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Budget Level</label>
+                  <select id="budget" value={budget} onChange={e => setBudget(e.target.value)} className={formInputStyle}>
+                    {BUDGET_LEVELS.map(b => <option key={b.value} value={b.value}>{b.label}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="service-style" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Service Style</label>
+                  <select id="service-style" value={serviceStyle} onChange={e => setServiceStyle(e.target.value)} className={formInputStyle}>
+                    {SERVICE_STYLES.map(s => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+                <div className="md:col-span-2">
+                  <label htmlFor="cuisine" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Cuisine Style <span className="text-red-500">*</span></label>
+                  <select id="cuisine" value={cuisine} onChange={(e) => setCuisine(e.target.value)} aria-required="true" className={formInputStyle}>
+                    <option value="" disabled>Select a cuisine...</option>
+                    {CUISINES.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                  {validationErrors.cuisine && <p className="text-red-500 text-sm mt-1">{validationErrors.cuisine}</p>}
+                </div>
+                <div className="md:col-span-2">
+                  <MultiSelectDropdown
+                    label="Dietary Needs"
+                    options={DIETARY_RESTRICTIONS}
+                    selectedItems={dietaryRestrictions}
+                    onChange={setDietaryRestrictions}
+                    placeholder="e.g., Vegan, Gluten-Free..."
                   />
                 </div>
-              )}
-              {validationErrors.eventType && <p className="text-red-500 text-sm mt-1">{validationErrors.eventType}</p>}
-            </div>
-            <div>
-              <label htmlFor="guest-count" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Number of Guests <span className="text-red-500">*</span></label>
-              <select id="guest-count" value={guestCount} onChange={e => setGuestCount(e.target.value)} aria-required="true" className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500">
-                <option value="" disabled>Select guest range...</option>
-                {GUEST_COUNT_OPTIONS.map(g => <option key={g} value={g}>{g}</option>)}
-              </select>
-              {validationErrors.guestCount && <p className="text-red-500 text-sm mt-1">{validationErrors.guestCount}</p>}
-            </div>
-             <div>
-              <label htmlFor="budget" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Budget Level</label>
-              <select id="budget" value={budget} onChange={e => setBudget(e.target.value)} className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500">
-                {BUDGET_LEVELS.map(b => <option key={b.value} value={b.value}>{b.label}</option>)}
-              </select>
-            </div>
-             <div>
-              <label htmlFor="service-style" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Service Style</label>
-              <select id="service-style" value={serviceStyle} onChange={e => setServiceStyle(e.target.value)} className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500">
-                {SERVICE_STYLES.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
-            </div>
-             <div>
-              <label htmlFor="cuisine" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Cuisine Style <span className="text-red-500">*</span></label>
-              <select id="cuisine" value={cuisine} onChange={(e) => setCuisine(e.target.value)} aria-required="true" className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500">
-                <option value="" disabled>Select a cuisine...</option>
-                {CUISINES.map(c => <option key={c} value={c}>{c}</option>)}
-              </select>
-              {validationErrors.cuisine && <p className="text-red-500 text-sm mt-1">{validationErrors.cuisine}</p>}
-            </div>
-            <div>
-              <MultiSelectDropdown
-                  label="Dietary Needs"
-                  options={DIETARY_RESTRICTIONS}
-                  selectedItems={dietaryRestrictions}
-                  onChange={setDietaryRestrictions}
-                  placeholder="e.g., Vegan, Gluten-Free..."
-              />
-            </div>
-          </div>
-
-          <div className="mt-6 text-center">
-            <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Need inspiration? Try one of these scenarios:</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {exampleScenarios.map(scenario => (
-                <button key={scenario.title} onClick={() => handleExampleClick(scenario)} className="group text-left p-4 bg-slate-50 dark:bg-slate-800/50 rounded-lg hover:bg-primary-50 dark:hover:bg-primary-900/20 border-2 border-slate-200 dark:border-slate-800 hover:border-primary-200 dark:hover:border-primary-800 transition-all">
-                  <div className="flex items-start gap-4">
-                    <scenario.IconComponent className="w-8 h-8 text-primary-500 flex-shrink-0" />
-                    <div>
-                      <h3 className="font-semibold text-slate-800 dark:text-slate-200 group-hover:text-primary-700 dark:group-hover:text-primary-300">{scenario.title}</h3>
-                      <p className="text-xs text-slate-500 dark:text-slate-400">{scenario.eventType}</p>
-                    </div>
+              </div>
+              
+              <div className="md:col-span-2 pt-6 border-t border-slate-200 dark:border-slate-700">
+                <fieldset>
+                  <legend className="block text-sm font-medium text-slate-700 dark:text-slate-300">Proposal Theme</legend>
+                  <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {Object.entries(PROPOSAL_THEMES).map(([key, theme]) => (
+                      <div key={key}>
+                        <input
+                          type="radio"
+                          id={`theme-${key}`}
+                          name="proposal-theme"
+                          value={key}
+                          checked={proposalTheme === key}
+                          onChange={(e) => {
+                            if (key !== 'classic' && !attemptAccess('allThemes')) return;
+                            setProposalTheme(e.target.value)
+                          }}
+                          className="sr-only"
+                        />
+                        <label
+                          htmlFor={`theme-${key}`}
+                          className={`relative flex flex-col items-center justify-center p-3 rounded-lg border-2 cursor-pointer transition-all ${
+                            proposalTheme === key ? 'border-primary-500 ring-2 ring-primary-500' : 'border-slate-300 dark:border-slate-600 hover:border-slate-400 dark:hover:border-slate-500'
+                          } ${key !== 'classic' && !canAccessFeature('allThemes') ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        >
+                          {key !== 'classic' && !canAccessFeature('allThemes') && <div className="absolute inset-0 bg-white/50 dark:bg-slate-900/50 rounded-lg"></div>}
+                          <div className="flex space-x-1 mb-2">
+                            {theme.preview.map((color, i) => (
+                              <div key={i} className={`w-4 h-4 rounded-full ${color}`}></div>
+                            ))}
+                          </div>
+                          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">{theme.name}</span>
+                        </label>
+                      </div>
+                    ))}
                   </div>
-                </button>
-              ))}
+                </fieldset>
+              </div>
             </div>
-          </div>
-          
-          <div className="mt-8 border-t border-slate-200 dark:border-slate-700 pt-6 flex justify-center">
-            <button
-              onClick={generateMenu}
-              disabled={isLoading}
-              className="inline-flex items-center justify-center px-8 py-3 text-base font-semibold text-white bg-primary-500 border border-transparent rounded-lg shadow-sm hover:bg-primary-600 disabled:opacity-70 disabled:cursor-not-allowed transform hover:scale-105 transition-transform"
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  <span>{loadingMessage}</span>
-                </>
-              ) : (
-                'Generate Menu Proposal'
-              )}
-            </button>
+            
+            <div className="mt-8 border-t border-slate-200 dark:border-slate-700 pt-6 flex flex-col items-center">
+              <button
+                onClick={generateMenu}
+                disabled={isLoading}
+                className="w-full max-w-xs inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white bg-primary-600 border border-transparent rounded-md shadow-sm hover:bg-primary-700 disabled:opacity-70 disabled:cursor-not-allowed transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500 dark:focus-visible:ring-offset-slate-900"
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    <span>{loadingMessage}</span>
+                  </>
+                ) : (
+                  'Generate Menu Proposal'
+                )}
+              </button>
+            </div>
+          </section>
+
+        <section aria-labelledby="next-steps-title" className="mt-12 animate-slide-in" style={{ animationDelay: '0.3s' }}>
+          <h2 id="next-steps-title" className="text-xl font-bold text-slate-900 dark:text-white mb-4">
+            Or, start with an example
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {exampleScenarios.map(scenario => (
+              <button 
+                key={scenario.title} 
+                onClick={() => handleExampleClick(scenario)} 
+                className="w-full text-left p-4 bg-white dark:bg-slate-800 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700/60 border border-slate-200 dark:border-slate-700 transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500 flex items-center gap-4"
+              >
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center">
+                    <scenario.IconComponent className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+                </div>
+                <span className="font-semibold text-slate-700 dark:text-slate-300">{scenario.title}</span>
+              </button>
+            ))}
           </div>
         </section>
 
-        <section aria-labelledby="recommended-products-title" className="mt-12 animate-slide-in" style={{ animationDelay: '0.3s' }}>
+        <section aria-labelledby="recommended-products-title" className="mt-16 animate-slide-in" style={{ animationDelay: '0.4s' }}>
           <div className="text-center">
             <h2 id="recommended-products-title" className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white flex items-center justify-center">
               <ShoppingBag className="w-8 h-8 mr-3 text-primary-500" />
@@ -770,6 +879,14 @@ const App: React.FC = () => {
           </div>
         </section>
         
+        <FindChef
+          onFindChefs={handleFindChefs}
+          chefs={chefs}
+          isLoading={isFindingChefs}
+          error={findChefsError}
+          isPro={canAccessFeature('findChefs')}
+        />
+
         <GenerationHistory
           history={generationHistory}
           onItemClick={handleHistoryItemClick}
@@ -794,7 +911,7 @@ const App: React.FC = () => {
               <div className="bg-white dark:bg-slate-900/50 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
                   <div className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex flex-wrap gap-4 items-center justify-between">
                       <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center">
-                          <Presentation className="w-7 h-7 mr-3 text-green-500" />
+                          <Presentation className="w-7 h-7 text-green-500" />
                           Your Menu Proposal
                       </h2>
                       <div className="flex items-center space-x-2">
@@ -826,12 +943,12 @@ const App: React.FC = () => {
                       <p className="text-xs text-right mt-1 text-slate-500 dark:text-slate-400">Proposal Checklist: {Math.round(completionPercentage)}% Complete ({checkedItems.size}/{totalChecklistItems})</p>
                   </div>
 
-                  <div ref={menuRef} className="print-area p-4 sm:p-6 bg-white dark:bg-slate-900">
+                  <div ref={menuRef} className="print-area">
                       <MarkdownRenderer 
                         menu={menu} 
                         checkedItems={checkedItems} 
                         onToggleItem={handleToggleChecklistItem} 
-                        isEditable={true}
+                        isEditable={canAccessFeature('itemEditing')}
                         onEditItem={handleOpenCustomizationModal}
                         showToast={showToast}
                         isGeneratingImage={isGeneratingImage}
@@ -842,6 +959,9 @@ const App: React.FC = () => {
                         onBulkUpdateQuantity={handleBulkUpdateQuantity}
                         onClearBulkSelection={handleClearBulkSelection}
                         onSelectAllShoppingListItems={handleSelectAllShoppingListItems}
+                        proposalTheme={menu.theme || 'classic'}
+                        canAccessFeature={canAccessFeature}
+                        onAttemptAccess={attemptAccess}
                       />
                   </div>
               </div>
@@ -856,25 +976,27 @@ const App: React.FC = () => {
                   <p className="mt-2 text-slate-600 dark:text-slate-400">
                       Describe a dish you have in mind, and our AI will write it up for your menu.
                   </p>
-                  <div className="mt-6 space-y-4">
+                  <div className={`mt-6 space-y-4 ${!canAccessFeature('customItemGeneration') ? 'opacity-50' : ''}`}>
                       <div>
-                          <label htmlFor="custom-item-desc" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Dish Description</label>
+                          <label htmlFor="custom-item-desc" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Dish Description</label>
                           <textarea
                               id="custom-item-desc"
                               rows={3}
                               value={customItemDescription}
                               onChange={e => setCustomItemDescription(e.target.value)}
                               placeholder="e.g., A light, summery appetizer with strawberries, goat cheese, and a balsamic glaze."
-                              className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                              className={formInputStyle}
+                              disabled={!canAccessFeature('customItemGeneration')}
                           />
                       </div>
                       <div>
-                          <label htmlFor="custom-item-cat" className="block text-sm font-semibold text-slate-700 dark:text-slate-300">Menu Category</label>
+                          <label htmlFor="custom-item-cat" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Menu Category</label>
                           <select 
                               id="custom-item-cat"
                               value={customItemCategory}
                               onChange={e => setCustomItemCategory(e.target.value as MenuSection)}
-                              className="mt-1 block w-full px-4 py-2 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-lg focus:ring-primary-500 focus:border-primary-500"
+                              className={formInputStyle}
+                              disabled={!canAccessFeature('customItemGeneration')}
                           >
                               {EDITABLE_MENU_SECTIONS.map(section => (
                                   <option key={section.key} value={section.key}>{section.title}</option>
@@ -884,8 +1006,8 @@ const App: React.FC = () => {
                       <div className="text-right">
                           <button
                               onClick={handleGenerateCustomItem}
-                              disabled={isGeneratingCustomItem || !customItemDescription.trim()}
-                              className="inline-flex items-center justify-center px-6 py-2.5 text-base font-semibold text-white bg-primary-500 border border-transparent rounded-lg shadow-sm hover:bg-primary-600 disabled:opacity-70 disabled:cursor-not-allowed"
+                              disabled={isGeneratingCustomItem || !customItemDescription.trim() || !canAccessFeature('customItemGeneration')}
+                              className="inline-flex items-center justify-center px-6 py-2.5 text-base font-semibold text-white bg-primary-600 border border-transparent rounded-md shadow-sm hover:bg-primary-700 disabled:opacity-70 disabled:cursor-not-allowed"
                           >
                               {isGeneratingCustomItem ? (
                                   <>
@@ -943,8 +1065,13 @@ const App: React.FC = () => {
         onClose={() => setIsQuoteModalOpen(false)} 
         product={selectedProduct} 
       />
+      <UpgradeModal 
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        onUpgrade={handleUpgrade}
+      />
       <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
-      <AiChatBot />
+      <AiChatBot onAttemptAccess={() => attemptAccess('aiChatBot')} isPro={canAccessFeature('aiChatBot')} />
     </div>
   );
 };
