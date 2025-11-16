@@ -116,12 +116,23 @@ export const generateMenuFromApi = async ({
           },
           required: ['item', 'description']
         }
+      },
+      deliveryFeeStructure: {
+        type: Type.OBJECT,
+        description: "A structured object for calculating delivery fees. Use South African Rand (ZAR) for currency. The unit should be 'km'. The base fee should be between R30-R80 and perUnitRate between R10-R25.",
+        properties: {
+            baseFee: { type: Type.NUMBER, description: "A base fee for any delivery, e.g., 50." },
+            perUnitRate: { type: Type.NUMBER, description: "The cost per unit of distance, e.g., 15." },
+            unit: { type: Type.STRING, description: "The unit of distance, either 'km' or 'mile'. Default to 'km'." },
+            currency: { type: Type.STRING, description: "The currency code, e.g., 'ZAR'." }
+        },
+        required: ['baseFee', 'perUnitRate', 'unit', 'currency']
       }
     },
-    required: ['menuTitle', 'description', 'appetizers', 'mainCourses', 'sideDishes', 'dessert', 'beveragePairings', 'miseEnPlace', 'serviceNotes', 'deliveryLogistics', 'shoppingList', 'recommendedEquipment'],
+    required: ['menuTitle', 'description', 'appetizers', 'mainCourses', 'sideDishes', 'dessert', 'beveragePairings', 'miseEnPlace', 'serviceNotes', 'deliveryLogistics', 'shoppingList', 'recommendedEquipment', 'deliveryFeeStructure'],
   };
 
-  const systemInstruction = `You are a world-class catering consultant and event planner with experience from high-end hospitality brands like Disney. Your tone is professional, creative, and meticulous. Your entire response must conform to the provided JSON schema. Create a cohesive and detailed menu proposal based on the user's event criteria, including a detailed mise en place checklist, beverage pairings for appetizers and main courses, a practical delivery and logistics plan, a comprehensive shopping list with quantities appropriate for the number of guests, and a list of recommended equipment or supplies that would be helpful for executing this menu, which can be used for affiliate marketing.`;
+  const systemInstruction = `You are a world-class catering consultant and event planner with experience from high-end hospitality brands like Disney. Your tone is professional, creative, and meticulous. Your entire response must conform to the provided JSON schema. Create a cohesive and detailed menu proposal based on the user's event criteria, including a detailed mise en place checklist, beverage pairings for appetizers and main courses, a practical delivery and logistics plan, a comprehensive shopping list with quantities appropriate for the number of guests, a list of recommended equipment or supplies that would be helpful for executing this menu, and a realistic delivery fee structure.`;
 
   let prompt = `
     Generate a complete catering menu proposal based on the following criteria:
