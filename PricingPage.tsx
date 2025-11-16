@@ -24,7 +24,7 @@ const tiers = [
   {
     name: 'Premium',
     id: 'premium',
-    price: '$19',
+    price: '$9',
     priceSuffix: '/ month',
     description: 'For professionals who need more power and customization.',
     features: [
@@ -41,14 +41,14 @@ const tiers = [
   {
     name: 'Pro',
     id: 'pro',
-    price: '$49',
+    price: '$29',
     priceSuffix: '/ month',
     description: 'The ultimate toolkit for growing your catering business.',
     features: [
       'All Premium features',
       'Unlimited Saved Menus',
       'Shareable Proposal Links',
-      'Find Local Chefs Feature',
+      'Find Local Suppliers Feature',
       'In-Place Menu Editing',
       'Bulk Shopping List Editing',
       'Generate Custom Menu Items',
@@ -69,7 +69,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
               Choose Your Plan
             </h1>
             <p className="mt-4 text-lg text-slate-600 dark:text-slate-400">
-              Unlock powerful tools to streamline your catering business and impress your clients.
+              Affordable plans for every food business, from spaza shops to professional caterers.
             </p>
           </div>
 
