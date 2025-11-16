@@ -113,10 +113,13 @@ const SavedChecklistsModal: React.FC<{
                 onClearBulkSelection={() => {}}
                 onSelectAllShoppingListItems={() => {}}
                 proposalTheme={viewingMenu.content.theme || 'classic'}
-                // Fix: Pass required props for feature access.
-                // In a read-only saved view, we assume the user can see all features they previously generated.
                 canAccessFeature={() => true}
                 onAttemptAccess={() => true}
+                isReadOnlyView={true}
+                deliveryRadius=""
+                onDeliveryRadiusChange={() => {}}
+                onCalculateFee={() => {}}
+                calculatedFee={null}
               />
           ) : (
             <div className="p-6">
