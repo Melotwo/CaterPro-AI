@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI, Chat } from '@google/genai';
-import { MessageSquare, Send, X, Bot, User, AlertTriangle } from 'lucide-react';
+import { MessageSquare, Send, X, Bot, User, AlertTriangle, Lock } from 'lucide-react';
 import { Message, ErrorState } from '../types.ts';
 import { getApiErrorState } from '../services/errorHandler.ts';
 
-const AiChatBot: React.FC = () => {
+const AiChatBot: React.FC<{
+  onAttemptAccess: () => boolean;
+  isPro: boolean;
+}> = ({ onAttemptAccess, isPro }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState<Message[]>([
         {
@@ -21,13 +24,23 @@ const AiChatBot: React.FC = () => {
     const inputRef = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
-        if (isOpen) {
+        if (isOpen && isPro) {
             inputRef.current?.focus();
             if (!chatRef.current) {
                 initializeChat();
             }
         }
-    }, [isOpen]);
+    }, [isOpen, isPro]);
+
+    const handleToggleOpen = () => {
+      if (isOpen) {
+        setIsOpen(false);
+      } else {
+        if (onAttemptAccess()) {
+          setIsOpen(true);
+        }
+      }
+    };
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -90,7 +103,6 @@ const AiChatBot: React.FC = () => {
 
         } catch (err) {
             setError(getApiErrorState(err));
-            // Remove the optimistic model response placeholder on error
             setMessages(prev => {
                 const lastMessage = prev[prev.length - 1];
                 if (lastMessage && lastMessage.role === 'model' && lastMessage.content === '') {
@@ -108,15 +120,20 @@ const AiChatBot: React.FC = () => {
         <>
             <div className="no-print fixed bottom-6 right-6 z-40">
                 <button
-                    onClick={() => setIsOpen(!isOpen)}
-                    className="bg-primary-500 text-white rounded-full p-4 shadow-lg hover:bg-primary-600 transition-transform transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500"
+                    onClick={handleToggleOpen}
+                    className="relative bg-primary-500 text-white rounded-full p-4 shadow-lg hover:bg-primary-600 transition-transform transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500"
                     aria-label={isOpen ? "Close chat" : "Open chat"}
                 >
                     {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
+                     {!isPro && (
+                        <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-amber-400 text-amber-900 shadow" aria-hidden="true">
+                          <Lock size={12} />
+                        </span>
+                    )}
                 </button>
             </div>
             
-            {isOpen && (
+            {isOpen && isPro && (
                 <div role="dialog" aria-labelledby="chat-heading" className="no-print fixed bottom-24 right-6 z-50 w-[calc(100vw-3rem)] max-w-sm h-[60vh] max-h-[700px] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col animate-slide-in">
                     <header className="flex-shrink-0 p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
                         <div className="flex items-center gap-3">
