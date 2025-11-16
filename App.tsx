@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle, Link, RefreshCw, ShoppingBag, ChefHat, ShieldCheck } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle, Link, RefreshCw, ShoppingBag, ChefHat, ShieldCheck, Smartphone, X } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -23,9 +23,9 @@ import PricingPage from './components/PricingPage.tsx';
 import UpgradeModal from './components/UpgradeModal.tsx';
 import { useSubscription, SubscriptionPlan } from './hooks/useSubscription.ts';
 import { exampleScenarios, CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, EDITABLE_MENU_SECTIONS, RECOMMENDED_PRODUCTS, PROPOSAL_THEMES } from './constants.ts';
-import { SavedMenu, ErrorState, ValidationErrors, GenerationHistoryItem, Menu, MenuSection, PpeProduct, Chef } from './types.ts';
+import { SavedMenu, ErrorState, ValidationErrors, GenerationHistoryItem, Menu, MenuSection, PpeProduct, Supplier } from './types.ts';
 import { getApiErrorState } from './services/errorHandler.ts';
-import { generateMenuFromApi, generateCustomMenuItemFromApi, generateMenuImageFromApi, findChefsNearby } from './services/geminiService.ts';
+import { generateMenuFromApi, generateCustomMenuItemFromApi, generateMenuImageFromApi, findSuppliersNearby } from './services/geminiService.ts';
 
 
 const LOADING_MESSAGES = [
@@ -66,6 +66,7 @@ const App: React.FC = () => {
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
   const [totalChecklistItems, setTotalChecklistItems] = useState(0);
   const [isAppVisible, setIsAppVisible] = useState(false);
+  const [showPwaBanner, setShowPwaBanner] = useState(false);
 
   const { 
     subscription, 
@@ -105,10 +106,10 @@ const App: React.FC = () => {
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<PpeProduct | null>(null);
 
-  // State for chefs feature
-  const [chefs, setChefs] = useState<Chef[] | null>(null);
-  const [isFindingChefs, setIsFindingChefs] = useState(false);
-  const [findChefsError, setFindChefsError] = useState<ErrorState | null>(null);
+  // State for suppliers feature
+  const [suppliers, setSuppliers] = useState<Supplier[] | null>(null);
+  const [isFindingSuppliers, setIsFindingSuppliers] = useState(false);
+  const [findSuppliersError, setFindSuppliersError] = useState<ErrorState | null>(null);
 
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -120,6 +121,12 @@ const App: React.FC = () => {
     if (hasSelectedPlan) {
       setIsAppVisible(true);
     }
+    
+    const pwaBannerDismissed = localStorage.getItem('pwaBannerDismissed');
+    if (!pwaBannerDismissed) {
+        setShowPwaBanner(true);
+    }
+
 
   }, []);
   
@@ -337,6 +344,11 @@ const App: React.FC = () => {
       if (!storedEmail) {
           setIsEmailCaptureModalOpen(true);
       }
+      
+      if (!localStorage.getItem('pwaBannerDismissed')) {
+          setShowPwaBanner(true);
+      }
+
 
       (async () => {
         setIsGeneratingImage(true);
@@ -487,12 +499,12 @@ const App: React.FC = () => {
     showToast(`${selectedIndices.size} item quantities updated.`);
   };
 
-  const handleFindChefs = async () => {
-    if (!attemptAccess('findChefs')) return;
+  const handleFindSuppliers = async () => {
+    if (!attemptAccess('findSuppliers')) return;
 
-    setIsFindingChefs(true);
-    setFindChefsError(null);
-    setChefs(null);
+    setIsFindingSuppliers(true);
+    setFindSuppliersError(null);
+    setSuppliers(null);
 
     try {
         const position = await new Promise<GeolocationPosition>((resolve, reject) => {
@@ -500,21 +512,21 @@ const App: React.FC = () => {
         });
         const { latitude, longitude } = position.coords;
 
-        const foundChefs = await findChefsNearby(latitude, longitude);
-        setChefs(foundChefs);
+        const foundSuppliers = await findSuppliersNearby(latitude, longitude);
+        setSuppliers(foundSuppliers);
     } catch (err: any) {
         let errorState: ErrorState;
         if (err.code === err.PERMISSION_DENIED) {
             errorState = {
                 title: "Location Access Denied",
-                message: "To find chefs near you, please enable location services in your browser settings and try again."
+                message: "To find suppliers near you, please enable location services in your browser settings and try again."
             };
         } else {
              errorState = getApiErrorState(err);
         }
-        setFindChefsError(errorState);
+        setFindSuppliersError(errorState);
     } finally {
-        setIsFindingChefs(false);
+        setIsFindingSuppliers(false);
     }
   };
 
@@ -576,7 +588,6 @@ const App: React.FC = () => {
                 });
             }
         }).then(canvas => {
-            const imgData = canvas.toDataURL('image/png', 0.95);
             const pdf = new jsPDF('p', 'mm', 'a4');
             
             if (!canAccessFeature('noWatermark')) {
@@ -594,6 +605,8 @@ const App: React.FC = () => {
             const widthInPdf = pdfWidth - 20;
             const heightInPdf = widthInPdf / ratio;
             
+            // Fix: Defined imgData from the canvas before using it.
+            const imgData = canvas.toDataURL('image/png');
             pdf.addImage(imgData, 'PNG', 10, 10, widthInPdf, heightInPdf);
 
             pdf.save(`${menu?.menuTitle.replace(/\s/g, '_') || 'caterpro-ai-menu'}.pdf`);
@@ -679,17 +692,34 @@ const App: React.FC = () => {
     return <PricingPage onSelectPlan={handleSelectPlan} />;
   }
 
+  const handleDismissPwaBanner = () => {
+      setShowPwaBanner(false);
+      localStorage.setItem('pwaBannerDismissed', 'true');
+  }
+
   return (
     <div className={`flex flex-col min-h-screen font-sans antialiased ${isDarkMode ? 'dark' : ''}`}>
       <Navbar onThemeToggle={toggleTheme} isDarkMode={isDarkMode} onOpenSaved={() => attemptAccess('saveMenus') && setIsSavedModalOpen(true)} savedCount={savedMenus.length} onOpenQrCode={() => setIsQrModalOpen(true)} />
       
+       {showPwaBanner && (
+         <div className="no-print fixed bottom-2 left-2 z-50 bg-white dark:bg-slate-800 p-3 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 flex items-center gap-4 animate-toast-in max-w-sm">
+           <Smartphone className="w-6 h-6 text-primary-500 flex-shrink-0" />
+           <p className="text-sm text-slate-700 dark:text-slate-300">
+             For quick access, add this app to your home screen!
+           </p>
+           <button onClick={handleDismissPwaBanner} className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 flex-shrink-0">
+             <X size={16} className="text-slate-500" />
+           </button>
+         </div>
+       )}
+
       <main className="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <header className="text-center animate-slide-in" style={{ animationDelay: '0.1s' }}>
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-800 dark:text-slate-200">
              CaterPro AI
           </h1>
           <p className="mt-4 max-w-2xl mx-auto text-lg text-slate-600 dark:text-slate-300">
-            Instantly generate professional catering proposals for any event.
+            Generate menus, shopping lists, and proposals for your food business.
           </p>
           <div className="mt-4 flex items-center justify-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400">
             <ShieldCheck className="w-5 h-5 text-green-500" />
@@ -880,11 +910,11 @@ const App: React.FC = () => {
         </section>
         
         <FindChef
-          onFindChefs={handleFindChefs}
-          chefs={chefs}
-          isLoading={isFindingChefs}
-          error={findChefsError}
-          isPro={canAccessFeature('findChefs')}
+          onFindChefs={handleFindSuppliers}
+          chefs={suppliers}
+          isLoading={isFindingSuppliers}
+          error={findSuppliersError}
+          isPro={canAccessFeature('findSuppliers')}
         />
 
         <GenerationHistory
