@@ -111,6 +111,10 @@ const App: React.FC = () => {
   const [isFindingSuppliers, setIsFindingSuppliers] = useState(false);
   const [findSuppliersError, setFindSuppliersError] = useState<ErrorState | null>(null);
 
+  // State for delivery fee calculator
+  const [deliveryRadius, setDeliveryRadius] = useState('');
+  const [calculatedFee, setCalculatedFee] = useState<string | null>(null);
+
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -305,6 +309,8 @@ const App: React.FC = () => {
     setCheckedItems(new Set());
     setBulkSelectedItems(new Set());
     setTotalChecklistItems(0);
+    setDeliveryRadius('');
+    setCalculatedFee(null);
 
     const finalEventType = eventType === 'Other...' ? customEventType : eventType;
     const location = await getUserLocation();
@@ -528,6 +534,23 @@ const App: React.FC = () => {
     } finally {
         setIsFindingSuppliers(false);
     }
+  };
+
+  const handleCalculateFee = () => {
+    if (!menu?.deliveryFeeStructure || deliveryRadius === '') {
+      setCalculatedFee(null);
+      return;
+    }
+    const radius = parseFloat(deliveryRadius);
+    if (isNaN(radius) || radius < 0) {
+      setCalculatedFee('Invalid distance');
+      return;
+    }
+    const { baseFee, perUnitRate, currency } = menu.deliveryFeeStructure;
+    const totalFee = baseFee + radius * perUnitRate;
+    setCalculatedFee(
+      new Intl.NumberFormat('en-ZA', { style: 'currency', currency }).format(totalFee)
+    );
   };
 
 
@@ -992,6 +1015,10 @@ const App: React.FC = () => {
                         proposalTheme={menu.theme || 'classic'}
                         canAccessFeature={canAccessFeature}
                         onAttemptAccess={attemptAccess}
+                        deliveryRadius={deliveryRadius}
+                        onDeliveryRadiusChange={setDeliveryRadius}
+                        onCalculateFee={handleCalculateFee}
+                        calculatedFee={calculatedFee}
                       />
                   </div>
               </div>
