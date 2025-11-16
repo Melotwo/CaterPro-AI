@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types.ts';
-import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine } from 'lucide-react';
+import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator } from 'lucide-react';
 import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES } from '../constants.ts';
 
 interface MarkdownRendererProps {
@@ -21,6 +21,11 @@ interface MarkdownRendererProps {
   proposalTheme: string;
   canAccessFeature: (feature: string) => boolean;
   onAttemptAccess: (feature: string) => boolean;
+  isReadOnlyView?: boolean;
+  deliveryRadius: string;
+  onDeliveryRadiusChange: (value: string) => void;
+  onCalculateFee: () => void;
+  calculatedFee: string | null;
 }
 
 const getAffiliateLink = (keywords: string) => {
@@ -32,7 +37,8 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     menu, checkedItems, onToggleItem, isEditable, onEditItem, showToast, 
     isGeneratingImage, onUpdateShoppingItemQuantity, bulkSelectedItems, onToggleBulkSelect,
     onBulkCheck, onBulkUpdateQuantity, onClearBulkSelection, onSelectAllShoppingListItems,
-    proposalTheme, canAccessFeature, onAttemptAccess
+    proposalTheme, canAccessFeature, onAttemptAccess, isReadOnlyView = false,
+    deliveryRadius, onDeliveryRadiusChange, onCalculateFee, calculatedFee
 }) => {
   const [isBulkEditMode, setIsBulkEditMode] = useState(false);
   const [bulkQuantity, setBulkQuantity] = useState('');
@@ -427,6 +433,31 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
                     );
                   })}
                 </div>
+                 {!isReadOnlyView && key === 'deliveryLogistics' && menu.deliveryFeeStructure && (
+                    <div className="mt-4 pt-4 border-t-2 border-slate-200 dark:border-slate-700">
+                        <h4 className={`font-bold ${t.cardTitle} flex items-center gap-2`}><Calculator size={16} /> Delivery Fee Calculator</h4>
+                        <p className={`text-xs mt-1 mb-3 ${t.cardText}`}>
+                            Enter the delivery distance to estimate the fee.
+                            (Base: {new Intl.NumberFormat('en-ZA', { style: 'currency', currency: menu.deliveryFeeStructure.currency }).format(menu.deliveryFeeStructure.baseFee)} + {new Intl.NumberFormat('en-ZA', { style: 'currency', currency: menu.deliveryFeeStructure.currency }).format(menu.deliveryFeeStructure.perUnitRate)}/{menu.deliveryFeeStructure.unit})
+                        </p>
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                            <input
+                                type="number"
+                                value={deliveryRadius}
+                                onChange={(e) => onDeliveryRadiusChange(e.target.value)}
+                                placeholder={`Distance in ${menu.deliveryFeeStructure.unit}s`}
+                                className="flex-grow px-3 py-2 text-sm bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
+                                aria-label={`Distance in ${menu.deliveryFeeStructure.unit}s`}
+                            />
+                            <button onClick={onCalculateFee} className="action-button flex-shrink-0">Calculate Fee</button>
+                        </div>
+                        {calculatedFee && (
+                            <p className="mt-3 font-bold text-lg text-primary-600 dark:text-primary-400 animate-slide-in" style={{animationDuration: '0.3s'}}>
+                                Estimated Fee: <span className="p-2 bg-primary-50 dark:bg-primary-900/50 rounded-md">{calculatedFee}</span>
+                            </p>
+                        )}
+                    </div>
+                 )}
               </div>
           )
         })}
