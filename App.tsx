@@ -491,7 +491,8 @@ const App: React.FC = () => {
     if (!menu || !newQuantity.trim() || bulkSelectedItems.size === 0) return;
 
     const selectedIndices = new Set(
-      Array.from(bulkSelectedItems).map(key => parseInt(key.split('-')[1], 10))
+      // FIX: Explicitly type `key` as a string to prevent a type inference issue where it was being treated as `unknown`.
+      Array.from(bulkSelectedItems).map((key: string) => parseInt(key.split('-')[1], 10))
     );
 
     const updatedShoppingList = menu.shoppingList.map((item, index) => {
