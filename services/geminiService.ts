@@ -1,5 +1,5 @@
 import { GoogleGenAI, Modality, Type } from "@google/genai";
-import { Menu, ShoppingListItem } from "../types.ts";
+import { Menu, ShoppingListItem, Chef, BeveragePairing } from "../types.ts";
 
 export interface MenuGenerationParams {
   eventType: string;
@@ -60,6 +60,23 @@ export const generateMenuFromApi = async ({
         description: "A list of 1-2 dessert options.",
         items: { type: Type.STRING },
       },
+       beveragePairings: {
+        type: Type.ARRAY,
+        description: "Suggest a wine or non-alcoholic beverage pairing for each appetizer and main course. Each object should link a specific menu item to its suggested pairing.",
+        items: {
+          type: Type.OBJECT,
+          properties: {
+            menuItem: { type: Type.STRING, description: "The exact name of the appetizer or main course item from the generated menu." },
+            pairingSuggestion: { type: Type.STRING, description: "A concise beverage pairing suggestion. e.g., 'A crisp Sauvignon Blanc or a sparkling elderflower pressé'." }
+          },
+          required: ['menuItem', 'pairingSuggestion']
+        }
+      },
+      miseEnPlace: {
+        type: Type.ARRAY,
+        description: "A detailed checklist of preparation tasks (mise en place) to be done hours or a day before the event. e.g., 'Wash and chop all vegetables for the salad', 'Prepare the marinade for the chicken', 'Pre-portion dessert garnishes'.",
+        items: { type: Type.STRING },
+      },
       serviceNotes: {
         type: Type.ARRAY,
         description: "Expert tips on plating, presentation, and service flow suitable for the event type. e.g., 'Serve appetizers on circulating platters'.",
@@ -101,10 +118,10 @@ export const generateMenuFromApi = async ({
         }
       }
     },
-    required: ['menuTitle', 'description', 'appetizers', 'mainCourses', 'sideDishes', 'dessert', 'serviceNotes', 'deliveryLogistics', 'shoppingList', 'recommendedEquipment'],
+    required: ['menuTitle', 'description', 'appetizers', 'mainCourses', 'sideDishes', 'dessert', 'beveragePairings', 'miseEnPlace', 'serviceNotes', 'deliveryLogistics', 'shoppingList', 'recommendedEquipment'],
   };
 
-  const systemInstruction = `You are a world-class catering consultant and event planner with experience from high-end hospitality brands like Disney. Your tone is professional, creative, and meticulous. Your entire response must conform to the provided JSON schema. Create a cohesive and detailed menu proposal based on the user's event criteria, including a practical delivery and logistics plan, a comprehensive shopping list with quantities appropriate for the number of guests, and a list of recommended equipment or supplies that would be helpful for executing this menu, which can be used for affiliate marketing.`;
+  const systemInstruction = `You are a world-class catering consultant and event planner with experience from high-end hospitality brands like Disney. Your tone is professional, creative, and meticulous. Your entire response must conform to the provided JSON schema. Create a cohesive and detailed menu proposal based on the user's event criteria, including a detailed mise en place checklist, beverage pairings for appetizers and main courses, a practical delivery and logistics plan, a comprehensive shopping list with quantities appropriate for the number of guests, and a list of recommended equipment or supplies that would be helpful for executing this menu, which can be used for affiliate marketing.`;
 
   let prompt = `
     Generate a complete catering menu proposal based on the following criteria:
@@ -162,6 +179,8 @@ export const generateMenuFromApi = async ({
     ...(menuObject.mainCourses || []),
     ...(menuObject.sideDishes || []),
     ...(menuObject.dessert || []),
+    ...(menuObject.beveragePairings || []),
+    ...(menuObject.miseEnPlace || []),
     ...(menuObject.serviceNotes || []),
     ...(menuObject.deliveryLogistics || []),
     ...(menuObject.shoppingList || [])
@@ -249,4 +268,68 @@ export const generateMenuImageFromApi = async (menuTitle: string, description: s
     }
 
     throw new Error("No image data found in API response.");
+};
+
+export const findChefsNearby = async (latitude: number, longitude: number): Promise<Chef[]> => {
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+    const prompt = `
+        Find up to 5 highly-rated professional chefs, personal chefs, or small catering businesses available for hire for private events near the provided location. 
+        For each one, provide their name and a brief description of their specialty (e.g., "Italian cuisine", "Pastry expert", "Farm-to-table specialist").
+        Format the output as a simple list. For example:
+        - Chef John Doe: Specializes in modern French cuisine.
+        - The Catering Co.: Known for large-scale corporate event catering.
+    `;
+
+    const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents: prompt,
+        config: {
+            tools: [{ googleMaps: {} }],
+            toolConfig: {
+                retrievalConfig: {
+                    latLng: { latitude, longitude }
+                }
+            }
+        },
+    });
+
+    const textResponse = response.text;
+    const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+
+    // Simple text parsing for the chef list
+    const chefsFromText: Chef[] = textResponse.split('\n')
+        .filter(line => line.trim().startsWith('-'))
+        .map(line => {
+            const parts = line.replace('-', '').trim().split(':');
+            const name = parts[0]?.trim() || 'Unknown Chef';
+            const specialty = parts[1]?.trim() || 'No specialty listed.';
+            return { name, specialty };
+        });
+
+    if (chefsFromText.length === 0 && groundingChunks.length > 0) {
+        // Fallback to using only grounding chunks if text parsing fails
+        return groundingChunks
+            .filter(chunk => chunk.maps && chunk.maps.title)
+            .map(chunk => ({
+                name: chunk.maps!.title!,
+                specialty: 'Catering service found nearby.',
+                mapsUri: chunk.maps!.uri,
+                title: chunk.maps!.title
+            }));
+    }
+
+    // Try to match grounding chunks to the parsed text to add map links
+    const chefsWithMaps: Chef[] = chefsFromText.map(chef => {
+        const matchedChunk = groundingChunks.find(chunk => 
+            chunk.maps && chunk.maps.title && chunk.maps.title.toLowerCase().includes(chef.name.toLowerCase())
+        );
+        return {
+            ...chef,
+            mapsUri: matchedChunk?.maps?.uri,
+            title: matchedChunk?.maps?.title,
+        };
+    });
+
+    return chefsWithMaps;
 };
