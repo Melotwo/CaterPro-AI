@@ -1,10 +1,10 @@
 import React from 'react';
-import { ChefHat, MapPin, Loader2, AlertTriangle, Search, Lock } from 'lucide-react';
-import { Chef, ErrorState } from '../types.ts';
+import { ShoppingBag, MapPin, Loader2, AlertTriangle, Search, Lock } from 'lucide-react';
+import { Supplier, ErrorState } from '../types.ts';
 
 interface FindChefProps {
   onFindChefs: () => void;
-  chefs: Chef[] | null;
+  chefs: Supplier[] | null;
   isLoading: boolean;
   error: ErrorState | null;
   isPro: boolean;
@@ -15,11 +15,11 @@ const FindChef: React.FC<FindChefProps> = ({ onFindChefs, chefs, isLoading, erro
     <section id="find-chef-section" aria-labelledby="find-chef-title" className="mt-16 animate-slide-in" style={{ animationDelay: '0.5s' }}>
       <div className="text-center">
         <h2 id="find-chef-title" className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white flex items-center justify-center">
-          <ChefHat className="w-8 h-8 mr-3 text-primary-500" />
-          Find a Local Chef
+          <ShoppingBag className="w-8 h-8 mr-3 text-primary-500" />
+          Find Local Suppliers
         </h2>
         <p className="mt-2 max-w-2xl mx-auto text-slate-600 dark:text-slate-400">
-          Need a professional for your event? Discover talented chefs and caterers in your area.
+          Need ingredients or partners? Discover local wholesalers, specialty suppliers, and catering services.
         </p>
       </div>
       <div className="mt-8 text-center">
@@ -36,7 +36,7 @@ const FindChef: React.FC<FindChefProps> = ({ onFindChefs, chefs, isLoading, erro
           ) : (
             <>
               {isPro ? <Search className="mr-2 h-5 w-5" /> : <Lock className="mr-2 h-5 w-5" />}
-              <span>{isPro ? 'Search for Chefs Near Me' : 'Upgrade to Pro to Search'}</span>
+              <span>{isPro ? 'Search for Suppliers Near Me' : 'Upgrade to Pro to Search'}</span>
             </>
           )}
         </button>
@@ -56,15 +56,15 @@ const FindChef: React.FC<FindChefProps> = ({ onFindChefs, chefs, isLoading, erro
 
       {chefs && chefs.length > 0 && isPro && (
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
-          {chefs.map((chef, index) => (
-            <div key={index} className="bg-white dark:bg-slate-800/50 p-6 rounded-lg shadow-md border border-slate-200 dark:border-slate-700/80 flex flex-col justify-between">
+          {chefs.map((supplier, index) => (
+            <div key={index} className="bg-white dark:bg-slate-800/50 p-6 rounded-lg shadow-md border border-slate-200 dark:border-slate-700 flex flex-col justify-between">
               <div>
-                <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200">{chef.name}</h4>
-                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{chef.specialty}</p>
+                <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200">{supplier.name}</h4>
+                <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">{supplier.specialty}</p>
               </div>
-              {chef.mapsUri && (
+              {supplier.mapsUri && (
                 <a
-                  href={chef.mapsUri}
+                  href={supplier.mapsUri}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-4 inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-900/40 rounded-md hover:bg-primary-100 dark:hover:bg-primary-900/60"
@@ -80,7 +80,7 @@ const FindChef: React.FC<FindChefProps> = ({ onFindChefs, chefs, isLoading, erro
       
       {chefs && chefs.length === 0 && !isLoading && isPro && (
           <div className="mt-6 text-center text-slate-500 dark:text-slate-400">
-              <p>No chefs or catering services were found in your immediate area. Try expanding your search.</p>
+              <p>No suppliers were found in your immediate area. Try expanding your search.</p>
           </div>
       )}
     </section>
