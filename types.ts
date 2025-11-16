@@ -40,6 +40,14 @@ export interface ShoppingListItem {
    * A search term for specialty items, optimized for affiliate links.
    */
   affiliateSearchTerm?: string;
+  /**
+   * An estimated cost range for the item, in the local currency.
+   */
+  estimatedCost?: string;
+  /**
+   * Specific brand suggestions for the item.
+   */
+  brandSuggestion?: string;
 }
 
 /**
@@ -83,6 +91,7 @@ export interface PpeProduct {
   name: string;
   description: string;
   image: string;
+  priceRange: '$' | '$$' | '$$$';
 }
 
 /**
