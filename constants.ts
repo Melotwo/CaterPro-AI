@@ -8,6 +8,8 @@ export const EVENT_TYPES = [
   'Birthday Dinner',
   'Holiday Gathering',
   'Private Brunch',
+  'Daily Specials Menu',
+  'Café/Deli Menu',
   'Other...',
 ];
 
