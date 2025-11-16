@@ -1,4 +1,4 @@
-name: '✅ Deploy to Firebase'
+name: '🚀 Deploy to Firebase Hosting'
 
 on:
   # Runs on pushes targeting the main branch
@@ -27,6 +27,8 @@ jobs:
 
       - name: Build project
         run: npm run build
+        env:
+          VITE_API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
       - name: Deploy to Firebase Hosting
         uses: FirebaseExtended/action-hosting-deploy@v0
