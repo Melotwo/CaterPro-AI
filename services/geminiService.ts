@@ -1,5 +1,5 @@
 import { GoogleGenAI, Modality, Type } from "@google/genai";
-import { Menu, ShoppingListItem, Chef, BeveragePairing } from "../types.ts";
+import { Menu, ShoppingListItem, Supplier, BeveragePairing } from "../types.ts";
 
 export interface MenuGenerationParams {
   eventType: string;
@@ -270,14 +270,14 @@ export const generateMenuImageFromApi = async (menuTitle: string, description: s
     throw new Error("No image data found in API response.");
 };
 
-export const findChefsNearby = async (latitude: number, longitude: number): Promise<Chef[]> => {
+export const findSuppliersNearby = async (latitude: number, longitude: number): Promise<Supplier[]> => {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
     const prompt = `
-        Find up to 5 highly-rated professional chefs, personal chefs, or small catering businesses available for hire for private events near the provided location. 
-        For each one, provide their name and a brief description of their specialty (e.g., "Italian cuisine", "Pastry expert", "Farm-to-table specialist").
+        Find up to 5 highly-rated local food wholesalers, specialty suppliers, or small catering businesses near the provided location. 
+        For each one, provide their name and a brief description of their specialty (e.g., "Wholesale produce", "Artisanal bakery", "Farm-to-table catering").
         Format the output as a simple list. For example:
-        - Chef John Doe: Specializes in modern French cuisine.
+        - The Produce Market: Specializes in wholesale fresh fruits and vegetables.
         - The Catering Co.: Known for large-scale corporate event catering.
     `;
 
@@ -297,39 +297,39 @@ export const findChefsNearby = async (latitude: number, longitude: number): Prom
     const textResponse = response.text;
     const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
 
-    // Simple text parsing for the chef list
-    const chefsFromText: Chef[] = textResponse.split('\n')
+    // Simple text parsing for the supplier list
+    const suppliersFromText: Supplier[] = textResponse.split('\n')
         .filter(line => line.trim().startsWith('-'))
         .map(line => {
             const parts = line.replace('-', '').trim().split(':');
-            const name = parts[0]?.trim() || 'Unknown Chef';
+            const name = parts[0]?.trim() || 'Unknown Supplier';
             const specialty = parts[1]?.trim() || 'No specialty listed.';
             return { name, specialty };
         });
 
-    if (chefsFromText.length === 0 && groundingChunks.length > 0) {
+    if (suppliersFromText.length === 0 && groundingChunks.length > 0) {
         // Fallback to using only grounding chunks if text parsing fails
         return groundingChunks
             .filter(chunk => chunk.maps && chunk.maps.title)
             .map(chunk => ({
                 name: chunk.maps!.title!,
-                specialty: 'Catering service found nearby.',
+                specialty: 'Supplier found nearby.',
                 mapsUri: chunk.maps!.uri,
                 title: chunk.maps!.title
             }));
     }
 
     // Try to match grounding chunks to the parsed text to add map links
-    const chefsWithMaps: Chef[] = chefsFromText.map(chef => {
+    const suppliersWithMaps: Supplier[] = suppliersFromText.map(supplier => {
         const matchedChunk = groundingChunks.find(chunk => 
-            chunk.maps && chunk.maps.title && chunk.maps.title.toLowerCase().includes(chef.name.toLowerCase())
+            chunk.maps && chunk.maps.title && chunk.maps.title.toLowerCase().includes(supplier.name.toLowerCase())
         );
         return {
-            ...chef,
+            ...supplier,
             mapsUri: matchedChunk?.maps?.uri,
             title: matchedChunk?.maps?.title,
         };
     });
 
-    return chefsWithMaps;
+    return suppliersWithMaps;
 };
