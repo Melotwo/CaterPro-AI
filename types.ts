@@ -162,9 +162,9 @@ export type MenuSection =
   | 'recommendedEquipment';
 
 /**
- * Represents a chef or catering service found via Google Maps.
+ * Represents a supplier or catering service found via Google Maps.
  */
-export interface Chef {
+export interface Supplier {
   name: string;
   specialty: string;
   mapsUri?: string;
