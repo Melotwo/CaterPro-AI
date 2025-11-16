@@ -72,7 +72,7 @@ export const generateMenuFromApi = async ({
       },
       shoppingList: {
         type: Type.ARRAY,
-        description: "A comprehensive shopping list. For 3-5 key non-perishable or specialty items (e.g., high-quality olive oil, specific spices), provide an enticing `description` and a relevant `affiliateSearchTerm` optimized for South African online retailers. For all other items, omit these two fields.",
+        description: "A comprehensive shopping list. For 3-5 key non-perishable or specialty items (e.g., high-quality olive oil, specific spices), provide an enticing `description`, a relevant `affiliateSearchTerm`, an `estimatedCost` in ZAR (e.g., 'R80 - R120'), and a `brandSuggestion` (e.g., 'Woolworths, Knorr'). For all other items, omit these four fields.",
         items: {
           type: Type.OBJECT,
           properties: {
@@ -81,7 +81,9 @@ export const generateMenuFromApi = async ({
             item: { type: Type.STRING, description: "e.g., 'Roma Tomatoes'" },
             quantity: { type: Type.STRING, description: "e.g., '5 lbs', '2 dozen', '1 bottle'" },
             description: { type: Type.STRING, description: "For key specialty items, a brief, enticing description of why this specific type of item is recommended." },
-            affiliateSearchTerm: { type: Type.STRING, description: "For key specialty items, a search term optimized for South African e-commerce sites like Takealot (e.g., 'organic coconut milk')." }
+            affiliateSearchTerm: { type: Type.STRING, description: "For key specialty items, a search term optimized for South African e-commerce sites like Takealot (e.g., 'organic coconut milk')." },
+            estimatedCost: { type: Type.STRING, description: "For key specialty items, provide an estimated cost range in South African Rand (ZAR), e.g., 'R 80 - R 120'." },
+            brandSuggestion: { type: Type.STRING, description: "For key specialty items, suggest 1-2 specific, well-known brands available in major South African retailers like Woolworths, Pick n Pay, or Checkers." }
           },
           required: ['store', 'category', 'item', 'quantity']
         }
