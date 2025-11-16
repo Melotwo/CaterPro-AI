@@ -99,4 +99,13 @@ You'll create a special key in Firebase and give it to GitHub so it has permissi
 7.  In the **Secret** box, paste the entire JSON content you copied.
 8.  Click **Add secret**.
 
-**You're done!** From now on, every time you push a change to your `main` branch, your website will automatically update. You can watch the progress in the **Actions** tab on GitHub. It's that simple!
+**Step 3: Push Your Code & Verify Deployment**
+
+You're all set! From now on, every time you push a change to your `main` branch, the deployment will start automatically.
+
+1.  **Push your changes** to the `main` branch on GitHub.
+2.  Go to your project's GitHub repository and click the **Actions** tab.
+3.  You should see a new workflow running named **`✅ Deploy to Firebase`**.
+4.  Wait for it to complete with a green checkmark ✔️.
+
+Once it's successful, your site is live! You can find the URL in the **Hosting** section of your [Firebase Console](https://console.firebase.google.com/project/caterpro-ai/hosting).
