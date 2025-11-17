@@ -73,7 +73,7 @@ CaterPro AI offers multiple tiers to fit your business needs.
 
 This project is set up to deploy automatically when you push code to the `main` branch. To make this work, you must complete the following **three steps** on the GitHub website.
 
-### Step 1: 🛑 **Disable the Conflicting GitHub Pages Workflow**
+### Step 1: 🛑 Disable the Conflicting GitHub Pages Workflow
 
 The screenshot you provided shows the "pages-build-deployment" workflow running. This is for a service called GitHub Pages, and it is **blocking** our correct Firebase deployment. You **must** disable it before proceeding.
 
