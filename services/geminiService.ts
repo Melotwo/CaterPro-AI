@@ -1,5 +1,5 @@
 import { GoogleGenAI, Modality, Type } from "@google/genai";
-import { Menu, ShoppingListItem, Supplier } from "../types.ts";
+import { Menu, Supplier } from "../types.ts";
 
 export interface MenuGenerationParams {
   eventType: string;
@@ -19,7 +19,6 @@ export interface MenuGenerationResult {
 
 // Instantiate the GoogleGenAI client once and reuse it for all API calls.
 // This is more efficient than creating a new instance for every function call.
-// FIX: The API key must be obtained from `process.env.API_KEY` as per the coding guidelines.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const responseSchema = {
