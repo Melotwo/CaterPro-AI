@@ -73,13 +73,15 @@ CaterPro AI offers multiple tiers to fit your business needs.
 
 This project is set up to deploy automatically when you push code to the `main` branch. To make this work, you must complete the following **three steps** on the GitHub website.
 
-### Step 1: 🛑 Disable the Conflicting Workflow
+### Step 1: 🛑 **Disable the Conflicting GitHub Pages Workflow**
 
-Your screenshots show the "pages build and deployment" workflow running. This is for a different service and it's blocking our Firebase deployment. You **must** disable it.
+The screenshot you provided shows the "pages-build-deployment" workflow running. This is for a service called GitHub Pages, and it is **blocking** our correct Firebase deployment. You **must** disable it before proceeding.
 
 1.  In your GitHub repository, go to **Settings** > **Pages**.
-2.  Under "Build and deployment", find the **Source** setting.
-3.  Change the source from "Deploy from a branch" to **GitHub Actions**. This tells GitHub to only use the workflow file in our repository.
+2.  Under the "Build and deployment" section, find the **Source** setting.
+3.  Change the source from "Deploy from a branch" to **GitHub Actions**. This is a crucial step that tells GitHub to stop using its default workflow and instead use the one we've configured in the repository (`deploy.yml`).
+
+**This is the most common reason for deployment failure. Please double-check this step.**
 
 ### Step 2: 🔑 Add Your Secret Keys to GitHub
 
@@ -111,9 +113,9 @@ The automated workflow needs two secret keys to access Firebase and the Gemini A
 
 Now you're ready!
 
-1.  **Commit and push** the latest changes to your `main` branch.
+1.  **Commit and push** the latest changes to your `main` branch on GitHub.
 2.  Go to the **Actions** tab in your GitHub repository.
-3.  You should now see a new workflow running with the name **`🚀 Deploy to Firebase Hosting`**.
-4.  Wait for it to complete. A **green checkmark ✔️** means success!
+3.  You should now see a new workflow running with the name **`🚀 Deploy to Firebase Hosting`**. The incorrect `pages-build-deployment` workflow should no longer appear.
+4.  Wait for it to complete. A **green checkmark ✔️** means it was successful!
 
 Once it succeeds, your site is live! You can find the URL in the **Hosting** section of your [Firebase Console](https://console.firebase.google.com/project/caterpro-ai/hosting).
