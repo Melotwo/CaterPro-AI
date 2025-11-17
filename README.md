@@ -119,3 +119,6 @@ Now you're ready!
 4.  Wait for it to complete. A **green checkmark ✔️** means it was successful!
 
 Once it succeeds, your site is live! You can find the URL in the **Hosting** section of your [Firebase Console](https://console.firebase.google.com/project/caterpro-ai/hosting).
+
+### 🤔 Workflow Not Running?
+If you've pushed your code but don't see the "🚀 Deploy to Firebase Hosting" workflow on the Actions tab, try making one more small change (like adding a space to this README file), then commit and push it directly to the `main` branch. This will ensure the workflow is triggered.
