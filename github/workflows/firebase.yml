@@ -1,7 +1,5 @@
 name: '🚀 Deploy to Firebase Hosting'
 
-# Force GitHub to re-evaluate this workflow file.
-
 on:
   # Runs on pushes targeting the main branch
   push:
