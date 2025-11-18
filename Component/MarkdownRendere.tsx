@@ -29,7 +29,9 @@ interface MarkdownRendererProps {
 }
 
 const getAffiliateLink = (keywords: string) => {
-    return `https://www.takealot.com/all?qsearch=${encodeURIComponent(keywords)}`;
+    // Using Amazon.com as it's more universal and aligns with the footer disclosure.
+    // NOTE: Replace 'caterproai-20' with your actual Amazon Associates tag.
+    return `https://www.amazon.com/s?k=${encodeURIComponent(keywords)}&tag=caterproai-20`;
 };
 
 
