@@ -40,5 +40,5 @@ jobs:
         with:
           # This secret contains the JSON service account key for your Firebase project.
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          # This should be the Project ID of your Firebase project.
+          # This must be the Project ID of your Firebase project.
           projectId: 'caterpro-ai'
