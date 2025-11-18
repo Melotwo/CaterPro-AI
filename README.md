@@ -1,4 +1,4 @@
- <div align="center">
+<div align="center">
   <img width="1200" height="475" alt="CaterPro AI Banner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6">
 </div>
 
@@ -113,7 +113,7 @@ Your workflow needs two secret keys to deploy. Go to your repo **Settings** > **
 
 **Step 3: Push & Verify Deployment**
 - **Commit and push** your latest changes to the `main` branch.
-- Go to the **Actions** tab in your GitHub repository. You should see a new workflow named **`🚀 Deploy to Firebase Hosting`** start running.
+- Go to the **Actions** tab in your GitHub repository. You should see a new workflow named **`✅ Deploy to Firebase Hosting`** start running.
 - Once it completes with a green checkmark ✔️, your site is live! You can find the URL in the **Hosting** section of your Firebase Console.
 
 ---
@@ -149,3 +149,13 @@ Follow these steps to deploy your site in minutes.
 1.  Go to the **Deploys** tab for your site.
 2.  Click **Trigger deploy** > **Deploy site**.
 3.  This time, the build will use your API key and should succeed. Your site is now live!
+
+---
+### 🤔 Troubleshooting: Workflow Not Running?
+If you have pushed a change to `main` but do not see the `✅ Deploy to Firebase Hosting` workflow running in your **Actions** tab, please check the following:
+1.  **Correct Branch:** Ensure your `firebase.yml` file exists on the `main` branch.
+2.  **File Path:** The file must be located at exactly `.github/workflows/firebase.yml`.
+3.  **Actions Enabled:** Go to **Settings > Actions > General** and ensure "Allow all actions and reusable workflows" is selected.
+4.  **YAML Validity:** A small syntax error can stop the workflow from being recognized. You can use an online YAML validator to check your file's content.
+
+When it is working correctly, you will see `✅ Deploy to Firebase Hosting` listed in the sidebar on the Actions page.
