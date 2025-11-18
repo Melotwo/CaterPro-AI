@@ -73,14 +73,57 @@ CaterPro AI offers multiple tiers to fit your business needs.
 
 You have two excellent, free options for deploying this application. Netlify is often simpler for frontend projects, while Firebase Hosting is also a powerful choice.
 
+### ⚠️ Important First Step: Disable GitHub Pages
+
+The workflow you've seen running (`pages-build-deployment`) is for **GitHub Pages**. This service is not ideal for this app because of how it handles API keys and routing. You must disable it to allow the correct deployment workflow (Firebase or Netlify) to run.
+
+1.  Go to your GitHub repository's **Settings** tab.
+2.  In the left sidebar, click on **Pages**.
+3.  Under "Build and deployment," if the **Source** is set to "Deploy from a branch", change it to **GitHub Actions**. This tells GitHub not to use the default Pages workflow, allowing our custom one to run.
+
 ---
 
-### Option 1: Deploying to Netlify (Recommended)
+### Option 1: Deploying to Firebase Hosting (Recommended)
+
+This project contains a GitHub Actions workflow to deploy automatically to Firebase when you push to the `main` branch.
+
+**Step 1: Firebase Project Setup**
+1.  Create a free account at [Firebase](https://firebase.google.com/).
+2.  Go to the [Firebase Console](https://console.firebase.google.com/), click **Add project**, and create a new project (e.g., `caterpro-ai`).
+3.  Inside your new project, go to the **Hosting** section in the left-hand menu and click **Get started**. Follow the initial prompts. You don't need to run the `firebase` commands locally since our GitHub Action will handle it.
+
+**Step 2: Configure Your GitHub Repository Secrets**
+Your workflow needs two secret keys to deploy. Go to your repo **Settings** > **Secrets and variables** > **Actions**.
+
+1.  **Add your Gemini API Key:**
+    *   Click **New repository secret**.
+    *   Name: `API_KEY`
+    *   Value: *Paste your Gemini API Key here.*
+
+2.  **Add your Firebase Service Account Key:**
+    *   Click **New repository secret** again.
+    *   Name: `FIREBASE_SERVICE_ACCOUNT`
+    *   Value: *Follow the steps below to get this key.*
+
+**How to get your `FIREBASE_SERVICE_ACCOUNT` key:**
+1.  In the [Firebase Console](https://console.firebase.google.com/), go to your project's **Project settings** (click the ⚙️ icon).
+2.  Go to the **Service accounts** tab.
+3.  Click **Generate new private key**. A JSON file will download.
+4.  Open the file, copy the **entire content**, and paste it as the value for the `FIREBASE_SERVICE_ACCOUNT` secret in GitHub.
+
+**Step 3: Push & Verify Deployment**
+- **Commit and push** your latest changes to the `main` branch.
+- Go to the **Actions** tab in your GitHub repository. You should see a new workflow named **`🚀 Deploy to Firebase Hosting`** start running.
+- Once it completes with a green checkmark ✔️, your site is live! You can find the URL in the **Hosting** section of your Firebase Console.
+
+---
+
+### Option 2: Deploying to Netlify
 
 Follow these steps to deploy your site in minutes.
 
 **Step 1: Push Your Code to GitHub**
-- Make sure your latest code is pushed to your GitHub repository.
+- Make sure your latest code is pushed to your GitHub repository and that you've disabled GitHub Pages (see the important first step above).
 
 **Step 2: Create a Netlify Account**
 - Sign up for a free account at [netlify.com](https://www.netlify.com/) using your GitHub account.
@@ -96,7 +139,7 @@ Follow these steps to deploy your site in minutes.
 6.  Click **Deploy site**. Your first deployment will likely fail because the API key is missing. **This is expected.**
 
 **Step 4: Add Your API Key (Crucial Step)**
-1.  After the site is created, go to **Site configuration** > **Build & deploy** > **Environment**.
+1.  After the site is created, go to **Site configuration** > **Build & deploy** > **Environment variables**.
 2.  Click **Edit variables** and add a new variable:
     *   **Key:** `API_KEY`
     *   **Value:** Paste your Gemini API Key here.
@@ -106,35 +149,3 @@ Follow these steps to deploy your site in minutes.
 1.  Go to the **Deploys** tab for your site.
 2.  Click **Trigger deploy** > **Deploy site**.
 3.  This time, the build will use your API key and should succeed. Your site is now live!
-
----
-
-### Option 2: Deploying to Firebase Hosting
-
-This project contains a GitHub Actions workflow to deploy automatically to Firebase when you push to the `main` branch.
-
-**Step 1: Firebase Project Setup**
-1.  Create a free account at [Firebase](https://firebase.google.com/).
-2.  Go to the [Firebase Console](https://console.firebase.google.com/), click **Add project**, and create a new project (e.g., `caterpro-ai`).
-3.  Inside your new project, go to the **Hosting** section in the left-hand menu and click **Get started**. Follow the initial prompts. You don't need to run the `firebase` commands locally since our GitHub Action will handle it.
-
-**Step 2: Configure Your GitHub Repository**
-1.  **Disable GitHub Pages:** A common issue is a conflict with GitHub Pages. To fix this, go to your GitHub repo's **Settings** > **Pages**. Under "Build and deployment," change the **Source** from "Deploy from a branch" to **GitHub Actions**. This ensures our custom deployment workflow runs instead.
-2.  **Add Repository Secrets:** Your workflow needs two secret keys to deploy. Go to **Settings** > **Secrets and variables** > **Actions**.
-    *   Click **New repository secret** and add your Gemini API key:
-        *   Name: `API_KEY`
-        *   Value: *Your Gemini API Key*
-    *   Click **New repository secret** again and add your Firebase service account key:
-        *   Name: `FIREBASE_SERVICE_ACCOUNT`
-        *   Value: *Follow the steps below to get this key.*
-
-**How to get your `FIREBASE_SERVICE_ACCOUNT` key:**
-1.  In the [Firebase Console](https://console.firebase.google.com/), go to your project's **Project settings** (click the ⚙️ icon).
-2.  Go to the **Service accounts** tab.
-3.  Click **Generate new private key**. A JSON file will download.
-4.  Open the file, copy the **entire content**, and paste it as the value for the `FIREBASE_SERVICE_ACCOUNT` secret in GitHub.
-
-**Step 3: Push & Verify Deployment**
-- **Commit and push** your latest changes to the `main` branch.
-- Go to the **Actions** tab in your GitHub repository. You should see a workflow named **`🚀 Deploy to Firebase Hosting`** start running.
-- Once it completes with a green checkmark ✔️, your site is live! You can find the URL in the **Hosting** section of your Firebase Console.
