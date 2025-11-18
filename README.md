@@ -151,11 +151,15 @@ Follow these steps to deploy your site in minutes.
 3.  This time, the build will use your API key and should succeed. Your site is now live!
 
 ---
-### 🤔 Troubleshooting: Workflow Not Running?
-If you have pushed a change to `main` but do not see the `✅ Deploy to Firebase Hosting` workflow running in your **Actions** tab, please check the following:
-1.  **Correct Branch:** Ensure your `firebase.yml` file exists on the `main` branch.
-2.  **File Path:** The file must be located at exactly `.github/workflows/firebase.yml`.
-3.  **Actions Enabled:** Go to **Settings > Actions > General** and ensure "Allow all actions and reusable workflows" is selected.
-4.  **YAML Validity:** A small syntax error can stop the workflow from being recognized. You can use an online YAML validator to check your file's content.
+### 🤔 Troubleshooting: Actions Tab is Empty?
+If you have pushed your changes but the **Actions** tab still shows the "Get started with GitHub Actions" page, please check these two common issues:
 
-When it is working correctly, you will see `✅ Deploy to Firebase Hosting` listed in the sidebar on the Actions page.
+1.  **File Path:** The workflow file must be located at exactly `.github/workflows/deploy.yml`. A typo in the folder or file name will cause it to be ignored.
+
+2.  **Actions Disabled:** Actions might be disabled for your repository. This is a common cause.
+    *   Go to your repository's **Settings** tab.
+    *   In the left sidebar, click **Actions** > **General**.
+    *   Under "Actions permissions," ensure that **Allow all actions and reusable workflows** is selected.
+    *   Click **Save**.
+
+After checking these settings, make a small change (like adding a space) to this `README.md` file and commit it. This will trigger a new push event and force GitHub to re-scan for your workflow file.
