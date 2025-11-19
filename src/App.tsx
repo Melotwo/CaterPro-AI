@@ -184,6 +184,7 @@ const App: React.FC = () => {
           ...(loadedMenu.mainCourses || []),
           ...(loadedMenu.sideDishes || []),
           ...(loadedMenu.dessert || []),
+          ...(loadedMenu.dietaryNotes || []),
           ...(loadedMenu.beveragePairings || []),
           ...(loadedMenu.miseEnPlace || []),
           ...(loadedMenu.serviceNotes || []),
@@ -549,7 +550,7 @@ const App: React.FC = () => {
     const { baseFee, perUnitRate, currency } = menu.deliveryFeeStructure;
     const totalFee = baseFee + radius * perUnitRate;
     setCalculatedFee(
-      new Intl.NumberFormat('en-ZA', { style: 'currency', currency }).format(totalFee)
+      new Intl.NumberFormat(undefined, { style: 'currency', currency }).format(totalFee)
     );
   };
 
@@ -887,66 +888,15 @@ const App: React.FC = () => {
             ))}
           </div>
         </section>
-
-        <section aria-labelledby="recommended-products-title" className="mt-16 animate-slide-in" style={{ animationDelay: '0.4s' }}>
-          <div className="text-center">
-            <h2 id="recommended-products-title" className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white flex items-center justify-center">
-              <ShoppingBag className="w-8 h-8 mr-3 text-primary-500" />
-              Recommended Catering Supplies
-            </h2>
-            <p className="mt-2 max-w-2xl mx-auto text-slate-600 dark:text-slate-400">
-              Essential equipment to make your event a success. Get a quote today.
-            </p>
-          </div>
-
-          <ProductSearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
-
-          <div className="flex justify-center gap-2 my-8">
-            {(['All', '$', '$$', '$$$'] as const).map(budgetOption => (
-              <button
-                key={budgetOption}
-                onClick={() => setSelectedBudget(budgetOption)}
-                className={`px-6 py-2 text-sm font-semibold rounded-full transition-colors border-2 ${
-                  selectedBudget === budgetOption
-                    ? 'bg-primary-500 text-white border-primary-500'
-                    : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700/50'
-                }`}
-                aria-pressed={selectedBudget === budgetOption}
-              >
-                {budgetOption}
-              </button>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {RECOMMENDED_PRODUCTS
-              .filter(p => {
-                const budgetMatch = selectedBudget === 'All' || p.priceRange === selectedBudget;
-                const searchMatch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
-                return budgetMatch && searchMatch;
-              })
-              .map(product => (
-                <ProductCard key={product.id} product={product} onGetQuote={handleGetQuote} />
-            ))}
-          </div>
-        </section>
         
-        <FindChef
-          onFindChefs={handleFindSuppliers}
-          chefs={suppliers}
-          isLoading={isFindingSuppliers}
-          error={findSuppliersError}
-          isPro={canAccessFeature('findSuppliers')}
-        />
-
-        <GenerationHistory
+        <GenerationHistory 
           history={generationHistory}
           onItemClick={handleHistoryItemClick}
           onClear={handleClearHistory}
         />
 
         {error && (
-          <div role="alert" className="mt-8 p-4 rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 animate-slide-in">
+          <div role="alert" className="mt-8 p-4 rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800">
             <div className="flex items-start">
               <AlertTriangle className="h-6 w-6 text-red-500 dark:text-red-400 flex-shrink-0 mr-3" />
               <div>
@@ -957,177 +907,134 @@ const App: React.FC = () => {
           </div>
         )}
 
-        {menu && !isLoading && (
-          <>
-            <section id="menu-results" aria-live="polite" className="mt-12 animate-slide-in" style={{ animationDelay: '0.1s' }}>
-              <div className="bg-white dark:bg-slate-900/50 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800 overflow-hidden">
-                  <div className="p-4 sm:p-6 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex flex-wrap gap-4 items-center justify-between">
-                      <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center">
-                          <Presentation className="w-7 h-7 text-green-500" />
-                          Your Menu Proposal
-                      </h2>
-                      <div className="flex items-center space-x-2">
-                          <button onClick={generateMenu} disabled={isLoading} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Regenerate all sections">
-                              <RefreshCw size={18} />
-                          </button>
-                          <button onClick={handleOpenShareModal} disabled={isLoading} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Share menu">
-                              <Link size={18} />
-                          </button>
-                          <button onClick={saveMenu} disabled={isLoading} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Save menu">
-                              <Save size={18} />
-                          </button>
-                          <button onClick={copyToClipboard} disabled={isLoading} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Copy menu text">
-                              <Copy size={18} />
-                          </button>
-                          <button onClick={downloadPdf} disabled={isLoading} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Download as PDF">
-                              <FileDown size={18} />
-                          </button>
-                          <button onClick={() => window.print()} disabled={isLoading} className="no-print p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Print menu">
-                              <Printer size={18} />
-                          </button>
-                      </div>
-                  </div>
-
-                  <div className="p-2 sm:p-4 bg-slate-50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
-                      <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5">
-                          <div className="bg-green-500 h-2.5 rounded-full" style={{ width: `${completionPercentage}%`, transition: 'width 0.5s ease-in-out' }}></div>
-                      </div>
-                      <p className="text-xs text-right mt-1 text-slate-500 dark:text-slate-400">Proposal Checklist: {Math.round(completionPercentage)}% Complete ({checkedItems.size}/{totalChecklistItems})</p>
-                  </div>
-
-                  <div ref={menuRef} className="print-area">
-                      <MarkdownRenderer 
-                        menu={menu} 
-                        checkedItems={checkedItems} 
-                        onToggleItem={handleToggleChecklistItem} 
-                        isEditable={canAccessFeature('itemEditing')}
-                        onEditItem={handleOpenCustomizationModal}
-                        showToast={showToast}
-                        isGeneratingImage={isGeneratingImage}
-                        onUpdateShoppingItemQuantity={handleUpdateShoppingItemQuantity}
-                        bulkSelectedItems={bulkSelectedItems}
-                        onToggleBulkSelect={handleToggleBulkSelect}
-                        onBulkCheck={handleBulkCheck}
-                        onBulkUpdateQuantity={handleBulkUpdateQuantity}
-                        onClearBulkSelection={handleClearBulkSelection}
-                        onSelectAllShoppingListItems={handleSelectAllShoppingListItems}
-                        proposalTheme={menu.theme || 'classic'}
-                        canAccessFeature={canAccessFeature}
-                        onAttemptAccess={attemptAccess}
-                        deliveryRadius={deliveryRadius}
-                        onDeliveryRadiusChange={setDeliveryRadius}
-                        onCalculateFee={handleCalculateFee}
-                        calculatedFee={calculatedFee}
-                      />
-                  </div>
-              </div>
-            </section>
-
-            <section id="custom-item-generator" aria-labelledby="custom-item-title" className="mt-12 animate-slide-in" style={{ animationDelay: '0.2s' }}>
-              <div className="bg-white dark:bg-slate-900/50 p-6 sm:p-8 rounded-2xl shadow-lg border border-slate-200 dark:border-slate-800">
-                  <h2 id="custom-item-title" className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white flex items-center">
-                      <Sparkles className="w-7 h-7 mr-3 text-primary-500" />
-                      Add a Custom Item
+        {menu && (
+          <section aria-labelledby="generated-menu-title" className="mt-12 animate-slide-in" style={{ animationDelay: '0.4s' }}>
+            <div className="bg-white dark:bg-slate-800/50 rounded-lg shadow-md border border-slate-200 dark:border-slate-700">
+              <div className="no-print p-4 sm:p-6 border-b border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 rounded-t-lg sticky top-16 z-30 backdrop-blur-md">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
+                  <h2 id="generated-menu-title" className="text-2xl font-bold text-slate-900 dark:text-white flex items-center">
+                    <Presentation className="w-7 h-7 mr-3 text-primary-500 flex-shrink-0" />
+                    Your Menu Proposal
                   </h2>
-                  <p className="mt-2 text-slate-600 dark:text-slate-400">
-                      Describe a dish you have in mind, and our AI will write it up for your menu.
-                  </p>
-                  <div className={`mt-6 space-y-4 ${!canAccessFeature('customItemGeneration') ? 'opacity-50' : ''}`}>
-                      <div>
-                          <label htmlFor="custom-item-desc" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Dish Description</label>
-                          <textarea
-                              id="custom-item-desc"
-                              rows={3}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button onClick={saveMenu} className="action-button"><Save size={16} className="mr-1.5" />Save</button>
+                    <button onClick={downloadPdf} className="action-button"><FileDown size={16} className="mr-1.5" />PDF</button>
+                    <button onClick={() => window.print()} className="action-button"><Printer size={16} className="mr-1.5" />Print</button>
+                    <button onClick={copyToClipboard} className="action-button"><Copy size={16} className="mr-1.5" />Copy Text</button>
+                    <button onClick={handleOpenShareModal} className="action-button"><Link size={16} className="mr-1.5" />Share</button>
+                  </div>
+                </div>
+                <div className="mt-4">
+                    <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5">
+                        <div className="bg-primary-500 h-2.5 rounded-full transition-all duration-500" style={{ width: `${completionPercentage}%` }}></div>
+                    </div>
+                    <p className="text-right text-sm font-medium text-slate-600 dark:text-slate-400 mt-1.5">
+                        {Math.round(completionPercentage)}% Complete ({checkedItems.size} / {totalChecklistItems} items)
+                    </p>
+                </div>
+              </div>
+              
+              <div ref={menuRef} className="print-area">
+                <MarkdownRenderer 
+                  menu={menu}
+                  checkedItems={checkedItems}
+                  onToggleItem={handleToggleChecklistItem}
+                  isEditable={canAccessFeature('itemEditing')}
+                  onEditItem={handleOpenCustomizationModal}
+                  showToast={showToast}
+                  isGeneratingImage={isGeneratingImage}
+                  onUpdateShoppingItemQuantity={handleUpdateShoppingItemQuantity}
+                  bulkSelectedItems={bulkSelectedItems}
+                  onToggleBulkSelect={handleToggleBulkSelect}
+                  onBulkCheck={handleBulkCheck}
+                  onBulkUpdateQuantity={handleBulkUpdateQuantity}
+                  onClearBulkSelection={handleClearBulkSelection}
+                  onSelectAllShoppingListItems={handleSelectAllShoppingListItems}
+                  proposalTheme={proposalTheme}
+                  canAccessFeature={canAccessFeature}
+                  onAttemptAccess={(feature) => attemptAccess(feature)}
+                  deliveryRadius={deliveryRadius}
+                  onDeliveryRadiusChange={setDeliveryRadius}
+                  onCalculateFee={handleCalculateFee}
+                  calculatedFee={calculatedFee}
+                />
+              </div>
+
+               {canAccessFeature('customItemGeneration') && (
+                  <div className="no-print p-4 sm:p-6 border-t border-slate-200 dark:border-slate-700 bg-slate-50/50 dark:bg-slate-900/30 rounded-b-lg">
+                      <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2"><PlusCircle className="w-5 h-5 text-primary-500" /> Add a Custom Menu Item</h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 mb-3">Describe a dish, and our AI chef will add it to your menu.</p>
+                      <div className="flex flex-col md:flex-row gap-2 items-stretch">
+                          <input
+                              type="text"
                               value={customItemDescription}
-                              onChange={e => setCustomItemDescription(e.target.value)}
-                              placeholder="e.g., A light, summery appetizer with strawberries, goat cheese, and a balsamic glaze."
-                              className={formInputStyle}
-                              disabled={!canAccessFeature('customItemGeneration')}
+                              onChange={(e) => setCustomItemDescription(e.target.value)}
+                              placeholder="e.g., Spicy mango and avocado salad..."
+                              className="flex-grow px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm sm:text-sm"
                           />
-                      </div>
-                      <div>
-                          <label htmlFor="custom-item-cat" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Menu Category</label>
-                          <select 
-                              id="custom-item-cat"
-                              value={customItemCategory}
-                              onChange={e => setCustomItemCategory(e.target.value as MenuSection)}
-                              className={formInputStyle}
-                              disabled={!canAccessFeature('customItemGeneration')}
-                          >
-                              {EDITABLE_MENU_SECTIONS.map(section => (
-                                  <option key={section.key} value={section.key}>{section.title}</option>
-                              ))}
+                          <select value={customItemCategory} onChange={(e) => setCustomItemCategory(e.target.value as MenuSection)} className="px-3 py-2 bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm sm:text-sm">
+                              {EDITABLE_MENU_SECTIONS.map(s => <option key={s.key} value={s.key}>{s.title}</option>)}
                           </select>
-                      </div>
-                      <div className="text-right">
-                          <button
-                              onClick={handleGenerateCustomItem}
-                              disabled={isGeneratingCustomItem || !customItemDescription.trim() || !canAccessFeature('customItemGeneration')}
-                              className="inline-flex items-center justify-center px-6 py-2.5 text-base font-semibold text-white bg-primary-600 border border-transparent rounded-md shadow-sm hover:bg-primary-700 disabled:opacity-70 disabled:cursor-not-allowed"
-                          >
-                              {isGeneratingCustomItem ? (
-                                  <>
-                                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                      <span>Adding...</span>
-                                  </>
-                              ) : (
-                                <>
-                                  <PlusCircle className="mr-2 h-5 w-5" />
-                                  <span>Generate & Add Item</span>
-                                </>
-                              )}
+                          <button onClick={handleGenerateCustomItem} disabled={isGeneratingCustomItem || !customItemDescription.trim()} className="action-button flex-shrink-0">
+                              {isGeneratingCustomItem ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Sparkles className="mr-1.5 h-4 w-4" />}
+                              Generate & Add
                           </button>
                       </div>
                       {customItemError && (
-                          <div role="alert" className="mt-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800">
-                            <div className="flex items-start">
-                              <AlertTriangle className="h-5 w-5 text-red-500 dark:text-red-400 flex-shrink-0 mr-3" />
-                              <div>
-                                <h3 className="text-md font-semibold text-red-800 dark:text-red-200">{customItemError.title}</h3>
-                                <div className="text-sm text-red-700 dark:text-red-300 mt-1">{customItemError.message}</div>
-                              </div>
-                            </div>
+                          <div role="alert" className="mt-2 p-2 rounded-md bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800">
+                              <p className="text-sm font-semibold text-red-800 dark:text-red-200">{customItemError.title}</p>
                           </div>
                       )}
                   </div>
-              </div>
-            </section>
-          </>
+               )}
+            </div>
+          </section>
         )}
+
+        <FindChef 
+          onFindChefs={handleFindSuppliers} 
+          chefs={suppliers} 
+          isLoading={isFindingSuppliers} 
+          error={findSuppliersError} 
+          isPro={canAccessFeature('findSuppliers')}
+        />
+        
+        <section aria-labelledby="recommended-products-title" className="mt-16 animate-slide-in" style={{ animationDelay: '0.4s' }}>
+          <div className="text-center">
+             <h2 id="recommended-products-title" className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white flex items-center justify-center">
+                <ChefHat className="w-8 h-8 mr-3 text-primary-500" />
+                Recommended Catering Supplies
+             </h2>
+             <p className="mt-2 max-w-2xl mx-auto text-slate-600 dark:text-slate-400">
+               Browse essential equipment and supplies. Get a quote for your bulk order needs.
+             </p>
+          </div>
+          
+          <ProductSearchBar searchTerm={searchTerm} onSearchChange={setSearchTerm} />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+            {RECOMMENDED_PRODUCTS
+              .filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
+              .map(product => (
+              <ProductCard key={product.id} product={product} onGetQuote={handleGetQuote} />
+            ))}
+          </div>
+        </section>
+
+
       </main>
 
       <Footer />
-
+      <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
       <SavedChecklistsModal isOpen={isSavedModalOpen} onClose={() => setIsSavedModalOpen(false)} savedMenus={savedMenus} onDelete={deleteMenu} />
       <QrCodeModal isOpen={isQrModalOpen} onClose={() => setIsQrModalOpen(false)} />
-      <CustomizationModal 
-        isOpen={isCustomizationModalOpen}
-        onClose={() => setIsCustomizationModalOpen(false)}
-        itemToEdit={itemToEdit}
-        onSave={handleSaveCustomization}
-      />
-      <ShareModal 
-        isOpen={isShareModalOpen} 
-        onClose={() => setIsShareModalOpen(false)} 
-        shareUrl={shareUrl}
-      />
-      <EmailCapture
-        isOpen={isEmailCaptureModalOpen}
-        onClose={() => setIsEmailCaptureModalOpen(false)}
-        onSave={handleEmailCapture}
-      />
-      <QuoteModal 
-        isOpen={isQuoteModalOpen} 
-        onClose={() => setIsQuoteModalOpen(false)} 
-        product={selectedProduct} 
-      />
-      <UpgradeModal 
-        isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-        onUpgrade={handleUpgrade}
-      />
-      <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
+      <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} shareUrl={shareUrl} />
       <AiChatBot onAttemptAccess={() => attemptAccess('aiChatBot')} isPro={canAccessFeature('aiChatBot')} />
+      <CustomizationModal isOpen={isCustomizationModalOpen} onClose={() => setIsCustomizationModalOpen(false)} itemToEdit={itemToEdit} onSave={handleSaveCustomization} />
+      <EmailCapture isOpen={isEmailCaptureModalOpen} onClose={() => setIsEmailCaptureModalOpen(false)} onSave={handleEmailCapture} />
+      <QuoteModal isOpen={isQuoteModalOpen} onClose={() => setIsQuoteModalOpen(false)} product={selectedProduct} />
+      <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={handleUpgrade} />
+
     </div>
   );
 };
