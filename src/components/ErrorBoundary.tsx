@@ -1,49 +1,63 @@
-# ==============================================================================
-#  ✅ FINAL DEPLOYMENT WORKFLOW FOR FIREBASE HOSTING
-# ==============================================================================
+import React, { ErrorInfo, ReactNode } from 'react';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
 
-name: '✅ Deploy to Firebase Hosting'
+interface Props {
+  children: ReactNode;
+}
 
-on:
-  push:
-    branches:
-      - 'main'
-      - 'master' # Added master just in case your branch uses the old naming convention
-  workflow_dispatch: # Allows manual triggering of the workflow
+interface State {
+  hasError: boolean;
+}
 
-# Prevent multiple instances of this workflow from running simultaneously
-concurrency:
-  group: 'firebase-deployment'
-  cancel-in-progress: true
+class ErrorBoundary extends React.Component<Props, State> {
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      hasError: false,
+    };
+  }
 
-jobs:
-  build_and_deploy:
-    name: Build and Deploy to Firebase
-    runs-on: ubuntu-latest
-    
-    # Set environment variables for the build process
-    env:
-      API_KEY: ${{ secrets.API_KEY }}
+  public static getDerivedStateFromError(_: Error): State {
+    // Update state so the next render will show the fallback UI.
+    return { hasError: true };
+  }
 
-    steps:
-      - name: 'Step 1: Checkout Repository'
-        uses: actions/checkout@v4
+  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // You can also log the error to an error reporting service
+    console.error("Uncaught error:", error, errorInfo);
+  }
 
-      - name: 'Step 2: Set up Node.js environment'
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
+  private handleReload = () => {
+    window.location.reload();
+  };
 
-      - name: 'Step 3: Install Project Dependencies'
-        run: npm ci
+  public render() {
+    if (this.state.hasError) {
+      // You can render any custom fallback UI
+      return (
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-4 font-sans text-center">
+            <div className="max-w-md">
+                <AlertTriangle className="mx-auto h-16 w-16 text-red-500 mb-4" />
+                <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+                    Oops! Something Went Wrong
+                </h1>
+                <p className="mt-4 text-lg text-slate-600 dark:text-slate-400">
+                    An unexpected error occurred. Please try reloading the page.
+                </p>
+                <button
+                    onClick={this.handleReload}
+                    className="mt-8 inline-flex items-center justify-center bg-primary-500 hover:bg-primary-600 text-white font-semibold py-3 px-6 rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                >
+                    <RefreshCw className="mr-2 h-5 w-5" />
+                    Reload Application
+                </button>
+            </div>
+        </div>
+      );
+    }
 
-      - name: 'Step 4: Build the Application'
-        run: npm run build
+    return this.props.children;
+  }
+}
 
-      - name: 'Step 5: Deploy to Firebase Hosting'
-        uses: FirebaseExtended/action-hosting-deploy@v0
-        with:
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          projectId: 'caterpro-ai'
-          channelId: live
+export default ErrorBoundary;
