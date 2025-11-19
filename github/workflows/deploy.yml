@@ -1,63 +1,49 @@
 # ==============================================================================
-#  🚀 DEPLOY TO FIREBASE HOSTING WORKFLOW
-# ==============================================================================
-# This GitHub Actions workflow automates the process of building and deploying
-# your Vite application to Firebase Hosting.
-#
-# TRIGGERS:
-# - It runs automatically whenever code is pushed to the 'main' branch.
-# - It can also be triggered manually from the 'Actions' tab in your repo.
-#
-# REQUIRED SECRETS:
-# 1. API_KEY: Your Gemini API key, used during the build process.
-# 2. FIREBASE_SERVICE_ACCOUNT: The JSON service account key for your Firebase project.
-#    - You can find instructions for setting these up in the README.md file.
+#  ✅ FINAL DEPLOYMENT WORKFLOW FOR FIREBASE HOSTING
 # ==============================================================================
 
-name: '🚀 Deploy to Firebase Hosting'
+name: '✅ Deploy to Firebase Hosting'
 
 on:
   push:
     branches:
-      - 'main' # Trigger the workflow on push events to the main branch
+      - 'main'
+      - 'master' # Added master just in case your branch uses the old naming convention
   workflow_dispatch: # Allows manual triggering of the workflow
+
+# Prevent multiple instances of this workflow from running simultaneously
+concurrency:
+  group: 'firebase-deployment'
+  cancel-in-progress: true
 
 jobs:
   build_and_deploy:
-    name: Build and Deploy
+    name: Build and Deploy to Firebase
     runs-on: ubuntu-latest
     
-    # Environment variables available to all steps in this job
+    # Set environment variables for the build process
     env:
       API_KEY: ${{ secrets.API_KEY }}
 
     steps:
       - name: 'Step 1: Checkout Repository'
         uses: actions/checkout@v4
-        with:
-          # Fetches all history for all tags and branches
-          fetch-depth: 0
 
       - name: 'Step 2: Set up Node.js environment'
         uses: actions/setup-node@v4
         with:
-          node-version: '18' # Use Node.js version 18
-          cache: 'npm'      # Cache npm dependencies for faster builds
+          node-version: '18'
+          cache: 'npm'
 
       - name: 'Step 3: Install Project Dependencies'
-        run: npm ci # 'ci' is a cleaner, faster install for CI environments
+        run: npm ci
 
       - name: 'Step 4: Build the Application'
-        # The 'build' script in package.json will run here.
-        # The API_KEY is passed automatically from the 'env' block above.
         run: npm run build
 
       - name: 'Step 5: Deploy to Firebase Hosting'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
-          # Your Firebase project's service account key (required)
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          # Your Firebase Project ID (required)
           projectId: 'caterpro-ai'
-          # Deploy to the 'live' channel (default)
           channelId: live
