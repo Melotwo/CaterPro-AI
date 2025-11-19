@@ -440,7 +440,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
                         <h4 className={`font-bold ${t.cardTitle} flex items-center gap-2`}><Calculator size={16} /> Delivery Fee Calculator</h4>
                         <p className={`text-xs mt-1 mb-3 ${t.cardText}`}>
                             Enter the delivery distance to estimate the fee.
-                            (Base: {new Intl.NumberFormat('en-ZA', { style: 'currency', currency: menu.deliveryFeeStructure.currency }).format(menu.deliveryFeeStructure.baseFee)} + {new Intl.NumberFormat('en-ZA', { style: 'currency', currency: menu.deliveryFeeStructure.currency }).format(menu.deliveryFeeStructure.perUnitRate)}/{menu.deliveryFeeStructure.unit})
+                            (Base: {new Intl.NumberFormat(undefined, { style: 'currency', currency: menu.deliveryFeeStructure.currency }).format(menu.deliveryFeeStructure.baseFee)} + {new Intl.NumberFormat(undefined, { style: 'currency', currency: menu.deliveryFeeStructure.currency }).format(menu.deliveryFeeStructure.perUnitRate)}/{menu.deliveryFeeStructure.unit})
                         </p>
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                             <input
