@@ -1,48 +1,38 @@
-# ==============================================================================
-#  🚀 FORCE DEPLOY WORKFLOW
-# ==============================================================================
-
-name: '🚀 Force Deploy to Firebase'
+name: Deploy to Firebase Hosting
 
 on:
   push:
     branches:
-      - 'main'
-      - 'master'
-  workflow_dispatch: # Allows you to click "Run workflow" manually in the Actions tab
-
-# Prevent multiple instances of this workflow from running simultaneously
-concurrency:
-  group: 'firebase-deployment'
-  cancel-in-progress: true
+      - '**' # Trigger on every branch to ensure the workflow appears in GitHub Actions
+  workflow_dispatch:
 
 jobs:
   build_and_deploy:
-    name: Build and Deploy
     runs-on: ubuntu-latest
-    
     env:
+      # Make sure the API key is available to the build script
       API_KEY: ${{ secrets.API_KEY }}
 
     steps:
-      - name: 'Step 1: Checkout Repository'
+      - name: Checkout Repo
         uses: actions/checkout@v4
 
-      - name: 'Step 2: Set up Node.js'
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: 20
 
-      - name: 'Step 3: Install Dependencies'
-        run: npm ci
+      - name: Install Dependencies
+        run: npm install
 
-      - name: 'Step 4: Build App'
+      - name: Build App
         run: npm run build
 
-      - name: 'Step 5: Deploy to Firebase'
+      - name: Deploy to Firebase
+        if: "${{ secrets.FIREBASE_SERVICE_ACCOUNT != '' }}"
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          projectId: 'caterpro-ai'
+          projectId: caterpro-ai
           channelId: live
