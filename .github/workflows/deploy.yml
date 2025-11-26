@@ -12,7 +12,7 @@ jobs:
     env:
       # Pass API key at the job level to ensure it's available for the build
       API_KEY: ${{ secrets.API_KEY }}
-      # Prevent the build from failing if there are minor warnings
+      # Prevent the build from failing if there are minor warnings (like unused vars)
       CI: false 
 
     steps:
