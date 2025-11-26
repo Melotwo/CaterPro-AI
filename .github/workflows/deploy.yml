@@ -17,10 +17,12 @@ jobs:
 
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        # Pinning to SHA for security compliance (actions/checkout@v4.2.2)
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        # Pinning to SHA for security compliance (actions/setup-node@v4.1.0)
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af
         with:
           node-version: 20
           cache: 'npm'
@@ -34,7 +36,8 @@ jobs:
           API_KEY: ${{ secrets.API_KEY }}
 
       - name: Deploy to Firebase
-        uses: FirebaseExtended/action-hosting-deploy@v0
+        # Pinning to SHA for security compliance (FirebaseExtended/action-hosting-deploy@v0)
+        uses: FirebaseExtended/action-hosting-deploy@0cbcac474f40b3a28832fc34dc729b3c20a0c76f
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
