@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types.ts';
-import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator } from 'lucide-react';
+import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw } from 'lucide-react';
 import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES } from '../constants.ts';
 
 interface MarkdownRendererProps {
@@ -26,6 +26,7 @@ interface MarkdownRendererProps {
   onDeliveryRadiusChange: (value: string) => void;
   onCalculateFee: () => void;
   calculatedFee: string | null;
+  onRegenerateImage?: () => void;
 }
 
 const getAffiliateLink = (keywords: string) => {
@@ -40,7 +41,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
     isGeneratingImage, onUpdateShoppingItemQuantity, bulkSelectedItems, onToggleBulkSelect,
     onBulkCheck, onBulkUpdateQuantity, onClearBulkSelection, onSelectAllShoppingListItems,
     proposalTheme, canAccessFeature, onAttemptAccess, isReadOnlyView = false,
-    deliveryRadius, onDeliveryRadiusChange, onCalculateFee, calculatedFee
+    deliveryRadius, onDeliveryRadiusChange, onCalculateFee, calculatedFee, onRegenerateImage
 }) => {
   const [isBulkEditMode, setIsBulkEditMode] = useState(false);
   const [bulkQuantity, setBulkQuantity] = useState('');
@@ -102,11 +103,22 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
         <div className="w-full aspect-video bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse"></div>
       )}
       {menu.image && !isGeneratingImage && (
-         <img 
-           src={`data:image/png;base64,${menu.image}`} 
-           alt={menu.menuTitle}
-           className="w-full h-auto max-h-[400px] object-cover rounded-lg shadow-md border border-slate-200 dark:border-slate-700"
-         />
+         <div className="relative group">
+             <img 
+               src={`data:image/png;base64,${menu.image}`} 
+               alt={menu.menuTitle}
+               className="w-full h-auto max-h-[400px] object-cover rounded-lg shadow-md border border-slate-200 dark:border-slate-700"
+             />
+             {onRegenerateImage && !isReadOnlyView && (
+                 <button 
+                    onClick={onRegenerateImage}
+                    className="absolute top-2 right-2 p-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-full text-slate-600 dark:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white dark:hover:bg-slate-800 shadow-sm"
+                    title="Regenerate Image"
+                 >
+                     <RefreshCw size={16} />
+                 </button>
+             )}
+         </div>
       )}
       <h2 className={`text-2xl font-bold ${t.title}`}>{menu.menuTitle}</h2>
       <p className={`${t.description} italic`}>{menu.description}</p>
@@ -322,7 +334,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({
                   ))}
                 </div>
                 {isBulkEditMode && (
-                  <div className="sticky bottom-0 mt-4 p-3 bg-primary-50 dark:bg-slate-950 border-t-2 border-slate-200 dark:border-slate-700 rounded-b-xl animate-toast-in">
+                  <div className="sticky bottom-0 mt-4 p-3 bg-primary-50 dark:bg-slate-900 border-t-2 border-slate-200 dark:border-slate-700 rounded-b-xl animate-toast-in">
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                           <p className="font-semibold text-sm text-primary-800 dark:text-primary-200">
                               {bulkSelectedItems.size} item(s) selected
