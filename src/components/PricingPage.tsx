@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, Star, Zap, Briefcase, Building2 } from 'lucide-react';
+import { Check, Star, Zap, Briefcase } from 'lucide-react';
 import { SubscriptionPlan } from '../hooks/useAppSubscription';
 import Footer from './Footer';
 
@@ -111,23 +111,6 @@ const tiers = [
     cta: 'Get Business',
     colorKey: 'purple' as keyof typeof TIER_STYLES,
   },
-  {
-    name: 'Enterprise',
-    id: 'enterprise',
-    price: '$99',
-    priceSuffix: '/mo',
-    icon: Building2,
-    description: 'For agencies and large teams.',
-    features: [
-      'All Business Features',
-      'White-Label Options',
-      'API Access',
-      'Dedicated Account Manager',
-      'Custom Onboarding',
-    ],
-    cta: 'Contact Sales',
-    colorKey: 'slate' as keyof typeof TIER_STYLES,
-  },
 ];
 
 const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
@@ -145,7 +128,8 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
             </p>
           </div>
 
-          <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 items-start">
+          {/* Adjusted grid for 4 items: lg:grid-cols-4 */}
+          <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
             {tiers.map((tier) => {
               const styles = TIER_STYLES[tier.colorKey];
               return (
