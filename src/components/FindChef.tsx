@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ShoppingBag, MapPin, Loader2, AlertTriangle, Search, Lock } from 'lucide-react';
-import { Supplier, ErrorState } from '../types.ts';
+import { Supplier, ErrorState } from '../types';
 
 interface FindChefProps {
   onFindChefs: () => void;
