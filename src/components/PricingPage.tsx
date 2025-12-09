@@ -7,6 +7,42 @@ interface PricingPageProps {
   onSelectPlan: (plan: SubscriptionPlan) => void;
 }
 
+// Define explicit style maps for Tailwind to pick up
+const TIER_STYLES = {
+  slate: {
+    border: 'border-slate-200 dark:border-slate-700',
+    highlightBorder: 'border-slate-500 ring-2 ring-slate-500',
+    badge: 'bg-slate-500',
+    icon: 'text-slate-500',
+    button: 'bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700',
+    buttonHighlight: 'bg-slate-500 text-white hover:bg-slate-600 shadow-md',
+  },
+  blue: {
+    border: 'border-slate-200 dark:border-slate-700',
+    highlightBorder: 'border-blue-500 ring-2 ring-blue-500',
+    badge: 'bg-blue-500',
+    icon: 'text-blue-500',
+    button: 'bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700',
+    buttonHighlight: 'bg-blue-500 text-white hover:bg-blue-600 shadow-md',
+  },
+  amber: {
+    border: 'border-slate-200 dark:border-slate-700',
+    highlightBorder: 'border-amber-500 ring-2 ring-amber-500',
+    badge: 'bg-amber-500',
+    icon: 'text-amber-500',
+    button: 'bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700',
+    buttonHighlight: 'bg-amber-500 text-white hover:bg-amber-600 shadow-md',
+  },
+  purple: {
+    border: 'border-slate-200 dark:border-slate-700',
+    highlightBorder: 'border-purple-500 ring-2 ring-purple-500',
+    badge: 'bg-purple-500',
+    icon: 'text-purple-500',
+    button: 'bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700',
+    buttonHighlight: 'bg-purple-600 text-white hover:bg-purple-700 shadow-md',
+  },
+};
+
 const tiers = [
   {
     name: 'Free',
@@ -21,7 +57,7 @@ const tiers = [
       'Watermarked Documents',
     ],
     cta: 'Start for Free',
-    color: 'slate',
+    colorKey: 'slate' as keyof typeof TIER_STYLES,
   },
   {
     name: 'Starter',
@@ -37,7 +73,7 @@ const tiers = [
       'Priority Generation Speed',
     ],
     cta: 'Get Starter',
-    color: 'blue',
+    colorKey: 'blue' as keyof typeof TIER_STYLES,
   },
   {
     name: 'Professional',
@@ -56,7 +92,7 @@ const tiers = [
     cta: 'Go Professional',
     highlight: true,
     badge: 'Most Popular',
-    color: 'amber',
+    colorKey: 'amber' as keyof typeof TIER_STYLES,
   },
   {
     name: 'Business',
@@ -73,7 +109,7 @@ const tiers = [
       'Bulk Shopping List Editor',
     ],
     cta: 'Get Business',
-    color: 'purple',
+    colorKey: 'purple' as keyof typeof TIER_STYLES,
   },
   {
     name: 'Enterprise',
@@ -90,7 +126,7 @@ const tiers = [
       'Custom Onboarding',
     ],
     cta: 'Contact Sales',
-    color: 'slate',
+    colorKey: 'slate' as keyof typeof TIER_STYLES,
   },
 ];
 
@@ -110,58 +146,59 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
           </div>
 
           <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 items-start">
-            {tiers.map((tier) => (
-              <div
-                key={tier.id}
-                className={`relative flex flex-col rounded-2xl border p-6 shadow-sm h-full transition-transform hover:-translate-y-1 ${
-                  tier.highlight 
-                    ? `border-${tier.color}-500 ring-2 ring-${tier.color}-500 bg-white dark:bg-slate-900 z-10 scale-105 md:scale-100 xl:scale-110` 
-                    : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900'
-                }`}
-              >
-                {tier.highlight && (
-                  <div className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 transform rounded-full bg-${tier.color}-500 px-4 py-1 text-xs font-bold text-white uppercase tracking-wide whitespace-nowrap shadow-md`}>
-                    {tier.badge}
-                  </div>
-                )}
-                
-                <div className="mb-4">
-                    <tier.icon className={`w-8 h-8 text-${tier.color}-500`} />
-                </div>
-
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white">{tier.name}</h3>
-                <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 min-h-[2.5rem]">{tier.description}</p>
-                
-                <div className="mt-6 mb-6">
-                  <span className="text-3xl font-bold text-slate-900 dark:text-white">{tier.price}</span>
-                  {tier.priceSuffix && (
-                    <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{tier.priceSuffix}</span>
-                  )}
-                </div>
-
-                <ul role="list" className="space-y-3 mb-8 flex-grow">
-                  {tier.features.map((feature) => (
-                    <li key={feature} className="flex items-start text-sm">
-                      <div className="flex-shrink-0 mt-0.5">
-                        <Check className="h-4 w-4 text-green-500" aria-hidden="true" />
-                      </div>
-                      <p className="ml-3 text-slate-600 dark:text-slate-300">{feature}</p>
-                    </li>
-                  ))}
-                </ul>
-
-                <button
-                  onClick={() => onSelectPlan(tier.id as SubscriptionPlan)}
-                  className={`w-full rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-colors ${
-                    tier.highlight
-                      ? `bg-${tier.color}-500 text-white hover:bg-${tier.color}-600 shadow-md`
-                      : 'bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700'
+            {tiers.map((tier) => {
+              const styles = TIER_STYLES[tier.colorKey];
+              return (
+                <div
+                  key={tier.id}
+                  className={`relative flex flex-col rounded-2xl border p-6 shadow-sm h-full transition-transform hover:-translate-y-1 ${
+                    tier.highlight 
+                      ? `${styles.highlightBorder} bg-white dark:bg-slate-900 z-10 scale-105 md:scale-100 xl:scale-110` 
+                      : `${styles.border} bg-white dark:bg-slate-900`
                   }`}
                 >
-                  {tier.cta}
-                </button>
-              </div>
-            ))}
+                  {tier.highlight && (
+                    <div className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 transform rounded-full px-4 py-1 text-xs font-bold text-white uppercase tracking-wide whitespace-nowrap shadow-md ${styles.badge}`}>
+                      {tier.badge}
+                    </div>
+                  )}
+                  
+                  <div className="mb-4">
+                      <tier.icon className={`w-8 h-8 ${styles.icon}`} />
+                  </div>
+
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">{tier.name}</h3>
+                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 min-h-[2.5rem]">{tier.description}</p>
+                  
+                  <div className="mt-6 mb-6">
+                    <span className="text-3xl font-bold text-slate-900 dark:text-white">{tier.price}</span>
+                    {tier.priceSuffix && (
+                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{tier.priceSuffix}</span>
+                    )}
+                  </div>
+
+                  <ul role="list" className="space-y-3 mb-8 flex-grow">
+                    {tier.features.map((feature) => (
+                      <li key={feature} className="flex items-start text-sm">
+                        <div className="flex-shrink-0 mt-0.5">
+                          <Check className="h-4 w-4 text-green-500" aria-hidden="true" />
+                        </div>
+                        <p className="ml-3 text-slate-600 dark:text-slate-300">{feature}</p>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <button
+                    onClick={() => onSelectPlan(tier.id as SubscriptionPlan)}
+                    className={`w-full rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-colors ${
+                      tier.highlight ? styles.buttonHighlight : styles.button
+                    }`}
+                  >
+                    {tier.cta}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </div>
       </main>
