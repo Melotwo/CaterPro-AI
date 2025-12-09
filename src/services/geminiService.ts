@@ -242,7 +242,8 @@ export const generateMenuImageFromApi = async (title: string, description: strin
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
         contents: {
-            parts: [{ text: `Generate a photorealistic, appetizing, high-quality photograph of a catering spread that perfectly matches this title and description. Focus on beautiful lighting and presentation. Do not include any text or logos in the image. Title: "${title}". Description: "${description}".` }],
+            // Updated prompt to explicitly request high-end, professional photography
+            parts: [{ text: `Generate a photorealistic, high-end culinary photograph of a catering spread that perfectly matches this title and description. The style should be Michelin-star quality: elegant plating, dramatic but soft lighting, and professional food styling suitable for Instagram or a high-end portfolio. Do not include any text or logos. Title: "${title}". Description: "${description}".` }],
         },
         config: {
             responseModalities: [Modality.IMAGE],
