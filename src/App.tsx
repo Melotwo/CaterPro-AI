@@ -21,7 +21,7 @@ import ProductSearchBar from './components/ProductSearchBar';
 import FindChef from './components/FindChef';
 import PricingPage from './components/PricingPage';
 import UpgradeModal from './components/UpgradeModal';
-import { useSubscription, type SubscriptionPlan } from './hooks/useSubscription';
+import { useAppSubscription, type SubscriptionPlan } from './hooks/useAppSubscription';
 import { exampleScenarios, CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, EDITABLE_MENU_SECTIONS, RECOMMENDED_PRODUCTS, PROPOSAL_THEMES } from './constants';
 import { SavedMenu, ErrorState, ValidationErrors, GenerationHistoryItem, Menu, MenuSection, PpeProduct, Supplier } from './types';
 import { getApiErrorState } from './services/errorHandler';
@@ -77,7 +77,7 @@ const App: React.FC = () => {
     attemptAccess, 
     generationsLeft,
     canAccessFeature
-  } = useSubscription();
+  } = useAppSubscription();
 
 
   // State for the item customization modal
