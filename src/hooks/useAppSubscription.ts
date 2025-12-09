@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-export type SubscriptionPlan = 'free' | 'premium' | 'pro';
+export type SubscriptionPlan = 'free' | 'starter' | 'professional' | 'business' | 'enterprise';
 
 export interface SubscriptionState {
   plan: SubscriptionPlan;
@@ -16,17 +16,20 @@ const getInitialState = (): SubscriptionState => {
     if (storedState) {
       const parsed = JSON.parse(storedState);
       const today = new Date().toDateString();
+      // Reset daily counter if it's a new day
       if (parsed.lastGenerationDate !== today) {
         parsed.generationsToday = 0;
         parsed.lastGenerationDate = today;
       }
+      // Migrate old plan names if necessary
+      if (parsed.plan === 'premium') parsed.plan = 'professional';
+      if (parsed.plan === 'pro') parsed.plan = 'business';
+      
       return parsed;
     }
   } catch (e) {
     console.error("Failed to parse subscription state from localStorage", e);
   }
-  // If nothing is stored, user has not selected a plan.
-  // The 'free' plan is a default for logic, but the app should show the pricing page.
   return {
     plan: 'free',
     generationsToday: 0,
@@ -47,31 +50,39 @@ export const useAppSubscription = () => {
   };
 
   const canAccessFeature = useCallback((feature: string): boolean => {
+    const p = subscription.plan;
+    const isPaid = p !== 'free';
+    const isProfessionalOrHigher = ['professional', 'business', 'enterprise'].includes(p);
+    const isBusinessOrHigher = ['business', 'enterprise'].includes(p);
+    const isEnterprise = p === 'enterprise';
+
     switch (feature) {
       case 'unlimitedGenerations':
-        return subscription.plan === 'premium' || subscription.plan === 'pro';
-      case 'allThemes':
-        return subscription.plan === 'premium' || subscription.plan === 'pro';
-      case 'saveMenus':
-        return subscription.plan === 'premium' || subscription.plan === 'pro';
-      case 'beveragePairings':
-        return subscription.plan === 'premium' || subscription.plan === 'pro';
-      case 'recommendedEquipment':
-        return subscription.plan === 'premium' || subscription.plan === 'pro';
+        return isPaid; // Starter and up
       case 'noWatermark':
-        return subscription.plan === 'premium' || subscription.plan === 'pro';
+        return isPaid; // Starter and up
+      case 'allThemes':
+        return isProfessionalOrHigher;
+      case 'saveMenus':
+        return isProfessionalOrHigher;
+      case 'beveragePairings':
+        return isProfessionalOrHigher;
+      case 'recommendedEquipment':
+        return isProfessionalOrHigher;
       case 'aiChatBot':
-        return subscription.plan === 'premium' || subscription.plan === 'pro';
+        return isProfessionalOrHigher;
       case 'shareableLinks':
-        return subscription.plan === 'pro';
+        return isBusinessOrHigher;
       case 'findSuppliers':
-        return subscription.plan === 'pro';
+        return isBusinessOrHigher;
       case 'bulkEdit':
-        return subscription.plan === 'pro';
+        return isBusinessOrHigher;
       case 'itemEditing':
-        return subscription.plan === 'pro';
+        return isBusinessOrHigher;
       case 'customItemGeneration':
-        return subscription.plan === 'pro';
+        return isBusinessOrHigher;
+      case 'apiAccess':
+        return isEnterprise;
       default:
         return false;
     }
