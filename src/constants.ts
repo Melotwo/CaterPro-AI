@@ -1,5 +1,5 @@
 import { Briefcase, Heart, PartyPopper } from 'lucide-react';
-import { MenuSection, PpeProduct } from './types.ts';
+import { MenuSection, PpeProduct } from './types';
 
 export const EVENT_TYPES = [
   'Corporate Lunch',
