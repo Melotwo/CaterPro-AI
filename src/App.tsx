@@ -600,9 +600,9 @@ const App: React.FC = () => {
   const saveMenu = () => {
     if (!attemptAccess('saveMenus') || !menu) return;
 
-    const maxSaved = subscription.plan === 'premium' ? 10 : Infinity;
+    const maxSaved = subscription.plan === 'professional' ? 10 : (['business', 'enterprise'].includes(subscription.plan) ? Infinity : 0);
     if (savedMenus.length >= maxSaved) {
-        showToast('You have reached your limit for saved menus. Upgrade to Pro for unlimited saves.');
+        showToast('You have reached your limit for saved menus. Upgrade your plan for more saves.');
         setShowUpgradeModal(true);
         return;
     }
