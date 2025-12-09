@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { MessageSquare, Send, X, Bot, User, AlertTriangle, Lock } from 'lucide-react';
 import { Message, ErrorState } from '../types';
-import { getApiErrorState } from '../services/errorHandler';
+import { getApiErrorState } from '../services/apiErrorHandler';
 
 const AiChatBot: React.FC<{
   onAttemptAccess: () => boolean;
