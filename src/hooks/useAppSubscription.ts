@@ -34,7 +34,7 @@ const getInitialState = (): SubscriptionState => {
   };
 };
 
-export const useSubscription = () => {
+export const useAppSubscription = () => {
   const [subscription, setSubscription] = useState<SubscriptionState>(getInitialState());
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
