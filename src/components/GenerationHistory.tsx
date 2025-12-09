@@ -1,6 +1,6 @@
 import React from 'react';
 import { History, Trash2 } from 'lucide-react';
-import { GenerationHistoryItem } from '../types.ts';
+import { GenerationHistoryItem } from '../types';
 
 interface GenerationHistoryProps {
   history: GenerationHistoryItem[];
