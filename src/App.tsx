@@ -1,31 +1,31 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle, Link, RefreshCw, ShoppingBag, ChefHat, ShieldCheck, Smartphone, X } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle, Link, ShoppingBag, ChefHat, ShieldCheck, Smartphone, X } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-import Navbar from './components/Navbar.tsx';
-import Footer from './components/Footer.tsx';
-import MarkdownRenderer from './components/MarkdownRenderer.tsx';
-import SavedChecklistsModal from './components/SavedChecklistsModal.tsx';
-import Toast from './components/Toast.tsx';
-import AiChatBot from './components/AiChatBot.tsx';
-import QrCodeModal from './components/QrCodeModal.tsx';
-import ShareModal from './components/ShareModal.tsx';
-import MultiSelectDropdown from './components/MultiSelectDropdown.tsx';
-import GenerationHistory from './components/GenerationHistory.tsx';
-import CustomizationModal from './components/CustomizationModal.tsx';
-import EmailCapture from './components/EmailCapture.tsx';
-import ProductCard from './components/ProductCard.tsx';
-import QuoteModal from './components/QuoteModal.tsx';
-import ProductSearchBar from './components/ProductSearchBar.tsx';
-import FindChef from './components/FindChef.tsx';
-import PricingPage from './components/PricingPage.tsx';
-import UpgradeModal from './components/UpgradeModal.tsx';
-import { useSubscription, SubscriptionPlan } from './hooks/useSubscription.ts';
-import { exampleScenarios, CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, EDITABLE_MENU_SECTIONS, RECOMMENDED_PRODUCTS, PROPOSAL_THEMES } from './constants.ts';
-import { SavedMenu, ErrorState, ValidationErrors, GenerationHistoryItem, Menu, MenuSection, PpeProduct, Supplier } from './types.ts';
-import { getApiErrorState } from './services/errorHandler.ts';
-import { generateMenuFromApi, generateCustomMenuItemFromApi, generateMenuImageFromApi, findSuppliersNearby } from './services/geminiService.ts';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import MarkdownRenderer from './components/MarkdownRenderer';
+import SavedChecklistsModal from './components/SavedChecklistsModal';
+import Toast from './components/Toast';
+import AiChatBot from './components/AiChatBot';
+import QrCodeModal from './components/QrCodeModal';
+import ShareModal from './components/ShareModal';
+import MultiSelectDropdown from './components/MultiSelectDropdown';
+import GenerationHistory from './components/GenerationHistory';
+import CustomizationModal from './components/CustomizationModal';
+import EmailCapture from './components/EmailCapture';
+import ProductCard from './components/ProductCard';
+import QuoteModal from './components/QuoteModal';
+import ProductSearchBar from './components/ProductSearchBar';
+import FindChef from './components/FindChef';
+import PricingPage from './components/PricingPage';
+import UpgradeModal from './components/UpgradeModal';
+import { useSubscription, SubscriptionPlan } from './hooks/useSubscription';
+import { exampleScenarios, CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, EDITABLE_MENU_SECTIONS, RECOMMENDED_PRODUCTS, PROPOSAL_THEMES } from './constants';
+import { SavedMenu, ErrorState, ValidationErrors, GenerationHistoryItem, Menu, MenuSection, PpeProduct, Supplier } from './types';
+import { getApiErrorState } from './services/errorHandler';
+import { generateMenuFromApi, generateCustomMenuItemFromApi, generateMenuImageFromApi, findSuppliersNearby } from './services/geminiService';
 
 
 const LOADING_MESSAGES = [
@@ -72,8 +72,8 @@ const App: React.FC = () => {
     subscription, 
     selectPlan, 
     recordGeneration, 
-    showUpgradeModal, 
     setShowUpgradeModal, 
+    showUpgradeModal,
     attemptAccess, 
     generationsLeft,
     canAccessFeature
