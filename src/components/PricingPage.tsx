@@ -1,6 +1,6 @@
 import React from 'react';
 import { Check, Star } from 'lucide-react';
-import { SubscriptionPlan } from '../hooks/useSubscription';
+import { SubscriptionPlan } from '../hooks/useAppSubscription';
 import Footer from './Footer';
 
 interface PricingPageProps {
