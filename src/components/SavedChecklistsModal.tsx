@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Bookmark, Eye, Trash2, ArrowLeft } from 'lucide-react';
 import { SavedMenu } from '../types';
-import MarkdownRenderer from './MarkdownRenderer';
+import MenuDisplay from './MenuDisplay';
 
 const SavedChecklistsModal: React.FC<{
   isOpen: boolean;
@@ -97,7 +97,7 @@ const SavedChecklistsModal: React.FC<{
         </div>
         <div className="flex-grow overflow-y-auto">
           {viewingMenu ? (
-             <MarkdownRenderer 
+             <MenuDisplay 
                 menu={viewingMenu.content} 
                 checkedItems={checkedItems} 
                 onToggleItem={toggleItem} 
