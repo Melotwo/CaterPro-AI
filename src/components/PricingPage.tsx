@@ -1,7 +1,7 @@
 import React from 'react';
 import { Check, Star } from 'lucide-react';
-import { SubscriptionPlan } from '../hooks/useSubscription.ts';
-import Footer from './Footer.tsx';
+import { SubscriptionPlan } from '../hooks/useSubscription';
+import Footer from './Footer';
 
 interface PricingPageProps {
   onSelectPlan: (plan: SubscriptionPlan) => void;
