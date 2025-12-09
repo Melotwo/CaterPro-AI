@@ -1,5 +1,5 @@
 import { GoogleGenAI, Modality, Type } from "@google/genai";
-import { Menu, Supplier } from "../types.ts";
+import { Menu, Supplier } from "../types";
 
 export interface MenuGenerationParams {
   eventType: string;
