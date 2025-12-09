@@ -9,10 +9,10 @@ on:
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
+    # This line helps find secrets if they were added to a 'production' environment
+    environment: production
     env:
-      # Map the secret "GEMINI_API_KEY" (from your settings) to the app's expected "API_KEY"
       API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      # Prevent the build from failing if there are minor warnings
       CI: false 
 
     steps:
@@ -30,24 +30,13 @@ jobs:
       - name: Build App
         run: npm run build
         env:
-          # Ensure the build command has access to the API key
           API_KEY: ${{ secrets.GEMINI_API_KEY }}
-
-      - name: Check for Firebase Secret
-        run: |
-          if [ -z "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}" ]; then
-            echo "Error: FIREBASE_SERVICE_ACCOUNT is missing!"
-            echo "Please go to GitHub Settings > Secrets and variables > Actions and add 'FIREBASE_SERVICE_ACCOUNT'."
-            exit 1
-          else
-            echo "Success: FIREBASE_SERVICE_ACCOUNT is detected (it is masked for security)."
-          fi
 
       - name: Deploy to Firebase
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
-          # This secret must be in "Repository secrets" in GitHub Settings
-          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          # We wrap the secret in quotes to ensure JSON formatting is preserved
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
           projectId: caterpro-ai
           channelId: live
