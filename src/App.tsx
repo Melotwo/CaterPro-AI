@@ -24,7 +24,7 @@ import UpgradeModal from './components/UpgradeModal';
 import { useAppSubscription, type SubscriptionPlan } from './hooks/useAppSubscription';
 import { exampleScenarios, CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, EDITABLE_MENU_SECTIONS, RECOMMENDED_PRODUCTS, PROPOSAL_THEMES } from './constants';
 import { SavedMenu, ErrorState, ValidationErrors, GenerationHistoryItem, Menu, MenuSection, PpeProduct, Supplier } from './types';
-import { getApiErrorState } from './services/errorHandler';
+import { getApiErrorState } from './services/apiErrorHandler';
 import { generateMenuFromApi, generateCustomMenuItemFromApi, generateMenuImageFromApi, findSuppliersNearby } from './services/geminiService';
 
 
