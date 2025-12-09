@@ -1,5 +1,5 @@
 import React from 'react';
-import { ErrorState } from '../types.ts';
+import { ErrorState } from '../types';
 
 /**
  * Processes an unknown error from an API call and returns a structured ErrorState object
