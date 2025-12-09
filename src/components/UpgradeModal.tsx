@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { X, Star, Lock } from 'lucide-react';
-import { SubscriptionPlan } from '../hooks/useSubscription';
+import { SubscriptionPlan } from '../hooks/useAppSubscription';
 
 interface UpgradeModalProps {
   isOpen: boolean;
