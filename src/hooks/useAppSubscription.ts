@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-export type SubscriptionPlan = 'free' | 'starter' | 'professional' | 'business' | 'enterprise';
+export type SubscriptionPlan = 'free' | 'starter' | 'professional' | 'business';
 
 export interface SubscriptionState {
   plan: SubscriptionPlan;
@@ -24,6 +24,7 @@ const getInitialState = (): SubscriptionState => {
       // Migrate old plan names if necessary
       if (parsed.plan === 'premium') parsed.plan = 'professional';
       if (parsed.plan === 'pro') parsed.plan = 'business';
+      if (parsed.plan === 'enterprise') parsed.plan = 'business'; // Downgrade legacy enterprise to business
       
       return parsed;
     }
@@ -52,9 +53,8 @@ export const useAppSubscription = () => {
   const canAccessFeature = useCallback((feature: string): boolean => {
     const p = subscription.plan;
     const isPaid = p !== 'free';
-    const isProfessionalOrHigher = ['professional', 'business', 'enterprise'].includes(p);
-    const isBusinessOrHigher = ['business', 'enterprise'].includes(p);
-    const isEnterprise = p === 'enterprise';
+    const isProfessionalOrHigher = ['professional', 'business'].includes(p);
+    const isBusiness = p === 'business';
 
     switch (feature) {
       case 'unlimitedGenerations':
@@ -72,17 +72,15 @@ export const useAppSubscription = () => {
       case 'aiChatBot':
         return isProfessionalOrHigher;
       case 'shareableLinks':
-        return isBusinessOrHigher;
+        return isBusiness;
       case 'findSuppliers':
-        return isBusinessOrHigher;
+        return isBusiness;
       case 'bulkEdit':
-        return isBusinessOrHigher;
+        return isBusiness;
       case 'itemEditing':
-        return isBusinessOrHigher;
+        return isBusiness;
       case 'customItemGeneration':
-        return isBusinessOrHigher;
-      case 'apiAccess':
-        return isEnterprise;
+        return isBusiness;
       default:
         return false;
     }
