@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Save, Sparkles, Loader2, AlertTriangle } from 'lucide-react';
-import { MenuSection } from '../types.ts';
-import { regenerateMenuItemFromApi } from '../services/geminiService.ts';
-import { getApiErrorState } from '../services/errorHandler.ts';
-import { ErrorState } from '../types.ts';
+import { MenuSection } from '../types';
+import { regenerateMenuItemFromApi } from '../services/geminiService';
+import { getApiErrorState } from '../services/errorHandler';
+import { ErrorState } from '../types';
 
 interface CustomizationModalProps {
   isOpen: boolean;
