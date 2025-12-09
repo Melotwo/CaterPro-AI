@@ -5,7 +5,7 @@ import html2canvas from 'html2canvas';
 
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import MarkdownRenderer from './components/MarkdownRenderer';
+import MenuDisplay from './components/MenuDisplay';
 import SavedChecklistsModal from './components/SavedChecklistsModal';
 import Toast from './components/Toast';
 import AiChatBot from './components/AiChatBot';
@@ -975,7 +975,7 @@ const App: React.FC = () => {
               </div>
               
               <div ref={menuRef} className="print-area">
-                <MarkdownRenderer 
+                <MenuDisplay 
                   menu={menu}
                   checkedItems={checkedItems}
                   onToggleItem={handleToggleChecklistItem}
