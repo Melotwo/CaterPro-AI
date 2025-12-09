@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types';
-import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw } from 'lucide-react';
+import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck } from 'lucide-react';
 import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES } from '../constants';
 
 interface MenuDisplayProps {
@@ -405,7 +405,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                 <div className="flex justify-between items-center mb-4 group">
                   <h3 className={`text-lg font-bold ${t.sectionTitle} flex items-center gap-3`}>
                     <span className={`w-8 h-8 ${t.sectionIcon} rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0`}>
-                        {key === 'miseEnPlace' ? <ListTodo size={16} /> : (catIdx + 1)}
+                        {key === 'miseEnPlace' ? <ListTodo size={16} /> : (key === 'deliveryLogistics' ? <Truck size={16} /> : (catIdx + 1))}
                     </span>
                     {title}
                   </h3>
@@ -448,27 +448,43 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                   })}
                 </div>
                  {!isReadOnlyView && key === 'deliveryLogistics' && menu.deliveryFeeStructure && (
-                    <div className="mt-4 pt-4 border-t-2 border-slate-200 dark:border-slate-700">
-                        <h4 className={`font-bold ${t.cardTitle} flex items-center gap-2`}><Calculator size={16} /> Delivery Fee Calculator</h4>
-                        <p className={`text-xs mt-1 mb-3 ${t.cardText}`}>
-                            Enter the delivery distance to estimate the fee.
-                            (Base: {new Intl.NumberFormat(undefined, { style: 'currency', currency: menu.deliveryFeeStructure.currency }).format(menu.deliveryFeeStructure.baseFee)} + {new Intl.NumberFormat(undefined, { style: 'currency', currency: menu.deliveryFeeStructure.currency }).format(menu.deliveryFeeStructure.perUnitRate)}/{menu.deliveryFeeStructure.unit})
+                    <div className="mt-6 pt-6 border-t border-dashed border-slate-300 dark:border-slate-600 bg-slate-50/50 dark:bg-slate-800/50 p-4 rounded-lg">
+                        <div className="flex items-center gap-2 mb-2">
+                           <div className="p-1.5 bg-primary-100 dark:bg-primary-900/50 rounded-md text-primary-600 dark:text-primary-400">
+                               <Calculator size={18} />
+                           </div>
+                           <h4 className={`font-bold ${t.cardTitle}`}>Estimated Delivery Fee</h4>
+                        </div>
+                        <p className={`text-sm mb-4 ${t.cardText}`}>
+                            Calculate logistics costs based on distance. 
+                            <span className="opacity-75 block text-xs mt-1">(Rate: {new Intl.NumberFormat(undefined, { style: 'currency', currency: menu.deliveryFeeStructure.currency }).format(menu.deliveryFeeStructure.baseFee)} base + {new Intl.NumberFormat(undefined, { style: 'currency', currency: menu.deliveryFeeStructure.currency }).format(menu.deliveryFeeStructure.perUnitRate)}/{menu.deliveryFeeStructure.unit})</span>
                         </p>
-                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                            <input
-                                type="number"
-                                value={deliveryRadius}
-                                onChange={(e) => onDeliveryRadiusChange(e.target.value)}
-                                placeholder={`Distance in ${menu.deliveryFeeStructure.unit}s`}
-                                className="flex-grow px-3 py-2 text-sm bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
-                                aria-label={`Distance in ${menu.deliveryFeeStructure.unit}s`}
-                            />
-                            <button onClick={onCalculateFee} className="action-button flex-shrink-0">Calculate Fee</button>
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                            <div className="flex-grow relative">
+                                <input
+                                    type="number"
+                                    value={deliveryRadius}
+                                    onChange={(e) => onDeliveryRadiusChange(e.target.value)}
+                                    placeholder="0"
+                                    className="block w-full pl-3 pr-12 py-2.5 text-sm bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
+                                    aria-label={`Distance in ${menu.deliveryFeeStructure.unit}s`}
+                                />
+                                <span className="absolute right-3 top-2.5 text-sm text-slate-500 dark:text-slate-400 pointer-events-none">
+                                    {menu.deliveryFeeStructure.unit}s
+                                </span>
+                            </div>
+                            <button 
+                                onClick={onCalculateFee} 
+                                className="action-button !bg-primary-600 !text-white !border-transparent hover:!bg-primary-700 shadow-md whitespace-nowrap"
+                            >
+                                Calculate
+                            </button>
                         </div>
                         {calculatedFee && (
-                            <p className="mt-3 font-bold text-lg text-primary-600 dark:text-primary-400 animate-slide-in" style={{animationDuration: '0.3s'}}>
-                                Estimated Fee: <span className="p-2 bg-primary-50 dark:bg-primary-900/50 rounded-md">{calculatedFee}</span>
-                            </p>
+                            <div className="mt-4 p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600 flex justify-between items-center shadow-sm animate-[fade-in_0.3s_ease-out]">
+                                <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Total Estimate:</span>
+                                <span className="text-lg font-bold text-primary-600 dark:text-primary-400">{calculatedFee}</span>
+                            </div>
                         )}
                     </div>
                  )}
