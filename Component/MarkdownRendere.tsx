@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types.ts';
+import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types';
 import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw } from 'lucide-react';
-import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES } from '../constants.ts';
+import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES } from '../constants';
 
 interface MarkdownRendererProps {
   menu: Menu;
