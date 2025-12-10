@@ -58,6 +58,34 @@ export const DIETARY_RESTRICTIONS = [
   { category: 'Health', items: ['Low-Carb', 'Low-Fat', 'Low-Sodium', 'Sugar-Free'] },
 ];
 
+export const CURRICULUM_STANDARDS = [
+  { id: 'city_guilds_sa', label: 'City & Guilds (South Africa/Intl)' },
+  { id: 'qcto_sa', label: 'QCTO (South Africa - Occupational)' },
+  { id: 'cia_usa', label: 'Culinary Institute of America (USA)' },
+  { id: 'tafe_aus', label: 'TAFE (Australia)' },
+  { id: 'generic', label: 'General International Standard' },
+];
+
+export const EDUCATION_LEVELS = [
+  'Beginner / Short Course',
+  'Certificate (Level 1-2)',
+  'Diploma (Level 3)',
+  'Professional / Management',
+];
+
+export const EDUCATION_TOPICS = [
+  'Food Safety & Hygiene',
+  'Knife Skills & Prep',
+  'Stocks, Soups & Sauces',
+  'Meat & Poultry Preparation',
+  'Fish & Shellfish',
+  'Vegetable & Plant-Based Cookery',
+  'Pastry & Baking Arts',
+  'Menu Planning & Costing',
+  'Hospitality Management',
+  'Wine & Beverage Service',
+];
+
 export const exampleScenarios = [
   {
     IconComponent: Briefcase,
@@ -138,7 +166,7 @@ export const RECOMMENDED_PRODUCTS: PpeProduct[] = [
     id: 4,
     name: '3-Tier Serving Stand',
     description: 'A beautiful and practical way to display appetizers, desserts, or small bites.',
-    image: 'https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf?auto=format&fit=crop&w=800&q=80', // Reliable tiered stand image
+    image: 'https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf?auto=format&fit=crop&w=800&q=80',
     priceRange: '$',
   },
   {
