@@ -189,3 +189,20 @@ export interface Supplier {
   mapsUri?: string;
   title?: string;
 }
+
+/**
+ * Represents the generated education content.
+ */
+export interface EducationContent {
+  title: string;
+  curriculum: string;
+  level: string;
+  overview: string;
+  modules: {
+    title: string;
+    content: string[]; // Bullet points or paragraphs
+  }[];
+  keyVocabulary: string[];
+  assessmentCriteria: string[];
+  practicalExercises: string[];
+}
