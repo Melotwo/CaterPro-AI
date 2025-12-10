@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { X, Star, Briefcase, Check, Gift } from 'lucide-react';
+import { X, Star, Briefcase, Check, Gift, Zap } from 'lucide-react';
 import { SubscriptionPlan } from '../hooks/useAppSubscription';
 
 interface UpgradeModalProps {
@@ -158,13 +158,22 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade 
              </button>
              
              {!showPromo ? (
-                 <button 
-                    onClick={() => setShowPromo(true)}
-                    className="flex items-center gap-1.5 text-xs font-semibold text-primary-600 dark:text-primary-400 hover:underline"
-                >
-                     <Gift size={14} />
-                     Have a promo code?
-                 </button>
+                <div className="flex flex-col items-center w-full gap-2">
+                     <button 
+                        onClick={() => onUpgrade('business')}
+                        className="w-full py-2 text-xs font-bold uppercase tracking-wider text-white bg-slate-800 dark:bg-slate-600 rounded hover:bg-slate-700 dark:hover:bg-slate-500 flex items-center justify-center gap-2"
+                    >
+                         <Zap size={12} className="text-yellow-400" fill="currentColor" />
+                         Activate Demo Mode (Free)
+                     </button>
+                     <button 
+                        onClick={() => setShowPromo(true)}
+                        className="flex items-center gap-1.5 text-xs font-semibold text-primary-600 dark:text-primary-400 hover:underline"
+                    >
+                         <Gift size={14} />
+                         Have a promo code?
+                     </button>
+                </div>
              ) : (
                  <div className="w-full max-w-xs flex gap-2 animate-fade-in">
                      <div className="flex-grow">
