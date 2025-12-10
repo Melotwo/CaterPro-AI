@@ -117,7 +117,7 @@ export const RECOMMENDED_PRODUCTS: PpeProduct[] = [
     id: 1,
     name: '8-Quart Chafing Dish Set',
     description: 'Stainless steel set with fuel holders to keep your main courses perfectly warm.',
-    image: 'https://images.unsplash.com/photo-1576867757603-05b134ebc379?auto=format&fit=crop&w=800&q=80', // Reliable buffet food image
+    image: 'https://images.unsplash.com/photo-1576867757603-05b134ebc379?auto=format&fit=crop&w=800&q=80',
     priceRange: '$$',
   },
   {
@@ -138,7 +138,7 @@ export const RECOMMENDED_PRODUCTS: PpeProduct[] = [
     id: 4,
     name: '3-Tier Serving Stand',
     description: 'A beautiful and practical way to display appetizers, desserts, or small bites.',
-    image: 'https://images.unsplash.com/photo-1563293883-9316327e02ce?auto=format&fit=crop&w=800&q=80', // Reliable dessert/stand image
+    image: 'https://images.unsplash.com/photo-1595966603648-5c7475f3a1d9?auto=format&fit=crop&w=800&q=80', // Updated to reliable tiered cupcake stand image
     priceRange: '$',
   },
   {
