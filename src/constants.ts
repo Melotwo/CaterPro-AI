@@ -91,8 +91,6 @@ export const exampleScenarios = [
   },
 ];
 
-// Fix: Added 'Shopping List' to ensure it's rendered by components iterating over this array.
-// Added 'Recommended Equipment & Supplies' for the new affiliate marketing section.
 export const MENU_SECTIONS: { title: string; key: MenuSection }[] = [
     { title: 'Appetizers', key: 'appetizers' },
     { title: 'Main Courses', key: 'mainCourses' },
@@ -119,7 +117,7 @@ export const RECOMMENDED_PRODUCTS: PpeProduct[] = [
     id: 1,
     name: '8-Quart Chafing Dish Set',
     description: 'Stainless steel set with fuel holders to keep your main courses perfectly warm.',
-    image: 'https://images.unsplash.com/photo-1574966740793-2b54664551c3?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1576867757603-05b134ebc379?auto=format&fit=crop&w=800&q=80', // Reliable buffet food image
     priceRange: '$$',
   },
   {
@@ -140,7 +138,7 @@ export const RECOMMENDED_PRODUCTS: PpeProduct[] = [
     id: 4,
     name: '3-Tier Serving Stand',
     description: 'A beautiful and practical way to display appetizers, desserts, or small bites.',
-    image: 'https://images.unsplash.com/photo-1563293883-9316327e02ce?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1623859763838-a304bd02e694?auto=format&fit=crop&w=800&q=80', // Reliable dessert/stand image
     priceRange: '$',
   },
   {
