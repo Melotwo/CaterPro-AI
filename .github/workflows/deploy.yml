@@ -1,57 +1,60 @@
-import React, { ErrorInfo, ReactNode } from 'react';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
+name: Deploy to Firebase Hosting
 
-interface Props {
-  children?: ReactNode;
-}
+on:
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
 
-interface State {
-  hasError: boolean;
-}
+jobs:
+  # Job 1: Verify the secret exists immediately
+  check_secret:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for Firebase Secret
+        env:
+          FIREBASE_SECRET: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: |
+          if [ -z "$FIREBASE_SECRET" ]; then
+            echo "::error::FIREBASE_SERVICE_ACCOUNT secret is missing or empty!"
+            echo "1. Go to GitHub Settings > Secrets and variables > Actions."
+            echo "2. Ensure 'FIREBASE_SERVICE_ACCOUNT' is under 'Repository secrets' (not Environment secrets)."
+            echo "3. If it is under Environment secrets, move it to Repository secrets."
+            exit 1
+          else
+            echo "Secret found (length: ${#FIREBASE_SECRET} chars)."
+          fi
 
-class ErrorBoundary extends React.Component<Props, State> {
-  public state: State = {
-    hasError: false
-  };
+  # Job 2: Build and Deploy (only runs if check_secret passes)
+  build_and_deploy:
+    needs: check_secret
+    runs-on: ubuntu-latest
+    env:
+      API_KEY: ${{ secrets.GEMINI_API_KEY }}
+      CI: false 
 
-  public static getDerivedStateFromError(_: Error): State {
-    return { hasError: true };
-  }
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
 
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error("Uncaught error:", error, errorInfo);
-  }
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-  private handleReload = () => {
-    window.location.reload();
-  };
+      - name: Install Dependencies
+        run: npm install
 
-  public render() {
-    if (this.state.hasError) {
-      return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-4 font-sans text-center">
-            <div className="max-w-md">
-                <AlertTriangle className="mx-auto h-16 w-16 text-red-500 mb-4" />
-                <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-                    Oops! Something Went Wrong
-                </h1>
-                <p className="mt-4 text-lg text-slate-600 dark:text-slate-400">
-                    An unexpected error occurred. Please try reloading the page.
-                </p>
-                <button
-                    onClick={this.handleReload}
-                    className="mt-8 inline-flex items-center justify-center bg-primary-500 hover:bg-primary-600 text-white font-semibold py-3 px-6 rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
-                >
-                    <RefreshCw className="mr-2 h-5 w-5" />
-                    Reload Application
-                </button>
-            </div>
-        </div>
-      );
-    }
+      - name: Build App
+        run: npm run build
+        env:
+          API_KEY: ${{ secrets.GEMINI_API_KEY }}
 
-    return this.props.children || null;
-  }
-}
-
-export default ErrorBoundary;
+      - name: Deploy to Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          # Wrapped in quotes to handle potential special characters in JSON
+          firebaseServiceAccount: "${{ secrets.FIREBASE_SERVICE_ACCOUNT }}"
+          projectId: caterpro-ai
+          channelId: live
