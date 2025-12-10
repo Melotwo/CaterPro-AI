@@ -6,28 +6,37 @@
 
 CaterPro AI is your AI-powered assistant for instantly generating professional catering proposals. Tailor complete menus for any event, from corporate lunches to elegant weddings, and streamline your entire planning process.
 
-## 🚨 Deployment Fix: "Input required and not supplied: firebaseServiceAccount"
+## 🚨 CRITICAL FIX: "FIREBASE_SERVICE_ACCOUNT is missing"
 
-If your build passes but the **"Deploy to Firebase"** step fails, you are missing the security key in GitHub.
+Based on your screenshots, the secret is currently in the **Environment Secrets** section. It **MUST** be in **Repository Secrets**.
 
-### 1. Get your Firebase Service Account JSON
-1.  Go to the [Google Cloud Console Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts).
-2.  Ensure your project `caterpro-ai` is selected at the top.
-3.  Locate the service account (usually `firebase-adminsdk...`).
-4.  Click the **three dots** > **Manage keys**.
-5.  Click **Add Key** > **Create new key** > **JSON**.
-6.  Open the downloaded file and **copy the entire content**.
+### How to Fix (Do this on GitHub Website)
 
-### 2. Add the Secret to GitHub
-1.  Go to your GitHub Repository page.
-2.  Click **Settings** > **Secrets and variables** > **Actions**.
-3.  Click **New repository secret**.
-4.  **Name:** `FIREBASE_SERVICE_ACCOUNT` (Exact spelling is important!)
-5.  **Value:** Paste the JSON content you copied.
-6.  Click **Add secret**.
+1.  **Go to Settings:**
+    - Navigate to your Repo > **Settings** > **Secrets and variables** > **Actions**.
 
-### 3. Trigger a New Deploy
-Go to the **Actions** tab, select the failed run, and click **Re-run jobs**.
+2.  **Remove the Wrong Secret:**
+    - Look at the **"Environment secrets"** section at the top.
+    - If you see `FIREBASE_SERVICE_ACCOUNT` there, click the **Trash Icon** 🗑️ to delete it.
+    - If you created an Environment named "FIREBASE_SERVICE_ACCOUNT", you can ignore it or delete it in the "Environments" tab on the left.
+
+3.  **Add the Correct Secret:**
+    - Scroll down to **"Repository secrets"**.
+    - Click the green **"New repository secret"** button.
+    - **Name:** `FIREBASE_SERVICE_ACCOUNT`
+    - **Value:** Paste the entire contents of your JSON file.
+    - Click **Add secret**.
+
+4.  **Add your API Key (If missing):**
+    - Click **"New repository secret"** again.
+    - **Name:** `GEMINI_API_KEY`
+    - **Value:** Paste your Google AI Studio API Key.
+    - Click **Add secret**.
+
+5.  **Re-run the Deploy:**
+    - Go to the **Actions** tab.
+    - Click the failed run.
+    - Click **Re-run jobs**.
 
 ---
 
