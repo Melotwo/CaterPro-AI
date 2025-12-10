@@ -32,7 +32,8 @@ const getInitialState = (): SubscriptionState => {
     console.error("Failed to parse subscription state from localStorage", e);
   }
   return {
-    plan: 'free',
+    // Default to 'business' so the user can test all features immediately
+    plan: 'business',
     generationsToday: 0,
     lastGenerationDate: new Date().toDateString(),
   };
