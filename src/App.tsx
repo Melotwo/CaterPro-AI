@@ -37,7 +37,8 @@ const LOADING_MESSAGES = [
 
 const CHECKED_ITEMS_STORAGE_KEY = 'caterpro-checked-items';
 
-const formInputStyle = "mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-slate-950 transition-colors sm:text-sm";
+// Fixed text color for dark mode inputs
+const formInputStyle = "mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-slate-950 transition-colors sm:text-sm text-slate-900 dark:text-white";
 
 
 // ========= MAIN APP COMPONENT =========
@@ -784,13 +785,18 @@ const App: React.FC = () => {
           <p className="mt-4 max-w-2xl mx-auto text-lg text-slate-600 dark:text-slate-300">
             Generate menus, shopping lists, and proposals for your food business.
           </p>
-          <div className="mt-4 flex items-center justify-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400">
+          {/* UPDATED: Clickable Plan Badge */}
+          <button 
+            onClick={() => setShowUpgradeModal(true)}
+            className="mt-4 inline-flex items-center justify-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full"
+            title="Click to change plan"
+          >
             <ShieldCheck className="w-5 h-5 text-green-500" />
             <span>{subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1)} Plan</span>
             {!canAccessFeature('unlimitedGenerations') && (
               <span>&bull; {generationsLeft} generations left today</span>
             )}
-          </div>
+          </button>
         </header>
 
         <section aria-labelledby="menu-generator-title" className="mt-12 bg-white dark:bg-slate-800/50 p-6 sm:p-8 rounded-lg shadow-md border border-slate-200 dark:border-slate-700/80 animate-slide-in" style={{ animationDelay: '0.2s' }}>
