@@ -35,10 +35,13 @@ export const SERVICE_STYLES = [
   'Plated Service',
   'Family Style',
   'Food Stations',
+  'Braai / BBQ',
 ];
 
 export const CUISINES = [
   'Any',
+  'South African',
+  'African',
   'Italian',
   'Mexican',
   'Chinese',
@@ -55,7 +58,7 @@ export const CUISINES = [
 export const DIETARY_RESTRICTIONS = [
   { category: 'Common', items: ['Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free'] },
   { category: 'Allergies', items: ['Nut-Free', 'Shellfish-Free', 'Soy-Free', 'Egg-Free'] },
-  { category: 'Health', items: ['Low-Carb', 'Low-Fat', 'Low-Sodium', 'Sugar-Free'] },
+  { category: 'Health', items: ['Low-Carb', 'Low-Fat', 'Low-Sodium', 'Sugar-Free', 'Halaal', 'Kosher'] },
 ];
 
 export const CURRICULUM_STANDARDS = [
