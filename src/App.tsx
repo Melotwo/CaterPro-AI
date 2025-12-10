@@ -21,6 +21,7 @@ import ProductSearchBar from './components/ProductSearchBar';
 import FindChef from './components/FindChef';
 import PricingPage from './components/PricingPage';
 import UpgradeModal from './components/UpgradeModal';
+import StudyGuideGenerator from './components/StudyGuideGenerator';
 import { useAppSubscription, type SubscriptionPlan } from './hooks/useAppSubscription';
 import { exampleScenarios, CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, EDITABLE_MENU_SECTIONS, RECOMMENDED_PRODUCTS, PROPOSAL_THEMES } from './constants';
 import { SavedMenu, ErrorState, ValidationErrors, GenerationHistoryItem, Menu, MenuSection, PpeProduct, Supplier } from './types';
@@ -1044,6 +1045,11 @@ const App: React.FC = () => {
           isLoading={isFindingSuppliers} 
           error={findSuppliersError} 
           isPro={canAccessFeature('findSuppliers')}
+        />
+        
+        <StudyGuideGenerator 
+          isPro={canAccessFeature('educationTools')} 
+          onAttemptAccess={() => attemptAccess('educationTools')} 
         />
         
         <section aria-labelledby="recommended-products-title" className="mt-16 animate-slide-in" style={{ animationDelay: '0.4s' }}>
