@@ -1,5 +1,5 @@
 import { GoogleGenAI, Modality, Type } from "@google/genai";
-import { Menu, Supplier } from "../types";
+import { Menu, Supplier, EducationContent } from "../types";
 
 export interface MenuGenerationParams {
   eventType: string;
@@ -237,4 +237,53 @@ export const findSuppliersNearby = async (latitude: number, longitude: number): 
     });
 
     return mappedSuppliers;
+};
+
+export const generateStudyGuideFromApi = async (
+  topic: string, 
+  curriculum: string, 
+  level: string, 
+  type: 'guide' | 'curriculum'
+): Promise<EducationContent> => {
+  const prompt = `
+    You are a professional Hospitality Educator and Curriculum Developer.
+    
+    **Task:** Create a ${type === 'guide' ? 'Student Study Guide' : 'Professional Curriculum Syllabus'}.
+    **Subject:** ${topic}
+    **Standard/Curriculum:** ${curriculum} (Pay strict attention to the terminology and standards used in this specific region/program).
+    **Level:** ${level}
+
+    **Requirements:**
+    1. **Overview:** A brief introduction to the module.
+    2. **Modules/Lessons:** Breakdown the topic into 4-6 key learning modules.
+       - If type is 'guide': Provide summary notes and key concepts for studying.
+       - If type is 'curriculum': Provide learning outcomes and lesson plan structures.
+    3. **Key Vocabulary:** Important terms defined.
+    4. **Assessment Criteria:** How the student will be judged (theoretical or practical).
+    5. **Practical Exercises:** 3-5 concrete tasks or recipes to practice.
+
+    **IMPORTANT:**
+    Return the response as a valid JSON object matching this schema:
+    {
+      "title": "string",
+      "curriculum": "string",
+      "level": "string",
+      "overview": "string",
+      "modules": [{ "title": "string", "content": ["string"] }],
+      "keyVocabulary": ["string"],
+      "assessmentCriteria": ["string"],
+      "practicalExercises": ["string"]
+    }
+  `;
+
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: prompt,
+    config: {
+      responseMimeType: 'application/json'
+    }
+  });
+
+  if (!response.text) throw new Error("No content generated.");
+  return JSON.parse(response.text);
 };
