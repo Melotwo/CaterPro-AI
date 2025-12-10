@@ -1,5 +1,5 @@
-import React, { useEffect, useRef } from 'react';
-import { X, Star, Briefcase, Check } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { X, Star, Briefcase, Check, Gift } from 'lucide-react';
 import { SubscriptionPlan } from '../hooks/useAppSubscription';
 
 interface UpgradeModalProps {
@@ -9,12 +9,19 @@ interface UpgradeModalProps {
 }
 
 const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade }) => {
+  const [showPromo, setShowPromo] = useState(false);
+  const [promoCode, setPromoCode] = useState('');
+  const [promoError, setPromoError] = useState('');
+
   const modalRef = useRef<HTMLDivElement>(null);
   const triggerElementRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       triggerElementRef.current = document.activeElement as HTMLElement;
+      setShowPromo(false);
+      setPromoCode('');
+      setPromoError('');
       
       const focusableElements = modalRef.current?.querySelectorAll<HTMLElement>('button, [href], [tabindex]:not([tabindex="-1"])');
       const firstElement = focusableElements?.[0];
@@ -47,6 +54,17 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade 
     }
   }, [isOpen, onClose]);
   
+  const handleApplyPromo = () => {
+      const code = promoCode.trim().toUpperCase();
+      if (['VIP', 'FAMILY', 'SISTER', 'ADMIN'].includes(code)) {
+          onUpgrade('business');
+          setPromoCode('');
+          setShowPromo(false);
+      } else {
+          setPromoError('Invalid promo code');
+      }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -133,10 +151,41 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade 
                 </button>
             </div>
         </div>
-        <div className="p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-700 text-center">
+        
+        <div className="p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-700 flex flex-col items-center gap-3">
              <button onClick={() => onUpgrade('starter')} className="text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 underline">
                  Just need to remove watermarks? Get Starter for $9/mo
              </button>
+             
+             {!showPromo ? (
+                 <button 
+                    onClick={() => setShowPromo(true)}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-primary-600 dark:text-primary-400 hover:underline"
+                >
+                     <Gift size={14} />
+                     Have a promo code?
+                 </button>
+             ) : (
+                 <div className="w-full max-w-xs flex gap-2 animate-fade-in">
+                     <div className="flex-grow">
+                        <input 
+                            type="text" 
+                            placeholder="Enter Code (e.g. VIP)" 
+                            value={promoCode}
+                            onChange={(e) => { setPromoCode(e.target.value); setPromoError(''); }}
+                            className={`w-full px-3 py-1.5 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-slate-800 dark:text-white ${promoError ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'}`}
+                            autoFocus
+                        />
+                        {promoError && <p className="text-xs text-red-500 mt-1 text-left">{promoError}</p>}
+                     </div>
+                     <button 
+                        onClick={handleApplyPromo}
+                        className="px-3 py-1.5 text-sm font-semibold text-white bg-slate-800 dark:bg-slate-600 rounded-md hover:bg-slate-900 dark:hover:bg-slate-500"
+                     >
+                         Apply
+                     </button>
+                 </div>
+             )}
         </div>
       </div>
     </div>
