@@ -8,6 +8,9 @@ const Footer: React.FC = () => (
       <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">
         As an Amazon Associate, we earn from qualifying purchases. This site contains affiliate links.
       </p>
+      <p className="mt-4 text-[10px] text-slate-300 dark:text-slate-600 font-mono">
+        v1.0.1 &bull; Live Build
+      </p>
     </div>
   </footer>
 );
