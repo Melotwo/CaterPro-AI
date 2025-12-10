@@ -138,7 +138,7 @@ export const RECOMMENDED_PRODUCTS: PpeProduct[] = [
     id: 4,
     name: '3-Tier Serving Stand',
     description: 'A beautiful and practical way to display appetizers, desserts, or small bites.',
-    image: 'https://images.unsplash.com/photo-1595966603648-5c7475f3a1d9?auto=format&fit=crop&w=800&q=80', // Updated to reliable tiered cupcake stand image
+    image: 'https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf?auto=format&fit=crop&w=800&q=80', // Reliable tiered stand image
     priceRange: '$',
   },
   {
