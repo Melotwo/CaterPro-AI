@@ -82,6 +82,8 @@ export const useAppSubscription = () => {
         return isBusiness;
       case 'customItemGeneration':
         return isBusiness;
+      case 'educationTools':
+        return isBusiness;
       default:
         return false;
     }
