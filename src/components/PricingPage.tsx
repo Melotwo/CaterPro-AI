@@ -17,29 +17,29 @@ const TIER_STYLES = {
     button: 'bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700',
     buttonHighlight: 'bg-slate-500 text-white hover:bg-slate-600 shadow-md',
   },
-  blue: {
+  green: {
     border: 'border-slate-200 dark:border-slate-700',
-    highlightBorder: 'border-blue-500 ring-2 ring-blue-500',
-    badge: 'bg-blue-500',
-    icon: 'text-blue-500',
-    button: 'bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700',
-    buttonHighlight: 'bg-blue-500 text-white hover:bg-blue-600 shadow-md',
+    highlightBorder: 'border-primary-500 ring-2 ring-primary-500',
+    badge: 'bg-primary-600',
+    icon: 'text-primary-600',
+    button: 'bg-primary-50 text-primary-800 hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-200 dark:hover:bg-primary-900/50',
+    buttonHighlight: 'bg-primary-600 text-white hover:bg-primary-700 shadow-md',
   },
   amber: {
     border: 'border-slate-200 dark:border-slate-700',
     highlightBorder: 'border-amber-500 ring-2 ring-amber-500',
     badge: 'bg-amber-500',
     icon: 'text-amber-500',
-    button: 'bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700',
+    button: 'bg-amber-50 text-amber-800 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-200 dark:hover:bg-amber-900/50',
     buttonHighlight: 'bg-amber-500 text-white hover:bg-amber-600 shadow-md',
   },
-  purple: {
+  royal: {
     border: 'border-slate-200 dark:border-slate-700',
-    highlightBorder: 'border-purple-500 ring-2 ring-purple-500',
-    badge: 'bg-purple-500',
-    icon: 'text-purple-500',
+    highlightBorder: 'border-primary-700 ring-2 ring-primary-700',
+    badge: 'bg-primary-800',
+    icon: 'text-primary-800 dark:text-primary-400',
     button: 'bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700',
-    buttonHighlight: 'bg-purple-600 text-white hover:bg-purple-700 shadow-md',
+    buttonHighlight: 'bg-primary-800 text-white hover:bg-primary-900 shadow-md',
   },
 };
 
@@ -49,7 +49,7 @@ const tiers = [
     id: 'free',
     price: '$0',
     icon: Star,
-    description: 'Perfect for daily use and testing the waters.',
+    description: 'Perfect for daily use and individual meal prep.',
     features: [
       '3 Menu Generations per Day',
       'Basic Menu Export (PDF)',
@@ -73,7 +73,7 @@ const tiers = [
       'Priority Generation Speed',
     ],
     cta: 'Get Starter',
-    colorKey: 'blue' as keyof typeof TIER_STYLES,
+    colorKey: 'green' as keyof typeof TIER_STYLES,
   },
   {
     name: 'Professional',
@@ -109,7 +109,7 @@ const tiers = [
       'Education & Training Hub',
     ],
     cta: 'Get Business',
-    colorKey: 'purple' as keyof typeof TIER_STYLES,
+    colorKey: 'royal' as keyof typeof TIER_STYLES,
   },
 ];
 
@@ -123,7 +123,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
               Plans for Every Stage
             </h1>
             <p className="mt-4 text-xl text-slate-600 dark:text-slate-400">
-              From culinary students to established catering businesses.
+              From individual meal planning to hospital catering and large events.
             </p>
           </div>
 
@@ -188,13 +188,13 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
             
             {/* High Ticket / Enterprise Section */}
             <div className="bg-slate-900 dark:bg-slate-800 rounded-3xl overflow-hidden shadow-2xl relative">
-              <div className="absolute top-0 right-0 bg-yellow-500 text-slate-900 text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
+              <div className="absolute top-0 right-0 bg-amber-500 text-slate-900 text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
                 LIMITED AVAILABILITY
               </div>
               <div className="px-6 py-10 md:p-12 flex flex-col h-full">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="p-2 bg-slate-800 rounded-lg">
-                    <Briefcase className="h-8 w-8 text-yellow-500" />
+                    <Briefcase className="h-8 w-8 text-amber-500" />
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-white">
@@ -210,15 +210,15 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
                 
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-center text-slate-300 text-sm">
-                    <Check className="h-4 w-4 text-yellow-500 mr-3" />
+                    <Check className="h-4 w-4 text-amber-500 mr-3" />
                     <strong>Lifetime Access</strong> to Business Plan
                   </li>
                   <li className="flex items-center text-slate-300 text-sm">
-                    <Check className="h-4 w-4 text-yellow-500 mr-3" />
+                    <Check className="h-4 w-4 text-amber-500 mr-3" />
                     1-on-1 Menu Engineering Call (60 min)
                   </li>
                   <li className="flex items-center text-slate-300 text-sm">
-                    <Check className="h-4 w-4 text-yellow-500 mr-3" />
+                    <Check className="h-4 w-4 text-amber-500 mr-3" />
                     List of Top 50 Wedding Venues (SA)
                   </li>
                 </ul>
@@ -226,7 +226,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
                 <div className="flex flex-col sm:flex-row gap-3 mt-auto">
                   <a 
                     href="mailto:contact@caterpro.ai?subject=Founding Member Inquiry"
-                    className="flex-1 inline-flex items-center justify-center px-4 py-3 border border-transparent text-sm font-bold rounded-md text-slate-900 bg-yellow-500 hover:bg-yellow-400 transition-colors"
+                    className="flex-1 inline-flex items-center justify-center px-4 py-3 border border-transparent text-sm font-bold rounded-md text-slate-900 bg-amber-500 hover:bg-amber-400 transition-colors"
                   >
                     Get Lifetime Deal
                   </a>
@@ -236,37 +236,37 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
 
             {/* B2B / Education Section */}
             <div className="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-3xl overflow-hidden shadow-lg relative">
-              <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
+              <div className="absolute top-0 right-0 bg-primary-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
                 INSTITUTIONAL
               </div>
               <div className="px-6 py-10 md:p-12 flex flex-col h-full">
                 <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                    <GraduationCap className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                  <div className="p-2 bg-primary-100 dark:bg-primary-900/30 rounded-lg">
+                    <GraduationCap className="h-8 w-8 text-primary-600 dark:text-primary-400" />
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-                      Schools & Colleges
+                      Schools & Healthcare
                     </h2>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm">Bulk Licenses for Students</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">Bulk Licenses for Students & Hospitals</p>
                   </div>
                 </div>
                 
                 <p className="text-slate-600 dark:text-slate-300 text-base mb-8 flex-grow">
-                  Equip your culinary students with industry-standard AI tools for City & Guilds/QCTO assignments. Simplify curriculum delivery.
+                  Equip your staff or students with industry-standard AI tools. Perfect for dieticians planning hospital menus or culinary schools.
                 </p>
                 
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-center text-slate-600 dark:text-slate-300 text-sm">
-                    <Check className="h-4 w-4 text-blue-500 mr-3" />
-                    Discounted Bulk Student Accounts
+                    <Check className="h-4 w-4 text-primary-500 mr-3" />
+                    Discounted Bulk Accounts
                   </li>
                   <li className="flex items-center text-slate-600 dark:text-slate-300 text-sm">
-                    <Check className="h-4 w-4 text-blue-500 mr-3" />
-                    Lecturer Dashboard & Curriculum Tools
+                    <Check className="h-4 w-4 text-primary-500 mr-3" />
+                    Specialized Medical Diet Modules
                   </li>
                   <li className="flex items-center text-slate-600 dark:text-slate-300 text-sm">
-                    <Check className="h-4 w-4 text-blue-500 mr-3" />
+                    <Check className="h-4 w-4 text-primary-500 mr-3" />
                     Invoice Payment Options
                   </li>
                 </ul>
