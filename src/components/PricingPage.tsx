@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, Star, Zap, Briefcase, Phone, ArrowRight } from 'lucide-react';
+import { Check, Star, Zap, Briefcase, Phone, ArrowRight, GraduationCap, Building2 } from 'lucide-react';
 import { SubscriptionPlan } from '../hooks/useAppSubscription';
 import Footer from './Footer';
 
@@ -123,8 +123,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
               Plans for Every Stage
             </h1>
             <p className="mt-4 text-xl text-slate-600 dark:text-slate-400">
-              From daily menu inspiration to full-scale catering operations. 
-              Unlock AI photography to give your dishes that Michelin-star look.
+              From culinary students to established catering businesses.
             </p>
           </div>
 
@@ -185,59 +184,105 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
             })}
           </div>
 
-          {/* High Ticket / Enterprise Section */}
-          <div className="mt-24 bg-slate-900 dark:bg-slate-800 rounded-3xl overflow-hidden shadow-2xl lg:grid lg:grid-cols-2 lg:gap-4">
-            <div className="px-6 py-12 md:p-12 lg:p-16">
-              <h2 className="text-3xl font-bold text-white mb-6">
-                Catering Business Accelerator
-              </h2>
-              <p className="text-slate-300 text-lg mb-8">
-                Don't just get software. Get a complete business transformation. We help you set up, automate your proposals, and land your first high-ticket client.
-              </p>
-              <ul className="space-y-4 mb-8">
-                <li className="flex items-center text-slate-300">
-                  <Check className="h-5 w-5 text-green-400 mr-3" />
-                  Lifetime Access to Business Plan (R10k Value)
-                </li>
-                <li className="flex items-center text-slate-300">
-                  <Check className="h-5 w-5 text-green-400 mr-3" />
-                  1-on-1 Setup & Menu Engineering Call
-                </li>
-                <li className="flex items-center text-slate-300">
-                  <Check className="h-5 w-5 text-green-400 mr-3" />
-                  Exclusive List of Top 50 Wedding Venues
-                </li>
-                <li className="flex items-center text-slate-300">
-                  <Check className="h-5 w-5 text-green-400 mr-3" />
-                  Custom "Perfect Proposal" Templates
-                </li>
-              </ul>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <a 
-                  href="mailto:contact@caterpro.ai?subject=Business Accelerator Inquiry"
-                  className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-slate-900 bg-white hover:bg-slate-100 transition-colors"
-                >
-                  <Phone className="mr-2 h-5 w-5" />
-                  Book a Strategy Call
-                </a>
-                <a 
-                   href="#"
-                   className="inline-flex items-center justify-center px-6 py-3 border border-slate-600 text-base font-medium rounded-md text-white hover:bg-slate-800 transition-colors"
-                   onClick={(e) => { e.preventDefault(); alert('Demos are booked manually. Please contact the developer.'); }}
-                >
-                  View Demo
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </a>
+          <div className="mt-24 grid grid-cols-1 lg:grid-cols-2 gap-8">
+            
+            {/* High Ticket / Enterprise Section */}
+            <div className="bg-slate-900 dark:bg-slate-800 rounded-3xl overflow-hidden shadow-2xl relative">
+              <div className="absolute top-0 right-0 bg-yellow-500 text-slate-900 text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
+                LIMITED AVAILABILITY
+              </div>
+              <div className="px-6 py-10 md:p-12 flex flex-col h-full">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2 bg-slate-800 rounded-lg">
+                    <Briefcase className="h-8 w-8 text-yellow-500" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-white">
+                      Founding Member Deal
+                    </h2>
+                    <p className="text-slate-400 text-sm">For Catering Business Owners</p>
+                  </div>
+                </div>
+                
+                <p className="text-slate-300 text-base mb-8 flex-grow">
+                  Secure lifetime access to CaterPro AI plus a 1-on-1 business strategy setup. Stop paying monthly subscriptions and own your tools.
+                </p>
+                
+                <ul className="space-y-3 mb-8">
+                  <li className="flex items-center text-slate-300 text-sm">
+                    <Check className="h-4 w-4 text-yellow-500 mr-3" />
+                    <strong>Lifetime Access</strong> to Business Plan
+                  </li>
+                  <li className="flex items-center text-slate-300 text-sm">
+                    <Check className="h-4 w-4 text-yellow-500 mr-3" />
+                    1-on-1 Menu Engineering Call (60 min)
+                  </li>
+                  <li className="flex items-center text-slate-300 text-sm">
+                    <Check className="h-4 w-4 text-yellow-500 mr-3" />
+                    List of Top 50 Wedding Venues (SA)
+                  </li>
+                </ul>
+                
+                <div className="flex flex-col sm:flex-row gap-3 mt-auto">
+                  <a 
+                    href="mailto:contact@caterpro.ai?subject=Founding Member Inquiry"
+                    className="flex-1 inline-flex items-center justify-center px-4 py-3 border border-transparent text-sm font-bold rounded-md text-slate-900 bg-yellow-500 hover:bg-yellow-400 transition-colors"
+                  >
+                    Get Lifetime Deal
+                  </a>
+                </div>
               </div>
             </div>
-            <div className="relative h-64 lg:h-auto bg-slate-800">
-                <img 
-                    src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1632&q=80" 
-                    alt="Meeting with clients" 
-                    className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay"
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-slate-900 to-transparent"></div>
+
+            {/* B2B / Education Section */}
+            <div className="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-3xl overflow-hidden shadow-lg relative">
+              <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
+                INSTITUTIONAL
+              </div>
+              <div className="px-6 py-10 md:p-12 flex flex-col h-full">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
+                    <GraduationCap className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+                      Schools & Colleges
+                    </h2>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">Bulk Licenses for Students</p>
+                  </div>
+                </div>
+                
+                <p className="text-slate-600 dark:text-slate-300 text-base mb-8 flex-grow">
+                  Equip your culinary students with industry-standard AI tools for City & Guilds/QCTO assignments. Simplify curriculum delivery.
+                </p>
+                
+                <ul className="space-y-3 mb-8">
+                  <li className="flex items-center text-slate-600 dark:text-slate-300 text-sm">
+                    <Check className="h-4 w-4 text-blue-500 mr-3" />
+                    Discounted Bulk Student Accounts
+                  </li>
+                  <li className="flex items-center text-slate-600 dark:text-slate-300 text-sm">
+                    <Check className="h-4 w-4 text-blue-500 mr-3" />
+                    Lecturer Dashboard & Curriculum Tools
+                  </li>
+                  <li className="flex items-center text-slate-600 dark:text-slate-300 text-sm">
+                    <Check className="h-4 w-4 text-blue-500 mr-3" />
+                    Invoice Payment Options
+                  </li>
+                </ul>
+                
+                <div className="flex flex-col sm:flex-row gap-3 mt-auto">
+                  <a 
+                    href="mailto:contact@caterpro.ai?subject=Education License Inquiry"
+                    className="flex-1 inline-flex items-center justify-center px-4 py-3 border border-slate-300 dark:border-slate-600 text-sm font-bold rounded-md text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
+                  >
+                    <Building2 className="mr-2 h-4 w-4" />
+                    Contact Sales
+                  </a>
+                </div>
+              </div>
             </div>
+
           </div>
 
         </div>
