@@ -1,9 +1,11 @@
-import { Briefcase, Heart, PartyPopper } from 'lucide-react';
+import { Briefcase, Heart, PartyPopper, Stethoscope, User } from 'lucide-react';
 import { MenuSection, PpeProduct } from './types';
 
 export const EVENT_TYPES = [
   'Corporate Lunch',
   'Wedding Reception',
+  'Hospital / Patient Catering',
+  'Individual Meal Prep (Weekly)',
   'Cocktail Party',
   'Birthday Dinner',
   'Holiday Gathering',
@@ -14,10 +16,13 @@ export const EVENT_TYPES = [
 ];
 
 export const GUEST_COUNT_OPTIONS = [
+  '1 (Individual)',
+  '2-9 (Family/Small Group)',
   '10-20',
   '21-50',
   '51-100',
-  '100+',
+  '100-500 (Institutional)',
+  '500+',
 ];
 
 export const BUDGET_LEVELS = [
@@ -28,6 +33,8 @@ export const BUDGET_LEVELS = [
 
 export const SERVICE_STYLES = [
   'Standard Catering',
+  'Hospital Tray Service',
+  'Meal Prep Containers',
   'Upscale Elegant',
   'Fine Dining',
   'Michelin-Star Inspired',
@@ -56,9 +63,10 @@ export const CUISINES = [
 ];
 
 export const DIETARY_RESTRICTIONS = [
+  { category: 'Medical / Hospital', items: ['Diabetic Friendly', 'Renal Diet', 'Soft Food / Pureed', 'Liquid Diet', 'Low Sodium (Cardiac)', 'High Protein (Recovery)'] },
   { category: 'Common', items: ['Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free'] },
   { category: 'Allergies', items: ['Nut-Free', 'Shellfish-Free', 'Soy-Free', 'Egg-Free'] },
-  { category: 'Health', items: ['Low-Carb', 'Low-Fat', 'Low-Sodium', 'Sugar-Free', 'Halaal', 'Kosher'] },
+  { category: 'Health', items: ['Low-Carb', 'Keto', 'Paleo', 'Halaal', 'Kosher'] },
 ];
 
 export const CURRICULUM_STANDARDS = [
@@ -87,6 +95,7 @@ export const EDUCATION_TOPICS = [
   'Menu Planning & Costing',
   'Hospitality Management',
   'Wine & Beverage Service',
+  'Therapeutic Nutrition (Medical)',
 ];
 
 export const exampleScenarios = [
@@ -101,29 +110,29 @@ export const exampleScenarios = [
     dietaryRestrictions: ['Gluten-Free'],
   },
   {
-    IconComponent: Heart,
-    title: 'Elegant Wedding Dinner',
-    eventType: 'Wedding Reception',
-    guestCount: '51-100',
-    cuisine: 'French',
-    budget: '$$$',
-    serviceStyle: 'Fine Dining',
-    dietaryRestrictions: [],
+    IconComponent: Stethoscope,
+    title: 'Hospital Recovery Menu',
+    eventType: 'Hospital / Patient Catering',
+    guestCount: '100-500 (Institutional)',
+    cuisine: 'Any',
+    budget: '$',
+    serviceStyle: 'Hospital Tray Service',
+    dietaryRestrictions: ['Low Sodium (Cardiac)', 'Soft Food / Pureed'],
   },
   {
-    IconComponent: PartyPopper,
-    title: 'Casual Birthday Party',
-    eventType: 'Birthday Dinner',
-    guestCount: '10-20',
-    cuisine: 'Mexican',
-    budget: '$',
-    serviceStyle: 'Standard Catering',
-    dietaryRestrictions: ['Vegetarian'],
+    IconComponent: User,
+    title: 'Weekly Meal Prep',
+    eventType: 'Individual Meal Prep (Weekly)',
+    guestCount: '1 (Individual)',
+    cuisine: 'Mediterranean',
+    budget: '$$',
+    serviceStyle: 'Meal Prep Containers',
+    dietaryRestrictions: ['High Protein (Recovery)', 'Keto'],
   },
 ];
 
 export const MENU_SECTIONS: { title: string; key: MenuSection }[] = [
-    { title: 'Appetizers', key: 'appetizers' },
+    { title: 'Appetizers / Starters', key: 'appetizers' },
     { title: 'Main Courses', key: 'mainCourses' },
     { title: 'Side Dishes', key: 'sideDishes' },
     { title: 'Dessert', key: 'dessert' },
