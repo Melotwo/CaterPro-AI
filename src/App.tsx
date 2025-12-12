@@ -710,7 +710,8 @@ ${menu.description}
 
 Chefs & Caterers, stop typing menus manually. 
 Try it free: https://caterpro-ai.web.app
-#CateringLife #ChefTools #MenuPlanning #AI`;
+
+#CateringLife #ChefTools #MenuPlanning #AI #EventProfs #CaterProAI #SmallBusiness #Hospitality`;
 
     navigator.clipboard.writeText(caption).then(() => {
         showToast("Social caption copied! Paste it into Facebook.");
