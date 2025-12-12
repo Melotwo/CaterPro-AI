@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types';
-import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck } from 'lucide-react';
+import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat } from 'lucide-react';
 import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES } from '../constants';
 
 interface MenuDisplayProps {
@@ -99,6 +99,16 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
   return (
     <div className={`p-4 sm:p-6 theme-container ${t.container}`}>
       <div className="space-y-6">
+      
+      {/* Branding Header for Screenshots */}
+      <div className="flex items-center justify-between border-b border-dashed border-slate-300 dark:border-slate-600 pb-4 mb-2">
+         <div className="flex items-center gap-2">
+            <ChefHat className={`w-6 h-6 ${t.title}`} />
+            <span className={`text-sm font-bold uppercase tracking-wider ${t.description}`}>CaterPro AI Proposal</span>
+         </div>
+         <span className={`text-xs ${t.description}`}>{new Date().toLocaleDateString()}</span>
+      </div>
+
       {isGeneratingImage && (
         <div className="w-full aspect-video bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse"></div>
       )}
