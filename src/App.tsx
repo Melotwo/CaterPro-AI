@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle, Link, ShoppingBag, ChefHat, ShieldCheck, Smartphone, X, Zap, FileText, MousePointerClick } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle, Link, ShoppingBag, ChefHat, ShieldCheck, Smartphone, X, Zap, FileText, MousePointerClick, Megaphone } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -695,6 +695,23 @@ const App: React.FC = () => {
     }
   };
 
+  const handleCopySocialCaption = () => {
+    if (!menu) return;
+    
+    const caption = `🚀 Created in 30 seconds with CaterPro AI!
+
+📋 **${menu.menuTitle}**
+${menu.description}
+
+Chefs & Caterers, stop typing menus manually. 
+Try it free: https://caterpro-ai.web.app
+#CateringLife #ChefTools #MenuPlanning #AI`;
+
+    navigator.clipboard.writeText(caption).then(() => {
+        showToast("Social caption copied! Paste it into Facebook.");
+    });
+  };
+
   const handleOpenShareModal = () => {
     if (!attemptAccess('shareableLinks') || !menu) return;
     try {
@@ -996,6 +1013,7 @@ const App: React.FC = () => {
                     <button onClick={() => window.print()} className="action-button"><Printer size={16} className="mr-1.5" />Print</button>
                     <button onClick={copyToClipboard} className="action-button"><Copy size={16} className="mr-1.5" />Copy Text</button>
                     <button onClick={handleOpenShareModal} className="action-button"><Link size={16} className="mr-1.5" />Share</button>
+                    <button onClick={handleCopySocialCaption} className="action-button bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 border-primary-200 dark:border-primary-800"><Megaphone size={16} className="mr-1.5" />Social Caption</button>
                   </div>
                 </div>
                 <div className="mt-4">
