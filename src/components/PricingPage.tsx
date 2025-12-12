@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, Star, Zap, Briefcase, Phone, ArrowRight, GraduationCap, Building2 } from 'lucide-react';
+import { Check, Star, Zap, Briefcase, GraduationCap, Building2, ShieldCheck, Users } from 'lucide-react';
 import { SubscriptionPlan } from '../hooks/useAppSubscription';
 import Footer from './Footer';
 
@@ -49,7 +49,7 @@ const tiers = [
     id: 'free',
     price: '$0',
     icon: Star,
-    description: 'Perfect for daily use and individual meal prep.',
+    description: 'Perfect for individual meal prep and testing.',
     features: [
       '3 Menu Generations per Day',
       'Basic Menu Export (PDF)',
@@ -65,7 +65,7 @@ const tiers = [
     price: '$9',
     priceSuffix: '/mo',
     icon: Zap,
-    description: 'Remove limits and branding.',
+    description: 'For private chefs and small events.',
     features: [
       'Unlimited Generations',
       'No Watermarks',
@@ -81,7 +81,7 @@ const tiers = [
     price: '$19',
     priceSuffix: '/mo',
     icon: Star,
-    description: 'AI tools for better presentation.',
+    description: 'Tools for better presentation.',
     features: [
       'All Starter Features',
       'AI Food Photography (Michelin Style)',
@@ -100,7 +100,7 @@ const tiers = [
     price: '$29',
     priceSuffix: '/mo',
     icon: Briefcase,
-    description: 'Complete toolkit for caterers.',
+    description: 'Complete toolkit for catering companies.',
     features: [
       'All Professional Features',
       'Unlimited Saved Menus',
@@ -123,7 +123,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
               Plans for Every Stage
             </h1>
             <p className="mt-4 text-xl text-slate-600 dark:text-slate-400">
-              From individual meal planning to hospital catering and large events.
+              Scalable solutions for individuals, catering businesses, and large institutions.
             </p>
           </div>
 
@@ -186,10 +186,10 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
 
           <div className="mt-24 grid grid-cols-1 lg:grid-cols-2 gap-8">
             
-            {/* High Ticket / Enterprise Section */}
+            {/* Small Business / Founding Member Deal */}
             <div className="bg-slate-900 dark:bg-slate-800 rounded-3xl overflow-hidden shadow-2xl relative">
               <div className="absolute top-0 right-0 bg-amber-500 text-slate-900 text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
-                LIMITED AVAILABILITY
+                LIMITED TIME
               </div>
               <div className="px-6 py-10 md:p-12 flex flex-col h-full">
                 <div className="flex items-center gap-3 mb-6">
@@ -200,26 +200,26 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
                     <h2 className="text-2xl font-bold text-white">
                       Founding Member Deal
                     </h2>
-                    <p className="text-slate-400 text-sm">For Catering Business Owners</p>
+                    <p className="text-slate-400 text-sm">For Single Business Owners</p>
                   </div>
                 </div>
                 
                 <p className="text-slate-300 text-base mb-8 flex-grow">
-                  Secure lifetime access to CaterPro AI plus a 1-on-1 business strategy setup. Stop paying monthly subscriptions and own your tools.
+                  Stop paying monthly subscriptions. Get lifetime access to the Business Plan for a one-time payment.
                 </p>
                 
                 <ul className="space-y-3 mb-8">
                   <li className="flex items-center text-slate-300 text-sm">
                     <Check className="h-4 w-4 text-amber-500 mr-3" />
-                    <strong>Lifetime Access</strong> to Business Plan
+                    <strong>Lifetime Access</strong> (No monthly fees)
                   </li>
                   <li className="flex items-center text-slate-300 text-sm">
                     <Check className="h-4 w-4 text-amber-500 mr-3" />
-                    1-on-1 Menu Engineering Call (60 min)
+                    Single User License
                   </li>
                   <li className="flex items-center text-slate-300 text-sm">
                     <Check className="h-4 w-4 text-amber-500 mr-3" />
-                    List of Top 50 Wedding Venues (SA)
+                    Includes Top 50 Wedding Venues List (SA)
                   </li>
                 </ul>
                 
@@ -234,50 +234,60 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
               </div>
             </div>
 
-            {/* B2B / Education Section */}
-            <div className="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-3xl overflow-hidden shadow-lg relative">
+            {/* B2B / Enterprise Section */}
+            <div className="bg-white dark:bg-slate-800 border-2 border-primary-200 dark:border-primary-900/50 rounded-3xl overflow-hidden shadow-lg relative">
               <div className="absolute top-0 right-0 bg-primary-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
-                INSTITUTIONAL
+                ANNUAL LICENSE
               </div>
               <div className="px-6 py-10 md:p-12 flex flex-col h-full">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="p-2 bg-primary-100 dark:bg-primary-900/30 rounded-lg">
-                    <GraduationCap className="h-8 w-8 text-primary-600 dark:text-primary-400" />
+                    <Building2 className="h-8 w-8 text-primary-600 dark:text-primary-400" />
                   </div>
                   <div>
                     <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-                      Schools & Healthcare
+                      Schools & Hospitals
                     </h2>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm">Bulk Licenses for Students & Hospitals</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">For High-Volume Institutions</p>
                   </div>
                 </div>
                 
                 <p className="text-slate-600 dark:text-slate-300 text-base mb-8 flex-grow">
-                  Equip your staff or students with industry-standard AI tools. Perfect for dieticians planning hospital menus or culinary schools.
+                  Enterprise-grade solution for culinary schools (FETs) and healthcare facilities. Includes bulk user management and specialized modules.
                 </p>
                 
-                <ul className="space-y-3 mb-8">
-                  <li className="flex items-center text-slate-600 dark:text-slate-300 text-sm">
-                    <Check className="h-4 w-4 text-primary-500 mr-3" />
-                    Discounted Bulk Accounts
-                  </li>
-                  <li className="flex items-center text-slate-600 dark:text-slate-300 text-sm">
-                    <Check className="h-4 w-4 text-primary-500 mr-3" />
-                    Specialized Medical Diet Modules
-                  </li>
-                  <li className="flex items-center text-slate-600 dark:text-slate-300 text-sm">
-                    <Check className="h-4 w-4 text-primary-500 mr-3" />
-                    Invoice Payment Options
-                  </li>
-                </ul>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                    <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-100 dark:border-slate-700">
+                        <div className="flex items-center gap-2 mb-2">
+                             <GraduationCap className="h-4 w-4 text-primary-500" />
+                             <span className="font-bold text-sm text-slate-800 dark:text-slate-200">Colleges / FETs</span>
+                        </div>
+                        <ul className="space-y-1 text-xs text-slate-600 dark:text-slate-400">
+                             <li>• Curriculum Alignment (QCTO)</li>
+                             <li>• Student Assessment Tools</li>
+                             <li>• Multi-Seat Licenses</li>
+                        </ul>
+                    </div>
+                    <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-100 dark:border-slate-700">
+                        <div className="flex items-center gap-2 mb-2">
+                             <ShieldCheck className="h-4 w-4 text-primary-500" />
+                             <span className="font-bold text-sm text-slate-800 dark:text-slate-200">Hospitals</span>
+                        </div>
+                        <ul className="space-y-1 text-xs text-slate-600 dark:text-slate-400">
+                             <li>• Renal/Diabetic/Soft Diets</li>
+                             <li>• Compliance Reports</li>
+                             <li>• Cost Control Modules</li>
+                        </ul>
+                    </div>
+                </div>
                 
                 <div className="flex flex-col sm:flex-row gap-3 mt-auto">
                   <a 
-                    href="mailto:contact@caterpro.ai?subject=Education License Inquiry"
+                    href="mailto:sales@caterpro.ai?subject=Enterprise License Inquiry"
                     className="flex-1 inline-flex items-center justify-center px-4 py-3 border border-slate-300 dark:border-slate-600 text-sm font-bold rounded-md text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                   >
-                    <Building2 className="mr-2 h-4 w-4" />
-                    Contact Sales
+                    <Users className="mr-2 h-4 w-4" />
+                    Request Annual Quote
                   </a>
                 </div>
               </div>
