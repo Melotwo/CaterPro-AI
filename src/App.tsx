@@ -22,6 +22,7 @@ import FindChef from './components/FindChef';
 import PricingPage from './components/PricingPage';
 import UpgradeModal from './components/UpgradeModal';
 import StudyGuideGenerator from './components/StudyGuideGenerator';
+import InstallPwaModal from './components/InstallPwaModal';
 import { useAppSubscription, type SubscriptionPlan } from './hooks/useAppSubscription';
 import { exampleScenarios, CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, EDITABLE_MENU_SECTIONS, RECOMMENDED_PRODUCTS, PROPOSAL_THEMES } from './constants';
 import { SavedMenu, ErrorState, ValidationErrors, GenerationHistoryItem, Menu, MenuSection, PpeProduct, Supplier } from './types';
@@ -69,6 +70,7 @@ const App: React.FC = () => {
   const [totalChecklistItems, setTotalChecklistItems] = useState(0);
   const [isAppVisible, setIsAppVisible] = useState(false);
   const [showPwaBanner, setShowPwaBanner] = useState(false);
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
 
   const { 
     subscription, 
@@ -128,8 +130,11 @@ const App: React.FC = () => {
       setIsAppVisible(true);
     }
     
+    // Check if running in standalone mode (already installed)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
     const pwaBannerDismissed = localStorage.getItem('pwaBannerDismissed');
-    if (!pwaBannerDismissed) {
+    
+    if (!pwaBannerDismissed && !isStandalone) {
         setShowPwaBanner(true);
     }
 
@@ -781,14 +786,25 @@ Try it free: https://caterpro-ai.web.app
 
   return (
     <div className={`flex flex-col min-h-screen font-sans antialiased ${isDarkMode ? 'dark' : ''}`}>
-      <Navbar onThemeToggle={toggleTheme} isDarkMode={isDarkMode} onOpenSaved={() => attemptAccess('saveMenus') && setIsSavedModalOpen(true)} savedCount={savedMenus.length} onOpenQrCode={() => setIsQrModalOpen(true)} />
+      <Navbar 
+        onThemeToggle={toggleTheme} 
+        isDarkMode={isDarkMode} 
+        onOpenSaved={() => attemptAccess('saveMenus') && setIsSavedModalOpen(true)} 
+        savedCount={savedMenus.length} 
+        onOpenQrCode={() => setIsQrModalOpen(true)}
+        onOpenInstall={() => setIsInstallModalOpen(true)}
+      />
       
        {showPwaBanner && (
          <div className="no-print fixed bottom-2 left-2 z-50 bg-white dark:bg-slate-800 p-3 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 flex items-center gap-4 animate-toast-in max-w-sm">
            <Smartphone className="w-6 h-6 text-primary-500 flex-shrink-0" />
-           <p className="text-sm text-slate-700 dark:text-slate-300">
-             For quick access, add this app to your home screen!
-           </p>
+           <div className="flex-grow">
+             <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">Install CaterPro AI</p>
+             <p className="text-xs text-slate-600 dark:text-slate-400">Add to home screen for quick access.</p>
+           </div>
+           <button onClick={() => setIsInstallModalOpen(true)} className="text-xs bg-primary-600 hover:bg-primary-700 text-white px-3 py-1.5 rounded-md transition-colors whitespace-nowrap">
+             Install
+           </button>
            <button onClick={handleDismissPwaBanner} className="p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 flex-shrink-0">
              <X size={16} className="text-slate-500" />
            </button>
@@ -1132,6 +1148,7 @@ Try it free: https://caterpro-ai.web.app
       <EmailCapture isOpen={isEmailCaptureModalOpen} onClose={() => setIsEmailCaptureModalOpen(false)} onSave={handleEmailCapture} />
       <QuoteModal isOpen={isQuoteModalOpen} onClose={() => setIsQuoteModalOpen(false)} product={selectedProduct} />
       <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={handleUpgrade} />
+      <InstallPwaModal isOpen={isInstallModalOpen} onClose={() => setIsInstallModalOpen(false)} />
 
     </div>
   );
