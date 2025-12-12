@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle, Link, ShoppingBag, ChefHat, ShieldCheck, Smartphone, X } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle, Link, ShoppingBag, ChefHat, ShieldCheck, Smartphone, X, Zap, FileText, MousePointerClick } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -800,6 +800,33 @@ const App: React.FC = () => {
           </button>
         </header>
 
+        {/* How It Works Section - Added for Marketing Conversion */}
+        {!menu && (
+            <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center animate-slide-in" style={{ animationDelay: '0.15s' }}>
+                <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/50 rounded-full flex items-center justify-center mb-3">
+                        <MousePointerClick className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+                    </div>
+                    <h3 className="font-semibold text-slate-900 dark:text-white">1. Enter Details</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Select your event type and guest count.</p>
+                </div>
+                <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 bg-amber-100 dark:bg-amber-900/50 rounded-full flex items-center justify-center mb-3">
+                        <Zap className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <h3 className="font-semibold text-slate-900 dark:text-white">2. AI Generates</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Get a full menu & shopping list instantly.</p>
+                </div>
+                <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/50 rounded-full flex items-center justify-center mb-3">
+                        <FileText className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <h3 className="font-semibold text-slate-900 dark:text-white">3. Download PDF</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Export professional proposals to share.</p>
+                </div>
+            </div>
+        )}
+
         <section aria-labelledby="menu-generator-title" className="mt-12 bg-white dark:bg-slate-800/50 p-6 sm:p-8 rounded-lg shadow-md border border-slate-200 dark:border-slate-700/80 animate-slide-in" style={{ animationDelay: '0.2s' }}>
             <h2 id="menu-generator-title" className="text-2xl font-bold text-slate-900 dark:text-white">Get started with CaterPro AI</h2>
             <p className="text-slate-600 dark:text-slate-400 mt-1">Fill out your event details to generate a complete proposal.</p>
@@ -902,7 +929,7 @@ const App: React.FC = () => {
               <button
                 onClick={generateMenu}
                 disabled={isLoading}
-                className="w-full max-w-xs inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white bg-primary-600 border border-transparent rounded-md shadow-sm hover:bg-primary-700 disabled:opacity-70 disabled:cursor-not-allowed transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500 dark:focus-visible:ring-offset-slate-900"
+                className="w-full max-w-xs inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white bg-primary-600 border border-transparent rounded-md shadow-sm hover:bg-primary-700 disabled:opacity-70 disabled:cursor-not-allowed transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500 dark:focus-visible:ring-offset-slate-950"
               >
                 {isLoading ? (
                   <>
