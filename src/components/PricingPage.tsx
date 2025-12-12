@@ -1,5 +1,5 @@
 import React from 'react';
-import { Check, Star, Zap, Briefcase, GraduationCap, Building2, ShieldCheck, Users } from 'lucide-react';
+import { Check, Star, Zap, Briefcase, GraduationCap, Building2, ShieldCheck, Users, Lock } from 'lucide-react';
 import { SubscriptionPlan } from '../hooks/useAppSubscription';
 import Footer from './Footer';
 
@@ -187,7 +187,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
           <div className="mt-24 grid grid-cols-1 lg:grid-cols-2 gap-8">
             
             {/* Small Business / Founding Member Deal */}
-            <div className="bg-slate-900 dark:bg-slate-800 rounded-3xl overflow-hidden shadow-2xl relative">
+            <div className="bg-slate-900 dark:bg-slate-800 rounded-3xl overflow-hidden shadow-2xl relative border border-slate-700">
               <div className="absolute top-0 right-0 bg-amber-500 text-slate-900 text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
                 LIMITED TIME
               </div>
@@ -200,7 +200,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
                     <h2 className="text-2xl font-bold text-white">
                       Founding Member Deal
                     </h2>
-                    <p className="text-slate-400 text-sm">For Single Business Owners</p>
+                    <p className="text-slate-400 text-sm">Strictly for Owner-Operators</p>
                   </div>
                 </div>
                 
@@ -215,7 +215,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
                   </li>
                   <li className="flex items-center text-slate-300 text-sm">
                     <Check className="h-4 w-4 text-amber-500 mr-3" />
-                    Single User License
+                    <span className="text-amber-400 font-bold">Single User License Only</span>
                   </li>
                   <li className="flex items-center text-slate-300 text-sm">
                     <Check className="h-4 w-4 text-amber-500 mr-3" />
@@ -235,9 +235,9 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
             </div>
 
             {/* B2B / Enterprise Section */}
-            <div className="bg-white dark:bg-slate-800 border-2 border-primary-200 dark:border-primary-900/50 rounded-3xl overflow-hidden shadow-lg relative">
+            <div className="bg-white dark:bg-slate-800 border-2 border-primary-500 dark:border-primary-600 rounded-3xl overflow-hidden shadow-lg relative">
               <div className="absolute top-0 right-0 bg-primary-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
-                ANNUAL LICENSE
+                ANNUAL BILLING
               </div>
               <div className="px-6 py-10 md:p-12 flex flex-col h-full">
                 <div className="flex items-center gap-3 mb-6">
@@ -248,7 +248,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
                     <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
                       Schools & Hospitals
                     </h2>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm">For High-Volume Institutions</p>
+                    <p className="text-slate-500 dark:text-slate-400 text-sm">High-Volume & Educational Licenses</p>
                   </div>
                 </div>
                 
@@ -265,7 +265,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
                         <ul className="space-y-1 text-xs text-slate-600 dark:text-slate-400">
                              <li>• Curriculum Alignment (QCTO)</li>
                              <li>• Student Assessment Tools</li>
-                             <li>• Multi-Seat Licenses</li>
+                             <li>• <span className="font-bold text-primary-600 dark:text-primary-400">Multi-Seat / Campus License</span></li>
                         </ul>
                     </div>
                     <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-100 dark:border-slate-700">
@@ -276,7 +276,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
                         <ul className="space-y-1 text-xs text-slate-600 dark:text-slate-400">
                              <li>• Renal/Diabetic/Soft Diets</li>
                              <li>• Compliance Reports</li>
-                             <li>• Cost Control Modules</li>
+                             <li>• <span className="font-bold text-primary-600 dark:text-primary-400">Site-Wide License</span></li>
                         </ul>
                     </div>
                 </div>
