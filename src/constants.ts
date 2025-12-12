@@ -5,6 +5,8 @@ export const EVENT_TYPES = [
   'Corporate Lunch',
   'Wedding Reception',
   'Hospital / Patient Catering',
+  'School Cafeteria / Canteen',
+  'Retirement Home Meal Service',
   'Individual Meal Prep (Weekly)',
   'Cocktail Party',
   'Birthday Dinner',
@@ -22,7 +24,9 @@ export const GUEST_COUNT_OPTIONS = [
   '21-50',
   '51-100',
   '100-500 (Institutional)',
-  '500+',
+  '500-1000 (Large Event)',
+  '1000+ (Enterprise/Hospital)',
+  '5000+ (Campus/Festival)',
 ];
 
 export const BUDGET_LEVELS = [
@@ -34,11 +38,11 @@ export const BUDGET_LEVELS = [
 export const SERVICE_STYLES = [
   'Standard Catering',
   'Hospital Tray Service',
+  'Cafeteria Line / Buffet',
   'Meal Prep Containers',
   'Upscale Elegant',
   'Fine Dining',
   'Michelin-Star Inspired',
-  'Buffet Style',
   'Plated Service',
   'Family Style',
   'Food Stations',
@@ -63,7 +67,7 @@ export const CUISINES = [
 ];
 
 export const DIETARY_RESTRICTIONS = [
-  { category: 'Medical / Hospital', items: ['Diabetic Friendly', 'Renal Diet', 'Soft Food / Pureed', 'Liquid Diet', 'Low Sodium (Cardiac)', 'High Protein (Recovery)'] },
+  { category: 'Medical / Hospital', items: ['Diabetic Friendly', 'Renal Diet (Low Potassium/Phos)', 'Soft Food / Pureed / Dysphagia', 'Liquid Diet', 'Low Sodium (Cardiac)', 'High Protein (Recovery)', 'Neutropenic (Low bacteria)', 'Allergen-Free Zone'] },
   { category: 'Common', items: ['Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free'] },
   { category: 'Allergies', items: ['Nut-Free', 'Shellfish-Free', 'Soy-Free', 'Egg-Free'] },
   { category: 'Health', items: ['Low-Carb', 'Keto', 'Paleo', 'Halaal', 'Kosher'] },
