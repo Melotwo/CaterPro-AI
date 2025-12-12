@@ -1,4 +1,4 @@
-import { Briefcase, Heart, PartyPopper, Stethoscope, User } from 'lucide-react';
+import { Briefcase, Heart, PartyPopper, Stethoscope, User, UtensilsCrossed } from 'lucide-react';
 import { MenuSection, PpeProduct } from './types';
 
 export const EVENT_TYPES = [
@@ -103,6 +103,16 @@ export const EDUCATION_TOPICS = [
 ];
 
 export const exampleScenarios = [
+  {
+    IconComponent: PartyPopper,
+    title: 'South African Wedding',
+    eventType: 'Wedding Reception',
+    guestCount: '51-100',
+    cuisine: 'South African',
+    budget: '$$$',
+    serviceStyle: 'Plated Service',
+    dietaryRestrictions: [],
+  },
   {
     IconComponent: Briefcase,
     title: 'Modern Corporate Lunch',
