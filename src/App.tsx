@@ -22,7 +22,7 @@ import FindChef from './components/FindChef';
 import PricingPage from './components/PricingPage';
 import UpgradeModal from './components/UpgradeModal';
 import StudyGuideGenerator from './components/StudyGuideGenerator';
-import InstallPwaModal from './components/InstallPwaModal';
+import PwaInstallModal from './components/PwaInstallModal';
 import { useAppSubscription, type SubscriptionPlan } from './hooks/useAppSubscription';
 import { exampleScenarios, CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, EDITABLE_MENU_SECTIONS, RECOMMENDED_PRODUCTS, PROPOSAL_THEMES } from './constants';
 import { SavedMenu, ErrorState, ValidationErrors, GenerationHistoryItem, Menu, MenuSection, PpeProduct, Supplier } from './types';
@@ -1195,7 +1195,7 @@ If you are a private chef or caterer, you need this in your toolkit.
       <EmailCapture isOpen={isEmailCaptureModalOpen} onClose={() => setIsEmailCaptureModalOpen(false)} onSave={handleEmailCapture} />
       <QuoteModal isOpen={isQuoteModalOpen} onClose={() => setIsQuoteModalOpen(false)} product={selectedProduct} />
       <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={handleUpgrade} />
-      <InstallPwaModal isOpen={isInstallModalOpen} onClose={() => setIsInstallModalOpen(false)} />
+      <PwaInstallModal isOpen={isInstallModalOpen} onClose={() => setIsInstallModalOpen(false)} />
 
     </div>
   );
