@@ -22,6 +22,12 @@ html {
   scrollbar-color: rgba(100, 116, 139, 0.5) var(--slate-950);
 }
 
+html, body {
+  /* Prevent horizontal scroll and ensure full height on mobile with dynamic toolbars */
+  min-height: 100dvh;
+  text-size-adjust: 100%;
+}
+
 body {
   @apply bg-slate-50;
   background-image: radial-gradient(rgba(4, 120, 87, 0.05) 1px, transparent 0); /* Green tint dots */
