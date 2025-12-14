@@ -716,17 +716,50 @@ const App: React.FC = () => {
   const handleCopySocialCaption = () => {
     if (!menu) return;
     
-    const caption = `🚀 Created in 30 seconds with CaterPro AI!
+    // VARIATIONS FOR SOCIAL CAPTIONS
+    const captions = [
+      // Variation 1: Problem/Solution
+      `🚀 Created in 30 seconds with CaterPro AI!
 
 📋 **${menu.menuTitle}**
 ${menu.description}
 
-Chefs & Caterers, stop typing menus manually. 
-Try it free: https://caterpro-ai.web.app
+For Chefs & Caterers, the cooking is the easy part. The paperwork is the headache. That's why I built CaterPro AI.
 
-#CateringLife #ChefTools #MenuPlanning #AI #EventProfs #CaterProAI #SmallBusiness #Hospitality`;
+👇 **Comment "MENU" below** and I'll DM you the link to try it for free!`,
+      
+      // Variation 2: Storytelling/Visual
+      `Just generated this incredible menu proposal in seconds! 👨‍🍳✨
 
-    navigator.clipboard.writeText(caption).then(() => {
+**${menu.menuTitle}**
+"${menu.description}"
+
+Why spend hours formatting Word docs when AI can do it for you?
+✅ Full Shopping List
+✅ Cost Estimates
+✅ Service Notes
+
+👇 **Comment "MENU"** to get your hands on this tool.`,
+
+      // Variation 3: Professional/Efficiency
+      `Event Planning Simplified. 📉
+      
+I used CaterPro AI to generate this "${menu.menuTitle}" proposal. It includes everything from dietary notes to equipment lists.
+
+If you are a private chef or caterer, you need this in your toolkit.
+
+👇 **Drop a "MENU" comment** below for the free link!`
+    ];
+
+    // Pick a random caption
+    const randomCaption = captions[Math.floor(Math.random() * captions.length)];
+
+    // Fixed Hashtag Block
+    const hashtags = `\n\n#CaterProAI #CateringBusiness #ChefTools #MenuPlanning #EventCatering #PrivateChef #CateringLife #HospitalityIndustry #FoodService #ChefHacks #FoodTech #AIforBusiness #SmallBusinessTools #CulinaryInnovation`;
+
+    const fullCaption = randomCaption + hashtags;
+
+    navigator.clipboard.writeText(fullCaption).then(() => {
         showToast("Social caption copied! Paste it into Facebook.");
     });
   };
