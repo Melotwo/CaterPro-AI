@@ -58,7 +58,19 @@ const App: React.FC = () => {
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   const [error, setError] = useState<ErrorState | null>(null);
   const [menu, setMenu] = useState<Menu | null>(null);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  
+  // Initialize Dark Mode based on System Preference if no local storage found
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const storedTheme = localStorage.getItem('theme');
+      if (storedTheme) {
+        return storedTheme === 'dark';
+      }
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return false;
+  });
+
   const [savedMenus, setSavedMenus] = useState<SavedMenu[]>([]);
   const [generationHistory, setGenerationHistory] = useState<GenerationHistoryItem[]>([]);
   const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
@@ -123,7 +135,10 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const isDark = localStorage.getItem('theme') === 'dark';
-    setIsDarkMode(isDark);
+    // Sync state with local storage if it exists, otherwise keep system pref
+    if (localStorage.getItem('theme')) {
+        setIsDarkMode(isDark);
+    }
 
     const hasSelectedPlan = localStorage.getItem('caterpro-subscription');
     if (hasSelectedPlan) {
@@ -137,8 +152,6 @@ const App: React.FC = () => {
     if (!pwaBannerDismissed && !isStandalone) {
         setShowPwaBanner(true);
     }
-
-
   }, []);
   
   useEffect(() => {
@@ -797,7 +810,7 @@ Try it free: https://caterpro-ai.web.app
       />
       
        {showPwaBanner && (
-         <div className="no-print fixed bottom-2 left-2 z-50 bg-white dark:bg-slate-800 p-3 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 flex items-center gap-4 animate-toast-in max-w-sm">
+         <div className="no-print fixed bottom-2 left-2 z-50 bg-white dark:bg-slate-800 p-3 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 flex items-center gap-4 animate-toast-in max-w-sm pb-[env(safe-area-inset-bottom)]">
            <Smartphone className="w-6 h-6 text-primary-500 flex-shrink-0" />
            <div className="flex-grow">
              <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">Install CaterPro AI</p>
@@ -812,7 +825,7 @@ Try it free: https://caterpro-ai.web.app
          </div>
        )}
 
-      <main className="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
+      <main className="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 pb-[env(safe-area-inset-bottom)]">
         <header className="text-center animate-slide-in" style={{ animationDelay: '0.1s' }}>
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-800 dark:text-slate-200">
              CaterPro AI
