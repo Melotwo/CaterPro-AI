@@ -23,6 +23,7 @@ import PricingPage from './components/PricingPage';
 import UpgradeModal from './components/UpgradeModal';
 import StudyGuideGenerator from './components/StudyGuideGenerator';
 import PwaInstallModal from './components/PwaInstallModal';
+import LandingPage from './components/LandingPage';
 import { useAppSubscription, type SubscriptionPlan } from './hooks/useAppSubscription';
 import { exampleScenarios, CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, EDITABLE_MENU_SECTIONS, RECOMMENDED_PRODUCTS, PROPOSAL_THEMES } from './constants';
 import { SavedMenu, ErrorState, ValidationErrors, GenerationHistoryItem, Menu, MenuSection, PpeProduct, Supplier } from './types';
@@ -83,6 +84,7 @@ const App: React.FC = () => {
   const [isAppVisible, setIsAppVisible] = useState(false);
   const [showPwaBanner, setShowPwaBanner] = useState(false);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+  const [showLanding, setShowLanding] = useState(true);
 
   const { 
     subscription, 
@@ -143,6 +145,7 @@ const App: React.FC = () => {
     const hasSelectedPlan = localStorage.getItem('caterpro-subscription');
     if (hasSelectedPlan) {
       setIsAppVisible(true);
+      setShowLanding(false);
     }
     
     // Check if running in standalone mode (already installed)
@@ -194,6 +197,9 @@ const App: React.FC = () => {
         if (localStorage.getItem('caterpro-subscription')) {
           setIsAppVisible(true);
         }
+        
+        // Hide landing page if sharing
+        setShowLanding(false);
 
         setMenu(loadedMenu);
         if (loadedMenu.theme) {
@@ -268,6 +274,13 @@ const App: React.FC = () => {
     selectPlan(plan);
     setShowUpgradeModal(false);
     showToast(`Successfully upgraded to ${plan.charAt(0).toUpperCase() + plan.slice(1)}!`);
+  };
+
+  const handleResetApp = () => {
+    if (window.confirm("This will reset your session and return you to the landing page. Saved menus will remain. Continue?")) {
+        localStorage.removeItem('caterpro-subscription');
+        window.location.reload();
+    }
   };
 
   const toggleTheme = () => setIsDarkMode(prev => !prev);
@@ -822,6 +835,24 @@ If you are a private chef or caterer, you need this in your toolkit.
     setIsQuoteModalOpen(true);
   };
   
+  // LOGIC TO SHOW LANDING PAGE FIRST
+  if (showLanding && !isAppVisible) {
+      return (
+        <>
+            <Navbar 
+                onThemeToggle={toggleTheme} 
+                isDarkMode={isDarkMode} 
+                onOpenSaved={() => attemptAccess('saveMenus') && setIsSavedModalOpen(true)} 
+                savedCount={savedMenus.length} 
+                onOpenQrCode={() => setIsQrModalOpen(true)}
+                onOpenInstall={() => setIsInstallModalOpen(true)}
+            />
+            <LandingPage onGetStarted={() => setShowLanding(false)} />
+            <Footer />
+        </>
+      );
+  }
+
   if (!isAppVisible) {
     return <PricingPage onSelectPlan={handleSelectPlan} />;
   }
@@ -840,6 +871,7 @@ If you are a private chef or caterer, you need this in your toolkit.
         savedCount={savedMenus.length} 
         onOpenQrCode={() => setIsQrModalOpen(true)}
         onOpenInstall={() => setIsInstallModalOpen(true)}
+        onReset={handleResetApp}
       />
       
        {showPwaBanner && (
