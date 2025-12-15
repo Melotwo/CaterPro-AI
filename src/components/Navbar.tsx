@@ -1,5 +1,5 @@
 import React from 'react';
-import { ChefHat, Sun, Moon, Bookmark, Share2, Download } from 'lucide-react';
+import { ChefHat, Sun, Moon, Bookmark, Share2, Download, LogOut } from 'lucide-react';
 
 const Navbar: React.FC<{
   onThemeToggle: () => void;
@@ -8,7 +8,8 @@ const Navbar: React.FC<{
   savedCount: number;
   onOpenQrCode: () => void;
   onOpenInstall: () => void;
-}> = ({ onThemeToggle, isDarkMode, onOpenSaved, savedCount, onOpenQrCode, onOpenInstall }) => (
+  onReset?: () => void;
+}> = ({ onThemeToggle, isDarkMode, onOpenSaved, savedCount, onOpenQrCode, onOpenInstall, onReset }) => (
   <nav role="navigation" aria-label="Main navigation" className="no-print bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200 dark:border-slate-800 pt-[env(safe-area-inset-top)]">
     <div className="max-w-4xl mx-auto px-4">
       <div className="flex justify-between items-center h-16">
@@ -40,6 +41,11 @@ const Navbar: React.FC<{
           <button onClick={onThemeToggle} className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500 dark:focus-visible:ring-offset-slate-900" aria-label={isDarkMode ? 'Activate light mode' : 'Activate dark mode'}>
             {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
           </button>
+          {onReset && (
+            <button onClick={onReset} className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500 dark:focus-visible:ring-offset-slate-900" aria-label="Sign Out / Reset App">
+              <LogOut size={20} />
+            </button>
+          )}
         </div>
       </div>
     </div>
