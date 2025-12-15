@@ -206,6 +206,27 @@ export const generateMenuImageFromApi = async (title: string, description: strin
     throw new Error("No image was generated.");
 };
 
+export const generateProductImageFromApi = async (productName: string, description: string): Promise<string> => {
+    const prompt = `Professional product photography of ${productName}. ${description}. High resolution, studio lighting, photorealistic, commercial aesthetic, white background.`;
+    
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash-image',
+        contents: {
+            parts: [{ text: prompt }],
+        },
+        config: {
+            responseModalities: [Modality.IMAGE],
+        },
+    });
+
+    for (const part of response.candidates[0].content.parts) {
+        if (part.inlineData) {
+            return part.inlineData.data;
+        }
+    }
+    throw new Error("No image was generated.");
+};
+
 export const findSuppliersNearby = async (latitude: number, longitude: number): Promise<Supplier[]> => {
     const prompt = "Find local catering suppliers, specialty food wholesalers, and commercial kitchen rental services near me. For each, provide its name and a brief description of its specialty.";
 
