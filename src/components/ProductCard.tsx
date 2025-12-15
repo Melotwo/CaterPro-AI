@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Sparkles, Loader2 } from 'lucide-react';
 import { PpeProduct } from '../types';
+import { generateProductImageFromApi } from '../services/geminiService';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1556910103-1c02745a30bf?auto=format&fit=crop&w=800&q=80'; // Reliable fallback image (Kitchen/Cooking)
 
@@ -10,6 +11,7 @@ const ProductCard: React.FC<{
 }> = ({ product, onGetQuote }) => {
   const [imgSrc, setImgSrc] = useState(product.image);
   const [hasError, setHasError] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleError = () => {
     if (!hasError) {
@@ -18,17 +20,44 @@ const ProductCard: React.FC<{
     }
   };
 
+  const handleGenerateImage = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isGenerating) return;
+    
+    setIsGenerating(true);
+    try {
+        const base64Data = await generateProductImageFromApi(product.name, product.description);
+        setImgSrc(`data:image/png;base64,${base64Data}`);
+    } catch (err) {
+        console.error("Failed to generate image:", err);
+    } finally {
+        setIsGenerating(false);
+    }
+  };
+
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md overflow-hidden border border-slate-200 dark:border-slate-700 flex flex-col transition-transform hover:-translate-y-1 duration-200 h-full">
+    <div className="bg-white dark:bg-slate-800 rounded-lg shadow-md overflow-hidden border border-slate-200 dark:border-slate-700 flex flex-col transition-transform hover:-translate-y-1 duration-200 h-full group">
       <div className="relative h-48 w-full bg-slate-100 dark:bg-slate-700 overflow-hidden">
         <img 
             src={imgSrc} 
             alt={product.name} 
             onError={handleError}
-            className="h-full w-full object-cover transition-opacity duration-300"
+            className={`h-full w-full object-cover transition-opacity duration-300 ${isGenerating ? 'opacity-50 blur-sm' : ''}`}
         />
-        {/* Simple gradient overlay for better text contrast if we ever add text over image */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 hover:opacity-100 transition-opacity"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+        
+        <button 
+            onClick={handleGenerateImage}
+            disabled={isGenerating}
+            className="absolute top-2 right-2 p-1.5 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-md border border-white/20 transition-all shadow-sm z-10"
+            title="Generate AI Image"
+        >
+            {isGenerating ? (
+                <Loader2 size={16} className="animate-spin" />
+            ) : (
+                <Sparkles size={16} className="text-amber-300" />
+            )}
+        </button>
       </div>
       
       <div className="p-4 flex flex-col flex-grow">
