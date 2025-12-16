@@ -8,7 +8,7 @@ interface ProductSearchBarProps {
 
 const ProductSearchBar: React.FC<ProductSearchBarProps> = ({ searchTerm, onSearchChange }) => {
   return (
-    <div className="mt-8 mb-4 max-w-lg mx-auto">
+    <div className="mt-8 mb-4 max-w-lg mx-auto px-4">
       <label htmlFor="product-search" className="sr-only">
         Search for products
       </label>
@@ -19,7 +19,7 @@ const ProductSearchBar: React.FC<ProductSearchBarProps> = ({ searchTerm, onSearc
         <input
           id="product-search"
           name="search"
-          className="block w-full rounded-full border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 py-3 pl-11 pr-4 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-primary-500 sm:text-sm sm:leading-6"
+          className="block w-full rounded-full border-2 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 py-3 pl-11 pr-4 text-slate-900 dark:text-white placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-primary-500 sm:text-sm sm:leading-6 transition-all shadow-sm focus:shadow-md"
           placeholder="Search supplies by name..."
           type="search"
           value={searchTerm}
