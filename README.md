@@ -6,6 +6,13 @@
 
 CaterPro AI is your AI-powered assistant for instantly generating professional catering proposals. Tailor complete menus for any event, from corporate lunches to elegant weddings, and streamline your entire planning process.
 
+## 📸 Adding Founder Photo
+
+To personalize the landing page:
+1.  Rename your photo to `founder.jpg`.
+2.  Place it in the `public/` folder of this repository.
+3.  The app will automatically display it in the "Founder's Story" section.
+
 ## 🚨 CRITICAL FIX: "FIREBASE_SERVICE_ACCOUNT is missing"
 
 Based on your screenshots, the secret is currently in the **Environment Secrets** section. It **MUST** be in **Repository Secrets**.
