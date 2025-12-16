@@ -59,8 +59,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center">
           <div className="lg:w-1/2 text-center lg:text-left z-10">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300 text-sm font-semibold mb-6 animate-fade-in border border-amber-200 dark:border-amber-700">
-              <Sparkles className="w-4 h-4 fill-current" />
-              <span>Built by a Neurodivergent Chef</span>
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+              </span>
+              <span>Public Beta</span>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-6 leading-tight">
               You are a Chef. <br />
@@ -129,8 +132,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
       {/* --- FOUNDER STORY SECTION (Personal Connection) --- */}
       <div className="bg-slate-900 text-white py-16 sm:py-24 relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-full overflow-hidden opacity-10">
-             <ChefHat className="absolute -left-10 top-20 w-64 h-64 transform -rotate-12" />
-             <Brain className="absolute -right-10 bottom-20 w-64 h-64 transform rotate-12" />
+             <ChefHat className="absolute -left-10 top-20 w-64 h-64 transform -rotate-12 text-slate-800" />
+             <Brain className="absolute -right-10 bottom-20 w-64 h-64 transform rotate-12 text-slate-800" />
         </div>
         
         <div className="max-w-4xl mx-auto px-4 relative z-10">
