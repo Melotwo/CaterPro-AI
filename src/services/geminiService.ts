@@ -312,19 +312,20 @@ export const generateStudyGuideFromApi = async (
 export const generateSocialCaption = async (menuTitle: string, description: string): Promise<string> => {
     const prompt = `
         You are a social media manager for a high-end catering business.
-        Write an engaging, professional, and slightly exciting caption for Facebook and Instagram to showcase this new menu.
+        Write an engaging, professional, and exciting Instagram caption to showcase a new menu.
         
-        Menu Title: "${menuTitle}"
+        **Menu Details:**
+        Title: "${menuTitle}"
         Description: "${description}"
         
-        Requirements:
-        - Hook the reader immediately.
-        - Emphasize the quality and convenience.
-        - Use relevant emojis.
-        - Include 5-7 popular hashtags for catering, foodies, and events.
-        - Keep it under 200 words.
+        **Requirements:**
+        1. **Hook:** Start with a question or bold statement.
+        2. **Body:** Briefly describe the menu's vibe.
+        3. **Call to Action:** Ask followers to DM for bookings.
+        4. **Format:** Use emojis. Use line breaks between paragraphs.
+        5. **Hashtags:** Include 10 relevant hashtags at the bottom.
         
-        Return ONLY the caption text.
+        Return ONLY the caption text. Do not use Markdown formatting.
     `;
     
     const response = await ai.models.generateContent({
