@@ -1,13 +1,13 @@
-import React from 'react';
-import { Check, Star, Zap, Briefcase, GraduationCap, Building2, ShieldCheck, Users, Lock } from 'lucide-react';
+import React, { useState } from 'react';
+import { Check, Star, Zap, Briefcase, GraduationCap, Building2, Users } from 'lucide-react';
 import { SubscriptionPlan } from '../hooks/useAppSubscription';
 import Footer from './Footer';
+import PaymentModal from './PaymentModal';
 
 interface PricingPageProps {
   onSelectPlan: (plan: SubscriptionPlan) => void;
 }
 
-// Define explicit style maps for Tailwind to pick up
 const TIER_STYLES = {
   slate: {
     border: 'border-slate-200 dark:border-slate-700',
@@ -114,6 +114,25 @@ const tiers = [
 ];
 
 const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
+  const [selectedPlanForPayment, setSelectedPlanForPayment] = useState<SubscriptionPlan | null>(null);
+  const [selectedPrice, setSelectedPrice] = useState('');
+
+  const handleTierClick = (planId: string, price: string) => {
+    if (planId === 'free') {
+      onSelectPlan('free');
+    } else {
+      setSelectedPlanForPayment(planId as SubscriptionPlan);
+      setSelectedPrice(price);
+    }
+  };
+
+  const handlePaymentSuccess = () => {
+    if (selectedPlanForPayment) {
+      onSelectPlan(selectedPlanForPayment);
+      setSelectedPlanForPayment(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans">
       <main className="flex-grow">
@@ -127,7 +146,6 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
             </p>
           </div>
 
-          {/* Adjusted grid for 4 items: lg:grid-cols-4 */}
           <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
             {tiers.map((tier) => {
               const styles = TIER_STYLES[tier.colorKey];
@@ -172,7 +190,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
                   </ul>
 
                   <button
-                    onClick={() => onSelectPlan(tier.id as SubscriptionPlan)}
+                    onClick={() => handleTierClick(tier.id, tier.price)}
                     className={`w-full rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-colors ${
                       tier.highlight ? styles.buttonHighlight : styles.button
                     }`}
@@ -185,7 +203,6 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
           </div>
 
           <div className="mt-24 grid grid-cols-1 lg:grid-cols-2 gap-8">
-            
             {/* Small Business / Founding Member Deal */}
             <div className="bg-slate-900 dark:bg-slate-800 rounded-3xl overflow-hidden shadow-2xl relative border border-slate-700">
               <div className="absolute top-0 right-0 bg-amber-500 text-slate-900 text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
@@ -217,24 +234,20 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
                     <Check className="h-4 w-4 text-amber-500 mr-3" />
                     <span className="text-amber-400 font-bold">Single User License Only</span>
                   </li>
-                  <li className="flex items-center text-slate-300 text-sm">
-                    <Check className="h-4 w-4 text-amber-500 mr-3" />
-                    Includes Top 50 Wedding Venues List (SA)
-                  </li>
                 </ul>
                 
                 <div className="flex flex-col sm:flex-row gap-3 mt-auto">
-                  <a 
-                    href="mailto:contact@caterpro.ai?subject=Founding Member Inquiry"
+                  <button 
+                    onClick={() => handleTierClick('business', '$297')}
                     className="flex-1 inline-flex items-center justify-center px-4 py-3 border border-transparent text-sm font-bold rounded-md text-slate-900 bg-amber-500 hover:bg-amber-400 transition-colors"
                   >
-                    Get Lifetime Deal
-                  </a>
+                    Get Lifetime Deal ($297)
+                  </button>
                 </div>
               </div>
             </div>
 
-            {/* B2B / Enterprise Section */}
+            {/* Enterprise */}
             <div className="bg-white dark:bg-slate-800 border-2 border-primary-500 dark:border-primary-600 rounded-3xl overflow-hidden shadow-lg relative">
               <div className="absolute top-0 right-0 bg-primary-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
                 ANNUAL BILLING
@@ -253,29 +266,27 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
                 </div>
                 
                 <p className="text-slate-600 dark:text-slate-300 text-base mb-8 flex-grow">
-                  Enterprise-grade solution for culinary schools (FETs) and healthcare facilities. Includes bulk user management and specialized modules.
+                  Enterprise-grade solution for culinary schools (FETs) and healthcare facilities.
                 </p>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                     <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-100 dark:border-slate-700">
                         <div className="flex items-center gap-2 mb-2">
                              <GraduationCap className="h-4 w-4 text-primary-500" />
-                             <span className="font-bold text-sm text-slate-800 dark:text-slate-200">Colleges / FETs</span>
+                             <span className="font-bold text-sm text-slate-800 dark:text-slate-200">Colleges</span>
                         </div>
                         <ul className="space-y-1 text-xs text-slate-600 dark:text-slate-400">
-                             <li>• Curriculum Alignment (QCTO)</li>
-                             <li>• Student Assessment Tools</li>
-                             <li>• <span className="font-bold text-primary-600 dark:text-primary-400">Multi-Seat / Campus License</span></li>
+                             <li>• Curriculum Alignment</li>
+                             <li>• <span className="font-bold text-primary-600 dark:text-primary-400">Multi-Seat License</span></li>
                         </ul>
                     </div>
                     <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-100 dark:border-slate-700">
                         <div className="flex items-center gap-2 mb-2">
-                             <ShieldCheck className="h-4 w-4 text-primary-500" />
-                             <span className="font-bold text-sm text-slate-800 dark:text-slate-200">Hospitals</span>
+                             <Users className="h-4 w-4 text-primary-500" />
+                             <span className="font-bold text-sm text-slate-800 dark:text-slate-200">Teams</span>
                         </div>
                         <ul className="space-y-1 text-xs text-slate-600 dark:text-slate-400">
-                             <li>• Renal/Diabetic/Soft Diets</li>
-                             <li>• Compliance Reports</li>
+                             <li>• Shared Menus</li>
                              <li>• <span className="font-bold text-primary-600 dark:text-primary-400">Site-Wide License</span></li>
                         </ul>
                     </div>
@@ -286,7 +297,6 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
                     href="mailto:sales@caterpro.ai?subject=Enterprise License Inquiry"
                     className="flex-1 inline-flex items-center justify-center px-4 py-3 border border-slate-300 dark:border-slate-600 text-sm font-bold rounded-md text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
                   >
-                    <Users className="mr-2 h-4 w-4" />
                     Request Annual Quote
                   </a>
                 </div>
@@ -297,6 +307,15 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
 
         </div>
       </main>
+      
+      <PaymentModal 
+        isOpen={!!selectedPlanForPayment} 
+        onClose={() => setSelectedPlanForPayment(null)}
+        plan={selectedPlanForPayment || 'starter'}
+        price={selectedPrice}
+        onConfirm={handlePaymentSuccess}
+      />
+      
       <Footer />
     </div>
   );
