@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChefHat, Check, ArrowRight, Star, Clock, Brain, Zap, Quote, ChevronDown, ChevronUp, HelpCircle, Heart, AlignLeft, Sparkles } from 'lucide-react';
+import { ChefHat, Check, ArrowRight, Star, Clock, Brain, Zap, Quote, ChevronDown, ChevronUp, HelpCircle, Heart, AlignLeft, Sparkles, Share2, Linkedin, Twitter } from 'lucide-react';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -10,6 +10,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
+  };
+
+  const handleShare = (platform: 'linkedin' | 'twitter') => {
+      const url = encodeURIComponent(window.location.href);
+      const text = encodeURIComponent("Just launched CaterPro AI! It writes catering proposals and shopping lists automatically. Check it out:");
+      
+      if (platform === 'linkedin') {
+          window.open(`https://www.linkedin.com/feed/?shareActive=true&text=${text}%20${url}`, '_blank');
+      } else {
+          window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+      }
   };
 
   const faqs = [
@@ -143,8 +154,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                     <img 
                         src="/founder.jpg"
                         onError={(e) => {
-                            // If the user hasn't added founder.jpg yet, fall back to the stock chef image
-                            e.currentTarget.src = "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80";
+                            const target = e.currentTarget;
+                            // Fallback logic: Try PNG, then Stock
+                            if (target.src.endsWith('founder.jpg')) {
+                                target.src = "/founder.png";
+                            } else {
+                                target.src = "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80";
+                            }
                         }}
                         alt="Chef Tumi" 
                         className="rounded-xl shadow-2xl border-slate-700 transform -rotate-2 hover:rotate-0 transition-transform duration-500 w-full object-cover aspect-[3/4]"
@@ -166,18 +182,28 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                             I knew there had to be a better way. I built <strong>CaterPro AI</strong> for chefs like us. It does the writing, the math, and the formatting so we can stay where we belong: <strong>in the kitchen.</strong>
                         </p>
                     </div>
-                    <div className="mt-8 pt-8 border-t border-slate-700 flex items-center gap-4">
-                         <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-slate-500">
-                            <img 
-                                src="/founder.jpg"
-                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                                alt="Chef Tumi" 
-                                className="w-full h-full object-cover"
-                            />
+                    <div className="mt-8 pt-8 border-t border-slate-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                         <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-slate-500">
+                                <img 
+                                    src="/founder.jpg"
+                                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                    alt="Chef Tumi" 
+                                    className="w-full h-full object-cover"
+                                />
+                            </div>
+                            <div>
+                                <p className="font-bold text-white">Chef Tumi</p>
+                                <p className="text-slate-400 text-sm">Founder & Developer</p>
+                            </div>
                          </div>
-                         <div>
-                             <p className="font-bold text-white">Chef Tumi</p>
-                             <p className="text-slate-400 text-sm">Founder & Developer</p>
+                         <div className="flex gap-2">
+                            <button onClick={() => handleShare('linkedin')} className="flex items-center gap-2 px-4 py-2 bg-[#0077b5] text-white rounded-lg hover:bg-[#006097] transition-colors text-sm font-bold">
+                                <Linkedin size={16} /> Share
+                            </button>
+                            <button onClick={() => handleShare('twitter')} className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-slate-800 transition-colors text-sm font-bold">
+                                <Twitter size={16} /> Post
+                            </button>
                          </div>
                     </div>
                 </div>
