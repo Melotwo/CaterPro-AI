@@ -207,17 +207,15 @@ export const generateMenuImageFromApi = async (title: string, description: strin
 };
 
 export const generateProductImageFromApi = async (productName: string, description: string): Promise<string> => {
-    // Enhanced prompt for the Imagen tool to focus on elegance and functionality
     const prompt = `Professional product photography of ${productName}. ${description}. Showcase its elegant design and functionality in a high-end catering context. High resolution, studio lighting, photorealistic, commercial aesthetic, clean white background.`;
     
-    // Explicitly using the Imagen model as requested for higher quality product shots
     const response = await ai.models.generateImages({
         model: 'imagen-4.0-generate-001',
         prompt: prompt,
         config: {
             numberOfImages: 1,
             aspectRatio: '1:1',
-            outputMimeType: 'image/png', // Matching the expected format in ProductCard
+            outputMimeType: 'image/png', 
         },
     });
 
@@ -230,7 +228,6 @@ export const generateProductImageFromApi = async (productName: string, descripti
 export const findSuppliersNearby = async (latitude: number, longitude: number): Promise<Supplier[]> => {
     const prompt = "Find local catering suppliers, specialty food wholesalers, and commercial kitchen rental services near me. For each, provide its name and a brief description of its specialty.";
 
-    // When using tools like Maps, we must handle the JSON manually if schema validation conflicts
     const response = await ai.models.generateContent({
         model: "gemini-2.5-flash",
         contents: prompt + " Return the results as a JSON array of objects with 'name' and 'specialty' fields.",
@@ -244,7 +241,6 @@ export const findSuppliersNearby = async (latitude: number, longitude: number): 
         },
     });
     
-    // Use the same robust extractor
     const suppliers: Omit<Supplier, 'mapsUri' | 'title'>[] = extractJson(response.text);
     
     const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
@@ -322,7 +318,7 @@ export const generateSocialCaption = async (menuTitle: string, description: stri
     } else if (platform === 'twitter') {
         platformSpecificInstructions = `
             - Tone: Punchy, exciting, concise.
-            - Length: Under 280 characters.
+            - Length: Strictly under 270 characters (leave room for link).
             - Format: Short sentences.
             - Call to Action: "DM for details."
         `;
@@ -379,4 +375,52 @@ export const generateSocialReply = async (comment: string): Promise<string> => {
     });
 
     return response.text.trim();
+};
+
+export const generateSocialVideoFromApi = async (menuTitle: string, description: string): Promise<string> => {
+    // 1. Check for API Key Selection (Mandatory for Veo)
+    if (typeof window !== 'undefined' && (window as any).aistudio) {
+        const hasKey = await (window as any).aistudio.hasSelectedApiKey();
+        if (!hasKey) {
+            const success = await (window as any).aistudio.openSelectKey();
+            if (!success) {
+                throw new Error("API Key selection is required for video generation. Please select a project with billing enabled.");
+            }
+        }
+    }
+
+    // 2. Initialize AI with the key (which is injected into process.env.API_KEY by the platform if selected)
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+
+    // 3. Construct Prompt
+    const videoPrompt = `Cinematic, slow-motion vertical food commercial for "${menuTitle}". ${description}. High-end professional food photography, shallow depth of field, 4k resolution, warm lighting, elegant presentation.`;
+
+    // 4. Call Veo Model
+    let operation = await ai.models.generateVideos({
+        model: 'veo-3.1-fast-generate-preview',
+        prompt: videoPrompt,
+        config: {
+            numberOfVideos: 1,
+            resolution: '720p',
+            aspectRatio: '9:16' // Vertical for Reels/TikTok
+        }
+    });
+
+    // 5. Poll for completion
+    while (!operation.done) {
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Poll every 5s
+        operation = await ai.operations.getVideosOperation({operation: operation});
+    }
+
+    // 6. Get Video URI
+    const videoUri = operation.response?.generatedVideos?.[0]?.video?.uri;
+    if (!videoUri) throw new Error("Video generation failed to return a URI.");
+
+    // 7. Fetch Video Blob
+    // We must append the key manually for the fetch according to Veo docs/practice on client side
+    const response = await fetch(`${videoUri}&key=${process.env.API_KEY}`);
+    if (!response.ok) throw new Error("Failed to download generated video.");
+    
+    const blob = await response.blob();
+    return URL.createObjectURL(blob);
 };
