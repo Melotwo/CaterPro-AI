@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle, Link, ShoppingBag, ChefHat, ShieldCheck, Smartphone, X, Zap, FileText, MousePointerClick, Megaphone } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle, Link, ShoppingBag, ChefHat, ShieldCheck, Smartphone, X, Zap, FileText, MousePointerClick, Megaphone, Film } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -138,6 +138,7 @@ const App: React.FC = () => {
   const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
   const [socialCaption, setSocialCaption] = useState('');
   const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
+  const [socialModalMode, setSocialModalMode] = useState<'create' | 'reply' | 'video'>('create');
 
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -738,12 +739,13 @@ const App: React.FC = () => {
     }
   };
 
-  const handleOpenSocialModal = async () => {
+  const handleOpenSocialModal = async (mode: 'create' | 'reply' | 'video' = 'create') => {
     if (!menu) return;
     
+    setSocialModalMode(mode);
     setIsSocialModalOpen(true);
 
-    if (!socialCaption) {
+    if (!socialCaption && mode !== 'video') {
         setIsGeneratingCaption(true);
         try {
             const caption = await generateSocialCaption(menu.menuTitle, menu.description);
@@ -1111,11 +1113,18 @@ const App: React.FC = () => {
                     <button onClick={copyToClipboard} className="action-button"><Copy size={16} className="mr-1.5" />Copy Text</button>
                     <button onClick={handleOpenShareModal} className="action-button"><Link size={16} className="mr-1.5" />Share</button>
                     <button 
-                        onClick={handleOpenSocialModal} 
+                        onClick={() => handleOpenSocialModal('create')} 
                         className="action-button bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 border-primary-200 dark:border-primary-800"
                     >
                         <Megaphone size={16} className="mr-1.5" />
                         Social Post
+                    </button>
+                    <button 
+                        onClick={() => handleOpenSocialModal('video')} 
+                        className="action-button bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border-purple-200 dark:border-purple-800"
+                    >
+                        <Film size={16} className="mr-1.5" />
+                        Create Reel
                     </button>
                   </div>
                 </div>
@@ -1245,6 +1254,7 @@ const App: React.FC = () => {
         isRegenerating={isGeneratingCaption}
         menuTitle={menu?.menuTitle || ''}
         menuDescription={menu?.description || ''}
+        initialMode={socialModalMode}
       />
 
     </div>
