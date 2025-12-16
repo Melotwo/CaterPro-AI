@@ -135,11 +135,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
         
         <div className="max-w-4xl mx-auto px-4 relative z-10">
             <div className="flex flex-col md:flex-row gap-12 items-center">
-                <div className="md:w-1/3">
+                <div className="md:w-1/3 relative group">
+                    <div className="absolute inset-0 bg-primary-600 rounded-xl transform translate-x-3 translate-y-3 -z-10 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform"></div>
                     <img 
-                        src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80" 
-                        alt="Chef in kitchen" 
-                        className="rounded-xl shadow-2xl border-4 border-slate-700 transform -rotate-3 hover:rotate-0 transition-transform duration-500"
+                        src="/founder.jpg"
+                        onError={(e) => {
+                            // If the user hasn't added founder.jpg yet, fall back to the stock chef image
+                            e.currentTarget.src = "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80";
+                        }}
+                        alt="Chef Tumi" 
+                        className="rounded-xl shadow-2xl border-slate-700 transform -rotate-2 hover:rotate-0 transition-transform duration-500 w-full object-cover aspect-[3/4]"
                     />
                 </div>
                 <div className="md:w-2/3">
@@ -159,9 +164,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                         </p>
                     </div>
                     <div className="mt-8 pt-8 border-t border-slate-700 flex items-center gap-4">
+                         <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-slate-500">
+                            <img 
+                                src="/founder.jpg"
+                                onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                alt="Chef Tumi" 
+                                className="w-full h-full object-cover"
+                            />
+                         </div>
                          <div>
-                             <p className="font-bold text-white">The CaterPro Founder</p>
-                             <p className="text-slate-400 text-sm">Chef & Developer</p>
+                             <p className="font-bold text-white">Chef Tumi</p>
+                             <p className="text-slate-400 text-sm">Founder & Developer</p>
                          </div>
                     </div>
                 </div>
