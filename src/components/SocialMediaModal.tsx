@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Copy, Image as ImageIcon, Check, RefreshCw, Smartphone, Linkedin, Twitter, Facebook, MessageCircle, Send, Film, Play, Download } from 'lucide-react';
-import { generateSocialReply, generateSocialCaption, generateSocialVideoFromApi } from '../services/geminiService';
+import { X, Copy, Image as ImageIcon, Check, RefreshCw, Smartphone, Linkedin, Twitter, Facebook, MessageCircle, Send, Film, Play, Download, Zap } from 'lucide-react';
+import { generateSocialReply, generateSocialCaption, generateSocialVideoFromApi, generateViralHook } from '../services/geminiService';
 
 interface SocialMediaModalProps {
   isOpen: boolean;
@@ -25,6 +25,10 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
   const [editedCaption, setEditedCaption] = useState(caption);
   const [copiedText, setCopiedText] = useState(false);
   const [copiedImage, setCopiedImage] = useState(false);
+  
+  // Viral Hook State
+  const [viralHooks, setViralHooks] = useState('');
+  const [isGeneratingHooks, setIsGeneratingHooks] = useState(false);
   
   // Reply State
   const [incomingComment, setIncomingComment] = useState('');
@@ -77,6 +81,18 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
           setEditedCaption(newCaption);
       } catch (e) {
           console.error(e);
+      }
+  };
+  
+  const handleGenerateHooks = async () => {
+      setIsGeneratingHooks(true);
+      try {
+          const hooks = await generateViralHook(menuTitle, menuDescription);
+          setViralHooks(hooks);
+      } catch (e) {
+          console.error(e);
+      } finally {
+          setIsGeneratingHooks(false);
       }
   };
 
@@ -267,6 +283,25 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
 
                 {/* Right Side: Caption Editor */}
                 <div className="md:w-1/2 flex flex-col h-full bg-white dark:bg-slate-900">
+                    {/* Viral Hooks Section */}
+                    <div className="bg-amber-50 dark:bg-amber-900/10 border-b border-amber-100 dark:border-amber-800 p-4">
+                        <div className="flex justify-between items-center mb-2">
+                            <h4 className="text-sm font-bold text-amber-800 dark:text-amber-200 flex items-center gap-2">
+                                <Zap size={14} /> Viral Hooks
+                            </h4>
+                            <button onClick={handleGenerateHooks} disabled={isGeneratingHooks} className="text-xs text-amber-600 dark:text-amber-400 hover:underline disabled:opacity-50">
+                                {isGeneratingHooks ? 'Generating...' : 'Generate New Hooks'}
+                            </button>
+                        </div>
+                        {viralHooks ? (
+                            <div className="text-xs text-slate-600 dark:text-slate-300 italic whitespace-pre-wrap bg-white dark:bg-slate-800 p-2 rounded border border-amber-200 dark:border-amber-800">
+                                {viralHooks}
+                            </div>
+                        ) : (
+                            <p className="text-xs text-slate-500 italic">Click generate to get attention-grabbing opening lines.</p>
+                        )}
+                    </div>
+
                     <div className="p-4 border-b border-slate-200 dark:border-slate-700">
                         <div className="flex justify-between items-center mb-4">
                             <div className="flex gap-2">
