@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ChefHat, Check, ArrowRight, Star, Clock, Brain, Zap, Quote, ChevronDown, ChevronUp, HelpCircle, Heart, AlignLeft, Sparkles, Share2, Linkedin, Twitter } from 'lucide-react';
 
 interface LandingPageProps {
@@ -7,6 +7,13 @@ interface LandingPageProps {
 
 const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [founderImage, setFounderImage] = useState<string>('');
+
+  useEffect(() => {
+      // Cache buster timestamp to prevent browser from holding onto old 404s
+      const ts = new Date().getTime();
+      setFounderImage(`/founder.jpg?v=${ts}`);
+  }, []);
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -20,6 +27,37 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           window.open(`https://www.linkedin.com/feed/?shareActive=true&text=${text}%20${url}`, '_blank');
       } else {
           window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+      }
+  };
+
+  // Robust image fallback strategy
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+      const target = e.currentTarget;
+      const currentSrc = target.src;
+      
+      // Define the fallback chain
+      // 1. Local variants (case sensitivity/extension issues)
+      // 2. GitHub Raw Root (If uploaded to main folder)
+      // 3. GitHub Raw Public (If uploaded to public but not deployed yet)
+      // 4. Stock Fallback
+      
+      if (currentSrc.includes('/founder.jpg')) {
+          target.src = "/founder.jpeg";
+      } else if (currentSrc.endsWith('/founder.jpeg')) {
+          target.src = "/founder.png";
+      } else if (currentSrc.endsWith('/founder.png')) {
+          target.src = "/Founder.jpg"; // Try Capitalized
+      } else if (currentSrc.endsWith('/Founder.jpg')) {
+          target.src = "/founder.JPG"; // Try Uppercase Ext
+      } else if (currentSrc.endsWith('/founder.JPG')) {
+          // Try loading directly from GitHub Root (Melotwo/CaterPro-AI)
+          target.src = "https://raw.githubusercontent.com/Melotwo/CaterPro-AI/main/founder.jpg";
+      } else if (currentSrc.includes('raw.githubusercontent.com') && !currentSrc.includes('public')) {
+          // Try loading from GitHub Public folder directly
+          target.src = "https://raw.githubusercontent.com/Melotwo/CaterPro-AI/main/public/founder.jpg";
+      } else {
+          // Final Fallback: Stock Image
+          target.src = "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80";
       }
   };
 
@@ -152,22 +190,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 <div className="md:w-1/3 relative group">
                     <div className="absolute inset-0 bg-primary-600 rounded-xl transform translate-x-3 translate-y-3 -z-10 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform"></div>
                     <img 
-                        src="/founder.jpg"
-                        onError={(e) => {
-                            const target = e.currentTarget;
-                            const src = target.src;
-                            // Robust retry logic for different file extensions and cases
-                            if (src.endsWith('founder.jpg')) {
-                                target.src = "/founder.jpeg";
-                            } else if (src.endsWith('founder.jpeg')) {
-                                target.src = "/founder.png";
-                            } else if (src.endsWith('founder.png')) {
-                                target.src = "/Founder.jpg"; // Try capitalized
-                            } else if (src.endsWith('Founder.jpg')) {
-                                // Final fallback to stock image
-                                target.src = "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80";
-                            }
-                        }}
+                        src={founderImage}
+                        onError={handleImageError}
                         alt="Chef Tumi" 
                         className="rounded-xl shadow-2xl border-slate-700 transform -rotate-2 hover:rotate-0 transition-transform duration-500 w-full object-cover aspect-[3/4]"
                     />
@@ -192,13 +216,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                          <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-slate-500">
                                 <img 
-                                    src="/founder.jpg"
-                                    onError={(e) => { 
-                                        // Simple fallback for the small avatar
-                                        if (!e.currentTarget.src.includes('unsplash')) {
-                                            e.currentTarget.src = "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80";
-                                        }
-                                    }}
+                                    src={founderImage}
+                                    onError={handleImageError}
                                     alt="Chef Tumi" 
                                     className="w-full h-full object-cover"
                                 />
