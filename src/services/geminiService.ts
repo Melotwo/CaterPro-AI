@@ -309,25 +309,70 @@ export const generateStudyGuideFromApi = async (
   return JSON.parse(response.text);
 };
 
-export const generateSocialCaption = async (menuTitle: string, description: string): Promise<string> => {
+export const generateSocialCaption = async (menuTitle: string, description: string, platform: 'instagram' | 'linkedin' | 'twitter' = 'instagram'): Promise<string> => {
+    let platformSpecificInstructions = '';
+    
+    if (platform === 'linkedin') {
+        platformSpecificInstructions = `
+            - Tone: Professional, industry-focused, thought-leadership.
+            - Focus: Business growth, efficiency, culinary excellence.
+            - Format: Clean paragraphs, minimal emojis (professional ones only).
+            - Call to Action: "Connect to discuss your next corporate event."
+        `;
+    } else if (platform === 'twitter') {
+        platformSpecificInstructions = `
+            - Tone: Punchy, exciting, concise.
+            - Length: Under 280 characters.
+            - Format: Short sentences.
+            - Call to Action: "DM for details."
+        `;
+    } else {
+        // Instagram (Default)
+        platformSpecificInstructions = `
+            - Tone: Aesthetic, exciting, visual.
+            - Format: Use emojis liberally. Use line breaks.
+            - Call to Action: "DM for bookings."
+            - Hashtags: Include 10 relevant hashtags.
+        `;
+    }
+
     const prompt = `
         You are a social media manager for a high-end catering business.
-        Write an engaging, professional, and exciting Instagram caption to showcase a new menu.
+        Write a caption for ${platform} to showcase a new menu.
         
         **Menu Details:**
         Title: "${menuTitle}"
         Description: "${description}"
         
-        **Requirements:**
-        1. **Hook:** Start with a question or bold statement.
-        2. **Body:** Briefly describe the menu's vibe.
-        3. **Call to Action:** Ask followers to DM for bookings.
-        4. **Format:** Use emojis. Use line breaks between paragraphs.
-        5. **Hashtags:** Include 10 relevant hashtags at the bottom.
+        **Platform Guidelines:**
+        ${platformSpecificInstructions}
         
-        Return ONLY the caption text. Do not use Markdown formatting.
+        Return ONLY the caption text.
     `;
     
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt
+    });
+
+    return response.text.trim();
+};
+
+export const generateSocialReply = async (comment: string): Promise<string> => {
+    const prompt = `
+        You are a professional social media manager for 'CaterPro AI', an app that helps chefs generate menus.
+        A user has commented on your post.
+        
+        **User Comment:** "${comment}"
+        
+        **Task:** Write a friendly, professional, and engaging reply.
+        **Goal:** Thank them for the engagement and subtly encourage them to check out the app (CaterPro AI) or DM for more info.
+        **Tone:** Helpful, humble, expert.
+        **Length:** Short and conversational (under 50 words).
+        
+        Return ONLY the reply text.
+    `;
+
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash',
         contents: prompt
