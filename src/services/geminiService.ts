@@ -377,6 +377,29 @@ export const generateSocialReply = async (comment: string): Promise<string> => {
     return response.text.trim();
 };
 
+export const generateViralHook = async (menuTitle: string, description: string): Promise<string> => {
+    const prompt = `
+        You are a viral content strategist. Generate 3 short, punchy "hooks" (opening lines) for a social media video about this catering menu.
+        
+        **Menu:** "${menuTitle}"
+        **Context:** ${description}
+        
+        **Strategy:**
+        1. **The 'Secret' Hook:** (e.g., "The one ingredient that changed this wedding...")
+        2. **The 'Controversial' Hook:** (e.g., "Why we stopped serving X at events...")
+        3. **The 'Behind the Scenes' Hook:** (e.g., "POV: You have to plate 200 of these in 10 mins...")
+        
+        Return the 3 hooks as a simple bulleted list.
+    `;
+
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt
+    });
+
+    return response.text.trim();
+};
+
 export const generateSocialVideoFromApi = async (menuTitle: string, description: string): Promise<string> => {
     // 1. Check for API Key Selection (Mandatory for Veo)
     if (typeof window !== 'undefined' && (window as any).aistudio) {
