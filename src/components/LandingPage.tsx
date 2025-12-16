@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ChefHat, Check, ArrowRight, Star, Clock, Brain, Zap, Quote, ChevronDown, ChevronUp, HelpCircle, Heart, AlignLeft, Sparkles, Share2, Linkedin, Twitter } from 'lucide-react';
 
 interface LandingPageProps {
@@ -7,13 +7,10 @@ interface LandingPageProps {
 
 const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const [founderImage, setFounderImage] = useState<string>('');
 
-  useEffect(() => {
-      // Cache buster timestamp to prevent browser from holding onto old 404s
-      const ts = new Date().getTime();
-      setFounderImage(`/founder.jpg?v=${ts}`);
-  }, []);
+  // cacheBuster forces the browser to re-download the image if it changed
+  const cacheBuster = new Date().getTime();
+  const imageSrc = `/founder.jpg?v=${cacheBuster}`;
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -27,37 +24,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           window.open(`https://www.linkedin.com/feed/?shareActive=true&text=${text}%20${url}`, '_blank');
       } else {
           window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
-      }
-  };
-
-  // Robust image fallback strategy
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-      const target = e.currentTarget;
-      const currentSrc = target.src;
-      
-      // Define the fallback chain
-      // 1. Local variants (case sensitivity/extension issues)
-      // 2. GitHub Raw Root (If uploaded to main folder)
-      // 3. GitHub Raw Public (If uploaded to public but not deployed yet)
-      // 4. Stock Fallback
-      
-      if (currentSrc.includes('/founder.jpg')) {
-          target.src = "/founder.jpeg";
-      } else if (currentSrc.endsWith('/founder.jpeg')) {
-          target.src = "/founder.png";
-      } else if (currentSrc.endsWith('/founder.png')) {
-          target.src = "/Founder.jpg"; // Try Capitalized
-      } else if (currentSrc.endsWith('/Founder.jpg')) {
-          target.src = "/founder.JPG"; // Try Uppercase Ext
-      } else if (currentSrc.endsWith('/founder.JPG')) {
-          // Try loading directly from GitHub Root (Melotwo/CaterPro-AI)
-          target.src = "https://raw.githubusercontent.com/Melotwo/CaterPro-AI/main/founder.jpg";
-      } else if (currentSrc.includes('raw.githubusercontent.com') && !currentSrc.includes('public')) {
-          // Try loading from GitHub Public folder directly
-          target.src = "https://raw.githubusercontent.com/Melotwo/CaterPro-AI/main/public/founder.jpg";
-      } else {
-          // Final Fallback: Stock Image
-          target.src = "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80";
       }
   };
 
@@ -190,10 +156,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 <div className="md:w-1/3 relative group">
                     <div className="absolute inset-0 bg-primary-600 rounded-xl transform translate-x-3 translate-y-3 -z-10 group-hover:translate-x-2 group-hover:translate-y-2 transition-transform"></div>
                     <img 
-                        src={founderImage}
-                        onError={handleImageError}
+                        src={imageSrc}
                         alt="Chef Tumi" 
                         className="rounded-xl shadow-2xl border-slate-700 transform -rotate-2 hover:rotate-0 transition-transform duration-500 w-full object-cover aspect-[3/4]"
+                        onError={(e) => {
+                            // If the main image fails, hide it to prevent broken icon or try fallback
+                            e.currentTarget.style.display = 'none';
+                            e.currentTarget.parentElement!.style.backgroundColor = '#1f2937'; // slate-800
+                            e.currentTarget.parentElement!.innerHTML = '<div class="flex items-center justify-center h-full text-slate-500">Image not found</div>';
+                        }}
                     />
                 </div>
                 <div className="md:w-2/3">
@@ -216,8 +187,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                          <div className="flex items-center gap-4">
                             <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-slate-500">
                                 <img 
-                                    src={founderImage}
-                                    onError={handleImageError}
+                                    src={imageSrc}
                                     alt="Chef Tumi" 
                                     className="w-full h-full object-cover"
                                 />
