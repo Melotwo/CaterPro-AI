@@ -207,22 +207,22 @@ export const generateMenuImageFromApi = async (title: string, description: strin
 };
 
 export const generateProductImageFromApi = async (productName: string, description: string): Promise<string> => {
-    const prompt = `Professional product photography of ${productName}. ${description}. High resolution, studio lighting, photorealistic, commercial aesthetic, white background.`;
+    // Enhanced prompt for the Imagen tool to focus on elegance and functionality
+    const prompt = `Professional product photography of ${productName}. ${description}. Showcase its elegant design and functionality in a high-end catering context. High resolution, studio lighting, photorealistic, commercial aesthetic, clean white background.`;
     
-    const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: {
-            parts: [{ text: prompt }],
-        },
+    // Explicitly using the Imagen model as requested for higher quality product shots
+    const response = await ai.models.generateImages({
+        model: 'imagen-4.0-generate-001',
+        prompt: prompt,
         config: {
-            responseModalities: [Modality.IMAGE],
+            numberOfImages: 1,
+            aspectRatio: '1:1',
+            outputMimeType: 'image/png', // Matching the expected format in ProductCard
         },
     });
 
-    for (const part of response.candidates[0].content.parts) {
-        if (part.inlineData) {
-            return part.inlineData.data;
-        }
+    if (response.generatedImages && response.generatedImages.length > 0) {
+        return response.generatedImages[0].image.imageBytes;
     }
     throw new Error("No image was generated.");
 };
@@ -307,4 +307,30 @@ export const generateStudyGuideFromApi = async (
 
   if (!response.text) throw new Error("No content generated.");
   return JSON.parse(response.text);
+};
+
+export const generateSocialCaption = async (menuTitle: string, description: string): Promise<string> => {
+    const prompt = `
+        You are a social media manager for a high-end catering business.
+        Write an engaging, professional, and slightly exciting caption for Facebook and Instagram to showcase this new menu.
+        
+        Menu Title: "${menuTitle}"
+        Description: "${description}"
+        
+        Requirements:
+        - Hook the reader immediately.
+        - Emphasize the quality and convenience.
+        - Use relevant emojis.
+        - Include 5-7 popular hashtags for catering, foodies, and events.
+        - Keep it under 200 words.
+        
+        Return ONLY the caption text.
+    `;
+    
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt
+    });
+
+    return response.text.trim();
 };
