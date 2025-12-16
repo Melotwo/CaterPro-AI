@@ -155,10 +155,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                         src="/founder.jpg"
                         onError={(e) => {
                             const target = e.currentTarget;
-                            // Fallback logic: Try PNG, then Stock
-                            if (target.src.endsWith('founder.jpg')) {
+                            const src = target.src;
+                            // Robust retry logic for different file extensions and cases
+                            if (src.endsWith('founder.jpg')) {
+                                target.src = "/founder.jpeg";
+                            } else if (src.endsWith('founder.jpeg')) {
                                 target.src = "/founder.png";
-                            } else {
+                            } else if (src.endsWith('founder.png')) {
+                                target.src = "/Founder.jpg"; // Try capitalized
+                            } else if (src.endsWith('Founder.jpg')) {
+                                // Final fallback to stock image
                                 target.src = "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80";
                             }
                         }}
@@ -187,7 +193,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                             <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-slate-500">
                                 <img 
                                     src="/founder.jpg"
-                                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                                    onError={(e) => { 
+                                        // Simple fallback for the small avatar
+                                        if (!e.currentTarget.src.includes('unsplash')) {
+                                            e.currentTarget.src = "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80";
+                                        }
+                                    }}
                                     alt="Chef Tumi" 
                                     className="w-full h-full object-cover"
                                 />
