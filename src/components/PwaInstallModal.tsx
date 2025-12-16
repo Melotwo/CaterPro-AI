@@ -21,7 +21,9 @@ const PwaInstallModal: React.FC<PwaInstallModalProps> = ({ isOpen, onClose }) =>
 
   if (!isOpen) return null;
 
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+  // Improve detection: iPads often say 'Macintosh' in userAgent but have touch support
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
@@ -36,45 +38,54 @@ const PwaInstallModal: React.FC<PwaInstallModalProps> = ({ isOpen, onClose }) =>
             <div className="mx-auto w-12 h-12 bg-primary-100 dark:bg-primary-900/50 rounded-full flex items-center justify-center mb-3">
               <Smartphone className="w-6 h-6 text-primary-600 dark:text-primary-400" />
             </div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Install CaterPro AI</h3>
+            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Install App</h3>
             <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
-              Add to your home screen for the full app experience. No App Store download required.
+              Save this app to your home screen for quick access.
             </p>
           </div>
 
           <div className="space-y-4 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg">
             {isIOS ? (
-              // iOS Instructions
-              <ol className="space-y-3 text-sm text-slate-700 dark:text-slate-300">
-                <li className="flex items-center gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 font-bold text-xs">1</span>
-                  <span>Tap the <strong>Share</strong> button in your browser bar.</span>
-                  <Share size={16} className="text-blue-500" />
-                </li>
-                <li className="flex items-center gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 font-bold text-xs">2</span>
-                  <span>Scroll down and tap <strong>Add to Home Screen</strong>.</span>
-                  <PlusSquare size={16} className="text-slate-500" />
-                </li>
-                <li className="flex items-center gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 font-bold text-xs">3</span>
-                  <span>Tap <strong>Add</strong> to finish.</span>
-                </li>
-              </ol>
+              // iOS Instructions (iPhone/iPad)
+              <div className="space-y-4">
+                  <p className="text-sm font-semibold text-slate-800 dark:text-white mb-2 border-b border-slate-200 dark:border-slate-700 pb-2">Instructions for Safari (iPad/iPhone):</p>
+                  <ol className="space-y-3 text-sm text-slate-700 dark:text-slate-300">
+                    <li className="flex items-start gap-3">
+                      <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 font-bold text-xs">1</span>
+                      <span>
+                          Tap the <strong>Share</strong> button. 
+                          <br/><span className="text-xs text-slate-500">(Top right on iPad, bottom center on iPhone)</span>
+                      </span>
+                      <Share size={20} className="text-blue-500 flex-shrink-0" />
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 font-bold text-xs">2</span>
+                      <span>Scroll down the menu and tap <strong>Add to Home Screen</strong>.</span>
+                      <PlusSquare size={20} className="text-slate-500 flex-shrink-0" />
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 font-bold text-xs">3</span>
+                      <span>Tap <strong>Add</strong> in the top right corner.</span>
+                    </li>
+                  </ol>
+              </div>
             ) : (
               // Android / Chrome Instructions
-              <ol className="space-y-3 text-sm text-slate-700 dark:text-slate-300">
-                <li className="flex items-center gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 font-bold text-xs">1</span>
-                  <span>Tap the <strong>Menu</strong> (three dots) icon.</span>
-                  <MoreVertical size={16} className="text-slate-500" />
-                </li>
-                <li className="flex items-center gap-3">
-                  <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 font-bold text-xs">2</span>
-                  <span>Select <strong>Install App</strong> or <strong>Add to Home screen</strong>.</span>
-                  <Smartphone size={16} className="text-slate-500" />
-                </li>
-              </ol>
+              <div className="space-y-4">
+                 <p className="text-sm font-semibold text-slate-800 dark:text-white mb-2 border-b border-slate-200 dark:border-slate-700 pb-2">Instructions for Chrome/Android:</p>
+                  <ol className="space-y-3 text-sm text-slate-700 dark:text-slate-300">
+                    <li className="flex items-start gap-3">
+                      <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 font-bold text-xs">1</span>
+                      <span>Tap the <strong>Menu</strong> (three dots) icon in the browser bar.</span>
+                      <MoreVertical size={20} className="text-slate-500 flex-shrink-0" />
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 font-bold text-xs">2</span>
+                      <span>Select <strong>Install App</strong> or <strong>Add to Home screen</strong>.</span>
+                      <Smartphone size={20} className="text-slate-500 flex-shrink-0" />
+                    </li>
+                  </ol>
+              </div>
             )}
           </div>
           
