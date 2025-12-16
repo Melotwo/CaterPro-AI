@@ -25,35 +25,49 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      # Check BOTH secrets to ensure a successful build and deploy
+      # Check secrets
       - name: Verify Secrets Presence
         env:
           FIREBASE_SECRET: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
-          has_error=false
-          
           if [ -z "$FIREBASE_SECRET" ]; then
-            echo "::error::❌ CRITICAL: FIREBASE_SERVICE_ACCOUNT secret is missing from Repository Secrets."
-            has_error=true
-          else
-            echo "✅ FIREBASE_SERVICE_ACCOUNT found."
-          fi
-
-          if [ -z "$API_KEY" ]; then
-            echo "::error::❌ CRITICAL: GEMINI_API_KEY secret is missing from Repository Secrets."
-            has_error=true
-          else
-            echo "✅ GEMINI_API_KEY found."
-          fi
-
-          if [ "$has_error" = true ]; then
-            echo "-------------------------------------------------------"
-            echo "Please go to Settings > Secrets and variables > Actions"
-            echo "and add these under 'Repository secrets'."
-            echo "-------------------------------------------------------"
+            echo "::error::❌ CRITICAL: FIREBASE_SERVICE_ACCOUNT secret is missing."
             exit 1
           fi
+          if [ -z "$API_KEY" ]; then
+            echo "::error::❌ CRITICAL: GEMINI_API_KEY secret is missing."
+            exit 1
+          fi
+
+      # THE SHERLOCK HOLMES IMAGE FIXER
+      # This script hunts down the user's photo anywhere in the repo and forces it to work.
+      - name: Auto-Fix Founder Image
+        run: |
+          mkdir -p public
+          
+          echo "🔍 Searching for founder image..."
+          
+          # Find ANY file that looks like a founder photo (case insensitive, various formats)
+          # We prioritize the root folder, then the public folder.
+          FOUND_IMG=$(find . -maxdepth 3 -type f \( -iname "founder.jpg" -o -iname "founder.jpeg" -o -iname "founder.png" -o -iname "photo.jpg" -o -iname "me.jpg" -o -iname "profile.jpg" \) -not -path "*/node_modules/*" -not -path "*/dist/*" -not -path "*/.git/*" | head -n 1)
+          
+          if [ -n "$FOUND_IMG" ]; then
+            echo "✅ FOUND IMAGE AT: $FOUND_IMG"
+            echo "🛠️  Standardizing to public/founder.jpg..."
+            cp "$FOUND_IMG" public/founder.jpg
+          else
+            echo "⚠️  No user uploaded image found."
+            
+            # Only download stock fallback if we absolutely couldn't find a user photo
+            if [ ! -f "public/founder.jpg" ]; then
+                echo "⬇️  Downloading placeholder..."
+                curl -L "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80" -o public/founder.jpg
+            fi
+          fi
+          
+          echo "📁 Final public folder content:"
+          ls -la public/
 
       - name: Build App
         run: npm run build
