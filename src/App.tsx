@@ -11,6 +11,7 @@ import Toast from './components/Toast';
 import AiChatBot from './components/AiChatBot';
 import QrCodeModal from './components/QrCodeModal';
 import ShareModal from './components/ShareModal';
+import SocialMediaModal from './components/SocialMediaModal';
 import MultiSelectDropdown from './components/MultiSelectDropdown';
 import GenerationHistory from './components/GenerationHistory';
 import CustomizationModal from './components/CustomizationModal';
@@ -134,6 +135,8 @@ const App: React.FC = () => {
   const [calculatedFee, setCalculatedFee] = useState<string | null>(null);
   
   // State for social caption generation
+  const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
+  const [socialCaption, setSocialCaption] = useState('');
   const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
 
   const menuRef = useRef<HTMLDivElement>(null);
@@ -372,6 +375,7 @@ const App: React.FC = () => {
     setTotalChecklistItems(0);
     setDeliveryRadius('');
     setCalculatedFee(null);
+    setSocialCaption('');
 
     const finalEventType = eventType === 'Other...' ? customEventType : eventType;
     const location = await getUserLocation(false); // Optional for menu generation
@@ -729,15 +733,31 @@ const App: React.FC = () => {
     }
   };
 
-  const handleCopySocialCaption = async () => {
-    if (!menu || isGeneratingCaption) return;
+  const handleOpenSocialModal = async () => {
+    if (!menu) return;
     
+    setIsSocialModalOpen(true);
+
+    if (!socialCaption) {
+        setIsGeneratingCaption(true);
+        try {
+            const caption = await generateSocialCaption(menu.menuTitle, menu.description);
+            setSocialCaption(caption);
+        } catch (e) {
+            console.error("Failed to generate caption:", e);
+            showToast("Could not generate caption. Try again.");
+        } finally {
+            setIsGeneratingCaption(false);
+        }
+    }
+  };
+
+  const handleRegenerateCaption = async () => {
+    if (!menu) return;
     setIsGeneratingCaption(true);
     try {
         const caption = await generateSocialCaption(menu.menuTitle, menu.description);
-        navigator.clipboard.writeText(caption).then(() => {
-            showToast("AI Caption Copied! Paste it on Facebook.");
-        });
+        setSocialCaption(caption);
     } catch (e) {
         console.error("Failed to generate caption:", e);
         showToast("Could not generate caption. Try again.");
@@ -1078,12 +1098,11 @@ const App: React.FC = () => {
                     <button onClick={copyToClipboard} className="action-button"><Copy size={16} className="mr-1.5" />Copy Text</button>
                     <button onClick={handleOpenShareModal} className="action-button"><Link size={16} className="mr-1.5" />Share</button>
                     <button 
-                        onClick={handleCopySocialCaption} 
-                        disabled={isGeneratingCaption}
-                        className="action-button bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 border-primary-200 dark:border-primary-800 disabled:opacity-50"
+                        onClick={handleOpenSocialModal} 
+                        className="action-button bg-primary-100 dark:bg-primary-900/40 text-primary-700 dark:text-primary-300 border-primary-200 dark:border-primary-800"
                     >
-                        {isGeneratingCaption ? <Loader2 size={16} className="animate-spin mr-1.5" /> : <Megaphone size={16} className="mr-1.5" />}
-                        {isGeneratingCaption ? 'Writing...' : 'Social Caption'}
+                        <Megaphone size={16} className="mr-1.5" />
+                        Social Post
                     </button>
                   </div>
                 </div>
@@ -1204,6 +1223,14 @@ const App: React.FC = () => {
       <QuoteModal isOpen={isQuoteModalOpen} onClose={() => setIsQuoteModalOpen(false)} product={selectedProduct} />
       <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={handleUpgrade} />
       <PwaInstallModal isOpen={isInstallModalOpen} onClose={() => setIsInstallModalOpen(false)} />
+      <SocialMediaModal 
+        isOpen={isSocialModalOpen} 
+        onClose={() => setIsSocialModalOpen(false)}
+        image={menu?.image}
+        caption={socialCaption}
+        onRegenerateCaption={handleRegenerateCaption}
+        isRegenerating={isGeneratingCaption}
+      />
 
     </div>
   );
