@@ -4,6 +4,7 @@ import App from './App';
 import './index.css';
 import ErrorBoundary from './components/ErrorBoundary';
 import GoogleAnalytics from './components/GoogleAnalytics';
+import FacebookPixel from './components/FacebookPixel';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -15,6 +16,7 @@ root.render(
   <React.StrictMode>
     <ErrorBoundary>
       <GoogleAnalytics />
+      <FacebookPixel />
       <App />
     </ErrorBoundary>
   </React.StrictMode>
