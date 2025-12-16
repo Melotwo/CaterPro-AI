@@ -25,7 +25,6 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      # Check secrets
       - name: Verify Secrets Presence
         env:
           FIREBASE_SECRET: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
@@ -40,34 +39,30 @@ jobs:
             exit 1
           fi
 
-      # THE SHERLOCK HOLMES IMAGE FIXER
-      # This script hunts down the user's photo anywhere in the repo and forces it to work.
-      - name: Auto-Fix Founder Image
+      # Auto-detect and normalize the founder image
+      # Scans root and public folders for any image file and standardizes it to public/founder.jpg
+      - name: Normalize Founder Image
         run: |
           mkdir -p public
           
-          echo "🔍 Searching for founder image..."
+          # 1. Look in ROOT directory for ANY image file
+          FOUND_IMG=$(find . -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) -not -name ".*" | head -n 1)
           
-          # Find ANY file that looks like a founder photo (case insensitive, various formats)
-          # We prioritize the root folder, then the public folder.
-          FOUND_IMG=$(find . -maxdepth 3 -type f \( -iname "founder.jpg" -o -iname "founder.jpeg" -o -iname "founder.png" -o -iname "photo.jpg" -o -iname "me.jpg" -o -iname "profile.jpg" \) -not -path "*/node_modules/*" -not -path "*/dist/*" -not -path "*/.git/*" | head -n 1)
-          
+          # 2. If not in root, check 'public' folder
+          if [ -z "$FOUND_IMG" ]; then
+             FOUND_IMG=$(find public -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) -not -name "logo.*" -not -name "favicon.*" -not -name "manifest.*" -not -name "founder.jpg" | head -n 1)
+          fi
+
           if [ -n "$FOUND_IMG" ]; then
-            echo "✅ FOUND IMAGE AT: $FOUND_IMG"
-            echo "🛠️  Standardizing to public/founder.jpg..."
+            echo "✅ User image detected: $FOUND_IMG"
             cp "$FOUND_IMG" public/founder.jpg
           else
-            echo "⚠️  No user uploaded image found."
-            
-            # Only download stock fallback if we absolutely couldn't find a user photo
+            # Download fallback if no image exists
             if [ ! -f "public/founder.jpg" ]; then
-                echo "⬇️  Downloading placeholder..."
+                echo "ℹ️ Using stock placeholder image."
                 curl -L "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80" -o public/founder.jpg
             fi
           fi
-          
-          echo "📁 Final public folder content:"
-          ls -la public/
 
       - name: Build App
         run: npm run build
