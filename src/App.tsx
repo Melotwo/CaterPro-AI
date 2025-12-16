@@ -288,6 +288,11 @@ const App: React.FC = () => {
         window.location.reload();
     }
   };
+  
+  const handleViewLanding = () => {
+      setShowLanding(true);
+      setIsAppVisible(false);
+  }
 
   const toggleTheme = () => setIsDarkMode(prev => !prev);
 
@@ -835,8 +840,15 @@ const App: React.FC = () => {
                 savedCount={savedMenus.length} 
                 onOpenQrCode={() => setIsQrModalOpen(true)}
                 onOpenInstall={() => setIsInstallModalOpen(true)}
+                onViewLanding={() => {}} // Already on landing
             />
-            <LandingPage onGetStarted={() => setShowLanding(false)} />
+            <LandingPage onGetStarted={() => {
+                setShowLanding(false);
+                // If user has subscription, enable app immediately. If not, pricing page will show.
+                if (localStorage.getItem('caterpro-subscription')) {
+                    setIsAppVisible(true);
+                }
+            }} />
             <Footer />
         </>
       );
@@ -861,6 +873,7 @@ const App: React.FC = () => {
         onOpenQrCode={() => setIsQrModalOpen(true)}
         onOpenInstall={() => setIsInstallModalOpen(true)}
         onReset={handleResetApp}
+        onViewLanding={handleViewLanding}
       />
       
        {showPwaBanner && (
@@ -1230,6 +1243,8 @@ const App: React.FC = () => {
         caption={socialCaption}
         onRegenerateCaption={handleRegenerateCaption}
         isRegenerating={isGeneratingCaption}
+        menuTitle={menu?.menuTitle || ''}
+        menuDescription={menu?.description || ''}
       />
 
     </div>
