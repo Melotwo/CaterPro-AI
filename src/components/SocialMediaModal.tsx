@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Copy, Image as ImageIcon, Check, RefreshCw, Smartphone, Linkedin, Twitter, Facebook, MessageCircle, Send } from 'lucide-react';
-import { generateSocialReply, generateSocialCaption } from '../services/geminiService';
+import { X, Copy, Image as ImageIcon, Check, RefreshCw, Smartphone, Linkedin, Twitter, Facebook, MessageCircle, Send, Film, Play, Download } from 'lucide-react';
+import { generateSocialReply, generateSocialCaption, generateSocialVideoFromApi } from '../services/geminiService';
 
 interface SocialMediaModalProps {
   isOpen: boolean;
@@ -11,13 +11,14 @@ interface SocialMediaModalProps {
   isRegenerating: boolean;
   menuTitle: string;
   menuDescription: string;
+  initialMode?: 'create' | 'reply' | 'video';
 }
 
 type Platform = 'instagram' | 'linkedin' | 'twitter' | 'facebook';
-type Mode = 'create' | 'reply';
+type Mode = 'create' | 'reply' | 'video';
 
 const SocialMediaModal: React.FC<SocialMediaModalProps> = ({ 
-  isOpen, onClose, image, caption, onRegenerateCaption, isRegenerating, menuTitle, menuDescription
+  isOpen, onClose, image, caption, onRegenerateCaption, isRegenerating, menuTitle, menuDescription, initialMode
 }) => {
   const [activeMode, setActiveMode] = useState<Mode>('create');
   const [activePlatform, setActivePlatform] = useState<Platform>('instagram');
@@ -30,6 +31,11 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
   const [generatedReply, setGeneratedReply] = useState('');
   const [isGeneratingReply, setIsGeneratingReply] = useState(false);
 
+  // Video State
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
+  const [videoError, setVideoError] = useState('');
+
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -38,29 +44,35 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
+      if (initialMode) {
+          setActiveMode(initialMode);
+      }
+      
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Escape') onClose();
       };
       document.addEventListener('keydown', handleKeyDown);
       return () => document.removeEventListener('keydown', handleKeyDown);
     }
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, initialMode]);
 
   const handlePlatformChange = async (platform: Platform) => {
       setActivePlatform(platform);
-      if (activeMode === 'create') {
-          // Trigger regeneration for specific platform style
-          // In a real app, we might want to debounce this or let user click regenerate
-          // For now, let's just update the placeholder or visual state
+      
+      // Auto-regenerate caption for the new platform format
+      try {
+          // Temporarily show loading state in textarea could be better, but we'll just update
+          setEditedCaption("Rewriting for " + platform + "...");
+          const newCaption = await generateSocialCaption(menuTitle, menuDescription, platform === 'facebook' ? 'instagram' : platform);
+          setEditedCaption(newCaption);
+      } catch (e) {
+          console.error(e);
+          setEditedCaption(caption); // Fallback
       }
   };
 
   const handleRegenerateForPlatform = async () => {
-      // Logic to call API with platform specific prompt
-      // This assumes onRegenerateCaption in parent is generic, so we might need a local call here
-      // But for now, we will use the local service directly to override parent behavior for cleaner UX
       try {
-          // We can't set the parent loading state, so we use a local one visually if needed
           const newCaption = await generateSocialCaption(menuTitle, menuDescription, activePlatform === 'facebook' ? 'instagram' : activePlatform);
           setEditedCaption(newCaption);
       } catch (e) {
@@ -78,6 +90,20 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
           console.error(e);
       } finally {
           setIsGeneratingReply(false);
+      }
+  };
+
+  const handleGenerateVideo = async () => {
+      setIsGeneratingVideo(true);
+      setVideoError('');
+      try {
+          const url = await generateSocialVideoFromApi(menuTitle, menuDescription);
+          setVideoUrl(url);
+      } catch (e: any) {
+          console.error(e);
+          setVideoError(e.message || "Failed to generate video.");
+      } finally {
+          setIsGeneratingVideo(false);
       }
   };
 
@@ -112,7 +138,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
       
       switch(activePlatform) {
           case 'linkedin':
-              url = `https://www.linkedin.com/feed/`; // Cannot pre-fill post text easily on web
+              url = `https://www.linkedin.com/feed/`; 
               break;
           case 'twitter':
               url = `https://twitter.com/intent/tweet?text=${text}`;
@@ -139,54 +165,103 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
         </button>
 
         {/* Top Bar: Mode Switcher */}
-        <div className="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-2 flex justify-center gap-2">
+        <div className="bg-slate-100 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-2 flex justify-center gap-2 overflow-x-auto">
             <button 
                 onClick={() => setActiveMode('create')}
-                className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all ${activeMode === 'create' ? 'bg-white dark:bg-slate-700 shadow text-primary-600 dark:text-primary-400' : 'text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700/50'}`}
+                className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'create' ? 'bg-white dark:bg-slate-700 shadow text-primary-600 dark:text-primary-400' : 'text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700/50'}`}
             >
                 <ImageIcon size={18} />
-                Create Post
+                Image Post
+            </button>
+            <button 
+                onClick={() => setActiveMode('video')}
+                className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'video' ? 'bg-white dark:bg-slate-700 shadow text-purple-600 dark:text-purple-400' : 'text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700/50'}`}
+            >
+                <Film size={18} />
+                Reel / Video
             </button>
             <button 
                 onClick={() => setActiveMode('reply')}
-                className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all ${activeMode === 'reply' ? 'bg-white dark:bg-slate-700 shadow text-amber-600 dark:text-amber-400' : 'text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700/50'}`}
+                className={`px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'reply' ? 'bg-white dark:bg-slate-700 shadow text-amber-600 dark:text-amber-400' : 'text-slate-500 hover:bg-slate-200 dark:hover:bg-slate-700/50'}`}
             >
                 <MessageCircle size={18} />
-                Lead Reply Assistant
+                Reply Assistant
             </button>
         </div>
 
         <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
         
-        {activeMode === 'create' ? (
+        {activeMode === 'create' || activeMode === 'video' ? (
             <>
-                {/* Left Side: Image Preview */}
+                {/* Left Side: Media Preview (Image or Video) */}
                 <div className="md:w-1/2 bg-slate-50 dark:bg-slate-900/50 flex flex-col items-center justify-center p-6 relative border-r border-slate-200 dark:border-slate-700 overflow-y-auto">
-                    {image ? (
-                        <div className="relative shadow-xl rounded-lg overflow-hidden group max-w-md w-full">
-                            <img 
-                                src={`data:image/png;base64,${image}`} 
-                                alt="Social Media Post" 
-                                className="w-full h-auto object-cover"
-                            />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <button 
-                                    onClick={handleCopyImage}
-                                    className="bg-white text-slate-900 px-4 py-2 rounded-full font-bold flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-transform hover:scale-105"
-                                >
-                                    {copiedImage ? <Check size={18} /> : <ImageIcon size={18} />}
-                                    {copiedImage ? 'Copied!' : 'Copy Image'}
-                                </button>
+                    {activeMode === 'create' ? (
+                        image ? (
+                            <div className="relative shadow-xl rounded-lg overflow-hidden group max-w-md w-full">
+                                <img 
+                                    src={`data:image/png;base64,${image}`} 
+                                    alt="Social Media Post" 
+                                    className="w-full h-auto object-cover"
+                                />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                    <button 
+                                        onClick={handleCopyImage}
+                                        className="bg-white text-slate-900 px-4 py-2 rounded-full font-bold flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-transform hover:scale-105"
+                                    >
+                                        {copiedImage ? <Check size={18} /> : <ImageIcon size={18} />}
+                                        {copiedImage ? 'Copied!' : 'Copy Image'}
+                                    </button>
+                                </div>
                             </div>
-                        </div>
+                        ) : (
+                            <div className="flex flex-col items-center text-slate-400">
+                                <ImageIcon size={48} className="mb-2" />
+                                <p>No image generated</p>
+                            </div>
+                        )
                     ) : (
-                        <div className="flex flex-col items-center text-slate-400">
-                            <ImageIcon size={48} className="mb-2" />
-                            <p>No image generated</p>
+                        // VIDEO MODE PREVIEW
+                        <div className="flex flex-col items-center w-full max-w-xs">
+                            {videoUrl ? (
+                                <div className="relative rounded-xl overflow-hidden shadow-2xl bg-black w-full aspect-[9/16]">
+                                    <video 
+                                        src={videoUrl} 
+                                        controls 
+                                        autoPlay 
+                                        loop 
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <a 
+                                        href={videoUrl} 
+                                        download="caterpro-reel.mp4"
+                                        className="absolute bottom-4 right-4 p-2 bg-white/20 hover:bg-white/40 text-white rounded-full backdrop-blur-md"
+                                        title="Download Video"
+                                    >
+                                        <Download size={20} />
+                                    </a>
+                                </div>
+                            ) : (
+                                <div className="text-center p-8 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl w-full">
+                                    <Film size={48} className="mx-auto text-slate-300 mb-4" />
+                                    <p className="text-slate-500 mb-6">Generate a 720p vertical video for Reels & TikTok.</p>
+                                    <button 
+                                        onClick={handleGenerateVideo}
+                                        disabled={isGeneratingVideo}
+                                        className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full font-bold shadow-lg flex items-center gap-2 mx-auto disabled:opacity-50"
+                                    >
+                                        {isGeneratingVideo ? <RefreshCw className="animate-spin" /> : <Play size={18} fill="currentColor" />}
+                                        {isGeneratingVideo ? 'Generating (~1m)...' : 'Create Reel'}
+                                    </button>
+                                    {videoError && <p className="text-red-500 text-xs mt-4 max-w-[200px] mx-auto">{videoError}</p>}
+                                </div>
+                            )}
                         </div>
                     )}
+                    
                     <p className="mt-4 text-xs text-slate-400 text-center max-w-xs">
-                        Tip: LinkedIn and X prefer you to upload the image file directly. Click "Copy Image" then paste it (Ctrl+V) into the post creator.
+                        {activeMode === 'create' 
+                            ? 'Tip: Copy the image and paste it directly into LinkedIn/X.' 
+                            : 'Tip: Download the video to your phone to upload to TikTok/Reels.'}
                     </p>
                 </div>
 
@@ -219,13 +294,26 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                         </div>
                     </div>
                     
-                    <div className="flex-grow p-4 overflow-y-auto">
+                    <div className="flex-grow p-4 overflow-y-auto flex flex-col">
                         <textarea 
-                            className="w-full h-full min-h-[300px] resize-none border-none focus:ring-0 bg-transparent text-slate-700 dark:text-slate-300 font-sans text-sm leading-relaxed"
+                            className="w-full flex-grow resize-none border-none focus:ring-0 bg-transparent text-slate-700 dark:text-slate-300 font-sans text-sm leading-relaxed"
                             value={editedCaption}
                             onChange={(e) => setEditedCaption(e.target.value)}
                             placeholder="Generating caption..."
                         ></textarea>
+                        
+                        {/* Twitter Character Counter */}
+                        {activePlatform === 'twitter' && (
+                            <div className="mt-2 flex justify-end">
+                                <span className={`text-xs font-mono px-2 py-1 rounded ${
+                                    editedCaption.length > 280 
+                                        ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' 
+                                        : 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'
+                                }`}>
+                                    {editedCaption.length} / 280
+                                </span>
+                            </div>
+                        )}
                     </div>
 
                     <div className="p-4 border-t border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 flex flex-col gap-3">
@@ -252,7 +340,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                 </div>
             </>
         ) : (
-            // REPLY MODE
+            // REPLY MODE (Existing Code)
             <div className="w-full h-full flex flex-col p-6 bg-slate-50 dark:bg-slate-900/50">
                 <div className="max-w-3xl mx-auto w-full flex flex-col h-full gap-6">
                     <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex-1 flex flex-col">
