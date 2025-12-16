@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ChefHat, Check, ArrowRight, Star, Clock, Brain, Zap, Quote, ChevronDown, ChevronUp, HelpCircle, Heart, AlignLeft, Sparkles, Share2, Linkedin, Twitter } from 'lucide-react';
+import { ChefHat, Check, ArrowRight, Star, Zap, Quote, ChevronDown, ChevronUp, HelpCircle, AlignLeft, Linkedin, Twitter, Brain, Heart } from 'lucide-react';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -8,9 +8,7 @@ interface LandingPageProps {
 const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  // cacheBuster forces the browser to re-download the image if it changed
-  const cacheBuster = new Date().getTime();
-  const imageSrc = `/founder.jpg?v=${cacheBuster}`;
+  const imageSrc = "/founder.jpg";
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
