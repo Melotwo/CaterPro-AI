@@ -8,7 +8,8 @@ interface LandingPageProps {
 const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  const imageSrc = "/founder.jpg";
+  // Add a random query param to force browser to check for new image on reload
+  const imageSrc = `/founder.jpg?v=${new Date().getTime()}`;
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -22,6 +23,21 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           window.open(`https://www.linkedin.com/feed/?shareActive=true&text=${text}%20${url}`, '_blank');
       } else {
           window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
+      }
+  };
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+      const target = e.currentTarget;
+      // Prevent infinite loop if fallback fails
+      if (target.src.includes('unsplash')) {
+          target.style.display = 'none';
+          if (target.parentElement) {
+            target.parentElement.style.backgroundColor = '#1f2937';
+            target.parentElement.innerHTML = '<div class="flex items-center justify-center h-full text-slate-500">Image not found</div>';
+          }
+      } else {
+          // Fallback to a reliable stock image if the user's upload isn't found yet
+          target.src = "https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=800&q=80";
       }
   };
 
@@ -157,12 +173,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                         src={imageSrc}
                         alt="Chef Tumi" 
                         className="rounded-xl shadow-2xl border-slate-700 transform -rotate-2 hover:rotate-0 transition-transform duration-500 w-full object-cover aspect-[3/4]"
-                        onError={(e) => {
-                            // If the main image fails, hide it to prevent broken icon or try fallback
-                            e.currentTarget.style.display = 'none';
-                            e.currentTarget.parentElement!.style.backgroundColor = '#1f2937'; // slate-800
-                            e.currentTarget.parentElement!.innerHTML = '<div class="flex items-center justify-center h-full text-slate-500">Image not found</div>';
-                        }}
+                        onError={handleImageError}
                     />
                 </div>
                 <div className="md:w-2/3">
@@ -188,6 +199,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                                     src={imageSrc}
                                     alt="Chef Tumi" 
                                     className="w-full h-full object-cover"
+                                    onError={handleImageError}
                                 />
                             </div>
                             <div>
