@@ -5,6 +5,7 @@ import './index.css';
 import ErrorBoundary from './components/ErrorBoundary';
 import GoogleAnalytics from './components/GoogleAnalytics';
 import FacebookPixel from './components/FacebookPixel';
+import ManyChatWidget from './components/ManyChatWidget';
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {
@@ -17,6 +18,7 @@ root.render(
     <ErrorBoundary>
       <GoogleAnalytics />
       <FacebookPixel />
+      <ManyChatWidget />
       <App />
     </ErrorBoundary>
   </React.StrictMode>
