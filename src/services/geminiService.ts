@@ -403,18 +403,20 @@ export const generateViralHook = async (menuTitle: string, description: string):
 export type VideoStyle = 'cinematic' | 'vibrant' | 'minimalist';
 
 export const generateSocialVideoFromApi = async (menuTitle: string, description: string, style: VideoStyle = 'cinematic'): Promise<string> => {
-    // 1. Check for API Key Selection (Mandatory for Veo)
-    if (typeof window !== 'undefined' && (window as any).aistudio) {
+    
+    // Only attempt the Key Selection dialog if we are in the specific Google AI Studio environment.
+    // In a normal web deployment, we skip this and rely on process.env.API_KEY.
+    if (typeof window !== 'undefined' && (window as any).aistudio && (window as any).aistudio.hasSelectedApiKey) {
         const hasKey = await (window as any).aistudio.hasSelectedApiKey();
         if (!hasKey) {
             const success = await (window as any).aistudio.openSelectKey();
             if (!success) {
-                throw new Error("API Key selection is required for video generation. Please select a project with billing enabled.");
+                console.warn("User did not select a key via the AI Studio dialog. Attempting to proceed with env key.");
             }
         }
     }
 
-    // 2. Initialize AI with the key
+    // 2. Initialize AI with the key (Veo requires a paid key or specific project)
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
     // 3. Construct Prompt based on style
