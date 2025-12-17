@@ -2,28 +2,21 @@ import React, { useEffect } from 'react';
 
 // INSTRUCTIONS TO FIND YOUR MANYCHAT ID:
 //
-// OPTION A (New Interface):
-// 1. Go to "Settings" (Gear icon bottom left).
-// 2. Look for "Widgets" in the settings menu.
-// 3. Click "New Widget" -> "Customer Chat".
-// 4. In the "Setup" tab, look for the code snippet: //widget.manychat.com/YOUR_ID.js
+// If you can't find it, don't worry! 
+// Leave the value as 'YOUR_PAGE_ID_HERE'. 
+// The widget will simply hide itself and won't break your app.
 //
-// OPTION B (Automation Method):
-// 1. Go to "Automation" (Lightning bolt icon).
-// 2. Click "New Automation" (top right).
-// 3. Select "Start from Scratch".
-// 4. Click "New Trigger".
-// 5. Scroll down to "Growth Tools" -> select "Customer Chat".
-// 6. Finish setup and look for the ID in the activation/setup tab.
-//
-// Paste the numeric ID below:
+// 1. Go to ManyChat "Settings" > "Widgets" (or "Growth Tools").
+// 2. Create a "Customer Chat" widget.
+// 3. Look for the script source in the Setup tab: //widget.manychat.com/123456.js
+// 4. That number is your ID.
 
 const MANYCHAT_PAGE_ID = 'YOUR_PAGE_ID_HERE'; 
 
 const ManyChatWidget: React.FC = () => {
   useEffect(() => {
+    // If ID is missing or default, just return silently.
     if (!MANYCHAT_PAGE_ID || MANYCHAT_PAGE_ID === 'YOUR_PAGE_ID_HERE') {
-      // Quietly fail in production so it doesn't break anything
       return;
     }
 
