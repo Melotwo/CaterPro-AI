@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Copy, Image as ImageIcon, Check, RefreshCw, Smartphone, Linkedin, Twitter, Facebook, MessageCircle, Send, Film, Play, Download, Zap } from 'lucide-react';
-import { generateSocialReply, generateSocialCaption, generateSocialVideoFromApi, generateViralHook } from '../services/geminiService';
+import { X, Copy, Image as ImageIcon, Check, RefreshCw, Smartphone, Linkedin, Twitter, Facebook, MessageCircle, Send, Film, Play, Download, Zap, Palette } from 'lucide-react';
+import { generateSocialReply, generateSocialCaption, generateSocialVideoFromApi, generateViralHook, VideoStyle } from '../services/geminiService';
 
 interface SocialMediaModalProps {
   isOpen: boolean;
@@ -39,6 +39,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [isGeneratingVideo, setIsGeneratingVideo] = useState(false);
   const [videoError, setVideoError] = useState('');
+  const [videoStyle, setVideoStyle] = useState<VideoStyle>('cinematic');
 
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -63,15 +64,13 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
   const handlePlatformChange = async (platform: Platform) => {
       setActivePlatform(platform);
       
-      // Auto-regenerate caption for the new platform format
       try {
-          // Temporarily show loading state in textarea could be better, but we'll just update
           setEditedCaption("Rewriting for " + platform + "...");
           const newCaption = await generateSocialCaption(menuTitle, menuDescription, platform === 'facebook' ? 'instagram' : platform);
           setEditedCaption(newCaption);
       } catch (e) {
           console.error(e);
-          setEditedCaption(caption); // Fallback
+          setEditedCaption(caption); 
       }
   };
 
@@ -113,7 +112,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
       setIsGeneratingVideo(true);
       setVideoError('');
       try {
-          const url = await generateSocialVideoFromApi(menuTitle, menuDescription);
+          const url = await generateSocialVideoFromApi(menuTitle, menuDescription, videoStyle);
           setVideoUrl(url);
       } catch (e: any) {
           console.error(e);
@@ -260,10 +259,29 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                                 <div className="text-center p-8 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl w-full">
                                     <Film size={48} className="mx-auto text-slate-300 mb-4" />
                                     <p className="text-slate-500 mb-6">Generate a 720p vertical video for Reels & TikTok.</p>
+                                    
+                                    <div className="mb-6 flex justify-center">
+                                        <div className="inline-flex bg-slate-200 dark:bg-slate-800 rounded-lg p-1">
+                                            {['cinematic', 'vibrant', 'minimalist'].map((style) => (
+                                                <button
+                                                    key={style}
+                                                    onClick={() => setVideoStyle(style as VideoStyle)}
+                                                    className={`px-3 py-1.5 rounded-md text-xs font-bold capitalize transition-all ${
+                                                        videoStyle === style 
+                                                        ? 'bg-white dark:bg-slate-600 shadow text-purple-600 dark:text-purple-300' 
+                                                        : 'text-slate-500 hover:text-slate-700 dark:hover:text-slate-300'
+                                                    }`}
+                                                >
+                                                    {style}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
                                     <button 
                                         onClick={handleGenerateVideo}
                                         disabled={isGeneratingVideo}
-                                        className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full font-bold shadow-lg flex items-center gap-2 mx-auto disabled:opacity-50"
+                                        className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full font-bold shadow-lg flex items-center gap-2 mx-auto disabled:opacity-50 transition-all hover:scale-105"
                                     >
                                         {isGeneratingVideo ? <RefreshCw className="animate-spin" /> : <Play size={18} fill="currentColor" />}
                                         {isGeneratingVideo ? 'Generating (~1m)...' : 'Create Reel'}
@@ -337,7 +355,6 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                             placeholder="Generating caption..."
                         ></textarea>
                         
-                        {/* Twitter Character Counter */}
                         {activePlatform === 'twitter' && (
                             <div className="mt-2 flex justify-end">
                                 <span className={`text-xs font-mono px-2 py-1 rounded ${
@@ -375,7 +392,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                 </div>
             </>
         ) : (
-            // REPLY MODE (Existing Code)
+            // REPLY MODE
             <div className="w-full h-full flex flex-col p-6 bg-slate-50 dark:bg-slate-900/50">
                 <div className="max-w-3xl mx-auto w-full flex flex-col h-full gap-6">
                     <div className="bg-white dark:bg-slate-800 p-6 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex-1 flex flex-col">
