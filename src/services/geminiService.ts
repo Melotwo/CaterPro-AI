@@ -400,7 +400,9 @@ export const generateViralHook = async (menuTitle: string, description: string):
     return response.text.trim();
 };
 
-export const generateSocialVideoFromApi = async (menuTitle: string, description: string): Promise<string> => {
+export type VideoStyle = 'cinematic' | 'vibrant' | 'minimalist';
+
+export const generateSocialVideoFromApi = async (menuTitle: string, description: string, style: VideoStyle = 'cinematic'): Promise<string> => {
     // 1. Check for API Key Selection (Mandatory for Veo)
     if (typeof window !== 'undefined' && (window as any).aistudio) {
         const hasKey = await (window as any).aistudio.hasSelectedApiKey();
@@ -412,11 +414,25 @@ export const generateSocialVideoFromApi = async (menuTitle: string, description:
         }
     }
 
-    // 2. Initialize AI with the key (which is injected into process.env.API_KEY by the platform if selected)
+    // 2. Initialize AI with the key
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-    // 3. Construct Prompt
-    const videoPrompt = `Cinematic, slow-motion vertical food commercial for "${menuTitle}". ${description}. High-end professional food photography, shallow depth of field, 4k resolution, warm lighting, elegant presentation.`;
+    // 3. Construct Prompt based on style
+    let stylePrompt = '';
+    switch(style) {
+        case 'vibrant':
+            stylePrompt = 'Bright, colorful, high saturation, energetic, upbeat, social media aesthetic. Fast cuts.';
+            break;
+        case 'minimalist':
+            stylePrompt = 'Clean, simple, neutral background, focus on texture, soft lighting, elegant, slow panning.';
+            break;
+        case 'cinematic':
+        default:
+            stylePrompt = 'Cinematic, dramatic lighting, shallow depth of field, 4k resolution, slow motion, moody.';
+            break;
+    }
+
+    const videoPrompt = `${stylePrompt} Vertical food commercial for "${menuTitle}". ${description}. High-end professional food photography.`;
 
     // 4. Call Veo Model
     let operation = await ai.models.generateVideos({
@@ -440,7 +456,6 @@ export const generateSocialVideoFromApi = async (menuTitle: string, description:
     if (!videoUri) throw new Error("Video generation failed to return a URI.");
 
     // 7. Fetch Video Blob
-    // We must append the key manually for the fetch according to Veo docs/practice on client side
     const response = await fetch(`${videoUri}&key=${process.env.API_KEY}`);
     if (!response.ok) throw new Error("Failed to download generated video.");
     
