@@ -40,29 +40,29 @@ jobs:
           fi
 
       # Auto-detect and normalize the founder image
-      # Scans root and public folders for any image file and standardizes it to public/founder.jpg
+      # Scans the entire repo (recursive) for any image file and standardizes it to public/founder.jpg
       - name: Normalize Founder Image
         run: |
           mkdir -p public
           
-          # 1. Look in ROOT directory for ANY image file
-          FOUND_IMG=$(find . -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) -not -name ".*" | head -n 1)
+          echo "🔍 Searching recursively for ANY image file..."
+          # Find first image file in the repo (ignoring .git, node_modules, and dist)
+          # We look for common image extensions up to 3 folders deep
+          FOUND_IMG=$(find . -maxdepth 3 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) -not -path "*/.*" -not -path "*/node_modules/*" -not -path "*/dist/*" -not -name "logo.*" -not -name "favicon.*" | head -n 1)
           
-          # 2. If not in root, check 'public' folder
-          if [ -z "$FOUND_IMG" ]; then
-             FOUND_IMG=$(find public -maxdepth 1 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) -not -name "logo.*" -not -name "favicon.*" -not -name "manifest.*" -not -name "founder.jpg" | head -n 1)
-          fi
-
           if [ -n "$FOUND_IMG" ]; then
-            echo "✅ User image detected: $FOUND_IMG"
+            echo "✅ User image detected at: $FOUND_IMG"
             cp "$FOUND_IMG" public/founder.jpg
           else
-            # Download fallback if no image exists
+            echo "⚠️ No user image found. Using stock placeholder."
+            # Only download if public/founder.jpg doesn't exist yet
             if [ ! -f "public/founder.jpg" ]; then
-                echo "ℹ️ Using stock placeholder image."
                 curl -L "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80" -o public/founder.jpg
             fi
           fi
+          
+          echo "📁 Final public folder contents:"
+          ls -la public/
 
       - name: Build App
         run: npm run build
