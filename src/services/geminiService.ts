@@ -57,7 +57,7 @@ export const generateMenuFromApi = async ({
     **Event Details:**
     - **Event Type:** ${eventType}
     - **Number of Guests:** ${guestCount}
-    - **Budget Level:** ${budget}
+    - **Budget Level:** ${budget} (Translate this to menu complexity and ingredient choices).
     - **Service Style:** ${serviceStyle}
     - **Cuisine Style:** ${cuisine}
     - **Dietary Restrictions:** ${dietaryRestrictions.join(', ') || 'None'}
@@ -218,14 +218,21 @@ export const generateViralHook = async (menuTitle: string, description: string):
 
 export const generateFounderMarketingPost = async (platform: 'linkedin' | 'twitter' | 'instagram'): Promise<string> => {
     const prompt = `
-        Write a viral launch post for ${platform} for "CaterPro AI". 
-        CONTEXT: 
+        Write a viral launch post for ${platform} for the app "CaterPro AI". 
+        
+        **ESSENTIAL CONTEXT:** 
         - Founder: Tumi Seroka. 
-        - The Story: Chef with Epilepsy/ADHD/Dyslexia who built this to solve the 'admin nightmare' for other chefs. 
-        - OFFER: First 50 Founding Members get LIFETIME access for $199. 
-        - Busy Christmas Season focus. 
-        TONE: Inspiring, Disruptive, Professional. 
-        PERFECT SPELLING MANDATORY.
+        - The Backstory: Tumi is a professional chef who struggled with Epilepsy, ADHD, and Dyslexia. Paperwork (menus/proposals) was a nightmare that caused massive anxiety.
+        - The Product: CaterPro AI generates professional menus, shopping lists, and proposals in seconds.
+        - THE OFFER: Tumi is looking for the **FIRST 50 FOUNDING MEMBERS** to join.
+        - PRICE: $199 for LIFETIME ACCESS (No subscription).
+        
+        **PLATFORM RULES:**
+        - LinkedIn: Professional, story-driven, emotional but focused on ROI. Use line breaks.
+        - X/Twitter: High energy, punchy, thread-style or single post.
+        - Instagram: Visual, lifestyle-focused, brief.
+        
+        **STRICT RULE:** 100% PERFECT SPELLING. NO TYPOS.
     `;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
