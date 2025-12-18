@@ -37,7 +37,6 @@ function extractJson(text: string): any {
 
 /**
  * Generates a full catering menu proposal.
- * Uses gemini-2.5-flash as it is the only model supporting googleMaps tool for now.
  */
 export const generateMenuFromApi = async ({
   eventType,
@@ -57,7 +56,7 @@ export const generateMenuFromApi = async ({
     **Event Details:**
     - **Event Type:** ${eventType}
     - **Number of Guests:** ${guestCount}
-    - **Budget Level:** ${budget} (Translate this to menu complexity and ingredient choices).
+    - **Budget Level:** ${budget}
     - **Service Style:** ${serviceStyle}
     - **Cuisine Style:** ${cuisine}
     - **Dietary Restrictions:** ${dietaryRestrictions.join(', ') || 'None'}
@@ -190,7 +189,17 @@ export const generateStudyGuideFromApi = async (topic: string, curriculum: strin
 };
 
 export const generateSocialCaption = async (menuTitle: string, description: string, platform: 'instagram' | 'linkedin' | 'twitter' = 'instagram'): Promise<string> => {
-    const prompt = `Write a viral ${platform} caption for: "${menuTitle}". ${description}. PERFECT SPELLING MANDATORY. NO TYPOS. Professional culinary vocabulary. Include Call to action: Visit https://caterpro-ai.web.app/`;
+    const prompt = `
+        Write a viral ${platform} caption for: "${menuTitle}". ${description}. 
+        
+        STRICT PLATFORM RULES:
+        - If platform is 'twitter' or 'X': The response MUST be UNDER 200 CHARACTERS. Be very punchy. 
+        - If platform is 'linkedin': Focus on efficiency, ROI, and professional storytelling.
+        - If platform is 'instagram': Use emojis, hashtags, and visual language.
+        
+        PERFECT SPELLING MANDATORY. NO TYPOS. Professional culinary vocabulary. 
+        Include Call to action: https://caterpro-ai.web.app/
+    `;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: prompt
@@ -198,8 +207,22 @@ export const generateSocialCaption = async (menuTitle: string, description: stri
     return response.text.trim();
 };
 
-export const generateSocialReply = async (comment: string): Promise<string> => {
-    const prompt = `Write a professional, friendly reply to: "${comment}". Short, helpful, expert tone. PERFECT SPELLING.`;
+export const generateSocialReply = async (comment: string, context: string = '', tone: 'chef-to-chef' | 'professional' | 'supportive' = 'professional'): Promise<string> => {
+    const prompt = `
+        You are a Community Manager and Culinary Expert for CaterPro AI.
+        Write a high-value, non-spammy social media reply to the following post/comment: "${comment}".
+        
+        **Tone:** ${tone} (if 'chef-to-chef', be informal, punchy, and use kitchen slang. if 'professional', be polished and helpful).
+        **Context/Goal:** ${context || 'Add value and build trust.'}
+        
+        **STRICT RULES:**
+        1. DO NOT just pitch the app. 
+        2. Add genuine value, advice, or a witty culinary observation first. 
+        3. If mentioning "CaterPro AI", do it naturally as a resource for the specific problem (e.g., "I use CaterPro AI for my prep lists to stop the Sunday night scaries").
+        4. Keep it human and conversational. Avoid corporate speak.
+        5. NO SALESY LANGUAGE. NO "BUY NOW".
+        6. PERFECT SPELLING MANDATORY.
+    `;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: prompt
@@ -218,21 +241,13 @@ export const generateViralHook = async (menuTitle: string, description: string):
 
 export const generateFounderMarketingPost = async (platform: 'linkedin' | 'twitter' | 'instagram'): Promise<string> => {
     const prompt = `
-        Write a viral launch post for ${platform} for the app "CaterPro AI". 
-        
-        **ESSENTIAL CONTEXT:** 
-        - Founder: Tumi Seroka. 
-        - The Backstory: Tumi is a professional chef who struggled with Epilepsy, ADHD, and Dyslexia. Paperwork (menus/proposals) was a nightmare that caused massive anxiety.
-        - The Product: CaterPro AI generates professional menus, shopping lists, and proposals in seconds.
-        - THE OFFER: Tumi is looking for the **FIRST 50 FOUNDING MEMBERS** to join.
-        - PRICE: $199 for LIFETIME ACCESS (No subscription).
-        
-        **PLATFORM RULES:**
-        - LinkedIn: Professional, story-driven, emotional but focused on ROI. Use line breaks.
-        - X/Twitter: High energy, punchy, thread-style or single post.
-        - Instagram: Visual, lifestyle-focused, brief.
-        
-        **STRICT RULE:** 100% PERFECT SPELLING. NO TYPOS.
+        Write a viral launch post for ${platform} for "CaterPro AI". 
+        **CONTEXT:** Founder: Tumi Seroka. Story: Built because ADHD/Dyslexia made holiday paperwork a nightmare. OFFER: FIRST 50 PEOPLE. PRICE: $199 LIFETIME.
+        **STRICT PLATFORM RULES:**
+        - LinkedIn: Professional storytelling (ADHD focus).
+        - X/Twitter: STRICTLY UNDER 180 CHARACTERS.
+        - Instagram: Aesthetic and lifestyle.
+        **STRICT RULE:** 100% PERFECT SPELLING.
     `;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -247,8 +262,7 @@ export const generateSocialVideoFromApi = async (menuTitle: string, description:
     const videoPrompt = `
         Cinematic, slow-motion vertical commercial for "${menuTitle}". ${description}. 
         Style: ${style}. 
-        STRICT RULE: NO TEXT OVERLAYS. DO NOT GENERATE ANY WORDS OR LETTERS IN THE VIDEO SCENE. 
-        Focus purely on high-end food textures, steam, and plating. 4K resolution.
+        STRICT RULE: NO TEXT OVERLAYS. Focus purely on high-end food textures.
     `;
 
     let operation = await ai.models.generateVideos({
