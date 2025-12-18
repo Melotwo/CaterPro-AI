@@ -189,9 +189,16 @@ const App: React.FC = () => {
       console.error("Failed to parse data from localStorage", e);
     }
     
-    if (window.location.hash && window.location.hash.startsWith('#share=')) {
+    // Robust parsing for shared links (handles trailing punctuation from chat apps)
+    if (window.location.hash && window.location.hash.includes('#share=')) {
       try {
-        const encodedString = window.location.hash.substring(7);
+        const hash = window.location.hash;
+        let encodedString = hash.split('#share=')[1];
+        
+        // Clean up common chat-pasted punctuation (like the 'it's' from your chat screenshot)
+        // We look for the last valid base64 character
+        encodedString = encodedString.replace(/[^A-Za-z0-9+/=].*$/, '');
+
         const base64String = decodeURIComponent(encodedString);
         const binaryString = atob(base64String);
         const utf8Bytes = new Uint8Array(binaryString.length);
