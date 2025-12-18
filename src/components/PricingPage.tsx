@@ -51,7 +51,7 @@ const tiers = [
     icon: Star,
     description: 'Perfect for individual meal prep and testing.',
     features: [
-      '3 Menu Generations per Day',
+      '50 Menu Generations per Day',
       'Basic Menu Export (PDF)',
       'Standard Theme',
       'Watermarked Documents',
@@ -118,6 +118,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
   const [selectedPrice, setSelectedPrice] = useState('');
 
   const handleTierClick = (planId: string, price: string) => {
+    // ONLY Free plan bypasses the payment modal
     if (planId === 'free') {
       onSelectPlan('free');
     } else {
@@ -204,9 +205,9 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
 
           <div className="mt-24 grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Small Business / Founding Member Deal */}
-            <div className="bg-slate-900 dark:bg-slate-800 rounded-3xl overflow-hidden shadow-2xl relative border border-slate-700">
-              <div className="absolute top-0 right-0 bg-amber-500 text-slate-900 text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
-                LIMITED TIME
+            <div className="bg-slate-900 dark:bg-slate-800 rounded-3xl overflow-hidden shadow-2xl relative border-4 border-amber-500 animate-[pulse_3s_infinite]">
+              <div className="absolute top-0 right-0 bg-amber-500 text-slate-900 text-sm font-black px-4 py-2 rounded-bl-lg z-10 shadow-lg">
+                ONLY 20 SPOTS
               </div>
               <div className="px-6 py-10 md:p-12 flex flex-col h-full">
                 <div className="flex items-center gap-3 mb-6">
@@ -214,36 +215,49 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
                     <Briefcase className="h-8 w-8 text-amber-500" />
                   </div>
                   <div>
-                    <h2 className="text-2xl font-bold text-white">
+                    <h2 className="text-3xl font-extrabold text-white">
                       Founding Member Deal
                     </h2>
-                    <p className="text-slate-400 text-sm">Strictly for Owner-Operators</p>
+                    <p className="text-amber-400 text-sm font-bold uppercase tracking-widest">Early Adopter Offer</p>
                   </div>
                 </div>
                 
-                <p className="text-slate-300 text-base mb-8 flex-grow">
-                  Stop paying monthly subscriptions. Get lifetime access to the Business Plan for a one-time payment.
+                <p className="text-slate-300 text-lg mb-8 flex-grow">
+                  I built this to kill my own admin nightmares. Be one of our first 20 users and get <strong>LIFETIME</strong> access to every single feature for a one-time price.
                 </p>
                 
-                <ul className="space-y-3 mb-8">
-                  <li className="flex items-center text-slate-300 text-sm">
-                    <Check className="h-4 w-4 text-amber-500 mr-3" />
-                    <strong>Lifetime Access</strong> (No monthly fees)
-                  </li>
-                  <li className="flex items-center text-slate-300 text-sm">
-                    <Check className="h-4 w-4 text-amber-500 mr-3" />
-                    <span className="text-amber-400 font-bold">Single User License Only</span>
-                  </li>
-                </ul>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                  <div className="flex items-center text-slate-300 text-sm">
+                    <Check className="h-5 w-5 text-amber-500 mr-3 flex-shrink-0" />
+                    <strong>No Monthly Fees</strong> (Pay Once)
+                  </div>
+                  <div className="flex items-center text-slate-300 text-sm">
+                    <Check className="h-5 w-5 text-amber-500 mr-3 flex-shrink-0" />
+                    <strong>All Future Updates</strong>
+                  </div>
+                  <div className="flex items-center text-slate-300 text-sm">
+                    <Check className="h-5 w-5 text-amber-500 mr-3 flex-shrink-0" />
+                    <strong>Premium Support</strong>
+                  </div>
+                  <div className="flex items-center text-slate-300 text-sm">
+                    <Check className="h-5 w-5 text-amber-500 mr-3 flex-shrink-0" />
+                    <strong>Business Plan Access</strong>
+                  </div>
+                </div>
                 
-                <div className="flex flex-col sm:flex-row gap-3 mt-auto">
+                <div className="flex flex-col gap-3 mt-auto">
+                  <div className="flex items-center gap-4 mb-2">
+                     <span className="text-slate-500 line-through text-2xl font-bold">$297</span>
+                     <span className="text-amber-400 text-4xl font-black">$199</span>
+                  </div>
                   <button 
-                    onClick={() => handleTierClick('business', '$297')}
-                    className="flex-1 inline-flex items-center justify-center px-4 py-3 border border-transparent text-sm font-bold rounded-md text-slate-900 bg-amber-500 hover:bg-amber-400 transition-colors"
+                    onClick={() => handleTierClick('business', '$199')}
+                    className="w-full inline-flex items-center justify-center px-6 py-4 border border-transparent text-xl font-black rounded-xl text-slate-900 bg-amber-500 hover:bg-amber-400 transition-all hover:scale-[1.02] shadow-[0_0_20px_rgba(245,158,11,0.4)]"
                   >
-                    Get Lifetime Deal ($297)
+                    Claim Lifetime Access ($199)
                   </button>
                 </div>
+                <p className="text-center text-slate-500 text-xs mt-4 italic">One-time payment. Ends when 20 spots are filled.</p>
               </div>
             </div>
 
