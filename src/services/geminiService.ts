@@ -410,7 +410,7 @@ export const generateFounderMarketingPost = async (platform: 'linkedin' | 'twitt
         - Background: Struggles with Epilepsy, ADHD, and Dyslexia.
         - Problem: Admin work was a prison. Procrastination, typos, and stress.
         - Solution: Built an AI that writes catering proposals and shopping lists in 10 seconds.
-        - **OFFER:** "Founding Member" Lifetime deal for ONLY $99. Only 20 spots available.
+        - **OFFER:** "Founding Member" Lifetime deal for ONLY $199. Only 20 spots available.
         - Goal: Get 20 customers before the year ends.
         
         **Platform Strategy:**
@@ -420,7 +420,7 @@ export const generateFounderMarketingPost = async (platform: 'linkedin' | 'twitt
         
         **Requirements:**
         - Use a "Hook" that stops the scroll.
-        - Mention the $99 Lifetime price clearly.
+        - Mention the $199 Lifetime price clearly.
         - Call to Action: "Click the link in bio to grab one of the 20 spots."
         
         Return ONLY the post text.
