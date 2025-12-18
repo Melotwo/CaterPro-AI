@@ -1,4 +1,4 @@
-import { GoogleGenAI, Modality, Type } from "@google/genai";
+import { GoogleGenAI, Type } from "@google/genai";
 import { Menu, Supplier, EducationContent } from "../types";
 
 export interface MenuGenerationParams {
@@ -44,6 +44,10 @@ function extractJson(text: string): any {
   }
 }
 
+/**
+ * Generates a full catering menu proposal.
+ * Uses gemini-2.5-flash as it is the only model supporting googleMaps tool for now.
+ */
 export const generateMenuFromApi = async ({
   eventType,
   guestCount,
@@ -154,6 +158,9 @@ export const generateMenuFromApi = async ({
   return { menu, totalChecklistItems };
 };
 
+/**
+ * Regenerates a specific menu item based on user instructions.
+ */
 export const regenerateMenuItemFromApi = async (originalItem: string, instruction: string): Promise<string> => {
     const prompt = `
       You are an expert chef modifying a menu item.
@@ -164,13 +171,16 @@ export const regenerateMenuItemFromApi = async (originalItem: string, instructio
     `;
     
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3-flash-preview',
         contents: prompt
     });
 
     return response.text.trim();
 };
 
+/**
+ * Generates a custom menu item from a description.
+ */
 export const generateCustomMenuItemFromApi = async (description: string, category: string): Promise<string> => {
     const prompt = `
         You are an expert chef creating a new menu item.
@@ -180,22 +190,22 @@ export const generateCustomMenuItemFromApi = async (description: string, categor
     `;
     
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3-flash-preview',
         contents: prompt
     });
 
     return response.text.trim();
 };
 
+/**
+ * Generates a food photograph using the gemini-2.5-flash-image model.
+ */
 export const generateMenuImageFromApi = async (title: string, description: string): Promise<string> => {
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
         contents: {
             parts: [{ text: `Generate a photorealistic, high-end culinary photograph of a catering spread that perfectly matches this title and description. The style should be Michelin-star quality: elegant plating, dramatic but soft lighting, and professional food styling suitable for Instagram or a high-end portfolio. Do not include any text or logos. Title: "${title}". Description: "${description}".` }],
-        },
-        config: {
-            responseModalities: [Modality.IMAGE],
-        },
+        }
     });
 
     for (const part of response.candidates[0].content.parts) {
@@ -206,6 +216,9 @@ export const generateMenuImageFromApi = async (title: string, description: strin
     throw new Error("No image was generated.");
 };
 
+/**
+ * Generates a product image using the Imagen 4.0 model.
+ */
 export const generateProductImageFromApi = async (productName: string, description: string): Promise<string> => {
     const prompt = `Professional product photography of ${productName}. ${description}. Showcase its elegant design and functionality in a high-end catering context. High resolution, studio lighting, photorealistic, commercial aesthetic, clean white background.`;
     
@@ -225,6 +238,9 @@ export const generateProductImageFromApi = async (productName: string, descripti
     throw new Error("No image was generated.");
 };
 
+/**
+ * Finds local suppliers using Google Maps grounding.
+ */
 export const findSuppliersNearby = async (latitude: number, longitude: number): Promise<Supplier[]> => {
     const prompt = "Find local catering suppliers, specialty food wholesalers, and commercial kitchen rental services near me. For each, provide its name and a brief description of its specialty.";
 
@@ -256,6 +272,9 @@ export const findSuppliersNearby = async (latitude: number, longitude: number): 
     return mappedSuppliers;
 };
 
+/**
+ * Generates a study guide or curriculum syllabus in JSON format.
+ */
 export const generateStudyGuideFromApi = async (
   topic: string, 
   curriculum: string, 
@@ -278,26 +297,37 @@ export const generateStudyGuideFromApi = async (
     3. **Key Vocabulary:** Important terms defined.
     4. **Assessment Criteria:** How the student will be judged (theoretical or practical).
     5. **Practical Exercises:** 3-5 concrete tasks or recipes to practice.
-
-    **IMPORTANT:**
-    Return the response as a valid JSON object matching this schema:
-    {
-      "title": "string",
-      "curriculum": "string",
-      "level": "string",
-      "overview": "string",
-      "modules": [{ "title": "string", "content": ["string"] }],
-      "keyVocabulary": ["string"],
-      "assessmentCriteria": ["string"],
-      "practicalExercises": ["string"]
-    }
   `;
 
   const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
+    model: "gemini-3-flash-preview",
     contents: prompt,
     config: {
-      responseMimeType: 'application/json'
+      responseMimeType: 'application/json',
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          title: { type: Type.STRING },
+          curriculum: { type: Type.STRING },
+          level: { type: Type.STRING },
+          overview: { type: Type.STRING },
+          modules: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                title: { type: Type.STRING },
+                content: { type: Type.ARRAY, items: { type: Type.STRING } }
+              },
+              propertyOrdering: ["title", "content"]
+            }
+          },
+          keyVocabulary: { type: Type.ARRAY, items: { type: Type.STRING } },
+          assessmentCriteria: { type: Type.ARRAY, items: { type: Type.STRING } },
+          practicalExercises: { type: Type.ARRAY, items: { type: Type.STRING } }
+        },
+        propertyOrdering: ["title", "curriculum", "level", "overview", "modules", "keyVocabulary", "assessmentCriteria", "practicalExercises"]
+      }
     }
   });
 
@@ -305,6 +335,9 @@ export const generateStudyGuideFromApi = async (
   return JSON.parse(response.text);
 };
 
+/**
+ * Generates a social media caption.
+ */
 export const generateSocialCaption = async (menuTitle: string, description: string, platform: 'instagram' | 'linkedin' | 'twitter' = 'instagram'): Promise<string> => {
     let platformSpecificInstructions = '';
     
@@ -347,13 +380,16 @@ export const generateSocialCaption = async (menuTitle: string, description: stri
     `;
     
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3-flash-preview',
         contents: prompt
     });
 
     return response.text.trim();
 };
 
+/**
+ * Generates a response to a social media comment.
+ */
 export const generateSocialReply = async (comment: string): Promise<string> => {
     const prompt = `
         You are a professional social media manager for 'CaterPro AI', an app that helps chefs generate menus.
@@ -370,13 +406,16 @@ export const generateSocialReply = async (comment: string): Promise<string> => {
     `;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3-flash-preview',
         contents: prompt
     });
 
     return response.text.trim();
 };
 
+/**
+ * Generates attention-grabbing viral hooks for social media.
+ */
 export const generateViralHook = async (menuTitle: string, description: string): Promise<string> => {
     const prompt = `
         You are a viral content strategist. Generate 3 short, punchy "hooks" (opening lines) for a social media video about this catering menu.
@@ -393,41 +432,43 @@ export const generateViralHook = async (menuTitle: string, description: string):
     `;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3-flash-preview',
         contents: prompt
     });
 
     return response.text.trim();
 };
 
+/**
+ * Generates a marketing post for the founder's launch.
+ */
 export const generateFounderMarketingPost = async (platform: 'linkedin' | 'twitter' | 'instagram'): Promise<string> => {
     const prompt = `
-        You are a copywriting expert for high-growth SaaS founders. 
-        Write a viral social media post for ${platform} to help the founder (Chef Tumi) sell his app 'CaterPro AI'.
+        You are a viral SaaS marketing specialist. Write a viral post for ${platform} to launch "CaterPro AI" for the Christmas season.
         
-        **Founder Story Context:**
-        - Founder: Chef Tumi
-        - Background: Struggles with Epilepsy, ADHD, and Dyslexia.
-        - Problem: Admin work was a prison. Procrastination, typos, and stress.
-        - Solution: Built an AI that writes catering proposals and shopping lists in 10 seconds.
-        - **OFFER:** "Founding Member" Lifetime deal for ONLY $199. Only 20 spots available.
-        - Goal: Get 20 customers before the year ends.
+        **CONTEXT:**
+        - It's nearly Christmas. Chefs are overwhelmed with menu requests.
+        - Founder: Chef Tumi.
+        - The Story: I built this because I struggled with Epilepsy/ADHD and hated the holiday paperwork stress.
+        - **THE OFFER:** I am looking for my **FIRST 50 USERS** to join as Founding Members.
+        - Price: $199 for LIFETIME ACCESS (One-time payment).
         
-        **Platform Strategy:**
-        - LinkedIn: Focus on vulnerability, ROI, and professional freedom. "I didn't think I could run a business with ADHD..."
-        - Twitter/X: Focus on "Build in Public" and aggressive speed. "I'm killing the paperwork monster for chefs. 20 spots left for life."
-        - Instagram: Focus on the "Before/After" lifestyle. From office stress to kitchen creativity.
+        **TONE:** 
+        - LinkedIn: Professional yet vulnerable. Focus on efficiency and freedom. "Christmas is the busiest time for chefs, but it shouldn't be the most stressful..."
+        - Twitter/X: High energy, bold, speed-focused. "I'm killing holiday admin for 50 chefs. 🎄 $199 for life. Who's in?"
+        - Instagram: Inspiring and aesthetic. Focus on the 'Chef Life' balance.
         
-        **Requirements:**
-        - Use a "Hook" that stops the scroll.
-        - Mention the $199 Lifetime price clearly.
-        - Call to Action: "Click the link in bio to grab one of the 20 spots."
+        **REQUIREMENTS:**
+        - Explicitly mention the "First 50 People" limit.
+        - Explicitly mention the $199 Lifetime Deal.
+        - Use festive emojis 🎅🎄🎆.
+        - Call to Action: "Click the link in my bio to grab one of the 50 spots."
         
-        Return ONLY the post text.
+        Return ONLY the text of the post.
     `;
 
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
+        model: 'gemini-3-flash-preview',
         contents: prompt
     });
 
@@ -436,10 +477,12 @@ export const generateFounderMarketingPost = async (platform: 'linkedin' | 'twitt
 
 export type VideoStyle = 'cinematic' | 'vibrant' | 'minimalist';
 
+/**
+ * Generates a vertical video commercial using the Veo model.
+ */
 export const generateSocialVideoFromApi = async (menuTitle: string, description: string, style: VideoStyle = 'cinematic'): Promise<string> => {
     
     // Only attempt the Key Selection dialog if we are in the specific Google AI Studio environment.
-    // In a normal web deployment, we skip this and rely on process.env.API_KEY.
     if (typeof window !== 'undefined' && (window as any).aistudio && (window as any).aistudio.hasSelectedApiKey) {
         const hasKey = await (window as any).aistudio.hasSelectedApiKey();
         if (!hasKey) {
@@ -450,10 +493,10 @@ export const generateSocialVideoFromApi = async (menuTitle: string, description:
         }
     }
 
-    // 2. Initialize AI with the key (Veo requires a paid key or specific project)
+    // Initialize AI with the key (Veo requires a paid key or specific project)
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-    // 3. Construct Prompt based on style
+    // Construct Prompt based on style
     let stylePrompt = '';
     switch(style) {
         case 'vibrant':
@@ -470,7 +513,7 @@ export const generateSocialVideoFromApi = async (menuTitle: string, description:
 
     const videoPrompt = `${stylePrompt} Vertical food commercial for "${menuTitle}". ${description}. High-end professional food photography.`;
 
-    // 4. Call Veo Model
+    // Call Veo Model
     let operation = await ai.models.generateVideos({
         model: 'veo-3.1-fast-generate-preview',
         prompt: videoPrompt,
@@ -481,17 +524,17 @@ export const generateSocialVideoFromApi = async (menuTitle: string, description:
         }
     });
 
-    // 5. Poll for completion
+    // Poll for completion
     while (!operation.done) {
         await new Promise(resolve => setTimeout(resolve, 5000)); // Poll every 5s
         operation = await ai.operations.getVideosOperation({operation: operation});
     }
 
-    // 6. Get Video URI
+    // Get Video URI
     const videoUri = operation.response?.generatedVideos?.[0]?.video?.uri;
     if (!videoUri) throw new Error("Video generation failed to return a URI.");
 
-    // 7. Fetch Video Blob
+    // Fetch Video Blob with API key as required by guidelines
     const response = await fetch(`${videoUri}&key=${process.env.API_KEY}`);
     if (!response.ok) throw new Error("Failed to download generated video.");
     
