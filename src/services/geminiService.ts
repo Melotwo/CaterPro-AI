@@ -318,16 +318,16 @@ export const generateSocialCaption = async (menuTitle: string, description: stri
     } else if (platform === 'twitter') {
         platformSpecificInstructions = `
             - Tone: Punchy, exciting, concise.
-            - Length: Strictly under 270 characters (leave room for link).
+            - Length: Strictly under 200 characters (MUST leave room for the link).
             - Format: Short sentences.
-            - Call to Action: "DM for details."
+            - Call to Action: "Try it free: https://caterpro-ai.web.app/"
         `;
     } else {
         // Instagram (Default)
         platformSpecificInstructions = `
             - Tone: Aesthetic, exciting, visual.
             - Format: Use emojis liberally. Use line breaks.
-            - Call to Action: "DM for bookings."
+            - Call to Action: "Link in bio for bookings."
             - Hashtags: Include 10 relevant hashtags.
         `;
     }
@@ -390,6 +390,40 @@ export const generateViralHook = async (menuTitle: string, description: string):
         3. **The 'Behind the Scenes' Hook:** (e.g., "POV: You have to plate 200 of these in 10 mins...")
         
         Return the 3 hooks as a simple bulleted list.
+    `;
+
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash',
+        contents: prompt
+    });
+
+    return response.text.trim();
+};
+
+export const generateFounderMarketingPost = async (platform: 'linkedin' | 'twitter' | 'instagram'): Promise<string> => {
+    const prompt = `
+        You are a copywriting expert for high-growth SaaS founders. 
+        Write a viral social media post for ${platform} to help the founder (Chef Tumi) sell his app 'CaterPro AI'.
+        
+        **Founder Story Context:**
+        - Founder: Chef Tumi
+        - Background: Struggles with Epilepsy, ADHD, and Dyslexia.
+        - Problem: Admin work was a prison. Procrastination, typos, and stress.
+        - Solution: Built an AI that writes catering proposals and shopping lists in 10 seconds.
+        - **OFFER:** "Founding Member" Lifetime deal for ONLY $99. Only 20 spots available.
+        - Goal: Get 20 customers before the year ends.
+        
+        **Platform Strategy:**
+        - LinkedIn: Focus on vulnerability, ROI, and professional freedom. "I didn't think I could run a business with ADHD..."
+        - Twitter/X: Focus on "Build in Public" and aggressive speed. "I'm killing the paperwork monster for chefs. 20 spots left for life."
+        - Instagram: Focus on the "Before/After" lifestyle. From office stress to kitchen creativity.
+        
+        **Requirements:**
+        - Use a "Hook" that stops the scroll.
+        - Mention the $99 Lifetime price clearly.
+        - Call to Action: "Click the link in bio to grab one of the 20 spots."
+        
+        Return ONLY the post text.
     `;
 
     const response = await ai.models.generateContent({
