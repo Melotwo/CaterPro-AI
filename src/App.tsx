@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle, Link, ShoppingBag, ChefHat, ShieldCheck, Smartphone, X, Zap, FileText, MousePointerClick, Megaphone, Film } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle, Link, ShoppingBag, ChefHat, ShieldCheck, Smartphone, X, Zap, FileText, MousePointerClick, Megaphone, Film, Rocket, Timer } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -95,7 +95,8 @@ const App: React.FC = () => {
     showUpgradeModal,
     attemptAccess, 
     generationsLeft,
-    canAccessFeature
+    canAccessFeature,
+    maxFreeGenerations
   } = useAppSubscription();
 
 
@@ -138,7 +139,7 @@ const App: React.FC = () => {
   const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
   const [socialCaption, setSocialCaption] = useState('');
   const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
-  const [socialModalMode, setSocialModalMode] = useState<'create' | 'reply' | 'video'>('create');
+  const [socialModalMode, setSocialModalMode] = useState<'create' | 'reply' | 'video' | 'sell'>('create');
 
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -739,13 +740,13 @@ const App: React.FC = () => {
     }
   };
 
-  const handleOpenSocialModal = async (mode: 'create' | 'reply' | 'video' = 'create') => {
+  const handleOpenSocialModal = async (mode: 'create' | 'reply' | 'video' | 'sell' = 'create') => {
     if (!menu) return;
     
     setSocialModalMode(mode);
     setIsSocialModalOpen(true);
 
-    if (!socialCaption && mode !== 'video') {
+    if (!socialCaption || mode === 'sell') {
         setIsGeneratingCaption(true);
         try {
             const caption = await generateSocialCaption(menu.menuTitle, menu.description);
@@ -878,6 +879,33 @@ const App: React.FC = () => {
         onViewLanding={handleViewLanding}
       />
       
+      {/* FOUNDING MEMBER SALES BANNER */}
+      {subscription.plan === 'free' && (
+          <div className="no-print bg-amber-500 text-slate-900 py-3 px-4 shadow-lg sticky top-16 z-40 animate-pulse-slow">
+              <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                      <div className="bg-slate-900 text-amber-500 p-1.5 rounded-lg shadow-inner">
+                          <Rocket className="w-5 h-5" />
+                      </div>
+                      <p className="text-sm font-black uppercase tracking-tight">
+                          Founding Member Lifetime Deal: <span className="underline decoration-slate-900/30">Business Access for $199</span> (Normally $297)
+                      </p>
+                  </div>
+                  <div className="flex items-center gap-3">
+                      <div className="hidden md:flex items-center gap-1.5 px-2 py-1 bg-slate-900/10 rounded-md text-xs font-bold border border-slate-900/20">
+                          <Timer size={14} /> 20 spots left
+                      </div>
+                      <button 
+                        onClick={() => setShowUpgradeModal(true)}
+                        className="bg-slate-900 text-white px-4 py-1.5 rounded-full text-xs font-black hover:bg-slate-800 transition-all shadow-md active:scale-95"
+                      >
+                          Claim My Spot
+                      </button>
+                  </div>
+              </div>
+          </div>
+      )}
+
        {showPwaBanner && (
          <div className="no-print fixed bottom-2 left-2 z-50 bg-white dark:bg-slate-800 p-3 rounded-lg shadow-lg border border-slate-200 dark:border-slate-700 flex items-center gap-4 animate-toast-in max-w-sm pb-[env(safe-area-inset-bottom)]">
            <Smartphone className="w-6 h-6 text-primary-500 flex-shrink-0" />
@@ -905,13 +933,15 @@ const App: React.FC = () => {
           {/* UPDATED: Clickable Plan Badge */}
           <button 
             onClick={() => setShowUpgradeModal(true)}
-            className="mt-4 inline-flex items-center justify-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full"
+            className="mt-4 inline-flex items-center justify-center gap-2 text-sm font-semibold text-slate-500 dark:text-slate-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700"
             title="Click to change plan"
           >
             <ShieldCheck className="w-5 h-5 text-green-500" />
             <span>{subscription.plan.charAt(0).toUpperCase() + subscription.plan.slice(1)} Plan</span>
             {!canAccessFeature('unlimitedGenerations') && (
-              <span>&bull; {generationsLeft} generations left today</span>
+              <span className="ml-1 border-l border-slate-300 dark:border-slate-600 pl-2">
+                {generationsLeft} of {maxFreeGenerations} left
+              </span>
             )}
           </button>
         </header>
@@ -1132,9 +1162,17 @@ const App: React.FC = () => {
                     <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2.5">
                         <div className="bg-primary-500 h-2.5 rounded-full transition-all duration-500" style={{ width: `${completionPercentage}%` }}></div>
                     </div>
-                    <p className="text-right text-sm font-medium text-slate-600 dark:text-slate-400 mt-1.5">
-                        {Math.round(completionPercentage)}% Complete ({checkedItems.size} / {totalChecklistItems} items)
-                    </p>
+                    <div className="flex justify-between items-center mt-1.5">
+                        <button 
+                          onClick={() => handleOpenSocialModal('sell')}
+                          className="text-xs font-bold text-amber-600 dark:text-amber-400 hover:underline flex items-center gap-1"
+                        >
+                          <Rocket size={12} /> Sell the app to other chefs
+                        </button>
+                        <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
+                            {Math.round(completionPercentage)}% Complete ({checkedItems.size} / {totalChecklistItems} items)
+                        </p>
+                    </div>
                 </div>
               </div>
               
