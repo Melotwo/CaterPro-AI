@@ -188,17 +188,33 @@ export const generateStudyGuideFromApi = async (topic: string, curriculum: strin
   return JSON.parse(response.text);
 };
 
-export const generateSocialCaption = async (menuTitle: string, description: string, platform: 'instagram' | 'linkedin' | 'twitter' = 'instagram'): Promise<string> => {
+export const generateSocialCaption = async (menuTitle: string, description: string, platform: 'instagram' | 'linkedin' | 'twitter' | 'pinterest' = 'instagram'): Promise<string> => {
     const prompt = `
         Write a viral ${platform} caption for: "${menuTitle}". ${description}. 
         
         STRICT PLATFORM RULES:
-        - If platform is 'twitter' or 'X': The response MUST be UNDER 200 CHARACTERS. Be very punchy. 
-        - If platform is 'linkedin': Focus on efficiency, ROI, and professional storytelling.
-        - If platform is 'instagram': Use emojis, hashtags, and visual language.
+        - If 'twitter/X': UNDER 200 CHARACTERS. Punchy.
+        - If 'linkedin': Focus on efficiency, ROI, and professional storytelling.
+        - If 'instagram': Use emojis, hashtags, and visual language.
+        - If 'pinterest': Focus on "How-to", "Inspiration", and "Ideas". Use list-style formatting.
         
-        PERFECT SPELLING MANDATORY. NO TYPOS. Professional culinary vocabulary. 
+        PERFECT SPELLING MANDATORY. NO TYPOS. 
         Include Call to action: https://caterpro-ai.web.app/
+    `;
+    const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: prompt
+    });
+    return response.text.trim();
+};
+
+export const generateInstagramBio = async (founderName: string, appGoal: string): Promise<string> => {
+    const prompt = `
+        Write 3 high-converting Instagram bio options for a founder named "${founderName}".
+        App: CaterPro AI.
+        Value: ${appGoal}. 
+        Constraint: Use emojis, line breaks, and clear Call to Actions. Focus on solving the "Paperwork Nightmare" for chefs.
+        Include a nod to the "ADHD/Dyslexia-friendly" aspect.
     `;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -218,10 +234,9 @@ export const generateSocialReply = async (comment: string, context: string = '',
         **STRICT RULES:**
         1. DO NOT just pitch the app. 
         2. Add genuine value, advice, or a witty culinary observation first. 
-        3. If mentioning "CaterPro AI", do it naturally as a resource for the specific problem (e.g., "I use CaterPro AI for my prep lists to stop the Sunday night scaries").
-        4. Keep it human and conversational. Avoid corporate speak.
-        5. NO SALESY LANGUAGE. NO "BUY NOW".
-        6. PERFECT SPELLING MANDATORY.
+        3. If mentioning "CaterPro AI", do it naturally as a resource for the specific problem.
+        4. Keep it human and conversational.
+        5. PERFECT SPELLING MANDATORY.
     `;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -239,14 +254,15 @@ export const generateViralHook = async (menuTitle: string, description: string):
     return response.text.trim();
 };
 
-export const generateFounderMarketingPost = async (platform: 'linkedin' | 'twitter' | 'instagram'): Promise<string> => {
+export const generateFounderMarketingPost = async (platform: 'linkedin' | 'twitter' | 'instagram' | 'pinterest'): Promise<string> => {
     const prompt = `
         Write a viral launch post for ${platform} for "CaterPro AI". 
-        **CONTEXT:** Founder: Tumi Seroka. Story: Built because ADHD/Dyslexia made holiday paperwork a nightmare. OFFER: FIRST 50 PEOPLE. PRICE: $199 LIFETIME.
+        **CONTEXT:** Founder: Melotwo. Story: Built because ADHD/Dyslexia made holiday paperwork a nightmare. OFFER: FIRST 50 PEOPLE. PRICE: $199 LIFETIME.
         **STRICT PLATFORM RULES:**
-        - LinkedIn: Professional storytelling (ADHD focus).
-        - X/Twitter: STRICTLY UNDER 180 CHARACTERS.
+        - LinkedIn: Professional storytelling.
+        - X/Twitter: UNDER 180 CHARACTERS.
         - Instagram: Aesthetic and lifestyle.
+        - Pinterest: "Ultimate Checklist for Chefs" style.
         **STRICT RULE:** 100% PERFECT SPELLING.
     `;
     const response = await ai.models.generateContent({
@@ -262,7 +278,7 @@ export const generateSocialVideoFromApi = async (menuTitle: string, description:
     const videoPrompt = `
         Cinematic, slow-motion vertical commercial for "${menuTitle}". ${description}. 
         Style: ${style}. 
-        STRICT RULE: NO TEXT OVERLAYS. Focus purely on high-end food textures.
+        STRICT RULE: NO TEXT OVERLAYS.
     `;
 
     let operation = await ai.models.generateVideos({
