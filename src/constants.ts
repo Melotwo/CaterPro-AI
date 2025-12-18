@@ -50,10 +50,12 @@ export const SERVICE_STYLES = [
 ];
 
 export const CUISINES = [
-  'Any',
+  'Any / International',
   'South African',
   'African',
+  'Croatian / Balkan',
   'Italian',
+  'Mediterranean',
   'Mexican',
   'Chinese',
   'Indian',
@@ -63,7 +65,6 @@ export const CUISINES = [
   'Greek',
   'Spanish',
   'American',
-  'Mediterranean',
 ];
 
 export const DIETARY_RESTRICTIONS = [
@@ -74,11 +75,11 @@ export const DIETARY_RESTRICTIONS = [
 ];
 
 export const CURRICULUM_STANDARDS = [
+  { id: 'generic', label: 'General International Standard (Global)' },
   { id: 'city_guilds_sa', label: 'City & Guilds (South Africa/Intl)' },
   { id: 'qcto_sa', label: 'QCTO (South Africa - Occupational)' },
   { id: 'cia_usa', label: 'Culinary Institute of America (USA)' },
   { id: 'tafe_aus', label: 'TAFE (Australia)' },
-  { id: 'generic', label: 'General International Standard' },
 ];
 
 export const EDUCATION_LEVELS = [
@@ -128,7 +129,7 @@ export const exampleScenarios = [
     title: 'Hospital Recovery Menu',
     eventType: 'Hospital / Patient Catering',
     guestCount: '100-500 (Institutional)',
-    cuisine: 'Any',
+    cuisine: 'Any / International',
     budget: '$',
     serviceStyle: 'Hospital Tray Service',
     dietaryRestrictions: ['Low Sodium (Cardiac)', 'Soft Food / Pureed'],
