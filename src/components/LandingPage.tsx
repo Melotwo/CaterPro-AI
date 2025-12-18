@@ -47,27 +47,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
     }
   ];
 
-  const testimonials = [
-    {
-      name: "Chef Marcus",
-      role: "Private Chef",
-      text: "I used to spend my Sundays staring at a blank screen. Now I get them done in 10 minutes. It's a lifesaver.",
-      stars: 5
-    },
-    {
-      name: "Sarah J.",
-      role: "Catering Owner",
-      text: "I have ADHD and the admin side was drowning me. CaterPro AI handles the boring stuff so I can focus on the food.",
-      stars: 5
-    },
-    {
-      name: "David K.",
-      role: "Event Planner",
-      text: "The shopping list feature alone is worth it. It breaks everything down by aisle. No more forgotten ingredients.",
-      stars: 5
-    }
-  ];
-
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans">
       {/* --- HERO SECTION --- */}
