@@ -50,11 +50,14 @@ const AiChatBot: React.FC<{
         scrollToBottom();
     }, [messages, isLoading]);
     
+    /**
+     * Initializes the Gemini Chat session.
+     */
     const initializeChat = () => {
         try {
             const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
             chatRef.current = ai.chats.create({
-              model: 'gemini-2.5-flash',
+              model: 'gemini-3-flash-preview',
               config: {
                 systemInstruction: 'You are a friendly and professional AI Catering Consultant and culinary expert. Your primary role is to help users refine their generated menu proposals by providing specific, actionable advice about individual dishes. Focus on suggesting ingredient substitutions (e.g., "To make the risotto dairy-free, you can use a high-quality olive oil instead of butter and nutritional yeast for a cheesy flavor.") and alternative cooking methods (e.g., "For a lighter version of the chicken piccata, you could bake the chicken instead of pan-frying it."). Also, continue to offer advice on wine pairings and service logistics. Keep your answers concise, helpful, and encouraging. Do not generate full menu proposals, only answer questions about them.',
               },
