@@ -1,7 +1,11 @@
-import { Briefcase, Heart, PartyPopper, Stethoscope, User, UtensilsCrossed } from 'lucide-react';
+import { Briefcase, Heart, PartyPopper, Stethoscope, User, UtensilsCrossed, Gift } from 'lucide-react';
 import { MenuSection, PpeProduct } from './types';
 
 export const EVENT_TYPES = [
+  'Christmas Day Feast 🎅',
+  'Christmas Eve Dinner',
+  'Holiday Office Party',
+  'New Year\'s Eve Gala 🎆',
   'Corporate Lunch',
   'Wedding Reception',
   'Hospital / Patient Catering',
@@ -105,6 +109,16 @@ export const EDUCATION_TOPICS = [
 
 export const exampleScenarios = [
   {
+    IconComponent: Gift,
+    title: 'Grand Christmas Feast 🎄',
+    eventType: 'Christmas Day Feast 🎅',
+    guestCount: '10-20',
+    cuisine: 'Mediterranean',
+    budget: '$$$',
+    serviceStyle: 'Family Style',
+    dietaryRestrictions: ['Gluten-Free'],
+  },
+  {
     IconComponent: PartyPopper,
     title: 'South African Wedding',
     eventType: 'Wedding Reception',
@@ -133,16 +147,6 @@ export const exampleScenarios = [
     budget: '$',
     serviceStyle: 'Hospital Tray Service',
     dietaryRestrictions: ['Low Sodium (Cardiac)', 'Soft Food / Pureed'],
-  },
-  {
-    IconComponent: User,
-    title: 'Weekly Meal Prep',
-    eventType: 'Individual Meal Prep (Weekly)',
-    guestCount: '1 (Individual)',
-    cuisine: 'Mediterranean',
-    budget: '$$',
-    serviceStyle: 'Meal Prep Containers',
-    dietaryRestrictions: ['High Protein (Recovery)', 'Keto'],
   },
 ];
 
