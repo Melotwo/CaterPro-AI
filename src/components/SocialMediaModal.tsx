@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Image as ImageIcon, Check, RefreshCw, Linkedin, Twitter, MessageCircle, Send, Film, Play, Zap, GraduationCap, ArrowRight, Loader2, Mail } from 'lucide-react';
+import { X, Copy, Image as ImageIcon, Check, RefreshCw, Linkedin, Twitter, MessageCircle, Send, Film, Play, Zap, GraduationCap, ArrowRight, Loader2, Mail, Pin } from 'lucide-react';
 import { generateSocialCaption, generateSocialVideoFromApi, generateAssignmentEmail } from '../services/geminiService';
 
 interface SocialMediaModalProps {
@@ -12,7 +12,7 @@ interface SocialMediaModalProps {
   initialMode?: Mode;
 }
 
-type Platform = 'instagram' | 'linkedin' | 'twitter' | 'email';
+type Platform = 'instagram' | 'linkedin' | 'twitter' | 'pinterest';
 type Mode = 'create' | 'pitch' | 'video';
 
 const SocialMediaModal: React.FC<SocialMediaModalProps> = ({ 
@@ -32,7 +32,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
       setVideoUrl(null);
       
       if (initialMode === 'pitch') {
-        handleGenerate('email');
+        handleGenerate('instagram');
       } else if (initialMode === 'create') {
         handleGenerate('instagram');
       }
@@ -136,8 +136,8 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                                 </div>
                             )}
                         </div>
-                        <div className="grid grid-cols-3 gap-3">
-                            {(['instagram', 'linkedin', 'twitter'] as Platform[]).map(p => (
+                        <div className="grid grid-cols-4 gap-2">
+                            {(['instagram', 'linkedin', 'twitter', 'pinterest'] as Platform[]).map(p => (
                                 <button 
                                     key={p} 
                                     onClick={() => { setActivePlatform(p); handleGenerate(p); }}
@@ -146,6 +146,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                                     {p === 'instagram' && <ImageIcon size={18} />}
                                     {p === 'linkedin' && <Linkedin size={18} />}
                                     {p === 'twitter' && <Twitter size={18} />}
+                                    {p === 'pinterest' && <Pin size={18} />}
                                     <span className="text-[10px] font-bold uppercase">{p}</span>
                                 </button>
                             ))}
@@ -156,7 +157,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                             className="w-full py-4 bg-primary-600 text-white rounded-2xl font-black shadow-xl flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                             {isGenerating ? <Loader2 className="animate-spin" size={20} /> : <Zap size={20} />}
-                            {isGenerating ? 'Writing Post...' : 'Generate AI Caption'}
+                            {isGenerating ? 'Writing AI Content...' : `Write for ${activePlatform}`}
                         </button>
                     </div>
                 ) : (
@@ -193,7 +194,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
             <div className="md:w-1/2 flex flex-col bg-white dark:bg-slate-900">
                 <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
                     <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">
-                        {activeMode === 'pitch' ? 'Email Content' : 'AI Draft'}
+                        {activeMode === 'pitch' ? 'Email Content' : 'AI Content Output'}
                     </h4>
                     {isGenerating && <Loader2 size={16} className="text-primary-500 animate-spin" />}
                 </div>
@@ -237,4 +238,4 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
   );
 };
 
-export default SocialMediaModal;
+export default SocialMediaModal
