@@ -18,26 +18,11 @@ export interface MenuGenerationResult {
   totalChecklistItems: number;
 }
 
-// Instantiate the GoogleGenAI client once and reuse it for all API calls.
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
-// Helper function to extract JSON from Markdown code blocks
-function extractJson(text: string): any {
-  try {
-    return JSON.parse(text);
-  } catch (e) {
-    const match = text.match(/```json([\s\S]*?)```/);
-    if (match) return JSON.parse(match[1]);
-    const matchGeneric = text.match(/```([\s\S]*?)```/);
-    if (matchGeneric) {
-        try { return JSON.parse(matchGeneric[1]); } catch (e2) { }
-    }
-    throw new Error("Failed to parse JSON response from AI.");
-  }
-}
-
 /**
- * Generates a full catering menu proposal.
+ * Generates a full catering menu proposal using Gemini 3 Flash.
+ * Uses responseSchema to ensure valid JSON matching the Menu interface.
  */
 export const generateMenuFromApi = async ({
   eventType,
@@ -51,36 +36,98 @@ export const generateMenuFromApi = async ({
 }: MenuGenerationParams): Promise<MenuGenerationResult> => {
   
   const prompt = `
-    You are an expert catering menu planner. 
-    STRICT RULE: Spelling must be 100% accurate, especially for culinary terms (e.g., 'Hors d'oeuvres', 'Charcuterie').
+    You are an expert Michelin-star catering menu planner. 
+    Create a professional, detailed menu proposal for the following event:
     
-    **Event Details:**
-    - **Event Type:** ${eventType}
-    - **Number of Guests:** ${guestCount}
-    - **Budget Level:** ${budget}
-    - **Service Style:** ${serviceStyle}
-    - **Cuisine Style:** ${cuisine}
-    - **Dietary Restrictions:** ${dietaryRestrictions.join(', ') || 'None'}
+    - Event Type: ${eventType}
+    - Guests: ${guestCount}
+    - Budget: ${budget}
+    - Service: ${serviceStyle}
+    - Cuisine: ${cuisine}
+    - Dietary Restrictions: ${dietaryRestrictions.join(', ') || 'None'}
 
-    Return the response as a VALID JSON object matching the provided schema.
+    STRICT RULES:
+    1. Spelling must be 100% accurate (e.g., 'Hors d'oeuvres', 'Mise en place').
+    2. The menu must be sophisticated and appropriate for the budget level.
+    3. Include a detailed shopping list organized by store/category.
+    4. Provide beverage pairings for specific items.
+    5. Include precise Mise en place and service notes.
+    6. Include a 'deliveryFeeStructure' for logic calculations.
   `;
   
   const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
+    model: "gemini-3-flash-preview",
     contents: prompt,
     config: {
-      tools: [{ googleMaps: {} }],
-      toolConfig: latitude && longitude ? {
-        retrievalConfig: {
-          latLng: { latitude, longitude }
-        }
-      } : undefined
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          menuTitle: { type: Type.STRING },
+          description: { type: Type.STRING },
+          appetizers: { type: Type.ARRAY, items: { type: Type.STRING } },
+          mainCourses: { type: Type.ARRAY, items: { type: Type.STRING } },
+          sideDishes: { type: Type.ARRAY, items: { type: Type.STRING } },
+          dessert: { type: Type.ARRAY, items: { type: Type.STRING } },
+          dietaryNotes: { type: Type.ARRAY, items: { type: Type.STRING } },
+          beveragePairings: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                menuItem: { type: Type.STRING },
+                pairingSuggestion: { type: Type.STRING }
+              }
+            }
+          },
+          miseEnPlace: { type: Type.ARRAY, items: { type: Type.STRING } },
+          serviceNotes: { type: Type.ARRAY, items: { type: Type.STRING } },
+          deliveryLogistics: { type: Type.ARRAY, items: { type: Type.STRING } },
+          deliveryFeeStructure: {
+            type: Type.OBJECT,
+            properties: {
+              baseFee: { type: Type.NUMBER },
+              perUnitRate: { type: Type.NUMBER },
+              unit: { type: Type.STRING },
+              currency: { type: Type.STRING }
+            }
+          },
+          shoppingList: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                store: { type: Type.STRING },
+                category: { type: Type.STRING },
+                item: { type: Type.STRING },
+                quantity: { type: Type.STRING },
+                description: { type: Type.STRING },
+                affiliateSearchTerm: { type: Type.STRING },
+                estimatedCost: { type: Type.STRING },
+                brandSuggestion: { type: Type.STRING }
+              }
+            }
+          },
+          recommendedEquipment: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                item: { type: Type.STRING },
+                description: { type: Type.STRING }
+              }
+            }
+          }
+        },
+        required: ["menuTitle", "description", "appetizers", "mainCourses", "shoppingList"]
+      },
+      tools: [{ googleSearch: {} }]
     }
   });
 
   if (!response.text) throw new Error("AI returned an empty response.");
 
-  const menu: Menu = extractJson(response.text);
+  const menu: Menu = JSON.parse(response.text);
 
   if (response.candidates?.[0]?.groundingMetadata?.groundingChunks) {
     menu.groundingChunks = response.candidates[0].groundingMetadata.groundingChunks;
@@ -155,7 +202,8 @@ export const findSuppliersNearby = async (latitude: number, longitude: number): 
             toolConfig: { retrievalConfig: { latLng: { latitude, longitude } } }
         },
     });
-    const suppliers: Omit<Supplier, 'mapsUri' | 'title'>[] = extractJson(response.text);
+    
+    const suppliers: Omit<Supplier, 'mapsUri' | 'title'>[] = JSON.parse(response.text);
     const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
     return suppliers.map(supplier => {
         const matchingChunk = chunks.find(chunk => chunk.maps?.title?.toLowerCase().includes(supplier.name.toLowerCase()));
