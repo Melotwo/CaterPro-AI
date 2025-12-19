@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle, Link, ShoppingBag, ChefHat, ShieldCheck, Smartphone, X, Zap, FileText, MousePointerClick, Megaphone, Film, Rocket, Timer, GraduationCap } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, Printer, FileDown, Copy, Sparkles, Megaphone, GraduationCap, ChevronRight } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -17,21 +17,16 @@ import MultiSelectDropdown from './components/MultiSelectDropdown';
 import GenerationHistory from './components/GenerationHistory';
 import CustomizationModal from './components/CustomizationModal';
 import EmailCapture from './components/EmailCapture';
-import ProductCard from './components/ProductCard';
-import QuoteModal from './components/QuoteModal';
-import ProductSearchBar from './components/ProductSearchBar';
-import FindChef from './components/FindChef';
 import PricingPage from './components/PricingPage';
 import UpgradeModal from './components/UpgradeModal';
-import StudyGuideGenerator from './components/StudyGuideGenerator';
 import PwaInstallModal from './components/PwaInstallModal';
 import LandingPage from './components/LandingPage';
 import FounderRoadmap from './components/FounderRoadmap';
 import { useAppSubscription, type SubscriptionPlan } from './hooks/useAppSubscription';
-import { exampleScenarios, CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, EDITABLE_MENU_SECTIONS, RECOMMENDED_PRODUCTS, PROPOSAL_THEMES } from './constants';
-import { SavedMenu, ErrorState, ValidationErrors, GenerationHistoryItem, Menu, MenuSection, PpeProduct, Supplier } from './types';
+import { CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES } from './constants';
+import { SavedMenu, ErrorState, ValidationErrors, Menu, MenuSection } from './types';
 import { getApiErrorState } from './services/apiErrorHandler';
-import { generateMenuFromApi, generateCustomMenuItemFromApi, generateMenuImageFromApi, findSuppliersNearby, generateSocialCaption } from './services/geminiService';
+import { generateMenuFromApi } from './services/geminiService';
 
 const LOADING_MESSAGES = [
   'Consulting with the master chefs...',
@@ -39,11 +34,7 @@ const LOADING_MESSAGES = [
   'Finalizing the menu details...',
   'Preparing your proposal...',
   'Organizing your shopping list...',
-  'Calculating logistics...',
 ];
-
-const CHECKED_ITEMS_STORAGE_KEY = 'caterpro-checked-items';
-const formInputStyle = "mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 dark:focus:ring-offset-slate-950 transition-colors sm:text-sm text-slate-900 dark:text-white";
 
 const App: React.FC = () => {
   const [eventType, setEventType] = useState('');
@@ -56,7 +47,7 @@ const App: React.FC = () => {
   const [proposalTheme, setProposalTheme] = useState('classic');
   
   const [isLoading, setIsLoading] = useState(false);
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
   const [error, setError] = useState<ErrorState | null>(null);
   const [menu, setMenu] = useState<Menu | null>(null);
   
@@ -70,49 +61,27 @@ const App: React.FC = () => {
   });
 
   const [savedMenus, setSavedMenus] = useState<SavedMenu[]>([]);
-  const [generationHistory, setGenerationHistory] = useState<GenerationHistoryItem[]>([]);
   const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0]);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
-  const [totalChecklistItems, setTotalChecklistItems] = useState(0);
   const [isAppVisible, setIsAppVisible] = useState(false);
-  const [showPwaBanner, setShowPwaBanner] = useState(false);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
   const [showLanding, setShowLanding] = useState(true);
 
-  const { subscription, selectPlan, recordGeneration, setShowUpgradeModal, showUpgradeModal, attemptAccess, generationsLeft, canAccessFeature, maxFreeGenerations } = useAppSubscription();
+  const { subscription, selectPlan, recordGeneration, setShowUpgradeModal, showUpgradeModal, attemptAccess, canAccessFeature } = useAppSubscription();
 
   const [isCustomizationModalOpen, setIsCustomizationModalOpen] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<{ section: MenuSection; index: number; text: string } | null>(null);
-  const [bulkSelectedItems, setBulkSelectedItems] = useState<Set<string>>(new Set());
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [shareUrl, setShareUrl] = useState('');
   const [isEmailCaptureModalOpen, setIsEmailCaptureModalOpen] = useState(false);
-  const [customItemDescription, setCustomItemDescription] = useState('');
-  const [customItemCategory, setCustomItemCategory] = useState<MenuSection>('appetizers');
-  const [isGeneratingCustomItem, setIsGeneratingCustomItem] = useState(false);
-  const [customItemError, setCustomItemError] = useState<ErrorState | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<PpeProduct | null>(null);
-  const [suppliers, setSuppliers] = useState<Supplier[] | null>(null);
-  const [isFindingSuppliers, setIsFindingSuppliers] = useState(false);
-  const [findSuppliersError, setFindSuppliersError] = useState<ErrorState | null>(null);
-  const [deliveryRadius, setDeliveryRadius] = useState('');
-  const [calculatedFee, setCalculatedFee] = useState<string | null>(null);
   const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
-  const [socialCaption, setSocialCaption] = useState('');
-  const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
-  const [socialModalMode, setSocialModalMode] = useState<'create' | 'reply' | 'video' | 'sell' | 'profile' | 'pitch'>('create');
+  const [socialModalMode, setSocialModalMode] = useState<'create' | 'pitch' | 'video'>('create');
 
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const isDark = localStorage.getItem('theme') === 'dark';
-    if (localStorage.getItem('theme')) setIsDarkMode(isDark);
     const hasSelectedPlan = localStorage.getItem('caterpro-subscription');
     if (hasSelectedPlan) {
       setIsAppVisible(true);
@@ -130,7 +99,6 @@ const App: React.FC = () => {
     }
   }, [isDarkMode]);
 
-  // Loading message cycler
   useEffect(() => {
     if (isLoading) {
       let i = 0;
@@ -143,66 +111,32 @@ const App: React.FC = () => {
   }, [isLoading]);
 
   const toggleTheme = () => setIsDarkMode(prev => !prev);
-  const handleResetApp = () => {
-    if (window.confirm("This will sign you out and return you to the landing page. Your saved menus will remain safe. Continue?")) {
-        localStorage.removeItem('caterpro-subscription');
-        window.location.reload();
-    }
-  };
-  const handleViewLanding = () => {
-      setShowLanding(true);
-      setIsAppVisible(false);
-  };
-
-  const handleToggleChecklistItem = (key: string) => {
-    setCheckedItems(prev => {
-      const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
-  };
-
-  const handleOpenCustomizationModal = (section: MenuSection, index: number) => {
-    if (!menu) return;
-    const sectionItems = menu[section];
-    if (sectionItems && Array.isArray(sectionItems) && typeof sectionItems[index] === 'string') {
-      setItemToEdit({ section, index, text: sectionItems[index] as string });
-      setIsCustomizationModalOpen(true);
-    }
-  };
-
-  const handleUpdateShoppingItemQuantity = (itemIndex: number, newQuantity: string) => {
-    if (!menu || !menu.shoppingList) return;
-    const newShoppingList = [...menu.shoppingList];
-    newShoppingList[itemIndex] = { ...newShoppingList[itemIndex], quantity: newQuantity };
-    setMenu({ ...menu, shoppingList: newShoppingList });
-  };
-
-  const handleToggleBulkSelect = (key: string) => {
-    setBulkSelectedItems(prev => {
-      const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
-    });
-  };
-
-  const handleUpgrade = (plan: SubscriptionPlan) => {
-    selectPlan(plan);
-    setShowUpgradeModal(false);
-    setToastMessage(`Successfully upgraded to ${plan}!`);
-  };
-
-  const handleSaveCustomization = (section: MenuSection, index: number, newText: string) => {
-    if (!menu) return;
-    const sectionItems = menu[section];
-    if (sectionItems && Array.isArray(sectionItems)) {
-        const newItems = [...sectionItems];
-        newItems[index] = newText;
-        setMenu({ ...menu, [section]: newItems });
-        setIsCustomizationModalOpen(false);
-        setToastMessage("Item updated!");
+  
+  const handleDownloadPDF = async () => {
+    if (!menuRef.current) return;
+    setIsExporting(true);
+    try {
+      const canvas = await html2canvas(menuRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: isDarkMode ? '#020617' : '#ffffff',
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save(`${menu?.menuTitle.replace(/\s+/g, '_') || 'Catering_Proposal'}.pdf`);
+      setToastMessage("PDF downloaded successfully!");
+    } catch (e) {
+      console.error("PDF Export failed:", e);
+      setToastMessage("Failed to generate PDF. Try again.");
+    } finally {
+      setIsExporting(false);
     }
   };
 
@@ -228,25 +162,15 @@ const App: React.FC = () => {
         dietaryRestrictions,
       });
       setMenu({ ...result.menu, theme: proposalTheme });
-      setTotalChecklistItems(result.totalChecklistItems);
       
-      // Auto-open email capture after first generation
       if (!localStorage.getItem('caterpro_user_email')) {
           setIsEmailCaptureModalOpen(true);
       }
     } catch (e) {
-      console.error("Generation failed:", e);
       setError(getApiErrorState(e));
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleEmailCapture = (email: string, whatsapp: string) => {
-    localStorage.setItem('caterpro_user_email', email);
-    localStorage.setItem('caterpro_user_whatsapp', whatsapp);
-    setIsEmailCaptureModalOpen(false);
-    setToastMessage('Preferences saved!');
   };
 
   const handleOpenSocialModal = (mode: typeof socialModalMode) => {
@@ -258,18 +182,14 @@ const App: React.FC = () => {
       return (
         <>
             <Navbar 
-                onThemeToggle={toggleTheme} 
-                isDarkMode={isDarkMode} 
+                onThemeToggle={toggleTheme} isDarkMode={isDarkMode} 
                 onOpenSaved={() => attemptAccess('saveMenus') && setIsSavedModalOpen(true)} 
                 savedCount={savedMenus.length} 
                 onOpenQrCode={() => setIsQrModalOpen(true)}
                 onOpenInstall={() => setIsInstallModalOpen(true)}
                 onViewLanding={() => {}}
             />
-            <LandingPage onGetStarted={() => {
-                setShowLanding(false);
-                if (localStorage.getItem('caterpro-subscription')) setIsAppVisible(true);
-            }} />
+            <LandingPage onGetStarted={() => { setShowLanding(false); if (localStorage.getItem('caterpro-subscription')) setIsAppVisible(true); }} />
             <Footer />
         </>
       );
@@ -280,47 +200,46 @@ const App: React.FC = () => {
   return (
     <div className={`flex flex-col min-h-screen font-sans antialiased ${isDarkMode ? 'dark' : ''}`}>
       <Navbar 
-        onThemeToggle={toggleTheme} 
-        isDarkMode={isDarkMode} 
+        onThemeToggle={toggleTheme} isDarkMode={isDarkMode} 
         onOpenSaved={() => attemptAccess('saveMenus') && setIsSavedModalOpen(true)} 
         savedCount={savedMenus.length} 
         onOpenQrCode={() => setIsQrModalOpen(true)}
         onOpenInstall={() => setIsInstallModalOpen(true)}
-        onReset={handleResetApp}
-        onViewLanding={handleViewLanding}
+        onReset={() => { localStorage.removeItem('caterpro-subscription'); window.location.reload(); }}
+        onViewLanding={() => { setShowLanding(true); setIsAppVisible(false); }}
       />
       
-      <main className="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12 pb-[env(safe-area-inset-bottom)]">
+      <main className="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
         <header className="text-center animate-slide-in">
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-800 dark:text-slate-200">CaterPro AI</h1>
-          <p className="mt-4 max-w-2xl mx-auto text-lg text-slate-600 dark:text-slate-300">Generate menus, shopping lists, and proposals for your food business.</p>
+          <p className="mt-4 text-lg text-slate-600 dark:text-slate-300">Intelligent catering paperwork for busy chefs.</p>
         </header>
 
         {!menu && <FounderRoadmap />}
 
-        <section className="mt-12 bg-white dark:bg-slate-800/50 p-6 sm:p-8 rounded-lg shadow-md border border-slate-200 dark:border-slate-700/80 animate-slide-in">
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">Start Your Next Proposal</h2>
+        <section className="mt-12 bg-white dark:bg-slate-800/50 p-6 sm:p-8 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700/80 animate-slide-in">
+            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">New Proposal</h2>
             <div className="mt-8 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Event Type *</label>
-                  <select value={eventType} onChange={(e) => setEventType(e.target.value)} className={formInputStyle}>
+                  <select value={eventType} onChange={(e) => setEventType(e.target.value)} className="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm">
                     <option value="" disabled>Select an event...</option>
                     {EVENT_TYPES.map((e) => <option key={e} value={e}>{e}</option>)}
                   </select>
                   {validationErrors.eventType && <p className="text-red-500 text-sm mt-1">{validationErrors.eventType}</p>}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Number of Guests *</label>
-                  <select value={guestCount} onChange={e => setGuestCount(e.target.value)} className={formInputStyle}>
-                    <option value="" disabled>Select guest range...</option>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Guests *</label>
+                  <select value={guestCount} onChange={e => setGuestCount(e.target.value)} className="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm">
+                    <option value="" disabled>Select range...</option>
                     {GUEST_COUNT_OPTIONS.map(g => <option key={g} value={g}>{g}</option>)}
                   </select>
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Cuisine Style *</label>
-                  <select value={cuisine} onChange={(e) => setCuisine(e.target.value)} className={formInputStyle}>
-                    <option value="" disabled>Select a cuisine...</option>
+                  <select value={cuisine} onChange={(e) => setCuisine(e.target.value)} className="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm">
+                    <option value="" disabled>Select cuisine...</option>
                     {CUISINES.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
@@ -341,50 +260,63 @@ const App: React.FC = () => {
               <button 
                 onClick={generateMenu} 
                 disabled={isLoading} 
-                className="w-full inline-flex items-center justify-center px-6 py-4 text-lg font-black text-white bg-primary-600 rounded-2xl shadow-xl hover:bg-primary-700 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full inline-flex items-center justify-center px-6 py-4 text-lg font-black text-white bg-primary-600 rounded-2xl shadow-xl hover:bg-primary-700 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50"
               >
                 {isLoading ? <Loader2 className="mr-2 animate-spin" /> : <Sparkles className="mr-2" />}
-                {isLoading ? loadingMessage : 'Generate Menu Proposal'}
+                {isLoading ? loadingMessage : 'Generate Proposal'}
               </button>
             </div>
         </section>
 
         {menu && (
           <section className="mt-12 animate-slide-in">
-             {/* Action Header */}
              <div className="mb-4 flex flex-wrap items-center gap-2 no-print">
                 <button onClick={() => handleOpenSocialModal('pitch')} className="flex-1 min-w-[200px] flex items-center justify-center gap-2 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-sm shadow-lg transition-all active:scale-95">
                     <GraduationCap size={18} /> Draft Assignment Email
+                </button>
+                <button onClick={handleDownloadPDF} disabled={isExporting} className="flex items-center gap-2 py-3 px-4 bg-white dark:bg-slate-800 text-slate-700 dark:text-white rounded-xl font-bold text-sm hover:bg-slate-50 transition-all shadow-md border border-slate-200 dark:border-slate-700">
+                    {isExporting ? <Loader2 className="animate-spin" size={18} /> : <FileDown size={18} />}
+                    Download PDF
                 </button>
                 <button onClick={() => handleOpenSocialModal('create')} className="flex items-center gap-2 py-3 px-4 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-white rounded-xl font-bold text-sm hover:bg-slate-200 transition-all">
                     <Megaphone size={18} /> Social Post
                 </button>
              </div>
 
-            <div className="bg-white dark:bg-slate-800/50 rounded-lg shadow-md border border-slate-200 dark:border-slate-700">
+            <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
                <div ref={menuRef} className="print-area">
                 <MenuDisplay 
                   menu={menu}
                   checkedItems={checkedItems}
-                  onToggleItem={handleToggleChecklistItem}
+                  onToggleItem={(k) => setCheckedItems(prev => {
+                    const next = new Set(prev);
+                    if (next.has(k)) next.delete(k); else next.add(k);
+                    return next;
+                  })}
                   isEditable={canAccessFeature('itemEditing')}
-                  onEditItem={handleOpenCustomizationModal}
-                  showToast={(m) => setToastMessage(m)}
-                  isGeneratingImage={isGeneratingImage}
-                  onUpdateShoppingItemQuantity={handleUpdateShoppingItemQuantity}
-                  bulkSelectedItems={bulkSelectedItems}
-                  onToggleBulkSelect={handleToggleBulkSelect}
+                  onEditItem={(s, i) => {
+                    const items = menu[s];
+                    if (items && Array.isArray(items)) {
+                      setItemToEdit({ section: s, index: i, text: items[i] as string });
+                      setIsCustomizationModalOpen(true);
+                    }
+                  }}
+                  showToast={setToastMessage}
+                  isGeneratingImage={false}
+                  onUpdateShoppingItemQuantity={() => {}}
+                  bulkSelectedItems={new Set()}
+                  onToggleBulkSelect={() => {}}
                   onBulkCheck={() => {}}
                   onBulkUpdateQuantity={() => {}}
                   onClearBulkSelection={() => {}}
                   onSelectAllShoppingListItems={() => {}}
                   proposalTheme={proposalTheme}
                   canAccessFeature={canAccessFeature}
-                  onAttemptAccess={(f) => attemptAccess(f)}
-                  deliveryRadius={deliveryRadius}
-                  onDeliveryRadiusChange={setDeliveryRadius}
+                  onAttemptAccess={attemptAccess}
+                  deliveryRadius=""
+                  onDeliveryRadiusChange={() => {}}
                   onCalculateFee={() => {}}
-                  calculatedFee={calculatedFee}
+                  calculatedFee={null}
                 />
               </div>
             </div>
@@ -393,22 +325,17 @@ const App: React.FC = () => {
       </main>
       <Footer />
       <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
-      <EmailCapture isOpen={isEmailCaptureModalOpen} onClose={() => setIsEmailCaptureModalOpen(false)} onSave={handleEmailCapture} />
-      <SocialMediaModal 
-        isOpen={isSocialModalOpen} 
-        onClose={() => setIsSocialModalOpen(false)}
-        image={menu?.image}
-        caption={socialCaption}
-        onRegenerateCaption={() => {}}
-        isRegenerating={false}
-        menuTitle={menu?.menuTitle || ''}
-        menuDescription={menu?.description || ''}
-        initialMode={socialModalMode}
-      />
+      <EmailCapture isOpen={isEmailCaptureModalOpen} onClose={() => setIsEmailCaptureModalOpen(false)} onSave={(e, w) => { localStorage.setItem('caterpro_user_email', e); localStorage.setItem('caterpro_user_whatsapp', w); setIsEmailCaptureModalOpen(false); }} />
+      <SocialMediaModal isOpen={isSocialModalOpen} onClose={() => setIsSocialModalOpen(false)} image={menu?.image} menuTitle={menu?.menuTitle || ''} menuDescription={menu?.description || ''} initialMode={socialModalMode} />
       <SavedChecklistsModal isOpen={isSavedModalOpen} onClose={() => setIsSavedModalOpen(false)} savedMenus={savedMenus} onDelete={() => {}} />
-      <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={handleUpgrade} />
-      <CustomizationModal isOpen={isCustomizationModalOpen} onClose={() => setIsCustomizationModalOpen(false)} itemToEdit={itemToEdit} onSave={handleSaveCustomization} />
-      <AiChatBot onAttemptAccess={() => attemptAccess('aiChatBot')} isPro={canAccessFeature('aiChatBot')} />
+      <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={(p) => { selectPlan(p); setShowUpgradeModal(false); }} />
+      <CustomizationModal isOpen={isCustomizationModalOpen} onClose={() => setIsCustomizationModalOpen(false)} itemToEdit={itemToEdit} onSave={(s, i, t) => {
+        if (!menu) return;
+        const newItems = [...(menu[s] as any[])];
+        newItems[i] = t;
+        setMenu({ ...menu, [s]: newItems });
+        setIsCustomizationModalOpen(false);
+      }} />
     </div>
   );
 };
