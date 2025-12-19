@@ -1,7 +1,9 @@
+
 import React, { useState } from 'react';
 import { ShoppingCart, Sparkles, Loader2 } from 'lucide-react';
 import { PpeProduct } from '../types';
-import { generateProductImageFromApi } from '../services/geminiService';
+// Fixed: Using the correct exported function from geminiService
+import { generateMenuImageFromApi } from '../services/geminiService';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1556910103-1c02745a30bf?auto=format&fit=crop&w=800&q=80'; // Reliable fallback image (Kitchen/Cooking)
 
@@ -26,7 +28,8 @@ const ProductCard: React.FC<{
     
     setIsGenerating(true);
     try {
-        const base64Data = await generateProductImageFromApi(product.name, product.description);
+        // Fixed: Using generateMenuImageFromApi instead of missing generateProductImageFromApi
+        const base64Data = await generateMenuImageFromApi(product.name, product.description);
         setImgSrc(`data:image/png;base64,${base64Data}`);
     } catch (err) {
         console.error("Failed to generate image:", err);
