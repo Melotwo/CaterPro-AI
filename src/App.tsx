@@ -38,6 +38,8 @@ const LOADING_MESSAGES = [
   'Designing your event experience...',
   'Finalizing the menu details...',
   'Preparing your proposal...',
+  'Organizing your shopping list...',
+  'Calculating logistics...',
 ];
 
 const CHECKED_ITEMS_STORAGE_KEY = 'caterpro-checked-items';
@@ -127,6 +129,18 @@ const App: React.FC = () => {
       localStorage.setItem('theme', 'light');
     }
   }, [isDarkMode]);
+
+  // Loading message cycler
+  useEffect(() => {
+    if (isLoading) {
+      let i = 0;
+      const interval = setInterval(() => {
+        i = (i + 1) % LOADING_MESSAGES.length;
+        setLoadingMessage(LOADING_MESSAGES[i]);
+      }, 3000);
+      return () => clearInterval(interval);
+    }
+  }, [isLoading]);
 
   const toggleTheme = () => setIsDarkMode(prev => !prev);
   const handleResetApp = () => {
@@ -221,6 +235,7 @@ const App: React.FC = () => {
           setIsEmailCaptureModalOpen(true);
       }
     } catch (e) {
+      console.error("Generation failed:", e);
       setError(getApiErrorState(e));
     } finally {
       setIsLoading(false);
@@ -310,9 +325,26 @@ const App: React.FC = () => {
                   </select>
                 </div>
               </div>
-              <button onClick={generateMenu} disabled={isLoading} className="w-full inline-flex items-center justify-center px-6 py-4 text-lg font-black text-white bg-primary-600 rounded-2xl shadow-xl hover:bg-primary-700 transition-all hover:scale-[1.02] active:scale-95">
+
+              {error && (
+                <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 animate-slide-in">
+                   <div className="flex gap-3">
+                      <AlertTriangle className="w-6 h-6 text-red-500 flex-shrink-0" />
+                      <div>
+                        <p className="font-bold text-red-800 dark:text-red-200">{error.title}</p>
+                        <p className="text-sm text-red-700 dark:text-red-300 mt-1">{error.message}</p>
+                      </div>
+                   </div>
+                </div>
+              )}
+
+              <button 
+                onClick={generateMenu} 
+                disabled={isLoading} 
+                className="w-full inline-flex items-center justify-center px-6 py-4 text-lg font-black text-white bg-primary-600 rounded-2xl shadow-xl hover:bg-primary-700 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
                 {isLoading ? <Loader2 className="mr-2 animate-spin" /> : <Sparkles className="mr-2" />}
-                {isLoading ? 'Preparing Proposal...' : 'Generate Menu Proposal'}
+                {isLoading ? loadingMessage : 'Generate Menu Proposal'}
               </button>
             </div>
         </section>
@@ -375,6 +407,7 @@ const App: React.FC = () => {
       />
       <SavedChecklistsModal isOpen={isSavedModalOpen} onClose={() => setIsSavedModalOpen(false)} savedMenus={savedMenus} onDelete={() => {}} />
       <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={handleUpgrade} />
+      <CustomizationModal isOpen={isCustomizationModalOpen} onClose={() => setIsCustomizationModalOpen(false)} itemToEdit={itemToEdit} onSave={handleSaveCustomization} />
       <AiChatBot onAttemptAccess={() => attemptAccess('aiChatBot')} isPro={canAccessFeature('aiChatBot')} />
     </div>
   );
