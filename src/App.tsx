@@ -22,6 +22,7 @@ import UpgradeModal from './components/UpgradeModal';
 import PwaInstallModal from './components/PwaInstallModal';
 import LandingPage from './components/LandingPage';
 import FounderRoadmap from './components/FounderRoadmap';
+import ProductivityLab from './components/ProductivityLab';
 import { useAppSubscription, type SubscriptionPlan } from './hooks/useAppSubscription';
 import { CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES } from './constants';
 import { SavedMenu, ErrorState, ValidationErrors, Menu, MenuSection } from './types';
@@ -334,6 +335,9 @@ const App: React.FC = () => {
                 />
               </div>
             </div>
+
+            {/* NotebookLM Suggestion Lab */}
+            <ProductivityLab dietaryRestrictions={dietaryRestrictions} />
           </section>
         )}
       </main>
@@ -358,6 +362,7 @@ const App: React.FC = () => {
         setMenu({ ...menu, [s]: newItems });
         setIsCustomizationModalOpen(false);
       }} />
+      <AiChatBot onAttemptAccess={() => attemptAccess('aiChatBot')} isPro={canAccessFeature('aiChatBot')} />
     </div>
   );
 };
