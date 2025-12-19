@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Mail, MessageSquare, Check, Loader2 } from 'lucide-react';
+import { X, Mail, MessageSquare, Check, Loader2, AlertCircle, Send, ArrowRight } from 'lucide-react';
 
 interface EmailCaptureProps {
   isOpen: boolean;
@@ -15,53 +16,20 @@ const EmailCapture: React.FC<EmailCaptureProps> = ({ isOpen, onClose, onSave }) 
   const [error, setError] = useState('');
 
   const modalRef = useRef<HTMLDivElement>(null);
-  const triggerElementRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (isOpen) {
-      triggerElementRef.current = document.activeElement as HTMLElement;
-      // Reset state when modal opens
-      setEmail('');
-      setWhatsapp('');
+      setEmail(localStorage.getItem('caterpro_user_email') || '');
+      setWhatsapp(localStorage.getItem('caterpro_user_whatsapp') || '');
       setError('');
       setIsSubmitting(false);
       setIsSubmitted(false);
 
-      const focusableElements = modalRef.current?.querySelectorAll<HTMLElement>(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-      );
-      if (!focusableElements || focusableElements.length === 0) return;
-
-      const firstElement = focusableElements[0];
-      const lastElement = focusableElements[focusableElements.length - 1];
-      
-      setTimeout(() => firstElement.focus(), 100);
-
       const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') {
-          handleClose();
-        }
-        if (e.key === 'Tab') {
-          // Tab trapping logic
-          if (e.shiftKey) {
-            if (document.activeElement === firstElement) {
-              e.preventDefault();
-              lastElement.focus();
-            }
-          } else {
-            if (document.activeElement === lastElement) {
-              e.preventDefault();
-              firstElement.focus();
-            }
-          }
-        }
+        if (e.key === 'Escape') handleClose();
       };
-      
       document.addEventListener('keydown', handleKeyDown);
-      return () => {
-        document.removeEventListener('keydown', handleKeyDown);
-        triggerElementRef.current?.focus();
-      };
+      return () => document.removeEventListener('keydown', handleKeyDown);
     }
   }, [isOpen]);
 
@@ -71,7 +39,7 @@ const EmailCapture: React.FC<EmailCaptureProps> = ({ isOpen, onClose, onSave }) 
   };
 
   const validateEmail = (email: string) => {
-    return /^\S+@\S+\.\S+$/.test(email);
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -83,60 +51,116 @@ const EmailCapture: React.FC<EmailCaptureProps> = ({ isOpen, onClose, onSave }) 
     setError('');
     setIsSubmitting(true);
     
-    // Simulate a submission
+    // Simulate API storage / Email triggering
     setTimeout(() => {
       onSave(email, whatsapp);
       setIsSubmitting(false);
       setIsSubmitted(true);
-    }, 500);
+    }, 1500);
   };
 
   if (!isOpen) return null;
   
   return (
-    <div role="dialog" aria-modal="true" aria-labelledby="email-capture-title" className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div onClick={handleClose} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity animate-[fade-in_0.2s_ease-out]"></div>
-      <div ref={modalRef} className="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 transition-all animate-[scale-up_0.2s_ease-out]">
-        <div className="p-6 sm:p-8 text-center">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <div onClick={handleClose} className="fixed inset-0 bg-slate-900/80 backdrop-blur-md animate-[fade-in_0.2s_ease-out]"></div>
+      <div ref={modalRef} className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-[scale-up_0.3s_cubic-bezier(0.16,1,0.3,1)]">
+        
+        {/* Progress Bar */}
+        <div className="absolute top-0 left-0 w-full h-1.5 bg-slate-100 dark:bg-slate-800">
+            <div className={`h-full bg-primary-500 transition-all duration-1000 ${isSubmitting ? 'w-3/4' : (isSubmitted ? 'w-full' : 'w-0')}`}></div>
+        </div>
+
+        <div className="p-8">
+          <button onClick={handleClose} className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+            <X size={20} />
+          </button>
+
           {isSubmitted ? (
-            <div>
-              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/50">
-                <Check className="h-6 w-6 text-green-600 dark:text-green-400" aria-hidden="true" />
+            <div className="text-center py-6 animate-fade-in">
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary-100 dark:bg-primary-900/30 mb-6">
+                <Check className="h-10 w-10 text-primary-600 dark:text-primary-400" />
               </div>
-              <h3 id="email-capture-title" className="mt-4 text-lg font-semibold text-slate-900 dark:text-white">Thank You!</h3>
-              <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">A link to your proposal will be sent to your email shortly.</p>
-              <button onClick={handleClose} className="mt-6 w-full inline-flex justify-center rounded-md border border-transparent bg-primary-500 px-4 py-2 text-base font-semibold text-white shadow-sm hover:bg-primary-600 focus:outline-none sm:text-sm">
-                Close
-              </button>
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white">Proposal Ready!</h3>
+              <p className="mt-3 text-slate-600 dark:text-slate-400">
+                We've saved your info. A link to this menu has been prepared for <strong>{email}</strong>.
+              </p>
+              <div className="mt-8 space-y-3">
+                  <button onClick={handleClose} className="w-full py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-black shadow-lg shadow-primary-500/20 transition-all active:scale-95 flex items-center justify-center gap-2">
+                    Open My Dashboard <ArrowRight size={18} />
+                  </button>
+              </div>
             </div>
           ) : (
             <>
-              <h3 id="email-capture-title" className="text-lg font-semibold text-slate-900 dark:text-white">Get Your Proposal</h3>
-              <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Enter your details below to receive a shareable link to this menu proposal.</p>
-              <form onSubmit={handleSubmit} className="mt-6 space-y-4 text-left">
-                <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Email Address <span className="text-red-500">*</span></label>
-                  <div className="relative mt-1">
-                    <Mail className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-3 h-5 w-5 text-slate-400" />
-                    <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-slate-700 dark:text-white sm:text-sm" />
+              <div className="flex items-center gap-3 mb-6">
+                  <div className="p-3 bg-primary-100 dark:bg-primary-900/30 rounded-2xl">
+                    <Mail className="w-6 h-6 text-primary-600 dark:text-primary-400" />
                   </div>
-                   {error && <p className="text-red-500 text-xs mt-1">{error}</p>}
-                </div>
+                  <div>
+                    <h3 className="text-xl font-black text-slate-900 dark:text-white leading-tight">Send Proposal</h3>
+                    <p className="text-sm text-slate-500 font-medium">Get a professional PDF and link.</p>
+                  </div>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                  <label htmlFor="whatsapp" className="block text-sm font-medium text-slate-700 dark:text-slate-300">WhatsApp Number <span className="text-slate-400 font-normal">(Optional)</span></label>
-                  <div className="relative mt-1">
-                    <MessageSquare className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-3 h-5 w-5 text-slate-400" />
-                    <input type="tel" id="whatsapp" value={whatsapp} onChange={e => setWhatsapp(e.target.value)} placeholder="+1 (555) 123-4567" className="w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-slate-700 dark:text-white sm:text-sm" />
+                  <label htmlFor="email" className="block text-[10px] font-black uppercase text-slate-400 mb-1.5 tracking-widest">Personal/Business Email</label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <input 
+                        type="email" 
+                        id="email" 
+                        value={email} 
+                        onChange={e => setEmail(e.target.value)} 
+                        placeholder="chef@yourkitchen.com"
+                        className={`w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-2 rounded-2xl focus:ring-4 focus:ring-primary-500/10 outline-none transition-all dark:text-white text-sm font-medium ${error ? 'border-red-500' : 'border-transparent focus:border-primary-500'}`} 
+                        required 
+                    />
+                  </div>
+                   {error && (
+                       <div className="flex items-center gap-1.5 mt-2 text-red-500 text-xs font-bold animate-slide-in">
+                           <AlertCircle size={14} /> {error}
+                       </div>
+                   )}
+                </div>
+
+                <div>
+                  <label htmlFor="whatsapp" className="block text-[10px] font-black uppercase text-slate-400 mb-1.5 tracking-widest">WhatsApp Number (Optional)</label>
+                  <div className="relative">
+                    <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <input 
+                        type="tel" 
+                        id="whatsapp" 
+                        value={whatsapp} 
+                        onChange={e => setWhatsapp(e.target.value)} 
+                        placeholder="+27 (0) 123 4567" 
+                        className="w-full pl-12 pr-4 py-4 bg-slate-50 dark:bg-slate-800 border-2 border-transparent focus:border-primary-500 rounded-2xl focus:ring-4 focus:ring-primary-500/10 outline-none transition-all dark:text-white text-sm font-medium" 
+                    />
                   </div>
                 </div>
-                <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-3 space-y-2 space-y-reverse sm:space-y-0 pt-2">
-                    <button type="button" onClick={handleClose} className="w-full sm:w-auto inline-flex justify-center rounded-md border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-4 py-2 text-base font-medium text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-600">
-                        Maybe Later
+
+                <div className="pt-2">
+                    <button 
+                        type="submit" 
+                        disabled={isSubmitting || !email} 
+                        className="w-full py-4 bg-slate-900 dark:bg-primary-600 hover:bg-slate-800 dark:hover:bg-primary-700 text-white rounded-2xl font-black shadow-xl transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    >
+                        {isSubmitting ? (
+                            <>
+                                <Loader2 className="w-5 h-5 animate-spin" />
+                                <span>Verifying...</span>
+                            </>
+                        ) : (
+                            <>
+                                <Send size={18} />
+                                <span>Get My Proposal Now</span>
+                            </>
+                        )}
                     </button>
-                    <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto inline-flex justify-center items-center rounded-md border border-transparent bg-primary-500 px-4 py-2 text-base font-semibold text-white shadow-sm hover:bg-primary-600 disabled:opacity-70 disabled:cursor-not-allowed">
-                        {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        {isSubmitting ? 'Saving...' : 'Send Link'}
-                    </button>
+                    <p className="text-center text-[10px] text-slate-400 mt-4 px-4 leading-relaxed">
+                        By clicking, you agree to receive your menu proposal via email. We respect your privacy.
+                    </p>
                 </div>
               </form>
             </>
