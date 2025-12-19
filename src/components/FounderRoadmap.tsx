@@ -1,10 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { Calendar, GraduationCap, Layout, BookOpen, Clock, CheckCircle2, Zap, Rocket, Pin, Instagram, Briefcase, Plus, Target, Timer, TrendingUp, ChevronRight, ChefHat, PartyPopper, BookCheck } from 'lucide-react';
+import { Calendar, GraduationCap, Layout, BookOpen, Clock, CheckCircle2, Zap, Rocket, Pin, Instagram, Briefcase, Plus, Target, Timer, TrendingUp, ChevronRight, ChefHat, PartyPopper, BookCheck, Sparkles } from 'lucide-react';
 
 const FounderRoadmap: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'blueprint' | 'growth' | 'tools'>('growth');
-  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['pin1', 'reel', 'assignment1']));
+  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['pin1', 'reel', 'assignment1', 'notebook']));
 
   const toggleTask = (taskId: string) => {
     const newTasks = new Set(completedTasks);
@@ -14,16 +14,16 @@ const FounderRoadmap: React.FC = () => {
   };
 
   const schedule = [
-    { id: 'build', time: 'Deep Work (3h)', task: 'CaterPro AI Dev & Testing', icon: ChefHat, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
-    { id: 'learn', time: 'Growth (3h)', task: 'Google Course 2: Productivity', icon: GraduationCap, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
-    { id: 'post', time: 'Marketing (3h)', task: 'Assignment: AI Content Creation', icon: Pin, color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-900/20' },
+    { id: 'build', time: 'Deep Work (3h)', task: 'Implementing NotebookLM Vision Features', icon: Sparkles, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20' },
+    { id: 'learn', time: 'Growth (3h)', task: 'Google Course 2: Advanced Productivity', icon: GraduationCap, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
+    { id: 'post', time: 'Marketing (3h)', task: 'Share Vision AI demo on Pinterest', icon: Pin, color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-900/20' },
   ];
 
   const dailyTasks = [
-    { id: 'assignment1', label: 'Assignment: AI Social Content', platform: 'coursera' },
-    { id: 'pin1', label: '1x Pinterest Pin (How-to AI)', platform: 'pinterest' },
-    { id: 'reel', label: '1x Instagram Post (My Journey)', platform: 'instagram' },
-    { id: 'notebook', label: 'Sync notes to NotebookLM', platform: 'study' },
+    { id: 'notebook', label: 'NotebookLM Feature Brainstorming', platform: 'study' },
+    { id: 'vision', label: 'Deploy Receipt Vision Logic', platform: 'build' },
+    { id: 'reel', label: 'Instagram: Showcasing Product Lab', platform: 'instagram' },
+    { id: 'assignment1', label: 'Submit Course 2 Social Assignment', platform: 'coursera' },
   ];
 
   return (
@@ -33,13 +33,13 @@ const FounderRoadmap: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
-                <div className="px-2 py-0.5 rounded bg-primary-500 text-[10px] font-black uppercase tracking-widest">Founder Portal</div>
-                <div className="flex items-center gap-1 text-slate-400 text-xs"><Clock size={12} /> Active Goal: Course 2 (Productivity)</div>
+                <div className="px-2 py-0.5 rounded bg-amber-500 text-[10px] font-black uppercase tracking-widest">NotebookLM Integrated</div>
+                <div className="flex items-center gap-1 text-slate-400 text-xs"><Clock size={12} /> Active Goal: Vision AI Integration</div>
             </div>
             <h2 className="text-3xl font-black flex items-center gap-3">
               <Zap className="text-amber-400 fill-amber-400" /> Melotwo's Roadmap
             </h2>
-            <p className="text-slate-400 text-sm mt-1 max-w-md">Using Course 2 to optimize your catering admin workflow.</p>
+            <p className="text-slate-400 text-sm mt-1 max-w-md">Course 2 Mastery: Turning AI theory into kitchen productivity.</p>
           </div>
           
           <div className="flex bg-slate-800 p-1 rounded-xl border border-slate-700">
@@ -64,7 +64,7 @@ const FounderRoadmap: React.FC = () => {
                 <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
                     <Target size={16} /> Course 2 Blueprint
                 </h3>
-                <span className="text-[10px] font-bold text-primary-500 bg-primary-50 dark:bg-primary-900/20 px-2 py-1 rounded">Module 2 Active</span>
+                <span className="text-[10px] font-bold text-amber-500 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded">Vision Lab Active</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {schedule.map((item) => (
@@ -78,15 +78,15 @@ const FounderRoadmap: React.FC = () => {
 
               <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700">
                 <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
-                    <TrendingUp size={18} className="text-primary-500" /> Mastery Momentum
+                    <TrendingUp size={18} className="text-amber-500" /> NotebookLM Synergy
                 </h4>
                 <div className="space-y-4">
                     <div className="flex justify-between items-center text-xs">
-                        <span className="text-slate-500">Course 2 Completion</span>
-                        <span className="font-bold">40%</span>
+                        <span className="text-slate-500">Feature Roadmap Completion</span>
+                        <span className="font-bold">65%</span>
                     </div>
                     <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                        <div className="h-full bg-primary-500 w-[40%] transition-all duration-500"></div>
+                        <div className="h-full bg-amber-500 w-[65%] transition-all duration-500"></div>
                     </div>
                 </div>
               </div>
@@ -94,7 +94,7 @@ const FounderRoadmap: React.FC = () => {
 
             <div className="space-y-4">
               <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                <BookCheck size={16} /> Assignment Queue
+                <BookCheck size={16} /> Goal Tracking
               </h3>
               <div className="bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl overflow-hidden">
                 {dailyTasks.map((task) => (
@@ -128,7 +128,7 @@ const FounderRoadmap: React.FC = () => {
                 </div>
                 <h3 className="text-2xl font-black text-slate-900 dark:text-white">Google AI Essentials</h3>
                 <p className="text-blue-600 dark:text-blue-400 font-bold text-sm mt-1 uppercase tracking-widest flex items-center justify-center gap-2">
-                   <Clock size={16} /> Course 2 in Progress
+                   <Clock size={16} /> Course 2 (65% Optimized)
                 </p>
             </div>
             
@@ -141,25 +141,25 @@ const FounderRoadmap: React.FC = () => {
                     <h4 className="font-bold text-sm">Introduction to AI</h4>
                     <p className="text-xs text-slate-500 mt-1">100% Complete</p>
                 </div>
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border-4 border-blue-500 shadow-xl shadow-blue-500/10 scale-105">
+                <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border-4 border-amber-500 shadow-xl shadow-amber-500/10 scale-105">
                     <div className="flex justify-between items-center mb-2">
-                         <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Course 2</span>
-                         <Timer size={16} className="text-blue-500 animate-pulse" />
+                         <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Active Sprint</span>
+                         <Sparkles size={16} className="text-amber-500 animate-pulse" />
                     </div>
-                    <h4 className="font-bold text-sm">Maximize Productivity</h4>
-                    <p className="text-xs text-slate-500 mt-1">Currently in Module 2</p>
+                    <h4 className="font-bold text-sm">Vision AI Productivity</h4>
+                    <p className="text-xs text-slate-500 mt-1">Based on NotebookLM Insights</p>
                     <div className="mt-4 w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                        <div className="bg-blue-500 h-full w-[40%]"></div>
+                        <div className="bg-amber-500 h-full w-[65%]"></div>
                     </div>
                 </div>
             </div>
 
             <div className="mt-8 p-6 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
-                <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 italic">"Productivity is about choosing the right AI partner for the right task."</p>
+                <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 italic">"Integrating NotebookLM with Gemini ensures your roadmap stays ahead of the competition."</p>
                 <div className="flex flex-col sm:flex-row gap-3">
                     <div className="flex-1 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase mb-1 tracking-widest">Active Study Source</p>
-                        <h4 className="font-bold text-sm">NotebookLM Integration</h4>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase mb-1 tracking-widest">Thinking Partner</p>
+                        <h4 className="font-bold text-sm">NotebookLM Sources Synced</h4>
                     </div>
                 </div>
             </div>
@@ -178,15 +178,15 @@ const FounderRoadmap: React.FC = () => {
                 </div>
                 <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Store your recipes and Course 2 insights here.</p>
              </div>
-             <div className="group p-8 bg-white dark:bg-slate-800 rounded-3xl border-2 border-slate-100 dark:border-slate-700 hover:border-purple-500/30 transition-all hover:shadow-2xl">
+             <div className="group p-8 bg-white dark:bg-slate-800 rounded-3xl border-2 border-slate-100 dark:border-slate-700 hover:border-amber-500/30 transition-all hover:shadow-2xl">
                 <div className="flex items-center gap-4 mb-6">
-                    <div className="p-3 bg-purple-50 dark:bg-purple-900/30 rounded-2xl transition-transform group-hover:-rotate-6 text-purple-500"><BookOpen size={24} /></div>
+                    <div className="p-3 bg-amber-50 dark:bg-amber-900/30 rounded-2xl transition-transform group-hover:-rotate-6 text-amber-500"><BookOpen size={24} /></div>
                     <div>
                         <h4 className="font-black text-slate-900 dark:text-white">NotebookLM</h4>
-                        <p className="text-xs text-slate-500 font-medium">The Study Hub</p>
+                        <p className="text-xs text-slate-500 font-medium">The Intelligence Hub</p>
                     </div>
                 </div>
-                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Upload notes to generate summaries and study guides instantly.</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Your source for these new Vision AI features!</p>
              </div>
           </div>
         )}
