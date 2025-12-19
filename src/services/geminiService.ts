@@ -18,7 +18,73 @@ export interface MenuGenerationResult {
   totalChecklistItems: number;
 }
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+/**
+ * Vision AI: Analyzes a receipt image to extract merchant data.
+ */
+export const analyzeReceiptFromApi = async (base64Image: string): Promise<any> => {
+  // Always create a new GoogleGenAI instance right before making an API call to ensure it uses the latest selected key.
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const prompt = "Analyze this receipt. Extract: Merchant Name, Date, Total Amount, Currency, and a list of itemized categories (Food, Equipment, etc.). Return as JSON.";
+  const response = await ai.models.generateContent({
+    model: "gemini-3-flash-preview",
+    contents: [
+      {
+        parts: [
+          { text: prompt },
+          { inlineData: { mimeType: "image/jpeg", data: base64Image } }
+        ]
+      }
+    ],
+    config: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          merchant: { type: Type.STRING },
+          date: { type: Type.STRING },
+          total: { type: Type.NUMBER },
+          currency: { type: Type.STRING },
+          categories: { type: Type.ARRAY, items: { type: Type.STRING } }
+        },
+        required: ["merchant", "total"]
+      }
+    }
+  });
+  return JSON.parse(response.text);
+};
+
+/**
+ * Vision AI: Analyzes an ingredient label for hidden allergens.
+ */
+export const analyzeLabelFromApi = async (base64Image: string, restrictions: string[]): Promise<any> => {
+  // Always create a new GoogleGenAI instance right before making an API call to ensure it uses the latest selected key.
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const prompt = `Analyze this food ingredient label. Based on the dietary restrictions: [${restrictions.join(", ")}], flag any problematic ingredients. Provide a "Suitability Score" from 1-10.`;
+  const response = await ai.models.generateContent({
+    model: "gemini-3-flash-preview",
+    contents: [
+      {
+        parts: [
+          { text: prompt },
+          { inlineData: { mimeType: "image/jpeg", data: base64Image } }
+        ]
+      }
+    ],
+    config: {
+      responseMimeType: "application/json",
+      responseSchema: {
+        type: Type.OBJECT,
+        properties: {
+          suitabilityScore: { type: Type.NUMBER },
+          flaggedIngredients: { type: Type.ARRAY, items: { type: Type.STRING } },
+          reasoning: { type: Type.STRING }
+        },
+        required: ["suitabilityScore", "flaggedIngredients"]
+      }
+    }
+  });
+  return JSON.parse(response.text);
+};
 
 /**
  * Generates a full catering menu proposal using Gemini 3 Flash.
@@ -31,9 +97,10 @@ export const generateMenuFromApi = async ({
   cuisine,
   dietaryRestrictions,
 }: MenuGenerationParams): Promise<MenuGenerationResult> => {
-  
+  // Always create a new GoogleGenAI instance right before making an API call to ensure it uses the latest selected key.
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const prompt = `
-    You are an expert Michelin-star catering menu planner. 
+    You are an expert Michelin-star catering menu planner and Sommelier. 
     Create a professional, detailed menu proposal for:
     - Event: ${eventType}
     - Guests: ${guestCount}
@@ -43,9 +110,10 @@ export const generateMenuFromApi = async ({
     - Restrictions: ${dietaryRestrictions.join(', ') || 'None'}
 
     STRICT RULES:
-    1. Perfect culinary spelling (e.g., 'Hors d'oeuvres').
+    1. Perfect culinary spelling.
     2. Organize into shopping lists by category.
     3. Include delivery fees and mise en place.
+    4. Provide Sommelier-level wine pairings with Body Profiles (Acidity, Tannins, Body).
   `;
   
   const response = await ai.models.generateContent({
@@ -69,7 +137,8 @@ export const generateMenuFromApi = async ({
               type: Type.OBJECT,
               properties: {
                 menuItem: { type: Type.STRING },
-                pairingSuggestion: { type: Type.STRING }
+                pairingSuggestion: { type: Type.STRING },
+                bodyProfile: { type: Type.STRING }
               }
             }
           },
@@ -132,6 +201,8 @@ export const generateMenuFromApi = async ({
  * Generates a high-end food photograph for a menu or product.
  */
 export const generateMenuImageFromApi = async (title: string, description: string): Promise<string> => {
+    // Always create a new GoogleGenAI instance right before making an API call to ensure it uses the latest selected key.
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
         contents: {
@@ -139,7 +210,6 @@ export const generateMenuImageFromApi = async (title: string, description: strin
         }
     });
     
-    // Safety check for candidates
     if (!response.candidates?.[0]?.content?.parts) {
         throw new Error("Image generation was blocked or failed.");
     }
@@ -150,10 +220,9 @@ export const generateMenuImageFromApi = async (title: string, description: strin
     throw new Error("No image data returned from AI.");
 };
 
-/**
- * Regenerates a specific menu item based on user instructions.
- */
 export const regenerateMenuItemFromApi = async (originalText: string, instruction: string): Promise<string> => {
+  // Always create a new GoogleGenAI instance right before making an API call to ensure it uses the latest selected key.
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const prompt = `Original menu item: "${originalText}". User instruction for modification: "${instruction}". Rewrite the menu item to reflect these changes. Keep it concise and professional.`;
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
@@ -162,10 +231,9 @@ export const regenerateMenuItemFromApi = async (originalText: string, instructio
   return response.text?.trim() || originalText;
 };
 
-/**
- * Generates educational content (Study Guide or Curriculum) based on culinary standards.
- */
 export const generateStudyGuideFromApi = async (topic: string, curriculum: string, level: string, type: 'guide' | 'curriculum'): Promise<EducationContent> => {
+  // Always create a new GoogleGenAI instance right before making an API call to ensure it uses the latest selected key.
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const prompt = `Generate a ${type === 'guide' ? 'detailed Study Guide' : 'Curriculum Syllabus'} for the topic: "${topic}". 
   Standard: ${curriculum}. Level: ${level}. 
   Include: Title, Overview, Modules (with title and 3-5 content bullet points each), Key Vocabulary, Assessment Criteria, and Practical Exercises.`;
@@ -208,6 +276,8 @@ export const generateStudyGuideFromApi = async (topic: string, curriculum: strin
 };
 
 export const generateSocialCaption = async (menuTitle: string, description: string, platform: string = 'instagram'): Promise<string> => {
+    // Always create a new GoogleGenAI instance right before making an API call to ensure it uses the latest selected key.
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const prompt = `Write a viral ${platform} caption for: "${menuTitle}". Content: ${description}. Tone: Professional and enticing. Perfect spelling. Link: https://caterpro-ai.web.app/`;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -217,6 +287,8 @@ export const generateSocialCaption = async (menuTitle: string, description: stri
 };
 
 export const generateAssignmentEmail = async (menuTitle: string, menuDescription: string): Promise<string> => {
+    // Always create a new GoogleGenAI instance right before making an API call to ensure it uses the latest selected key.
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const prompt = `Draft a professional email pitching CaterPro AI (an AI tool for chefs) to Limpopo Chefs Academy. Context: Built by a student with ADHD/Dyslexia to solve paperwork hurdles. Attached menu: ${menuTitle}.`;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -226,6 +298,8 @@ export const generateAssignmentEmail = async (menuTitle: string, menuDescription
 };
 
 export const generateSocialVideoFromApi = async (menuTitle: string, description: string): Promise<string> => {
+    // MANDATORY: Create a new instance right before Veo video generation to ensure the latest paid API key is used.
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     let operation = await ai.models.generateVideos({
         model: 'veo-3.1-fast-generate-preview',
         prompt: `Vertical cinematic commercial for a catering event titled "${menuTitle}". Glistening gourmet food, professional plating, elegant vibe.`,
@@ -233,7 +307,9 @@ export const generateSocialVideoFromApi = async (menuTitle: string, description:
     });
     while (!operation.done) {
         await new Promise(resolve => setTimeout(resolve, 8000));
-        operation = await ai.operations.getVideosOperation({operation: operation});
+        // Use a fresh instance for each polling request to remain consistent with dynamic key guidelines.
+        const aiPoll = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        operation = await aiPoll.operations.getVideosOperation({operation: operation});
     }
     const videoUri = operation.response?.generatedVideos?.[0]?.video?.uri;
     if (!videoUri) throw new Error("Video generation failed.");
