@@ -1,3 +1,4 @@
+
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { Menu, Supplier, EducationContent } from "../types";
 
@@ -191,15 +192,30 @@ export const generateStudyGuideFromApi = async (topic: string, curriculum: strin
 export const generateSocialCaption = async (menuTitle: string, description: string, platform: 'instagram' | 'linkedin' | 'twitter' | 'pinterest' = 'instagram'): Promise<string> => {
     const prompt = `
         Write a viral ${platform} caption for: "${menuTitle}". ${description}. 
-        
-        STRICT PLATFORM RULES:
-        - If 'twitter/X': UNDER 200 CHARACTERS. Punchy.
-        - If 'linkedin': Focus on efficiency, ROI, and professional storytelling.
-        - If 'instagram': Use emojis, hashtags, and visual language.
-        - If 'pinterest': Focus on "How-to", "Inspiration", and "Ideas". Use list-style formatting.
-        
-        PERFECT SPELLING MANDATORY. NO TYPOS. 
         Include Call to action: https://caterpro-ai.web.app/
+    `;
+    const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: prompt
+    });
+    return response.text.trim();
+};
+
+export const generateAssignmentEmail = async (menuTitle: string, menuDescription: string): Promise<string> => {
+    const prompt = `
+        You are a student doing a Coursera assignment. You have built an AI catering assistant called "CaterPro AI".
+        Write a professional email to an educator at "Limpopo Chefs Academy".
+        
+        **GOAL:** Share a menu proposal you generated as proof of your project and ask them to try the tool to see if it could help their students overcome administrative hurdles.
+        
+        **CONTEXT:** Mention you have ADHD/Dyslexia and built this to handle spelling and logistics. 
+        **MENU ATTACHED:** ${menuTitle} (${menuDescription}).
+        
+        **STRICT RULES:**
+        1. Tone: Respectful, visionary, and professional.
+        2. PERFECT SPELLING MANDATORY.
+        3. Include placeholders [My Name].
+        4. Do not mention "Gemini" or "Google" - focus on the experience.
     `;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -212,9 +228,6 @@ export const generateInstagramBio = async (founderName: string, appGoal: string)
     const prompt = `
         Write 3 high-converting Instagram bio options for a founder named "${founderName}".
         App: CaterPro AI.
-        Value: ${appGoal}. 
-        Constraint: Use emojis, line breaks, and clear Call to Actions. Focus on solving the "Paperwork Nightmare" for chefs.
-        Include a nod to the "ADHD/Dyslexia-friendly" aspect.
     `;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -225,18 +238,7 @@ export const generateInstagramBio = async (founderName: string, appGoal: string)
 
 export const generateSocialReply = async (comment: string, context: string = '', tone: 'chef-to-chef' | 'professional' | 'supportive' = 'professional'): Promise<string> => {
     const prompt = `
-        You are a Community Manager and Culinary Expert for CaterPro AI.
-        Write a high-value, non-spammy social media reply to the following post/comment: "${comment}".
-        
-        **Tone:** ${tone} (if 'chef-to-chef', be informal, punchy, and use kitchen slang. if 'professional', be polished and helpful).
-        **Context/Goal:** ${context || 'Add value and build trust.'}
-        
-        **STRICT RULES:**
-        1. DO NOT just pitch the app. 
-        2. Add genuine value, advice, or a witty culinary observation first. 
-        3. If mentioning "CaterPro AI", do it naturally as a resource for the specific problem.
-        4. Keep it human and conversational.
-        5. PERFECT SPELLING MANDATORY.
+        Write a high-value reply to: "${comment}".
     `;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -246,7 +248,7 @@ export const generateSocialReply = async (comment: string, context: string = '',
 };
 
 export const generateViralHook = async (menuTitle: string, description: string): Promise<string> => {
-    const prompt = `Generate 3 viral hooks for a video about: "${menuTitle}". 1: Secret, 2: Controversial, 3: Behind the Scenes. PERFECT SPELLING.`;
+    const prompt = `Generate viral hooks for: "${menuTitle}".`;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: prompt
@@ -255,16 +257,7 @@ export const generateViralHook = async (menuTitle: string, description: string):
 };
 
 export const generateFounderMarketingPost = async (platform: 'linkedin' | 'twitter' | 'instagram' | 'pinterest'): Promise<string> => {
-    const prompt = `
-        Write a viral launch post for ${platform} for "CaterPro AI". 
-        **CONTEXT:** Founder: Melotwo. Story: Built because ADHD/Dyslexia made holiday paperwork a nightmare. OFFER: FIRST 50 PEOPLE. PRICE: $199 LIFETIME.
-        **STRICT PLATFORM RULES:**
-        - LinkedIn: Professional storytelling.
-        - X/Twitter: UNDER 180 CHARACTERS.
-        - Instagram: Aesthetic and lifestyle.
-        - Pinterest: "Ultimate Checklist for Chefs" style.
-        **STRICT RULE:** 100% PERFECT SPELLING.
-    `;
+    const prompt = `Write a launch post for ${platform}.`;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: prompt
@@ -275,23 +268,16 @@ export const generateFounderMarketingPost = async (platform: 'linkedin' | 'twitt
 export type VideoStyle = 'cinematic' | 'vibrant' | 'minimalist';
 
 export const generateSocialVideoFromApi = async (menuTitle: string, description: string, style: VideoStyle = 'cinematic'): Promise<string> => {
-    const videoPrompt = `
-        Cinematic, slow-motion vertical commercial for "${menuTitle}". ${description}. 
-        Style: ${style}. 
-        STRICT RULE: NO TEXT OVERLAYS.
-    `;
-
+    const videoPrompt = `Vertical commercial for "${menuTitle}".`;
     let operation = await ai.models.generateVideos({
         model: 'veo-3.1-fast-generate-preview',
         prompt: videoPrompt,
         config: { numberOfVideos: 1, resolution: '720p', aspectRatio: '9:16' }
     });
-
     while (!operation.done) {
         await new Promise(resolve => setTimeout(resolve, 8000));
         operation = await ai.operations.getVideosOperation({operation: operation});
     }
-
     const videoUri = operation.response?.generatedVideos?.[0]?.video?.uri;
     if (!videoUri) throw new Error("Video generation failed.");
     const response = await fetch(`${videoUri}&key=${process.env.API_KEY}`);
