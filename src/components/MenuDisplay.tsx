@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types';
 import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck } from 'lucide-react';
@@ -55,20 +54,33 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
    * Copies the entire menu in a clean format for Google Docs/Workspace
    */
   const handleCopyForWorkspace = () => {
-    let workspaceText = `${menu.menuTitle.toUpperCase()}\n`;
+    let workspaceText = `PROPOSAL: ${menu.menuTitle.toUpperCase()}\n`;
     workspaceText += `${menu.description}\n\n`;
 
-    workspaceText += `--- MENU ---\n`;
-    workspaceText += `Appetizers:\n${menu.appetizers.map(a => `- ${a}`).join('\n')}\n\n`;
-    workspaceText += `Main Courses:\n${menu.mainCourses.map(m => `- ${m}`).join('\n')}\n\n`;
-    workspaceText += `Dessert:\n${menu.dessert.map(d => `- ${d}`).join('\n')}\n\n`;
+    workspaceText += `--- CULINARY SELECTION ---\n`;
+    workspaceText += `Appetizers:\n${menu.appetizers.map(a => `• ${a}`).join('\n')}\n\n`;
+    workspaceText += `Main Courses:\n${menu.mainCourses.map(m => `• ${m}`).join('\n')}\n\n`;
+    workspaceText += `Side Dishes:\n${menu.sideDishes?.map(s => `• ${s}`).join('\n') || 'None'}\n\n`;
+    workspaceText += `Dessert:\n${menu.dessert.map(d => `• ${d}`).join('\n')}\n\n`;
 
-    workspaceText += `--- LOGISTICS ---\n`;
-    workspaceText += `Dietary Notes: ${menu.dietaryNotes?.join(', ') || 'None'}\n`;
-    workspaceText += `Mise en Place:\n${menu.miseEnPlace.map(m => `- ${m}`).join('\n')}\n`;
+    workspaceText += `--- LOGISTICS & PREP ---\n`;
+    workspaceText += `Dietary Notes: ${menu.dietaryNotes?.join(', ') || 'None'}\n\n`;
+    workspaceText += `Mise en Place:\n${menu.miseEnPlace.map(m => `• ${m}`).join('\n')}\n\n`;
+    
+    workspaceText += `--- SHOPPING LIST ---\n`;
+    const groupedData = menu.shoppingList.reduce((acc, item) => {
+        const cat = item.category || 'Other';
+        if (!acc[cat]) acc[cat] = [];
+        acc[cat].push(`• ${item.item} (${item.quantity})`);
+        return acc;
+    }, {} as Record<string, string[]>);
+    
+    Object.entries(groupedData).forEach(([cat, items]) => {
+        workspaceText += `${cat}:\n${items.join('\n')}\n\n`;
+    });
 
     navigator.clipboard.writeText(workspaceText)
-        .then(() => showToast("Copied! Now go to Google Docs and Paste."))
+        .then(() => showToast("Formatted for Google Docs! Paste now."))
         .catch(err => console.error('Failed to copy: ', err));
   };
 
@@ -76,10 +88,10 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
     if (!items || items.length === 0) return;
     let textToCopy: string;
     if (typeof items[0] === 'string') {
-       textToCopy = `${title}\n\n${(items as string[]).join('\n')}`;
+       textToCopy = `${title}\n\n${(items as string[]).map(i => `• ${i}`).join('\n')}`;
     } else if ('pairingSuggestion' in items[0]) {
       const pairingItems = items as BeveragePairing[];
-      textToCopy = `${title}\n\n${pairingItems.map(p => `- ${p.menuItem}: ${p.pairingSuggestion}`).join('\n')}`;
+      textToCopy = `${title}\n\n${pairingItems.map(p => `• ${p.menuItem}: ${p.pairingSuggestion}`).join('\n')}`;
     } else {
       const shoppingListItems = items as ShoppingListItem[];
       const groupedData = shoppingListItems.reduce((acc, item) => {
@@ -87,7 +99,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
         const category = item.category || 'Other';
         if (!acc[store]) acc[store] = {};
         if (!acc[store][category]) acc[store][category] = [];
-        acc[store][category].push(`- ${item.item} (${item.quantity})`);
+        acc[store][category].push(`• ${item.item} (${item.quantity})`);
         return acc;
       }, {} as Record<string, Record<string, string[]>>);
 
@@ -125,15 +137,15 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                   <ClipboardCheck size={20} />
               </div>
               <div>
-                  <h4 className="text-sm font-black text-blue-900 dark:text-blue-100">Workspace Integration</h4>
-                  <p className="text-xs text-blue-700 dark:text-blue-300">Ready for your Google AI Assignment</p>
+                  <h4 className="text-sm font-black text-blue-900 dark:text-blue-100">Assignment Assistant</h4>
+                  <p className="text-xs text-blue-700 dark:text-blue-300">Preserves formatting for Google Docs</p>
               </div>
           </div>
           <button 
             onClick={handleCopyForWorkspace}
             className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-lg transition-all active:scale-95"
           >
-              <FileText size={18} /> Copy Menu for Google Docs
+              <FileText size={18} /> Copy Full Menu for Google Docs
           </button>
       </div>
 
@@ -323,10 +335,12 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                                                               </div>
                                                           )}
                                                           <div className="flex-1">
-                                                              <span className={`flex items-center gap-1.5 transition-colors ${isChecked && !isBulkEditMode ? t.checkedText : t.uncheckedText}`}>
-                                                                  {!isBulkEditMode && <span className="text-slate-400 dark:text-slate-500">•</span>}
-                                                                  {item.item}
-                                                              </span>
+                                                              <div className="flex items-start gap-2">
+                                                                  {!isBulkEditMode && <span className="text-primary-600 font-black text-lg leading-none mt-0.5">•</span>}
+                                                                  <span className={`font-bold transition-colors ${isChecked && !isBulkEditMode ? t.checkedText : t.uncheckedText}`}>
+                                                                      {item.item}
+                                                                  </span>
+                                                              </div>
                                                               {(item.brandSuggestion || item.estimatedCost) && !isBulkEditMode && (
                                                                   <div className={`mt-1.5 pl-4 text-xs space-y-1 transition-colors ${isChecked ? 'opacity-70' : ''} ${t.cardText}`}>
                                                                       {item.estimatedCost && (
@@ -348,12 +362,12 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                                                                       value={item.quantity}
                                                                       onChange={(e) => onUpdateShoppingItemQuantity(item.originalIndex, e.target.value)}
                                                                       onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
-                                                                      className={`block text-xs mt-1 w-full max-w-[10rem] ml-4 p-1 rounded-md bg-slate-100 dark:bg-slate-800 border-2 border-transparent focus:border-primary-500 focus:ring-0 focus:outline-none transition-colors ${isChecked ? 'opacity-70' : ''} ${t.cardText}`}
+                                                                      className={`block text-xs mt-2 w-full max-w-[10rem] ml-4 p-1.5 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 focus:border-primary-500 focus:ring-0 focus:outline-none transition-colors ${isChecked ? 'opacity-70' : ''} ${t.cardText}`}
                                                                       aria-label={`Quantity for ${item.item}`}
                                                                   />
                                                               ) : (
-                                                                  <span className={`block text-xs transition-colors ml-4 ${isChecked ? 'opacity-70' : ''} ${t.cardText}`}>
-                                                                      {item.quantity}
+                                                                  <span className={`block text-xs font-medium uppercase tracking-wide transition-colors mt-1 ml-4 ${isChecked ? 'opacity-70' : ''} ${t.cardText}`}>
+                                                                      Qty: {item.quantity}
                                                                   </span>
                                                               )}
                                                           </div>
@@ -477,7 +491,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                                   onChange={() => onToggleItem(checkKey)}
                                   className={`mt-1 w-5 h-5 rounded-md focus:ring-2 cursor-pointer ${t.checkbox}`}
                               />
-                              <span className={`flex-1 transition-colors ${isChecked ? t.checkedText : t.uncheckedText}`}>
+                              <span className={`flex-1 font-medium transition-colors ${isChecked ? t.checkedText : t.uncheckedText}`}>
                                   {item}
                               </span>
                           </label>
