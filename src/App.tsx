@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle, Link, ShoppingBag, ChefHat, ShieldCheck, Smartphone, X, Zap, FileText, MousePointerClick, Megaphone, Film, Rocket, Timer } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, Presentation, Printer, FileDown, Copy, Sparkles, PlusCircle, Link, ShoppingBag, ChefHat, ShieldCheck, Smartphone, X, Zap, FileText, MousePointerClick, Megaphone, Film, Rocket, Timer, GraduationCap } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -104,7 +104,7 @@ const App: React.FC = () => {
   const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
   const [socialCaption, setSocialCaption] = useState('');
   const [isGeneratingCaption, setIsGeneratingCaption] = useState(false);
-  const [socialModalMode, setSocialModalMode] = useState<'create' | 'reply' | 'video' | 'sell' | 'profile'>('create');
+  const [socialModalMode, setSocialModalMode] = useState<'create' | 'reply' | 'video' | 'sell' | 'profile' | 'pitch'>('create');
 
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -140,18 +140,6 @@ const App: React.FC = () => {
       setIsAppVisible(false);
   };
 
-  const handleExampleClick = (scenario: typeof exampleScenarios[0]) => {
-    setEventType(scenario.eventType);
-    setGuestCount(scenario.guestCount);
-    setBudget(scenario.budget);
-    setServiceStyle(scenario.serviceStyle);
-    setCuisine(scenario.cuisine);
-    setDietaryRestrictions(scenario.dietaryRestrictions);
-    setValidationErrors({});
-    setCustomEventType('');
-  };
-
-  // Fix: Defined handleToggleChecklistItem to manage checked items state.
   const handleToggleChecklistItem = (key: string) => {
     setCheckedItems(prev => {
       const next = new Set(prev);
@@ -161,7 +149,6 @@ const App: React.FC = () => {
     });
   };
 
-  // Fix: Defined handleOpenCustomizationModal to set the item being edited and open the modal.
   const handleOpenCustomizationModal = (section: MenuSection, index: number) => {
     if (!menu) return;
     const sectionItems = menu[section];
@@ -171,7 +158,6 @@ const App: React.FC = () => {
     }
   };
 
-  // Fix: Defined handleUpdateShoppingItemQuantity to update item quantities in the shopping list.
   const handleUpdateShoppingItemQuantity = (itemIndex: number, newQuantity: string) => {
     if (!menu || !menu.shoppingList) return;
     const newShoppingList = [...menu.shoppingList];
@@ -179,7 +165,6 @@ const App: React.FC = () => {
     setMenu({ ...menu, shoppingList: newShoppingList });
   };
 
-  // Fix: Defined handleToggleBulkSelect to manage items selected for bulk actions.
   const handleToggleBulkSelect = (key: string) => {
     setBulkSelectedItems(prev => {
       const next = new Set(prev);
@@ -189,14 +174,12 @@ const App: React.FC = () => {
     });
   };
 
-  // Fix: Defined handleUpgrade to handle subscription plan updates.
   const handleUpgrade = (plan: SubscriptionPlan) => {
     selectPlan(plan);
     setShowUpgradeModal(false);
     setToastMessage(`Successfully upgraded to ${plan}!`);
   };
 
-  // Fix: Added handleSaveCustomization to persist changes from the CustomizationModal.
   const handleSaveCustomization = (section: MenuSection, index: number, newText: string) => {
     if (!menu) return;
     const sectionItems = menu[section];
@@ -232,11 +215,28 @@ const App: React.FC = () => {
       });
       setMenu({ ...result.menu, theme: proposalTheme });
       setTotalChecklistItems(result.totalChecklistItems);
+      
+      // Auto-open email capture after first generation
+      if (!localStorage.getItem('caterpro_user_email')) {
+          setIsEmailCaptureModalOpen(true);
+      }
     } catch (e) {
       setError(getApiErrorState(e));
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleEmailCapture = (email: string, whatsapp: string) => {
+    localStorage.setItem('caterpro_user_email', email);
+    localStorage.setItem('caterpro_user_whatsapp', whatsapp);
+    setIsEmailCaptureModalOpen(false);
+    setToastMessage('Preferences saved!');
+  };
+
+  const handleOpenSocialModal = (mode: typeof socialModalMode) => {
+    setSocialModalMode(mode);
+    setIsSocialModalOpen(true);
   };
 
   if (showLanding && !isAppVisible) {
@@ -281,7 +281,6 @@ const App: React.FC = () => {
           <p className="mt-4 max-w-2xl mx-auto text-lg text-slate-600 dark:text-slate-300">Generate menus, shopping lists, and proposals for your food business.</p>
         </header>
 
-        {/* FOUNDER ROADMAP DISPLAYED WHEN NO MENU IS ACTIVE */}
         {!menu && <FounderRoadmap />}
 
         <section className="mt-12 bg-white dark:bg-slate-800/50 p-6 sm:p-8 rounded-lg shadow-md border border-slate-200 dark:border-slate-700/80 animate-slide-in">
@@ -311,8 +310,8 @@ const App: React.FC = () => {
                   </select>
                 </div>
               </div>
-              <button onClick={generateMenu} disabled={isLoading} className="w-full inline-flex items-center justify-center px-6 py-3 text-base font-semibold text-white bg-primary-600 rounded-md shadow-sm hover:bg-primary-700 transition-all">
-                {isLoading ? <Loader2 className="mr-2 animate-spin" /> : null}
+              <button onClick={generateMenu} disabled={isLoading} className="w-full inline-flex items-center justify-center px-6 py-4 text-lg font-black text-white bg-primary-600 rounded-2xl shadow-xl hover:bg-primary-700 transition-all hover:scale-[1.02] active:scale-95">
+                {isLoading ? <Loader2 className="mr-2 animate-spin" /> : <Sparkles className="mr-2" />}
                 {isLoading ? 'Preparing Proposal...' : 'Generate Menu Proposal'}
               </button>
             </div>
@@ -320,6 +319,16 @@ const App: React.FC = () => {
 
         {menu && (
           <section className="mt-12 animate-slide-in">
+             {/* Action Header */}
+             <div className="mb-4 flex flex-wrap items-center gap-2 no-print">
+                <button onClick={() => handleOpenSocialModal('pitch')} className="flex-1 min-w-[200px] flex items-center justify-center gap-2 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-sm shadow-lg transition-all active:scale-95">
+                    <GraduationCap size={18} /> Draft Assignment Email
+                </button>
+                <button onClick={() => handleOpenSocialModal('create')} className="flex items-center gap-2 py-3 px-4 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-white rounded-xl font-bold text-sm hover:bg-slate-200 transition-all">
+                    <Megaphone size={18} /> Social Post
+                </button>
+             </div>
+
             <div className="bg-white dark:bg-slate-800/50 rounded-lg shadow-md border border-slate-200 dark:border-slate-700">
                <div ref={menuRef} className="print-area">
                 <MenuDisplay 
@@ -352,9 +361,20 @@ const App: React.FC = () => {
       </main>
       <Footer />
       <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
+      <EmailCapture isOpen={isEmailCaptureModalOpen} onClose={() => setIsEmailCaptureModalOpen(false)} onSave={handleEmailCapture} />
+      <SocialMediaModal 
+        isOpen={isSocialModalOpen} 
+        onClose={() => setIsSocialModalOpen(false)}
+        image={menu?.image}
+        caption={socialCaption}
+        onRegenerateCaption={() => {}}
+        isRegenerating={false}
+        menuTitle={menu?.menuTitle || ''}
+        menuDescription={menu?.description || ''}
+        initialMode={socialModalMode}
+      />
       <SavedChecklistsModal isOpen={isSavedModalOpen} onClose={() => setIsSavedModalOpen(false)} savedMenus={savedMenus} onDelete={() => {}} />
       <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={handleUpgrade} />
-      <CustomizationModal isOpen={isCustomizationModalOpen} onClose={() => setIsCustomizationModalOpen(false)} itemToEdit={itemToEdit} onSave={handleSaveCustomization} />
       <AiChatBot onAttemptAccess={() => attemptAccess('aiChatBot')} isPro={canAccessFeature('aiChatBot')} />
     </div>
   );
