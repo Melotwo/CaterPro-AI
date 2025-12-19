@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types';
 import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat } from 'lucide-react';
@@ -31,7 +32,6 @@ interface MenuDisplayProps {
 
 const getAffiliateLink = (keywords: string) => {
     // Using Amazon.com as it's more universal and aligns with the footer disclosure.
-    // NOTE: Replace 'caterproai-20' with your actual Amazon Associates tag.
     return `https://www.amazon.com/s?k=${encodeURIComponent(keywords)}&tag=caterproai-20`;
 };
 
@@ -100,7 +100,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
     <div className={`p-4 sm:p-6 theme-container ${t.container}`}>
       <div className="space-y-6">
       
-      {/* Branding Header for Screenshots */}
       <div className="flex items-center justify-between border-b border-dashed border-slate-300 dark:border-slate-600 pb-4 mb-2">
          <div className="flex items-center gap-2">
             <ChefHat className={`w-6 h-6 ${t.title}`} />
@@ -287,11 +286,13 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                                                               </div>
                                                           )}
                                                           <div className="flex-1">
-                                                              <span className={`transition-colors ${isChecked && !isBulkEditMode ? t.checkedText : t.uncheckedText}`}>
+                                                              {/* User Request: Bullet points in shopping list */}
+                                                              <span className={`flex items-center gap-1.5 transition-colors ${isChecked && !isBulkEditMode ? t.checkedText : t.uncheckedText}`}>
+                                                                  {!isBulkEditMode && <span className="text-slate-400 dark:text-slate-500">•</span>}
                                                                   {item.item}
                                                               </span>
                                                               {(item.brandSuggestion || item.estimatedCost) && !isBulkEditMode && (
-                                                                  <div className={`mt-1.5 pl-1 text-xs space-y-1 transition-colors ${isChecked ? 'opacity-70' : ''} ${t.cardText}`}>
+                                                                  <div className={`mt-1.5 pl-4 text-xs space-y-1 transition-colors ${isChecked ? 'opacity-70' : ''} ${t.cardText}`}>
                                                                       {item.estimatedCost && (
                                                                           <p><strong className={`font-semibold ${t.cardTitle}`}>Est. Cost:</strong> {item.estimatedCost}</p>
                                                                       )}
@@ -301,7 +302,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                                                                   </div>
                                                               )}
                                                               {item.description && !isBulkEditMode && (
-                                                                  <p className={`text-xs mt-1.5 italic pl-1 transition-colors ${isChecked ? 'opacity-70' : ''} ${t.cardText}`}>
+                                                                  <p className={`text-xs mt-1.5 italic pl-4 transition-colors ${isChecked ? 'opacity-70' : ''} ${t.cardText}`}>
                                                                   {item.description}
                                                                   </p>
                                                               )}
@@ -311,11 +312,11 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                                                                       value={item.quantity}
                                                                       onChange={(e) => onUpdateShoppingItemQuantity(item.originalIndex, e.target.value)}
                                                                       onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
-                                                                      className={`block text-xs mt-1 w-full max-w-[10rem] p-1 rounded-md bg-slate-100 dark:bg-slate-800 border-2 border-transparent focus:border-primary-500 focus:ring-0 focus:outline-none transition-colors ${isChecked ? 'opacity-70' : ''} ${t.cardText}`}
+                                                                      className={`block text-xs mt-1 w-full max-w-[10rem] ml-4 p-1 rounded-md bg-slate-100 dark:bg-slate-800 border-2 border-transparent focus:border-primary-500 focus:ring-0 focus:outline-none transition-colors ${isChecked ? 'opacity-70' : ''} ${t.cardText}`}
                                                                       aria-label={`Quantity for ${item.item}`}
                                                                   />
                                                               ) : (
-                                                                  <span className={`block text-xs transition-colors ${isChecked ? 'opacity-70' : ''} ${t.cardText}`}>
+                                                                  <span className={`block text-xs transition-colors ml-4 ${isChecked ? 'opacity-70' : ''} ${t.cardText}`}>
                                                                       {item.quantity}
                                                                   </span>
                                                               )}
