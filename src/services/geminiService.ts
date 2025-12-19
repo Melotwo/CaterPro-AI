@@ -22,7 +22,6 @@ const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 /**
  * Generates a full catering menu proposal using Gemini 3 Flash.
- * Uses responseSchema to ensure valid JSON matching the Menu interface.
  */
 export const generateMenuFromApi = async ({
   eventType,
@@ -31,28 +30,22 @@ export const generateMenuFromApi = async ({
   serviceStyle,
   cuisine,
   dietaryRestrictions,
-  latitude,
-  longitude,
 }: MenuGenerationParams): Promise<MenuGenerationResult> => {
   
   const prompt = `
     You are an expert Michelin-star catering menu planner. 
-    Create a professional, detailed menu proposal for the following event:
-    
-    - Event Type: ${eventType}
+    Create a professional, detailed menu proposal for:
+    - Event: ${eventType}
     - Guests: ${guestCount}
     - Budget: ${budget}
-    - Service: ${serviceStyle}
+    - Style: ${serviceStyle}
     - Cuisine: ${cuisine}
-    - Dietary Restrictions: ${dietaryRestrictions.join(', ') || 'None'}
+    - Restrictions: ${dietaryRestrictions.join(', ') || 'None'}
 
     STRICT RULES:
-    1. Spelling must be 100% accurate (e.g., 'Hors d'oeuvres', 'Mise en place').
-    2. The menu must be sophisticated and appropriate for the budget level.
-    3. Include a detailed shopping list organized by store/category.
-    4. Provide beverage pairings for specific items.
-    5. Include precise Mise en place and service notes.
-    6. Include a 'deliveryFeeStructure' for logic calculations.
+    1. Perfect culinary spelling (e.g., 'Hors d'oeuvres').
+    2. Organize into shopping lists by category.
+    3. Include delivery fees and mise en place.
   `;
   
   const response = await ai.models.generateContent({
@@ -102,9 +95,7 @@ export const generateMenuFromApi = async ({
                 item: { type: Type.STRING },
                 quantity: { type: Type.STRING },
                 description: { type: Type.STRING },
-                affiliateSearchTerm: { type: Type.STRING },
-                estimatedCost: { type: Type.STRING },
-                brandSuggestion: { type: Type.STRING }
+                affiliateSearchTerm: { type: Type.STRING }
               }
             }
           },
@@ -119,105 +110,71 @@ export const generateMenuFromApi = async ({
             }
           }
         },
-        required: ["menuTitle", "description", "appetizers", "mainCourses", "shoppingList"]
-      },
-      tools: [{ googleSearch: {} }]
+        required: ["menuTitle", "description", "appetizers", "mainCourses"]
+      }
     }
   });
 
-  if (!response.text) throw new Error("AI returned an empty response.");
-
-  const menu: Menu = JSON.parse(response.text);
-
-  if (response.candidates?.[0]?.groundingMetadata?.groundingChunks) {
-    menu.groundingChunks = response.candidates[0].groundingMetadata.groundingChunks;
-  }
+  const text = response.text;
+  if (!text) throw new Error("AI failed to generate menu content.");
+  const menu: Menu = JSON.parse(text);
 
   const totalChecklistItems = [
     ...(menu.appetizers || []),
     ...(menu.mainCourses || []),
-    ...(menu.sideDishes || []),
-    ...(menu.dessert || []),
-    ...(menu.dietaryNotes || []),
-    ...(menu.beveragePairings || []),
-    ...(menu.miseEnPlace || []),
-    ...(menu.serviceNotes || []),
-    ...(menu.deliveryLogistics || []),
     ...(menu.shoppingList || []),
   ].length;
   
   return { menu, totalChecklistItems };
 };
 
-export const regenerateMenuItemFromApi = async (originalItem: string, instruction: string): Promise<string> => {
-    const prompt = `You are a Michelin-star chef. Instruction: "${instruction}". Original item: "${originalItem}". Return ONLY the new text. PERFECT SPELLING MANDATORY.`;
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt
-    });
-    return response.text.trim();
-};
-
-export const generateCustomMenuItemFromApi = async (description: string, category: string): Promise<string> => {
-    const prompt = `Create a professional menu item for ${category} based on: "${description}". Return as "Name: Description". PERFECT SPELLING.`;
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt
-    });
-    return response.text.trim();
-};
-
+/**
+ * Generates a high-end food photograph for a menu or product.
+ */
 export const generateMenuImageFromApi = async (title: string, description: string): Promise<string> => {
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
         contents: {
-            parts: [{ text: `Generate a photorealistic, high-end culinary photograph of: "${title}". ${description}. Style: Michelin-star quality, dramatic lighting, professional food styling. NO TEXT OR LOGOS IN IMAGE.` }],
+            parts: [{ text: `High-end cinematic culinary photograph of: "${title}". ${description}. Style: Professional food styling, soft natural lighting, shallow depth of field, neutral background. No text, no people, no watermarks.` }],
         }
     });
+    
+    // Safety check for candidates
+    if (!response.candidates?.[0]?.content?.parts) {
+        throw new Error("Image generation was blocked or failed.");
+    }
+
     for (const part of response.candidates[0].content.parts) {
         if (part.inlineData) return part.inlineData.data;
     }
-    throw new Error("No image was generated.");
+    throw new Error("No image data returned from AI.");
 };
 
-export const generateProductImageFromApi = async (productName: string, description: string): Promise<string> => {
-    const response = await ai.models.generateImages({
-        model: 'imagen-4.0-generate-001',
-        prompt: `Professional product photography of ${productName}. ${description}. Studio lighting, clean white background, photorealistic.`,
-        config: { numberOfImages: 1, aspectRatio: '1:1', outputMimeType: 'image/png' },
-    });
-    if (response.generatedImages && response.generatedImages.length > 0) {
-        return response.generatedImages[0].image.imageBytes;
-    }
-    throw new Error("No image was generated.");
-};
-
-export const findSuppliersNearby = async (latitude: number, longitude: number): Promise<Supplier[]> => {
-    const prompt = "Find local catering suppliers near me. Return as JSON array with 'name' and 'specialty'.";
-    const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
-        contents: prompt,
-        config: {
-            tools: [{ googleMaps: {} }],
-            toolConfig: { retrievalConfig: { latLng: { latitude, longitude } } }
-        },
-    });
-    
-    const suppliers: Omit<Supplier, 'mapsUri' | 'title'>[] = JSON.parse(response.text);
-    const chunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
-    return suppliers.map(supplier => {
-        const matchingChunk = chunks.find(chunk => chunk.maps?.title?.toLowerCase().includes(supplier.name.toLowerCase()));
-        return { ...supplier, mapsUri: matchingChunk?.maps?.uri, title: matchingChunk?.maps?.title };
-    });
-};
-
-export const generateStudyGuideFromApi = async (topic: string, curriculum: string, level: string, type: 'guide' | 'curriculum'): Promise<EducationContent> => {
-  const prompt = `Create a ${type === 'guide' ? 'Student Study Guide' : 'Professional Curriculum Syllabus'} for ${topic}. Standard: ${curriculum}. Level: ${level}. Return valid JSON. PERFECT SPELLING.`;
+/**
+ * Regenerates a specific menu item based on user instructions.
+ */
+export const regenerateMenuItemFromApi = async (originalText: string, instruction: string): Promise<string> => {
+  const prompt = `Original menu item: "${originalText}". User instruction for modification: "${instruction}". Rewrite the menu item to reflect these changes. Keep it concise and professional.`;
   const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
+    model: 'gemini-3-flash-preview',
+    contents: prompt
+  });
+  return response.text?.trim() || originalText;
+};
+
+/**
+ * Generates educational content (Study Guide or Curriculum) based on culinary standards.
+ */
+export const generateStudyGuideFromApi = async (topic: string, curriculum: string, level: string, type: 'guide' | 'curriculum'): Promise<EducationContent> => {
+  const prompt = `Generate a ${type === 'guide' ? 'detailed Study Guide' : 'Curriculum Syllabus'} for the topic: "${topic}". 
+  Standard: ${curriculum}. Level: ${level}. 
+  Include: Title, Overview, Modules (with title and 3-5 content bullet points each), Key Vocabulary, Assessment Criteria, and Practical Exercises.`;
+
+  const response = await ai.models.generateContent({
+    model: 'gemini-3-flash-preview',
     contents: prompt,
     config: {
-      responseMimeType: 'application/json',
+      responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
         properties: {
@@ -225,65 +182,53 @@ export const generateStudyGuideFromApi = async (topic: string, curriculum: strin
           curriculum: { type: Type.STRING },
           level: { type: Type.STRING },
           overview: { type: Type.STRING },
-          modules: { type: Type.ARRAY, items: { type: Type.OBJECT, properties: { title: { type: Type.STRING }, content: { type: Type.ARRAY, items: { type: Type.STRING } } } } },
+          modules: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                title: { type: Type.STRING },
+                content: { type: Type.ARRAY, items: { type: Type.STRING } }
+              },
+              required: ["title", "content"]
+            }
+          },
           keyVocabulary: { type: Type.ARRAY, items: { type: Type.STRING } },
           assessmentCriteria: { type: Type.ARRAY, items: { type: Type.STRING } },
           practicalExercises: { type: Type.ARRAY, items: { type: Type.STRING } }
-        }
+        },
+        required: ["title", "curriculum", "level", "overview", "modules", "keyVocabulary", "assessmentCriteria", "practicalExercises"]
       }
     }
   });
-  if (!response.text) throw new Error("No content generated.");
-  return JSON.parse(response.text);
+
+  const text = response.text;
+  if (!text) throw new Error("AI failed to generate educational content.");
+  return JSON.parse(text);
 };
 
 export const generateSocialCaption = async (menuTitle: string, description: string, platform: string = 'instagram'): Promise<string> => {
-    const prompt = `
-        Write a viral ${platform} caption for: "${menuTitle}". 
-        Context: ${description}. 
-        Goal: Show off the menu and drive traffic to https://caterpro-ai.web.app/.
-        Tone: Professional, enticing, and chef-focused. 
-        PERFECT SPELLING MANDATORY.
-    `;
+    const prompt = `Write a viral ${platform} caption for: "${menuTitle}". Content: ${description}. Tone: Professional and enticing. Perfect spelling. Link: https://caterpro-ai.web.app/`;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: prompt
     });
-    return response.text.trim();
+    return response.text?.trim() || "";
 };
 
 export const generateAssignmentEmail = async (menuTitle: string, menuDescription: string): Promise<string> => {
-    const prompt = `
-        You are a student doing a Coursera assignment. You have built an AI catering assistant called "CaterPro AI".
-        Write a professional email to an educator at "Limpopo Chefs Academy".
-        
-        **GOAL:** Share a menu proposal you generated as proof of your project and ask them to try the tool to see if it could help their students overcome administrative hurdles.
-        
-        **CONTEXT:** Mention you have ADHD/Dyslexia and built this to handle spelling and logistics—things that used to be a barrier for you.
-        **MENU ATTACHED:** ${menuTitle} (${menuDescription}).
-        
-        **STRICT RULES:**
-        1. Subject: Needs to be catchy and professional.
-        2. Tone: Respectful, visionary, and professional.
-        3. PERFECT SPELLING MANDATORY (especially culinary terms).
-        4. Include placeholders [My Name].
-        5. Do not mention "Gemini" or "Google"—focus on the tool's impact.
-    `;
+    const prompt = `Draft a professional email pitching CaterPro AI (an AI tool for chefs) to Limpopo Chefs Academy. Context: Built by a student with ADHD/Dyslexia to solve paperwork hurdles. Attached menu: ${menuTitle}.`;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: prompt
     });
-    return response.text.trim();
+    return response.text?.trim() || "";
 };
 
 export const generateSocialVideoFromApi = async (menuTitle: string, description: string): Promise<string> => {
-    const videoPrompt = `A high-end cinematic vertical commercial for a catering menu titled "${menuTitle}". 
-    The scene should show steam rising from gourmet food, elegant table settings, and a professional chef's hands garnishing a dish. 
-    The lighting should be dramatic and appetizing. No text. 9:16 aspect ratio.`;
-    
     let operation = await ai.models.generateVideos({
         model: 'veo-3.1-fast-generate-preview',
-        prompt: videoPrompt,
+        prompt: `Vertical cinematic commercial for a catering event titled "${menuTitle}". Glistening gourmet food, professional plating, elegant vibe.`,
         config: { numberOfVideos: 1, resolution: '720p', aspectRatio: '9:16' }
     });
     while (!operation.done) {
