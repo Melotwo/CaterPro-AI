@@ -283,6 +283,12 @@ const App: React.FC = () => {
             </div>
         </section>
 
+        {/* 
+          NotebookLM Suggestion Lab - Moved here so it's always visible 
+          even before a menu is generated, helping with discovery.
+        */}
+        <ProductivityLab dietaryRestrictions={dietaryRestrictions} />
+
         {menu && (
           <section className="mt-12 animate-slide-in">
              <div className="mb-4 flex flex-wrap items-center gap-2 no-print">
@@ -335,9 +341,6 @@ const App: React.FC = () => {
                 />
               </div>
             </div>
-
-            {/* NotebookLM Suggestion Lab */}
-            <ProductivityLab dietaryRestrictions={dietaryRestrictions} />
           </section>
         )}
       </main>
