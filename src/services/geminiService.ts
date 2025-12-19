@@ -237,10 +237,13 @@ export const generateStudyGuideFromApi = async (topic: string, curriculum: strin
   return JSON.parse(response.text);
 };
 
-export const generateSocialCaption = async (menuTitle: string, description: string, platform: 'instagram' | 'linkedin' | 'twitter' | 'pinterest' = 'instagram'): Promise<string> => {
+export const generateSocialCaption = async (menuTitle: string, description: string, platform: string = 'instagram'): Promise<string> => {
     const prompt = `
-        Write a viral ${platform} caption for: "${menuTitle}". ${description}. 
-        Include Call to action: https://caterpro-ai.web.app/
+        Write a viral ${platform} caption for: "${menuTitle}". 
+        Context: ${description}. 
+        Goal: Show off the menu and drive traffic to https://caterpro-ai.web.app/.
+        Tone: Professional, enticing, and chef-focused. 
+        PERFECT SPELLING MANDATORY.
     `;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -256,14 +259,15 @@ export const generateAssignmentEmail = async (menuTitle: string, menuDescription
         
         **GOAL:** Share a menu proposal you generated as proof of your project and ask them to try the tool to see if it could help their students overcome administrative hurdles.
         
-        **CONTEXT:** Mention you have ADHD/Dyslexia and built this to handle spelling and logistics. 
+        **CONTEXT:** Mention you have ADHD/Dyslexia and built this to handle spelling and logistics—things that used to be a barrier for you.
         **MENU ATTACHED:** ${menuTitle} (${menuDescription}).
         
         **STRICT RULES:**
-        1. Tone: Respectful, visionary, and professional.
-        2. PERFECT SPELLING MANDATORY.
-        3. Include placeholders [My Name].
-        4. Do not mention "Gemini" or "Google" - focus on the experience.
+        1. Subject: Needs to be catchy and professional.
+        2. Tone: Respectful, visionary, and professional.
+        3. PERFECT SPELLING MANDATORY (especially culinary terms).
+        4. Include placeholders [My Name].
+        5. Do not mention "Gemini" or "Google"—focus on the tool's impact.
     `;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -272,51 +276,11 @@ export const generateAssignmentEmail = async (menuTitle: string, menuDescription
     return response.text.trim();
 };
 
-export const generateInstagramBio = async (founderName: string, appGoal: string): Promise<string> => {
-    const prompt = `
-        Write 3 high-converting Instagram bio options for a founder named "${founderName}".
-        App: CaterPro AI.
-    `;
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt
-    });
-    return response.text.trim();
-};
-
-export const generateSocialReply = async (comment: string, context: string = '', tone: 'chef-to-chef' | 'professional' | 'supportive' = 'professional'): Promise<string> => {
-    const prompt = `
-        Write a high-value reply to: "${comment}".
-    `;
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt
-    });
-    return response.text.trim();
-};
-
-export const generateViralHook = async (menuTitle: string, description: string): Promise<string> => {
-    const prompt = `Generate viral hooks for: "${menuTitle}".`;
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt
-    });
-    return response.text.trim();
-};
-
-export const generateFounderMarketingPost = async (platform: 'linkedin' | 'twitter' | 'instagram' | 'pinterest'): Promise<string> => {
-    const prompt = `Write a launch post for ${platform}.`;
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt
-    });
-    return response.text.trim();
-};
-
-export type VideoStyle = 'cinematic' | 'vibrant' | 'minimalist';
-
-export const generateSocialVideoFromApi = async (menuTitle: string, description: string, style: VideoStyle = 'cinematic'): Promise<string> => {
-    const videoPrompt = `Vertical commercial for "${menuTitle}".`;
+export const generateSocialVideoFromApi = async (menuTitle: string, description: string): Promise<string> => {
+    const videoPrompt = `A high-end cinematic vertical commercial for a catering menu titled "${menuTitle}". 
+    The scene should show steam rising from gourmet food, elegant table settings, and a professional chef's hands garnishing a dish. 
+    The lighting should be dramatic and appetizing. No text. 9:16 aspect ratio.`;
+    
     let operation = await ai.models.generateVideos({
         model: 'veo-3.1-fast-generate-preview',
         prompt: videoPrompt,
@@ -328,7 +292,5 @@ export const generateSocialVideoFromApi = async (menuTitle: string, description:
     }
     const videoUri = operation.response?.generatedVideos?.[0]?.video?.uri;
     if (!videoUri) throw new Error("Video generation failed.");
-    const response = await fetch(`${videoUri}&key=${process.env.API_KEY}`);
-    const blob = await response.blob();
-    return URL.createObjectURL(blob);
+    return `${videoUri}&key=${process.env.API_KEY}`;
 };
