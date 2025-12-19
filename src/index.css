@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -9,6 +10,7 @@
   --slate-950: #020617;
   --slate-50: #f8fafc;
 }
+
 @supports (font-variation-settings: normal) {
   :root { font-family: 'Inter var', sans-serif; }
 }
@@ -16,6 +18,8 @@
 html {
   scrollbar-width: thin;
   scrollbar-color: rgba(156, 163, 175, 0.5) var(--slate-50);
+  /* Handle iPad scroll physics */
+  -webkit-overflow-scrolling: touch;
 }
 
 .dark html {
@@ -23,14 +27,15 @@ html {
 }
 
 html, body {
-  /* Prevent horizontal scroll and ensure full height on mobile with dynamic toolbars */
   min-height: 100dvh;
   text-size-adjust: 100%;
+  /* Support for iPad Notch/Home Bar */
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 body {
   @apply bg-slate-50;
-  background-image: radial-gradient(rgba(4, 120, 87, 0.05) 1px, transparent 0); /* Green tint dots */
+  background-image: radial-gradient(rgba(4, 120, 87, 0.05) 1px, transparent 0);
   background-size: 30px 30px;
   background-position: -15px -15px;
 }
@@ -48,20 +53,14 @@ body {
   @apply bg-slate-50 dark:bg-slate-950;
 }
 ::-webkit-scrollbar-thumb {
-  background-color: rgba(167, 243, 208, 0.5); /* Greenish tint */
+  background-color: rgba(167, 243, 208, 0.5);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background-color: rgba(5, 150, 105, 0.5);
 }
-.dark ::-webkit-scrollbar-thumb {
-  background-color: rgba(100, 116, 139, 0.5);
-}
-.dark ::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(100, 116, 139, 0.7);
-}
 
-/* Global focus styles for accessibility */
+/* Global focus styles */
 *:focus-visible {
   outline: 2px solid var(--primary-500) !important;
   outline-offset: 2px !important;
@@ -69,8 +68,12 @@ body {
 }
 
 .action-button {
-    @apply inline-flex items-center justify-center px-3 py-2 text-sm font-semibold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm transition-colors;
+    @apply inline-flex items-center justify-center px-4 py-2.5 text-sm font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm transition-all active:scale-95;
 }
+
+/* iPad Safe Area Overrides */
+.safe-p-top { padding-top: env(safe-area-inset-top); }
+.safe-p-bottom { padding-bottom: env(safe-area-inset-bottom); }
 
 @media print {
   body {
