@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types';
-import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat } from 'lucide-react';
+import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck } from 'lucide-react';
 import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES } from '../constants';
 
 interface MenuDisplayProps {
@@ -31,7 +31,6 @@ interface MenuDisplayProps {
 }
 
 const getAffiliateLink = (keywords: string) => {
-    // Using Amazon.com as it's more universal and aligns with the footer disclosure.
     return `https://www.amazon.com/s?k=${encodeURIComponent(keywords)}&tag=caterproai-20`;
 };
 
@@ -51,11 +50,31 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
 
   if (!menu) return null;
 
+  /**
+   * Specifically for the user's Coursera assignment:
+   * Copies the entire menu in a clean format for Google Docs/Workspace
+   */
+  const handleCopyForWorkspace = () => {
+    let workspaceText = `${menu.menuTitle.toUpperCase()}\n`;
+    workspaceText += `${menu.description}\n\n`;
+
+    workspaceText += `--- MENU ---\n`;
+    workspaceText += `Appetizers:\n${menu.appetizers.map(a => `- ${a}`).join('\n')}\n\n`;
+    workspaceText += `Main Courses:\n${menu.mainCourses.map(m => `- ${m}`).join('\n')}\n\n`;
+    workspaceText += `Dessert:\n${menu.dessert.map(d => `- ${d}`).join('\n')}\n\n`;
+
+    workspaceText += `--- LOGISTICS ---\n`;
+    workspaceText += `Dietary Notes: ${menu.dietaryNotes?.join(', ') || 'None'}\n`;
+    workspaceText += `Mise en Place:\n${menu.miseEnPlace.map(m => `- ${m}`).join('\n')}\n`;
+
+    navigator.clipboard.writeText(workspaceText)
+        .then(() => showToast("Copied! Now go to Google Docs and Paste."))
+        .catch(err => console.error('Failed to copy: ', err));
+  };
+
   const handleCopySection = (title: string, items: any[]) => {
     if (!items || items.length === 0) return;
-
     let textToCopy: string;
-
     if (typeof items[0] === 'string') {
        textToCopy = `${title}\n\n${(items as string[]).join('\n')}`;
     } else if ('pairingSuggestion' in items[0]) {
@@ -79,7 +98,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
         return `Store: ${store}\n${'='.repeat(store.length + 6)}\n${categoryBlocks}`;
       }).join('\n\n\n');
     }
-
     navigator.clipboard.writeText(textToCopy)
         .then(() => showToast(`'${title}' section copied!`))
         .catch(err => console.error('Failed to copy section: ', err));
@@ -100,6 +118,25 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
     <div className={`p-4 sm:p-6 theme-container ${t.container}`}>
       <div className="space-y-6">
       
+      {/* COURSERA ASSIGNMENT TOOLBAR */}
+      <div className="no-print bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 p-4 rounded-2xl mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-600 rounded-lg text-white">
+                  <ClipboardCheck size={20} />
+              </div>
+              <div>
+                  <h4 className="text-sm font-black text-blue-900 dark:text-blue-100">Workspace Integration</h4>
+                  <p className="text-xs text-blue-700 dark:text-blue-300">Ready for your Google AI Assignment</p>
+              </div>
+          </div>
+          <button 
+            onClick={handleCopyForWorkspace}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-lg transition-all active:scale-95"
+          >
+              <FileText size={18} /> Copy Menu for Google Docs
+          </button>
+      </div>
+
       <div className="flex items-center justify-between border-b border-dashed border-slate-300 dark:border-slate-600 pb-4 mb-2">
          <div className="flex items-center gap-2">
             <ChefHat className={`w-6 h-6 ${t.title}`} />
@@ -286,7 +323,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                                                               </div>
                                                           )}
                                                           <div className="flex-1">
-                                                              {/* User Request: Bullet points in shopping list */}
                                                               <span className={`flex items-center gap-1.5 transition-colors ${isChecked && !isBulkEditMode ? t.checkedText : t.uncheckedText}`}>
                                                                   {!isBulkEditMode && <span className="text-slate-400 dark:text-slate-500">•</span>}
                                                                   {item.item}
