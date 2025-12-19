@@ -1,69 +1,76 @@
 
-import React, { useState, useEffect, useRef } from 'react';
-import { X, Copy, Image as ImageIcon, Check, RefreshCw, Smartphone, Linkedin, Twitter, Facebook, MessageCircle, Send, Film, Play, Download, Zap, Rocket, AlertCircle, Quote, Pin, UserCircle, ExternalLink, GraduationCap } from 'lucide-react';
-import { generateSocialReply, generateSocialCaption, generateSocialVideoFromApi, generateViralHook, VideoStyle, generateFounderMarketingPost, generateInstagramBio, generateAssignmentEmail } from '../services/geminiService';
+import React, { useState, useEffect } from 'react';
+import { X, Copy, Image as ImageIcon, Check, RefreshCw, Linkedin, Twitter, MessageCircle, Send, Film, Play, Zap, GraduationCap, ArrowRight, Loader2, Mail } from 'lucide-react';
+import { generateSocialCaption, generateSocialVideoFromApi, generateAssignmentEmail } from '../services/geminiService';
 
 interface SocialMediaModalProps {
   isOpen: boolean;
   onClose: () => void;
   image: string | undefined;
-  caption: string;
-  onRegenerateCaption: () => void;
-  isRegenerating: boolean;
   menuTitle: string;
   menuDescription: string;
-  initialMode?: 'create' | 'reply' | 'video' | 'sell' | 'profile' | 'pitch';
+  initialMode?: Mode;
 }
 
-type Platform = 'instagram' | 'linkedin' | 'twitter' | 'facebook' | 'pinterest' | 'email';
-type Mode = 'create' | 'reply' | 'video' | 'sell' | 'profile' | 'pitch';
+type Platform = 'instagram' | 'linkedin' | 'twitter' | 'email';
+type Mode = 'create' | 'pitch' | 'video';
 
 const SocialMediaModal: React.FC<SocialMediaModalProps> = ({ 
-  isOpen, onClose, image, caption, onRegenerateCaption, isRegenerating, menuTitle, menuDescription, initialMode
+  isOpen, onClose, image, menuTitle, menuDescription, initialMode = 'create'
 }) => {
-  const [activeMode, setActiveMode] = useState<Mode>('create');
-  const [activePlatform, setActivePlatform] = useState<Platform>('linkedin');
-  const [editedCaption, setEditedCaption] = useState(caption);
-  const [pinTitle, setPinTitle] = useState('');
+  const [activeMode, setActiveMode] = useState<Mode>(initialMode);
+  const [activePlatform, setActivePlatform] = useState<Platform>('instagram');
+  const [editedContent, setEditedContent] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
   const [copiedText, setCopiedText] = useState(false);
-  
-  const [isGeneratingAssignment, setIsGeneratingAssignment] = useState(false);
-
-  useEffect(() => {
-    if (caption.includes('TITLE:')) {
-        const parts = caption.split('DESCRIPTION:');
-        setPinTitle(parts[0].replace('TITLE:', '').trim());
-        setEditedCaption(parts[1]?.trim() || '');
-    } else {
-        setEditedCaption(caption);
-    }
-  }, [caption]);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
-      if (initialMode) setActiveMode(initialMode);
-      if (initialMode === 'pitch') handleGenerateAssignment();
+      setActiveMode(initialMode);
+      setEditedContent('');
+      setVideoUrl(null);
+      
+      if (initialMode === 'pitch') {
+        handleGenerate('email');
+      } else if (initialMode === 'create') {
+        handleGenerate('instagram');
+      }
     }
   }, [isOpen, initialMode]);
 
-  const handleGenerateAssignment = async () => {
-    setIsGeneratingAssignment(true);
+  const handleGenerate = async (platformOverride?: Platform) => {
+    const platform = platformOverride || activePlatform;
+    setIsGenerating(true);
     try {
+      if (activeMode === 'pitch') {
         const email = await generateAssignmentEmail(menuTitle, menuDescription);
-        setEditedCaption(email);
-        setActivePlatform('email');
+        setEditedContent(email);
+      } else if (activeMode === 'create') {
+        const caption = await generateSocialCaption(menuTitle, menuDescription, platform);
+        setEditedContent(caption);
+      } else if (activeMode === 'video') {
+        const url = await generateSocialVideoFromApi(menuTitle, menuDescription);
+        setVideoUrl(url);
+      }
     } catch (e) {
-        setEditedCaption("Failed to generate assignment email.");
+      setEditedContent("Failed to generate content. Please try again.");
     } finally {
-        setIsGeneratingAssignment(false);
+      setIsGenerating(false);
     }
   };
 
-  const handleCopyText = (text: string) => {
-    navigator.clipboard.writeText(text).then(() => {
+  const handleCopyText = () => {
+    navigator.clipboard.writeText(editedContent).then(() => {
       setCopiedText(true);
       setTimeout(() => setCopiedText(false), 2000);
     });
+  };
+
+  const handleModeChange = (mode: Mode) => {
+    setActiveMode(mode);
+    setEditedContent('');
+    setVideoUrl(null);
   };
 
   if (!isOpen) return null;
@@ -77,65 +84,149 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
           <X size={20} />
         </button>
 
+        {/* Tab Navigation */}
         <div className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 p-3 flex gap-2 overflow-x-auto no-scrollbar">
-            <button onClick={() => setActiveMode('create')} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'create' ? 'bg-white dark:bg-slate-700 shadow-md text-primary-600' : 'text-slate-500'}`}>
+            <button 
+                onClick={() => handleModeChange('create')} 
+                className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'create' ? 'bg-white dark:bg-slate-700 shadow-md text-primary-600' : 'text-slate-500'}`}
+            >
                 <ImageIcon size={16} /> Social Post
             </button>
-            <button onClick={() => setActiveMode('pitch')} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'pitch' ? 'bg-white dark:bg-slate-700 shadow-md text-blue-600' : 'text-slate-500'}`}>
+            <button 
+                onClick={() => handleModeChange('pitch')} 
+                className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'pitch' ? 'bg-white dark:bg-slate-700 shadow-md text-blue-600' : 'text-slate-500'}`}
+            >
                 <GraduationCap size={16} /> Assignment Pitch
             </button>
-            <button onClick={() => setActiveMode('video')} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'video' ? 'bg-white dark:bg-slate-700 shadow-md text-purple-600' : 'text-slate-500'}`}>
+            <button 
+                onClick={() => handleModeChange('video')} 
+                className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'video' ? 'bg-white dark:bg-slate-700 shadow-md text-purple-600' : 'text-slate-500'}`}
+            >
                 <Film size={16} /> Reel Maker
             </button>
         </div>
 
         <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
-            <div className="md:w-1/2 bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-8 border-r border-slate-200 dark:border-slate-800 overflow-y-auto">
+            {/* Left Panel: Preview/Controls */}
+            <div className="md:w-1/2 bg-slate-50 dark:bg-slate-950 flex flex-col p-8 border-r border-slate-200 dark:border-slate-800 overflow-y-auto">
                 {activeMode === 'pitch' ? (
-                    <div className="max-w-sm w-full text-center space-y-6">
-                        <div className="bg-blue-600 text-white p-8 rounded-3xl shadow-xl">
+                    <div className="flex-grow flex flex-col items-center justify-center text-center space-y-6">
+                        <div className="bg-blue-600 text-white p-8 rounded-3xl shadow-xl w-full max-w-sm">
                             <GraduationCap className="w-16 h-16 mx-auto mb-4" />
                             <h3 className="text-xl font-bold">Pitch to Limpopo Chefs</h3>
-                            <p className="text-blue-100 text-sm mt-2">This tool drafts your Coursera assignment email to <strong>info@limpopochefs.co.za</strong> including your menu details.</p>
-                            <button onClick={handleGenerateAssignment} disabled={isGeneratingAssignment} className="mt-6 bg-white text-blue-600 px-6 py-3 rounded-2xl font-black text-sm flex items-center gap-2 mx-auto hover:bg-blue-50 shadow-lg disabled:opacity-50">
-                                {isGeneratingAssignment ? <RefreshCw className="animate-spin" size={16} /> : <Zap size={16} />}
-                                {isGeneratingAssignment ? 'Writing...' : 'Regenerate Draft'}
-                            </button>
+                            <p className="text-blue-100 text-sm mt-2">Drafing your Coursera assignment for <strong>info@limpopochefs.co.za</strong>.</p>
                         </div>
-                        <div className="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-left">
-                            <p className="text-[10px] font-black uppercase text-slate-400 mb-1 tracking-widest">Recipient</p>
-                            <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Limpopo Chefs Academy</p>
-                            <p className="text-xs text-blue-500">info@limpopochefs.co.za</p>
+                        <button 
+                            onClick={() => handleGenerate()} 
+                            disabled={isGenerating} 
+                            className="w-full max-w-sm bg-white dark:bg-slate-800 text-blue-600 px-6 py-4 rounded-2xl font-black text-sm flex items-center justify-center gap-2 shadow-lg border-2 border-blue-100 dark:border-blue-900 disabled:opacity-50"
+                        >
+                            {isGenerating ? <Loader2 className="animate-spin" size={18} /> : <RefreshCw size={18} />}
+                            {isGenerating ? 'Drafting Email...' : 'Regenerate Assignment Draft'}
+                        </button>
+                    </div>
+                ) : activeMode === 'create' ? (
+                    <div className="space-y-6">
+                        <div className="max-w-md mx-auto relative group">
+                            {image ? (
+                                <img src={`data:image/png;base64,${image}`} className="w-full rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800" alt="Preview" />
+                            ) : (
+                                <div className="aspect-square bg-slate-200 dark:bg-slate-800 rounded-2xl flex items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-700">
+                                    <ImageIcon size={48} className="text-slate-400" />
+                                </div>
+                            )}
                         </div>
+                        <div className="grid grid-cols-3 gap-3">
+                            {(['instagram', 'linkedin', 'twitter'] as Platform[]).map(p => (
+                                <button 
+                                    key={p} 
+                                    onClick={() => { setActivePlatform(p); handleGenerate(p); }}
+                                    className={`py-3 rounded-xl border-2 flex flex-col items-center gap-1 transition-all ${activePlatform === p ? 'bg-primary-50 border-primary-500 text-primary-700' : 'bg-white dark:bg-slate-800 border-transparent text-slate-500'}`}
+                                >
+                                    {p === 'instagram' && <ImageIcon size={18} />}
+                                    {p === 'linkedin' && <Linkedin size={18} />}
+                                    {p === 'twitter' && <Twitter size={18} />}
+                                    <span className="text-[10px] font-bold uppercase">{p}</span>
+                                </button>
+                            ))}
+                        </div>
+                        <button 
+                            onClick={() => handleGenerate()} 
+                            disabled={isGenerating} 
+                            className="w-full py-4 bg-primary-600 text-white rounded-2xl font-black shadow-xl flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                            {isGenerating ? <Loader2 className="animate-spin" size={20} /> : <Zap size={20} />}
+                            {isGenerating ? 'Writing Post...' : 'Generate AI Caption'}
+                        </button>
                     </div>
                 ) : (
-                    <div className="max-w-md w-full">
-                        {image && <img src={`data:image/png;base64,${image}`} className="w-full rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800" />}
+                    <div className="flex-grow flex flex-col items-center justify-center space-y-6">
+                        <div className="aspect-[9/16] w-full max-w-[280px] bg-slate-200 dark:bg-slate-800 rounded-3xl overflow-hidden shadow-2xl border-4 border-slate-100 dark:border-slate-800 flex items-center justify-center relative">
+                            {isGenerating ? (
+                                <div className="text-center p-6">
+                                    <Loader2 className="w-12 h-12 text-purple-500 animate-spin mx-auto mb-4" />
+                                    <p className="text-xs font-bold text-slate-500 animate-pulse">Veo AI is painting your scene...</p>
+                                </div>
+                            ) : videoUrl ? (
+                                <video src={videoUrl} controls autoPlay loop className="w-full h-full object-cover" />
+                            ) : (
+                                <div className="text-center p-6">
+                                    <Film size={48} className="text-slate-400 mx-auto mb-4" />
+                                    <p className="text-xs font-bold text-slate-500">Ready to create a viral Reel</p>
+                                </div>
+                            )}
+                        </div>
+                        <button 
+                            onClick={() => handleGenerate()} 
+                            disabled={isGenerating} 
+                            className="w-full max-w-sm py-4 bg-purple-600 text-white rounded-2xl font-black shadow-xl flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                            {isGenerating ? <Loader2 className="animate-spin" size={20} /> : <Play size={20} />}
+                            {isGenerating ? 'Generating Video...' : 'Create Cinematic Reel'}
+                        </button>
+                        <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Powered by Google Veo</p>
                     </div>
                 )}
             </div>
 
+            {/* Right Panel: Content Editor */}
             <div className="md:w-1/2 flex flex-col bg-white dark:bg-slate-900">
-                <div className="p-6 border-b border-slate-100 dark:border-slate-800">
-                    <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">Draft Content</h4>
+                <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                    <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">
+                        {activeMode === 'pitch' ? 'Email Content' : 'AI Draft'}
+                    </h4>
+                    {isGenerating && <Loader2 size={16} className="text-primary-500 animate-spin" />}
                 </div>
                 
                 <div className="flex-grow p-6 overflow-y-auto">
-                    <textarea 
-                        className="w-full h-full min-h-[300px] resize-none border-none focus:ring-0 bg-transparent text-slate-700 dark:text-slate-300 text-sm leading-relaxed font-medium" 
-                        value={editedCaption} 
-                        onChange={(e) => setEditedCaption(e.target.value)} 
-                        placeholder="Drafting..."
-                    />
+                    {isGenerating && !editedContent ? (
+                        <div className="space-y-4">
+                            <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-3/4 animate-pulse"></div>
+                            <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-full animate-pulse delay-75"></div>
+                            <div className="h-4 bg-slate-100 dark:bg-slate-800 rounded w-5/6 animate-pulse delay-150"></div>
+                        </div>
+                    ) : (
+                        <textarea 
+                            className="w-full h-full min-h-[300px] resize-none border-none focus:ring-0 bg-transparent text-slate-700 dark:text-slate-300 text-sm leading-relaxed font-medium" 
+                            value={editedContent} 
+                            onChange={(e) => setEditedContent(e.target.value)} 
+                            placeholder={isGenerating ? "Drafting..." : "Generate content to start editing..."}
+                        />
+                    )}
                 </div>
 
                 <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
-                    <button onClick={() => handleCopyText(editedCaption)} className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2">
-                        {copiedText ? <Check size={20} /> : <Copy size={20} />} {copiedText ? 'Copied to Clipboard!' : 'Copy Assignment Email'}
+                    <button 
+                        onClick={handleCopyText} 
+                        disabled={!editedContent}
+                        className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                    >
+                        {copiedText ? <Check size={20} /> : (activeMode === 'pitch' ? <Mail size={20} /> : <Copy size={20} />)} 
+                        {copiedText ? 'Copied!' : (activeMode === 'pitch' ? 'Copy Email to Clipboard' : 'Copy Content')}
                     </button>
                     {activeMode === 'pitch' && (
-                        <p className="text-center text-[10px] text-slate-400 mt-4 font-bold">
-                            Copy this and paste into your email client to send to info@limpopochefs.co.za
+                        <p className="text-center text-[10px] text-slate-400 mt-4 font-bold uppercase tracking-tighter">
+                            Send to info@limpopochefs.co.za
                         </p>
                     )}
                 </div>
