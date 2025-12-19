@@ -1,6 +1,4 @@
-
 import React, { useState, useRef } from 'react';
-// Added missing X icon to the imports
 import { Camera, FileText, ShieldAlert, Loader2, CheckCircle, AlertTriangle, Sparkles, TrendingUp, DollarSign, X } from 'lucide-react';
 import { analyzeReceiptFromApi, analyzeLabelFromApi } from '../services/geminiService';
 
@@ -47,7 +45,7 @@ const ProductivityLab: React.FC<{ dietaryRestrictions: string[] }> = ({ dietaryR
         </div>
         <div>
           <h2 className="text-2xl font-black text-slate-900 dark:text-white">Productivity Lab (Beta)</h2>
-          <p className="text-sm text-slate-500 font-medium">NotebookLM Suggested: Vision AI Powered by Gemini 3</p>
+          <p className="text-sm text-slate-500 font-medium">Vision AI Powered by Gemini 3</p>
         </div>
       </div>
 
@@ -120,7 +118,7 @@ const ProductivityLab: React.FC<{ dietaryRestrictions: string[] }> = ({ dietaryR
                   <div className="space-y-4">
                     <h5 className="text-sm font-black uppercase text-slate-400 tracking-widest">Auto-Categorized</h5>
                     <div className="flex flex-wrap gap-2">
-                      {result.categories.map((cat: string) => (
+                      {result.categories && result.categories.map((cat: string) => (
                         <span key={cat} className="px-4 py-2 bg-white dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600 text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2 shadow-sm">
                           <CheckCircle size={12} className="text-green-500" /> {cat}
                         </span>
@@ -149,7 +147,7 @@ const ProductivityLab: React.FC<{ dietaryRestrictions: string[] }> = ({ dietaryR
                       <AlertTriangle size={16} className="text-red-500" /> Detected Concerns
                     </h5>
                     <div className="space-y-2">
-                      {result.flaggedIngredients.length > 0 ? (
+                      {result.flaggedIngredients && result.flaggedIngredients.length > 0 ? (
                         result.flaggedIngredients.map((ing: string) => (
                           <div key={ing} className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-xl text-xs font-bold text-red-700 dark:text-red-300 flex items-center gap-2">
                             <X size={14} /> Flagged: {ing}
@@ -174,9 +172,11 @@ const ProductivityLab: React.FC<{ dietaryRestrictions: string[] }> = ({ dietaryR
                 </div>
               )}
             </div>
-          </div>
-        </section>
-      );
-    };
+          )}
+        </div>
+      </div>
+    </section>
+  );
+};
 
-    export default ProductivityLab;
+export default ProductivityLab;
