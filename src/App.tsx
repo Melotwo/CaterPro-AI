@@ -26,7 +26,7 @@ import { useAppSubscription, type SubscriptionPlan } from './hooks/useAppSubscri
 import { CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES } from './constants';
 import { SavedMenu, ErrorState, ValidationErrors, Menu, MenuSection } from './types';
 import { getApiErrorState } from './services/apiErrorHandler';
-import { generateMenuFromApi } from './services/geminiService';
+import { generateMenuFromApi, generateMenuImageFromApi } from './services/geminiService';
 
 const LOADING_MESSAGES = [
   'Consulting with the master chefs...',
@@ -50,6 +50,7 @@ const App: React.FC = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [error, setError] = useState<ErrorState | null>(null);
   const [menu, setMenu] = useState<Menu | null>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
   
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -161,14 +162,27 @@ const App: React.FC = () => {
         cuisine,
         dietaryRestrictions,
       });
-      setMenu({ ...result.menu, theme: proposalTheme });
+      
+      const newMenu = { ...result.menu, theme: proposalTheme };
+      setMenu(newMenu);
+      setIsLoading(false); // Text is done, now we handle the image in background
+
+      // Trigger Background Image Generation
+      setIsGeneratingImage(true);
+      try {
+        const imageBase64 = await generateMenuImageFromApi(newMenu.menuTitle, newMenu.description);
+        setMenu(prev => prev ? { ...prev, image: imageBase64 } : null);
+      } catch (imgErr) {
+        console.warn("Auto image generation failed", imgErr);
+      } finally {
+        setIsGeneratingImage(false);
+      }
       
       if (!localStorage.getItem('caterpro_user_email')) {
           setIsEmailCaptureModalOpen(true);
       }
     } catch (e) {
       setError(getApiErrorState(e));
-    } finally {
       setIsLoading(false);
     }
   };
@@ -302,7 +316,7 @@ const App: React.FC = () => {
                     }
                   }}
                   showToast={setToastMessage}
-                  isGeneratingImage={false}
+                  isGeneratingImage={isGeneratingImage}
                   onUpdateShoppingItemQuantity={() => {}}
                   bulkSelectedItems={new Set()}
                   onToggleBulkSelect={() => {}}
@@ -326,7 +340,15 @@ const App: React.FC = () => {
       <Footer />
       <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
       <EmailCapture isOpen={isEmailCaptureModalOpen} onClose={() => setIsEmailCaptureModalOpen(false)} onSave={(e, w) => { localStorage.setItem('caterpro_user_email', e); localStorage.setItem('caterpro_user_whatsapp', w); setIsEmailCaptureModalOpen(false); }} />
-      <SocialMediaModal isOpen={isSocialModalOpen} onClose={() => setIsSocialModalOpen(false)} image={menu?.image} menuTitle={menu?.menuTitle || ''} menuDescription={menu?.description || ''} initialMode={socialModalMode} />
+      <SocialMediaModal 
+        isOpen={isSocialModalOpen} 
+        onClose={() => setIsSocialModalOpen(false)} 
+        image={menu?.image} 
+        menuTitle={menu?.menuTitle || ''} 
+        menuDescription={menu?.description || ''} 
+        initialMode={socialModalMode} 
+        onImageGenerated={(b64) => setMenu(prev => prev ? { ...prev, image: b64 } : null)}
+      />
       <SavedChecklistsModal isOpen={isSavedModalOpen} onClose={() => setIsSavedModalOpen(false)} savedMenus={savedMenus} onDelete={() => {}} />
       <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={(p) => { selectPlan(p); setShowUpgradeModal(false); }} />
       <CustomizationModal isOpen={isCustomizationModalOpen} onClose={() => setIsCustomizationModalOpen(false)} itemToEdit={itemToEdit} onSave={(s, i, t) => {
