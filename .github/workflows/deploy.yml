@@ -1,9 +1,10 @@
+
 name: Deploy to Firebase Hosting
 
 on:
   push:
     branches:
-      - '**'
+      - 'main'
   workflow_dispatch:
 
 jobs:
@@ -21,6 +22,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: 'npm'
 
       - name: Install Dependencies
         run: npm install
@@ -39,15 +41,10 @@ jobs:
             exit 1
           fi
 
-      # Auto-detect and normalize the founder image
-      # Scans the entire repo (recursive) for any image file and standardizes it to public/founder.jpg
       - name: Normalize Founder Image
         run: |
           mkdir -p public
-          
-          echo "🔍 Searching recursively for ANY image file..."
           # Find first image file in the repo (ignoring .git, node_modules, and dist)
-          # We look for common image extensions up to 3 folders deep
           FOUND_IMG=$(find . -maxdepth 3 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) -not -path "*/.*" -not -path "*/node_modules/*" -not -path "*/dist/*" -not -name "logo.*" -not -name "favicon.*" | head -n 1)
           
           if [ -n "$FOUND_IMG" ]; then
@@ -55,14 +52,10 @@ jobs:
             cp "$FOUND_IMG" public/founder.jpg
           else
             echo "⚠️ No user image found. Using stock placeholder."
-            # Only download if public/founder.jpg doesn't exist yet
             if [ ! -f "public/founder.jpg" ]; then
                 curl -L "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80" -o public/founder.jpg
             fi
           fi
-          
-          echo "📁 Final public folder contents:"
-          ls -la public/
 
       - name: Build App
         run: npm run build
