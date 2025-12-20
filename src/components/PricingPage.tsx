@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Check, Star, Zap, Briefcase, GraduationCap, Building2, Users } from 'lucide-react';
 import { SubscriptionPlan } from '../hooks/useAppSubscription';
@@ -6,6 +7,7 @@ import PaymentModal from './PaymentModal';
 
 interface PricingPageProps {
   onSelectPlan: (plan: SubscriptionPlan) => void;
+  currency?: string;
 }
 
 const TIER_STYLES = {
@@ -43,82 +45,86 @@ const TIER_STYLES = {
   },
 };
 
-const tiers = [
-  {
-    name: 'Free',
-    id: 'free',
-    price: '$0',
-    icon: Star,
-    description: 'Perfect for individual meal prep and testing.',
-    features: [
-      '50 Menu Generations per Day',
-      'Basic Menu Export (PDF)',
-      'Standard Theme',
-      'Watermarked Documents',
-    ],
-    cta: 'Start for Free',
-    colorKey: 'slate' as keyof typeof TIER_STYLES,
-  },
-  {
-    name: 'Starter',
-    id: 'starter',
-    price: '$9',
-    priceSuffix: '/mo',
-    icon: Zap,
-    description: 'For private chefs and small events.',
-    features: [
-      'Unlimited Generations',
-      'No Watermarks',
-      'Commercial Usage Rights',
-      'Priority Generation Speed',
-    ],
-    cta: 'Get Starter',
-    colorKey: 'green' as keyof typeof TIER_STYLES,
-  },
-  {
-    name: 'Professional',
-    id: 'professional',
-    price: '$19',
-    priceSuffix: '/mo',
-    icon: Star,
-    description: 'Tools for better presentation.',
-    features: [
-      'All Starter Features',
-      'AI Food Photography (Michelin Style)',
-      'Save up to 10 Menus',
-      'AI Chat Consultant',
-      'Beverage Pairings',
-    ],
-    cta: 'Go Professional',
-    highlight: true,
-    badge: 'Most Popular',
-    colorKey: 'amber' as keyof typeof TIER_STYLES,
-  },
-  {
-    name: 'Business',
-    id: 'business',
-    price: '$29',
-    priceSuffix: '/mo',
-    icon: Briefcase,
-    description: 'Complete toolkit for catering companies.',
-    features: [
-      'All Professional Features',
-      'Unlimited Saved Menus',
-      'Shareable Proposal Links',
-      'Find Local Suppliers',
-      'Education & Training Hub',
-    ],
-    cta: 'Get Business',
-    colorKey: 'royal' as keyof typeof TIER_STYLES,
-  },
-];
+const getTiers = (currency: string = 'ZAR') => {
+  const isZar = currency === 'ZAR';
+  const symbol = isZar ? 'R' : '$';
+  
+  return [
+    {
+      name: 'Free',
+      id: 'free',
+      price: symbol + '0',
+      icon: Star,
+      description: 'Perfect for individual meal prep and testing.',
+      features: [
+        '50 Menu Generations per Day',
+        'Basic Menu Export (PDF)',
+        'Standard Theme',
+        'Watermarked Documents',
+      ],
+      cta: 'Start for Free',
+      colorKey: 'slate' as keyof typeof TIER_STYLES,
+    },
+    {
+      name: 'Starter',
+      id: 'starter',
+      price: symbol + (isZar ? '169' : '9'),
+      priceSuffix: '/mo',
+      icon: Zap,
+      description: 'For private chefs and small events.',
+      features: [
+        'Unlimited Generations',
+        'No Watermarks',
+        'Commercial Usage Rights',
+        'Priority Generation Speed',
+      ],
+      cta: 'Get Starter',
+      colorKey: 'green' as keyof typeof TIER_STYLES,
+    },
+    {
+      name: 'Professional',
+      id: 'professional',
+      price: symbol + (isZar ? '349' : '19'),
+      priceSuffix: '/mo',
+      icon: Star,
+      description: 'Tools for better presentation.',
+      features: [
+        'All Starter Features',
+        'AI Food Photography (Michelin Style)',
+        'Save up to 10 Menus',
+        'AI Chat Consultant',
+        'Beverage Pairings',
+      ],
+      cta: 'Go Professional',
+      highlight: true,
+      badge: 'Most Popular',
+      colorKey: 'amber' as keyof typeof TIER_STYLES,
+    },
+    {
+      name: 'Business',
+      id: 'business',
+      price: symbol + (isZar ? '549' : '29'),
+      priceSuffix: '/mo',
+      icon: Briefcase,
+      description: 'Complete toolkit for catering companies.',
+      features: [
+        'All Professional Features',
+        'Unlimited Saved Menus',
+        'Shareable Proposal Links',
+        'Find Local Suppliers',
+        'Education & Training Hub',
+      ],
+      cta: 'Get Business',
+      colorKey: 'royal' as keyof typeof TIER_STYLES,
+    },
+  ];
+};
 
-const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
+const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR' }) => {
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState<SubscriptionPlan | null>(null);
   const [selectedPrice, setSelectedPrice] = useState('');
 
   const handleTierClick = (planId: string, price: string) => {
-    // ONLY Free plan bypasses the payment modal
     if (planId === 'free') {
       onSelectPlan('free');
     } else {
@@ -134,6 +140,8 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
     }
   };
 
+  const tiers = getTiers(currency);
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans">
       <main className="flex-grow">
@@ -143,7 +151,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
               Plans for Every Stage
             </h1>
             <p className="mt-4 text-xl text-slate-600 dark:text-slate-400">
-              Scalable solutions for individuals, catering businesses, and large institutions.
+              Scalable solutions for individuals, catering businesses, and large institutions in {currency}.
             </p>
           </div>
 
@@ -202,123 +210,6 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan }) => {
               );
             })}
           </div>
-
-          <div className="mt-24 grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Small Business / Founding Member Deal */}
-            <div className="bg-slate-900 dark:bg-slate-800 rounded-3xl overflow-hidden shadow-2xl relative border-4 border-amber-500 animate-[pulse_3s_infinite]">
-              <div className="absolute top-0 right-0 bg-amber-500 text-slate-900 text-sm font-black px-4 py-2 rounded-bl-lg z-10 shadow-lg">
-                ONLY 20 SPOTS
-              </div>
-              <div className="px-6 py-10 md:p-12 flex flex-col h-full">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-slate-800 rounded-lg">
-                    <Briefcase className="h-8 w-8 text-amber-500" />
-                  </div>
-                  <div>
-                    <h2 className="text-3xl font-extrabold text-white">
-                      Founding Member Deal
-                    </h2>
-                    <p className="text-amber-400 text-sm font-bold uppercase tracking-widest">Early Adopter Offer</p>
-                  </div>
-                </div>
-                
-                <p className="text-slate-300 text-lg mb-8 flex-grow">
-                  I built this to kill my own admin nightmares. Be one of our first 20 users and get <strong>LIFETIME</strong> access to every single feature for a one-time price.
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                  <div className="flex items-center text-slate-300 text-sm">
-                    <Check className="h-5 w-5 text-amber-500 mr-3 flex-shrink-0" />
-                    <strong>No Monthly Fees</strong> (Pay Once)
-                  </div>
-                  <div className="flex items-center text-slate-300 text-sm">
-                    <Check className="h-5 w-5 text-amber-500 mr-3 flex-shrink-0" />
-                    <strong>All Future Updates</strong>
-                  </div>
-                  <div className="flex items-center text-slate-300 text-sm">
-                    <Check className="h-5 w-5 text-amber-500 mr-3 flex-shrink-0" />
-                    <strong>Premium Support</strong>
-                  </div>
-                  <div className="flex items-center text-slate-300 text-sm">
-                    <Check className="h-5 w-5 text-amber-500 mr-3 flex-shrink-0" />
-                    <strong>Business Plan Access</strong>
-                  </div>
-                </div>
-                
-                <div className="flex flex-col gap-3 mt-auto">
-                  <div className="flex items-center gap-4 mb-2">
-                     <span className="text-slate-500 line-through text-2xl font-bold">$297</span>
-                     <span className="text-amber-400 text-4xl font-black">$199</span>
-                  </div>
-                  <button 
-                    onClick={() => handleTierClick('business', '$199')}
-                    className="w-full inline-flex items-center justify-center px-6 py-4 border border-transparent text-xl font-black rounded-xl text-slate-900 bg-amber-500 hover:bg-amber-400 transition-all hover:scale-[1.02] shadow-[0_0_20px_rgba(245,158,11,0.4)]"
-                  >
-                    Claim Lifetime Access ($199)
-                  </button>
-                </div>
-                <p className="text-center text-slate-500 text-xs mt-4 italic">One-time payment. Ends when 20 spots are filled.</p>
-              </div>
-            </div>
-
-            {/* Enterprise */}
-            <div className="bg-white dark:bg-slate-800 border-2 border-primary-500 dark:border-primary-600 rounded-3xl overflow-hidden shadow-lg relative">
-              <div className="absolute top-0 right-0 bg-primary-600 text-white text-xs font-bold px-3 py-1 rounded-bl-lg z-10">
-                ANNUAL BILLING
-              </div>
-              <div className="px-6 py-10 md:p-12 flex flex-col h-full">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="p-2 bg-primary-100 dark:bg-primary-900/30 rounded-lg">
-                    <Building2 className="h-8 w-8 text-primary-600 dark:text-primary-400" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-                      Schools & Hospitals
-                    </h2>
-                    <p className="text-slate-500 dark:text-slate-400 text-sm">High-Volume & Educational Licenses</p>
-                  </div>
-                </div>
-                
-                <p className="text-slate-600 dark:text-slate-300 text-base mb-8 flex-grow">
-                  Enterprise-grade solution for culinary schools (FETs) and healthcare facilities.
-                </p>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                    <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-100 dark:border-slate-700">
-                        <div className="flex items-center gap-2 mb-2">
-                             <GraduationCap className="h-4 w-4 text-primary-500" />
-                             <span className="font-bold text-sm text-slate-800 dark:text-slate-200">Colleges</span>
-                        </div>
-                        <ul className="space-y-1 text-xs text-slate-600 dark:text-slate-400">
-                             <li>• Curriculum Alignment</li>
-                             <li>• <span className="font-bold text-primary-600 dark:text-primary-400">Multi-Seat License</span></li>
-                        </ul>
-                    </div>
-                    <div className="p-3 bg-slate-50 dark:bg-slate-700/50 rounded-lg border border-slate-100 dark:border-slate-700">
-                        <div className="flex items-center gap-2 mb-2">
-                             <Users className="h-4 w-4 text-primary-500" />
-                             <span className="font-bold text-sm text-slate-800 dark:text-slate-200">Teams</span>
-                        </div>
-                        <ul className="space-y-1 text-xs text-slate-600 dark:text-slate-400">
-                             <li>• Shared Menus</li>
-                             <li>• <span className="font-bold text-primary-600 dark:text-primary-400">Site-Wide License</span></li>
-                        </ul>
-                    </div>
-                </div>
-                
-                <div className="flex flex-col sm:flex-row gap-3 mt-auto">
-                  <a 
-                    href="mailto:sales@caterpro.ai?subject=Enterprise License Inquiry"
-                    className="flex-1 inline-flex items-center justify-center px-4 py-3 border border-slate-300 dark:border-slate-600 text-sm font-bold rounded-md text-slate-700 dark:text-white hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-                  >
-                    Request Annual Quote
-                  </a>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
         </div>
       </main>
       
