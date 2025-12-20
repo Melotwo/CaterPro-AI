@@ -1,5 +1,13 @@
+
 import { Briefcase, Heart, PartyPopper, Stethoscope, User, UtensilsCrossed, Gift } from 'lucide-react';
 import { MenuSection, PpeProduct } from './types';
+
+export const CURRENCIES = [
+  { code: 'ZAR', symbol: 'R', label: 'South African Rand (R)' },
+  { code: 'USD', symbol: '$', label: 'US Dollar ($)' },
+  { code: 'GBP', symbol: '£', label: 'British Pound (£)' },
+  { code: 'EUR', symbol: '€', label: 'Euro (€)' },
+];
 
 export const EVENT_TYPES = [
   'Christmas Day Feast 🎅',
@@ -34,9 +42,9 @@ export const GUEST_COUNT_OPTIONS = [
 ];
 
 export const BUDGET_LEVELS = [
-    { value: '$', label: '$ - Casual & Affordable' },
-    { value: '$$', label: '$$ - Mid-Range & Elegant' },
-    { value: '$$$', label: '$$$ - High-End & Luxurious' },
+    { value: '$', label: 'Affordable / Economy' },
+    { value: '$$', label: 'Mid-Range / Professional' },
+    { value: '$$$', label: 'High-End / Luxurious' },
 ];
 
 export const SERVICE_STYLES = [
