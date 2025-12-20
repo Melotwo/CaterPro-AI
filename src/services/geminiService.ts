@@ -9,6 +9,7 @@ export interface MenuGenerationParams {
   serviceStyle: string;
   cuisine: string;
   dietaryRestrictions: string[];
+  currency: string;
   latitude?: number;
   longitude?: number;
 }
@@ -22,7 +23,6 @@ export interface MenuGenerationResult {
  * Vision AI: Analyzes a receipt image to extract merchant data.
  */
 export const analyzeReceiptFromApi = async (base64Image: string): Promise<any> => {
-  // Always create a new GoogleGenAI instance right before making an API call to ensure it uses the latest selected key.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const prompt = "Analyze this receipt. Extract: Merchant Name, Date, Total Amount, Currency, and a list of itemized categories (Food, Equipment, etc.). Return as JSON.";
   const response = await ai.models.generateContent({
@@ -57,7 +57,6 @@ export const analyzeReceiptFromApi = async (base64Image: string): Promise<any> =
  * Vision AI: Analyzes an ingredient label for hidden allergens.
  */
 export const analyzeLabelFromApi = async (base64Image: string, restrictions: string[]): Promise<any> => {
-  // Always create a new GoogleGenAI instance right before making an API call to ensure it uses the latest selected key.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const prompt = `Analyze this food ingredient label. Based on the dietary restrictions: [${restrictions.join(", ")}], flag any problematic ingredients. Provide a "Suitability Score" from 1-10.`;
   const response = await ai.models.generateContent({
@@ -96,8 +95,8 @@ export const generateMenuFromApi = async ({
   serviceStyle,
   cuisine,
   dietaryRestrictions,
+  currency,
 }: MenuGenerationParams): Promise<MenuGenerationResult> => {
-  // Always create a new GoogleGenAI instance right before making an API call to ensure it uses the latest selected key.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const prompt = `
     You are an expert Michelin-star catering menu planner and Sommelier. 
@@ -108,12 +107,14 @@ export const generateMenuFromApi = async ({
     - Style: ${serviceStyle}
     - Cuisine: ${cuisine}
     - Restrictions: ${dietaryRestrictions.join(', ') || 'None'}
+    - LOCAL CURRENCY: ${currency} (STRICTLY USE THIS CURRENCY FOR ALL ESTIMATED COSTS)
 
     STRICT RULES:
     1. Perfect culinary spelling.
     2. Organize into shopping lists by category.
-    3. Include delivery fees and mise en place.
+    3. Include delivery fees and mise en place using ${currency}.
     4. Provide Sommelier-level wine pairings with Body Profiles (Acidity, Tannins, Body).
+    5. Ensure all currency symbols in the JSON output match ${currency}.
   `;
   
   const response = await ai.models.generateContent({
@@ -164,6 +165,7 @@ export const generateMenuFromApi = async ({
                 item: { type: Type.STRING },
                 quantity: { type: Type.STRING },
                 description: { type: Type.STRING },
+                estimatedCost: { type: Type.STRING },
                 affiliateSearchTerm: { type: Type.STRING }
               }
             }
@@ -179,7 +181,7 @@ export const generateMenuFromApi = async ({
             }
           }
         },
-        required: ["menuTitle", "description", "appetizers", "mainCourses"]
+        required: ["menuTitle", "description", "appetizers", "mainCourses", "shoppingList", "deliveryFeeStructure"]
       }
     }
   });
@@ -197,11 +199,7 @@ export const generateMenuFromApi = async ({
   return { menu, totalChecklistItems };
 };
 
-/**
- * Generates a high-end food photograph for a menu or product.
- */
 export const generateMenuImageFromApi = async (title: string, description: string): Promise<string> => {
-    // Always create a new GoogleGenAI instance right before making an API call to ensure it uses the latest selected key.
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
@@ -221,7 +219,6 @@ export const generateMenuImageFromApi = async (title: string, description: strin
 };
 
 export const regenerateMenuItemFromApi = async (originalText: string, instruction: string): Promise<string> => {
-  // Always create a new GoogleGenAI instance right before making an API call to ensure it uses the latest selected key.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const prompt = `Original menu item: "${originalText}". User instruction for modification: "${instruction}". Rewrite the menu item to reflect these changes. Keep it concise and professional.`;
   const response = await ai.models.generateContent({
@@ -232,7 +229,6 @@ export const regenerateMenuItemFromApi = async (originalText: string, instructio
 };
 
 export const generateStudyGuideFromApi = async (topic: string, curriculum: string, level: string, type: 'guide' | 'curriculum'): Promise<EducationContent> => {
-  // Always create a new GoogleGenAI instance right before making an API call to ensure it uses the latest selected key.
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const prompt = `Generate a ${type === 'guide' ? 'detailed Study Guide' : 'Curriculum Syllabus'} for the topic: "${topic}". 
   Standard: ${curriculum}. Level: ${level}. 
@@ -276,7 +272,6 @@ export const generateStudyGuideFromApi = async (topic: string, curriculum: strin
 };
 
 export const generateSocialCaption = async (menuTitle: string, description: string, platform: string = 'instagram'): Promise<string> => {
-    // Always create a new GoogleGenAI instance right before making an API call to ensure it uses the latest selected key.
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const prompt = `Write a viral ${platform} caption for: "${menuTitle}". Content: ${description}. Tone: Professional and enticing. Perfect spelling. Link: https://caterpro-ai.web.app/`;
     const response = await ai.models.generateContent({
@@ -287,7 +282,6 @@ export const generateSocialCaption = async (menuTitle: string, description: stri
 };
 
 export const generateAssignmentEmail = async (menuTitle: string, menuDescription: string): Promise<string> => {
-    // Always create a new GoogleGenAI instance right before making an API call to ensure it uses the latest selected key.
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const prompt = `Draft a professional email pitching CaterPro AI (an AI tool for chefs) to Limpopo Chefs Academy. Context: Built by a student with ADHD/Dyslexia to solve paperwork hurdles. Attached menu: ${menuTitle}.`;
     const response = await ai.models.generateContent({
@@ -298,7 +292,6 @@ export const generateAssignmentEmail = async (menuTitle: string, menuDescription
 };
 
 export const generateSocialVideoFromApi = async (menuTitle: string, description: string): Promise<string> => {
-    // MANDATORY: Create a new instance right before Veo video generation to ensure the latest paid API key is used.
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     let operation = await ai.models.generateVideos({
         model: 'veo-3.1-fast-generate-preview',
@@ -307,7 +300,6 @@ export const generateSocialVideoFromApi = async (menuTitle: string, description:
     });
     while (!operation.done) {
         await new Promise(resolve => setTimeout(resolve, 8000));
-        // Use a fresh instance for each polling request to remain consistent with dynamic key guidelines.
         const aiPoll = new GoogleGenAI({ apiKey: process.env.API_KEY });
         operation = await aiPoll.operations.getVideosOperation({operation: operation});
     }
