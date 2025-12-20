@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, Printer, FileDown, Copy, Sparkles, Megaphone, GraduationCap, ChevronRight } from 'lucide-react';
-import jsPDF from 'jspdf';
+import { Loader2, Save, AlertTriangle, Printer, FileDown, Copy, Sparkles, Megaphone, GraduationCap, ChevronRight, Coins } from 'lucide-react';
+import jsPDF from 'jsPDF';
 import html2canvas from 'html2canvas';
 
 import Navbar from './components/Navbar';
@@ -25,7 +25,7 @@ import FounderRoadmap from './components/FounderRoadmap';
 import ProductivityLab from './components/ProductivityLab';
 import SEOHead from './components/SEOHead';
 import { useAppSubscription, type SubscriptionPlan } from './hooks/useAppSubscription';
-import { CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES } from './constants';
+import { CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, CURRENCIES } from './constants';
 import { SavedMenu, ErrorState, ValidationErrors, Menu, MenuSection } from './types';
 import { getApiErrorState } from './services/apiErrorHandler';
 import { generateMenuFromApi, generateMenuImageFromApi } from './services/geminiService';
@@ -43,6 +43,7 @@ const App: React.FC = () => {
   const [customEventType, setCustomEventType] = useState('');
   const [guestCount, setGuestCount] = useState('');
   const [budget, setBudget] = useState('$$');
+  const [currency, setCurrency] = useState('ZAR');
   const [serviceStyle, setServiceStyle] = useState('Standard Catering');
   const [cuisine, setCuisine] = useState('');
   const [dietaryRestrictions, setDietaryRestrictions] = useState<string[]>([]);
@@ -163,13 +164,13 @@ const App: React.FC = () => {
         serviceStyle,
         cuisine,
         dietaryRestrictions,
+        currency,
       });
       
       const newMenu = { ...result.menu, theme: proposalTheme };
       setMenu(newMenu);
-      setIsLoading(false); // Text is done, now we handle the image in background
+      setIsLoading(false);
 
-      // Trigger Background Image Generation
       setIsGeneratingImage(true);
       try {
         const imageBase64 = await generateMenuImageFromApi(newMenu.menuTitle, newMenu.description);
@@ -194,6 +195,8 @@ const App: React.FC = () => {
     setIsSocialModalOpen(true);
   };
 
+  const currentCurrencySymbol = CURRENCIES.find(c => c.code === currency)?.symbol || 'R';
+
   return (
     <div className={`flex flex-col min-h-screen font-sans antialiased ${isDarkMode ? 'dark' : ''}`}>
       <SEOHead menu={menu} title={showLanding ? "The Chef's Secret Weapon" : "Generate Menu"} />
@@ -214,7 +217,7 @@ const App: React.FC = () => {
             <Footer />
         </>
       ) : !isAppVisible ? (
-        <PricingPage onSelectPlan={(p) => { selectPlan(p); setIsAppVisible(true); }} />
+        <PricingPage onSelectPlan={(p) => { selectPlan(p); setIsAppVisible(true); }} currency={currency} />
       ) : (
         <main className="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
           <header className="text-center animate-slide-in">
@@ -241,6 +244,21 @@ const App: React.FC = () => {
                     <select value={guestCount} onChange={e => setGuestCount(e.target.value)} className="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm">
                       <option value="" disabled>Select range...</option>
                       {GUEST_COUNT_OPTIONS.map(g => <option key={g} value={g}>{g}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Preferred Currency</label>
+                    <div className="relative mt-1">
+                        <Coins className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="block w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm">
+                          {CURRENCIES.map(c => <option key={c.code} value={c.code}>{c.label}</option>)}
+                        </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Budget Level</label>
+                    <select value={budget} onChange={(e) => setBudget(e.target.value)} className="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm">
+                      {BUDGET_LEVELS.map(b => <option key={b.value} value={b.value}>{currentCurrencySymbol} {b.label}</option>)}
                     </select>
                   </div>
                   <div className="md:col-span-2">
@@ -270,7 +288,7 @@ const App: React.FC = () => {
                   className="w-full inline-flex items-center justify-center px-6 py-4 text-lg font-black text-white bg-primary-600 rounded-2xl shadow-xl hover:bg-primary-700 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50"
                 >
                   {isLoading ? <Loader2 className="mr-2 animate-spin" /> : <Sparkles className="mr-2" />}
-                  {isLoading ? loadingMessage : 'Generate Proposal'}
+                  {isLoading ? loadingMessage : `Generate Proposal in ${currency}`}
                 </button>
               </div>
           </section>
@@ -328,6 +346,7 @@ const App: React.FC = () => {
                     onDeliveryRadiusChange={() => {}}
                     onCalculateFee={() => {}}
                     calculatedFee={null}
+                    preferredCurrency={currency}
                   />
                 </div>
               </div>
