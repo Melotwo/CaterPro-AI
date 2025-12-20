@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types';
 import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck } from 'lucide-react';
@@ -27,19 +28,28 @@ interface MenuDisplayProps {
   onCalculateFee: () => void;
   calculatedFee: string | null;
   onRegenerateImage?: () => void;
+  preferredCurrency?: string;
 }
 
 const getAffiliateLink = (keywords: string) => {
     return `https://www.amazon.com/s?k=${encodeURIComponent(keywords)}&tag=caterproai-20`;
 };
 
+const formatLocalCurrency = (amount: number, currencyCode: string = 'ZAR') => {
+    return new Intl.NumberFormat(currencyCode === 'ZAR' ? 'en-ZA' : 'en-US', {
+        style: 'currency',
+        currency: currencyCode,
+        minimumFractionDigits: 2,
+    }).format(amount);
+};
 
 const MenuDisplay: React.FC<MenuDisplayProps> = ({ 
     menu, checkedItems, onToggleItem, isEditable, onEditItem, showToast, 
     isGeneratingImage, onUpdateShoppingItemQuantity, bulkSelectedItems, onToggleBulkSelect,
     onBulkCheck, onBulkUpdateQuantity, onClearBulkSelection, onSelectAllShoppingListItems,
     proposalTheme, canAccessFeature, onAttemptAccess, isReadOnlyView = false,
-    deliveryRadius, onDeliveryRadiusChange, onCalculateFee, calculatedFee, onRegenerateImage
+    deliveryRadius, onDeliveryRadiusChange, onCalculateFee, calculatedFee, onRegenerateImage,
+    preferredCurrency = 'ZAR'
 }) => {
   const [isBulkEditMode, setIsBulkEditMode] = useState(false);
   const [bulkQuantity, setBulkQuantity] = useState('');
@@ -49,10 +59,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
 
   if (!menu) return null;
 
-  /**
-   * Specifically for the user's Coursera assignment:
-   * Copies the entire menu in a clean format for Google Docs/Workspace
-   */
   const handleCopyForWorkspace = () => {
     let workspaceText = `PROPOSAL: ${menu.menuTitle.toUpperCase()}\n`;
     workspaceText += `${menu.description}\n\n`;
@@ -71,7 +77,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
     const groupedData = menu.shoppingList.reduce((acc, item) => {
         const cat = item.category || 'Other';
         if (!acc[cat]) acc[cat] = [];
-        acc[cat].push(`• ${item.item} (${item.quantity})`);
+        acc[cat].push(`• ${item.item} (${item.quantity}) - Est: ${item.estimatedCost || 'N/A'}`);
         return acc;
     }, {} as Record<string, string[]>);
     
@@ -130,7 +136,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
     <div className={`p-4 sm:p-6 theme-container ${t.container}`}>
       <div className="space-y-6">
       
-      {/* COURSERA ASSIGNMENT TOOLBAR */}
       <div className="no-print bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 p-4 rounded-2xl mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-600 rounded-lg text-white">
@@ -167,15 +172,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                alt={menu.menuTitle}
                className="w-full h-auto max-h-[400px] object-cover rounded-lg shadow-md border border-slate-200 dark:border-slate-700"
              />
-             {onRegenerateImage && !isReadOnlyView && (
-                 <button 
-                    onClick={onRegenerateImage}
-                    className="absolute top-2 right-2 p-2 bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-full text-slate-600 dark:text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white dark:hover:bg-slate-800 shadow-sm"
-                    title="Regenerate Image"
-                 >
-                     <RefreshCw size={16} />
-                 </button>
-             )}
          </div>
       )}
       <h2 className={`text-2xl font-bold ${t.title}`}>{menu.menuTitle}</h2>
@@ -204,13 +200,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                     </span>
                     {title}
                   </h3>
-                  <button
-                      onClick={() => handleCopySection(title, items)}
-                      className="no-print no-copy p-2 rounded-full text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-300"
-                      aria-label={`Copy ${title} section`}
-                  >
-                      <Copy size={16} />
-                  </button>
                 </div>
                 <div className="px-4 sm:px-6 pb-6 space-y-3">
                   {pairingItems.map((pairing, itemIdx) => {
@@ -244,13 +233,8 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
             const groupedByStoreThenCategory = shoppingListItems.reduce((acc, item) => {
               const store = item.store || 'Uncategorized Store';
               const category = item.category || 'Other';
-
-              if (!acc[store]) {
-                acc[store] = {};
-              }
-              if (!acc[store][category]) {
-                acc[store][category] = [];
-              }
+              if (!acc[store]) acc[store] = {};
+              if (!acc[store][category]) acc[store][category] = [];
               acc[store][category].push(item);
               return acc;
             }, {} as Record<string, Record<string, (ShoppingListItem & {originalIndex: number})[]>>);
@@ -269,13 +253,10 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                       onClick={() => {
                           if (onAttemptAccess('bulkEdit')) {
                             setIsBulkEditMode(!isBulkEditMode);
-                            if(isBulkEditMode) {
-                                onClearBulkSelection();
-                            }
+                            if(isBulkEditMode) onClearBulkSelection();
                           }
                       }}
                       className="action-button"
-                      aria-label={isBulkEditMode ? "Finish bulk editing" : "Start bulk editing"}
                     >
                       {isBulkEditMode ? <X size={16} className="mr-1" /> : <Edit size={16} className="mr-1" />}
                       {isBulkEditMode ? 'Done' : 'Bulk Edit'}
@@ -283,7 +264,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                     <button
                         onClick={() => handleCopySection(title, items as ShoppingListItem[])}
                         className="no-print no-copy p-2 rounded-full text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-300"
-                        aria-label={`Copy ${title} section`}
                     >
                         <Copy size={16} />
                     </button>
@@ -303,21 +283,11 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                                               const isChecked = checkedItems.has(checkKey);
                                               const isSelectedForBulk = bulkSelectedItems.has(checkKey);
                                               
-                                              const itemContainerClasses = `flex-grow flex items-start gap-3 p-2 rounded-lg transition-colors border-2 ${
-                                                  isBulkEditMode 
-                                                  ? `cursor-pointer ${isSelectedForBulk ? 'bg-primary-100 dark:bg-primary-900/40 border-primary-300 dark:border-primary-700' : 'border-transparent hover:bg-slate-100 dark:hover:bg-slate-800'}` 
-                                                  : 'border-transparent'
-                                              }`;
-
                                               return (
                                                   <div key={checkKey} className="flex items-center gap-2">
                                                       <div 
-                                                          className={itemContainerClasses} 
+                                                          className={`flex-grow flex items-start gap-3 p-2 rounded-lg transition-colors border-2 ${isBulkEditMode ? (isSelectedForBulk ? 'bg-primary-100 dark:bg-primary-900/40 border-primary-300' : 'border-transparent hover:bg-slate-100') : 'border-transparent'}`} 
                                                           onClick={isBulkEditMode ? () => onToggleBulkSelect(checkKey) : undefined}
-                                                          role={isBulkEditMode ? 'checkbox' : undefined}
-                                                          aria-checked={isBulkEditMode ? isSelectedForBulk : undefined}
-                                                          tabIndex={isBulkEditMode ? 0 : -1}
-                                                          onKeyDown={isBulkEditMode ? (e) => (e.key === ' ' || e.key === 'Enter') && onToggleBulkSelect(checkKey) : undefined}
                                                       >
                                                           {!isBulkEditMode && (
                                                             <input
@@ -325,14 +295,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                                                                 checked={isChecked}
                                                                 onChange={() => onToggleItem(checkKey)}
                                                                 className={`mt-1 w-5 h-5 rounded-md focus:ring-2 cursor-pointer ${t.checkbox}`}
-                                                                aria-label={`Mark ${item.item} as purchased`}
-                                                                onClick={(e) => e.stopPropagation()}
                                                             />
-                                                          )}
-                                                          {isBulkEditMode && (
-                                                              <div className={`mt-1 w-5 h-5 flex-shrink-0 border-2 rounded-md flex items-center justify-center transition-all ${isSelectedForBulk ? 'bg-primary-500 border-primary-500' : 'bg-white dark:bg-slate-800 border-slate-400'}`}>
-                                                                  {isSelectedForBulk && <CheckSquare className="w-4 h-4 text-white" />}
-                                                              </div>
                                                           )}
                                                           <div className="flex-1">
                                                               <div className="flex items-start gap-2">
@@ -341,19 +304,9 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                                                                       {item.item}
                                                                   </span>
                                                               </div>
-                                                              {(item.brandSuggestion || item.estimatedCost) && !isBulkEditMode && (
-                                                                  <div className={`mt-1.5 pl-4 text-xs space-y-1 transition-colors ${isChecked ? 'opacity-70' : ''} ${t.cardText}`}>
-                                                                      {item.estimatedCost && (
-                                                                          <p><strong className={`font-semibold ${t.cardTitle}`}>Est. Cost:</strong> {item.estimatedCost}</p>
-                                                                      )}
-                                                                      {item.brandSuggestion && (
-                                                                          <p><strong className={`font-semibold ${t.cardTitle}`}>Brands:</strong> {item.brandSuggestion}</p>
-                                                                      )}
-                                                                  </div>
-                                                              )}
-                                                              {item.description && !isBulkEditMode && (
-                                                                  <p className={`text-xs mt-1.5 italic pl-4 transition-colors ${isChecked ? 'opacity-70' : ''} ${t.cardText}`}>
-                                                                  {item.description}
+                                                              {item.estimatedCost && !isBulkEditMode && (
+                                                                  <p className={`text-xs mt-1 pl-4 font-bold text-amber-600 ${isChecked ? 'opacity-50' : ''}`}>
+                                                                      Est: {item.estimatedCost}
                                                                   </p>
                                                               )}
                                                               {isEditable ? (
@@ -361,9 +314,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                                                                       type="text"
                                                                       value={item.quantity}
                                                                       onChange={(e) => onUpdateShoppingItemQuantity(item.originalIndex, e.target.value)}
-                                                                      onClick={(e) => { e.stopPropagation(); e.preventDefault(); }}
-                                                                      className={`block text-xs mt-2 w-full max-w-[10rem] ml-4 p-1.5 rounded-md bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-600 focus:border-primary-500 focus:ring-0 focus:outline-none transition-colors ${isChecked ? 'opacity-70' : ''} ${t.cardText}`}
-                                                                      aria-label={`Quantity for ${item.item}`}
+                                                                      className={`block text-xs mt-2 w-full max-w-[10rem] ml-4 p-1.5 rounded-md bg-white dark:bg-slate-800 border border-slate-200 focus:border-primary-500 transition-colors ${isChecked ? 'opacity-70' : ''} ${t.cardText}`}
                                                                   />
                                                               ) : (
                                                                   <span className={`block text-xs font-medium uppercase tracking-wide transition-colors mt-1 ml-4 ${isChecked ? 'opacity-70' : ''} ${t.cardText}`}>
@@ -372,18 +323,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                                                               )}
                                                           </div>
                                                       </div>
-                                                      {!isBulkEditMode && (
-                                                          <a
-                                                              href={getAffiliateLink(item.affiliateSearchTerm || item.item)}
-                                                              target="_blank"
-                                                              rel="noopener noreferrer sponsored"
-                                                              onClick={(e) => e.stopPropagation()}
-                                                              className="no-copy p-2 rounded-full text-slate-400 dark:text-slate-500 hover:bg-primary-100 dark:hover:bg-primary-900/50 hover:text-primary-600 dark:hover:text-primary-400 transition-colors flex-shrink-0"
-                                                              aria-label={`Shop for ${item.item}`}
-                                                          >
-                                                              <ShoppingCart size={16} />
-                                                          </a>
-                                                      )}
                                                   </div>
                                               );
                                           })}
@@ -394,33 +333,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                       </div>
                   ))}
                 </div>
-                {isBulkEditMode && (
-                  <div className="sticky bottom-0 mt-4 p-3 bg-primary-50 dark:bg-slate-900 border-t-2 border-slate-200 dark:border-slate-700 rounded-b-xl animate-toast-in">
-                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                          <p className="font-semibold text-sm text-primary-800 dark:text-primary-200">
-                              {bulkSelectedItems.size} item(s) selected
-                          </p>
-                          <div className="flex items-center gap-2 flex-wrap">
-                              <button onClick={onSelectAllShoppingListItems} className="action-button text-xs !px-2 !py-1">Select All</button>
-                              <button onClick={onClearBulkSelection} className="action-button text-xs !px-2 !py-1">Clear</button>
-                          </div>
-                      </div>
-                       <div className="mt-3 pt-3 border-t border-primary-200 dark:border-slate-700 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                          <input
-                              type="text"
-                              placeholder="Set quantity..."
-                              value={bulkQuantity}
-                              onChange={(e) => setBulkQuantity(e.target.value)}
-                              className="w-full sm:w-auto flex-grow px-3 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500"
-                              aria-label="Set quantity for selected items"
-                          />
-                          <button onClick={handleApplyBulkQuantity} className="action-button">Apply Qty</button>
-                          <button onClick={onBulkCheck} className="action-button flex-shrink-0">
-                              <CheckSquare size={16} className="mr-1.5" /> Mark Purchased
-                          </button>
-                       </div>
-                  </div>
-                )}
               </div>
             )
           }
@@ -442,15 +354,8 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                     <div key={itemIdx} className={`p-4 ${t.card} rounded-lg`}>
                       <div className="flex justify-between items-start gap-4">
                         <h5 className={`font-bold ${t.cardTitle}`}>{item.item}</h5>
-                        <a
-                          href={getAffiliateLink(item.item)}
-                          target="_blank"
-                          rel="noopener noreferrer sponsored"
-                          className="flex-shrink-0 inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold text-white bg-primary-500 hover:bg-primary-600 rounded-full shadow-sm transition-colors"
-                          aria-label={`Shop for ${item.item}`}
-                        >
-                          <ShoppingCart size={14} className="mr-1.5" />
-                          Shop Now
+                        <a href={getAffiliateLink(item.item)} target="_blank" className="flex-shrink-0 inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold text-white bg-primary-500 hover:bg-primary-600 rounded-full shadow-sm transition-colors">
+                          <ShoppingCart size={14} className="mr-1.5" /> Shop Now
                         </a>
                       </div>
                       <p className={`text-sm ${t.cardText} mt-2`}>{item.description}</p>
@@ -470,13 +375,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                     </span>
                     {title}
                   </h3>
-                  <button
-                      onClick={() => handleCopySection(title, items as string[])}
-                      className="no-print no-copy p-2 rounded-full text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-300"
-                      aria-label={`Copy ${title} section`}
-                  >
-                      <Copy size={16} />
-                  </button>
                 </div>
                 <div className="space-y-2">
                   {(items as string[]).map((item, itemIdx) => {
@@ -495,15 +393,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                                   {item}
                               </span>
                           </label>
-                           {isEditable && isSectionEditable(key) && (
-                              <button
-                                  onClick={() => onEditItem(key, itemIdx)}
-                                  className="edit-btn no-copy mt-2 p-2 rounded-full text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-300"
-                                  aria-label={`Edit ${item}`}
-                              >
-                                  <Pencil size={16} />
-                              </button>
-                          )}
                       </div>
                     );
                   })}
@@ -514,11 +403,10 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                            <div className="p-1.5 bg-primary-100 dark:bg-primary-900/50 rounded-md text-primary-600 dark:text-primary-400">
                                <Calculator size={18} />
                            </div>
-                           <h4 className={`font-bold ${t.cardTitle}`}>Estimated Delivery Fee</h4>
+                           <h4 className={`font-bold ${t.cardTitle}`}>Delivery Fee Estimator ({preferredCurrency})</h4>
                         </div>
                         <p className={`text-sm mb-4 ${t.cardText}`}>
-                            Calculate logistics costs based on distance. 
-                            <span className="opacity-75 block text-xs mt-1">(Rate: {new Intl.NumberFormat(undefined, { style: 'currency', currency: menu.deliveryFeeStructure.currency }).format(menu.deliveryFeeStructure.baseFee)} base + {new Intl.NumberFormat(undefined, { style: 'currency', currency: menu.deliveryFeeStructure.currency }).format(menu.deliveryFeeStructure.perUnitRate)}/{menu.deliveryFeeStructure.unit})</span>
+                            Rate: {formatLocalCurrency(menu.deliveryFeeStructure.baseFee, preferredCurrency)} base + {formatLocalCurrency(menu.deliveryFeeStructure.perUnitRate, preferredCurrency)}/{menu.deliveryFeeStructure.unit}
                         </p>
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                             <div className="flex-grow relative">
@@ -527,22 +415,18 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                                     value={deliveryRadius}
                                     onChange={(e) => onDeliveryRadiusChange(e.target.value)}
                                     placeholder="0"
-                                    className="block w-full pl-3 pr-12 py-2.5 text-sm bg-white dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all"
-                                    aria-label={`Distance in ${menu.deliveryFeeStructure.unit}s`}
+                                    className="block w-full pl-3 pr-12 py-2.5 text-sm bg-white dark:bg-slate-700 border border-slate-300 rounded-lg shadow-sm focus:ring-2 focus:ring-primary-500 transition-all"
                                 />
                                 <span className="absolute right-3 top-2.5 text-sm text-slate-500 dark:text-slate-400 pointer-events-none">
                                     {menu.deliveryFeeStructure.unit}s
                                 </span>
                             </div>
-                            <button 
-                                onClick={onCalculateFee} 
-                                className="action-button !bg-primary-600 !text-white !border-transparent hover:!bg-primary-700 shadow-md whitespace-nowrap"
-                            >
+                            <button onClick={onCalculateFee} className="action-button !bg-primary-600 !text-white !border-transparent hover:!bg-primary-700 shadow-md">
                                 Calculate
                             </button>
                         </div>
                         {calculatedFee && (
-                            <div className="mt-4 p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 dark:border-slate-600 flex justify-between items-center shadow-sm animate-[fade-in_0.3s_ease-out]">
+                            <div className="mt-4 p-3 bg-white dark:bg-slate-700 rounded-lg border border-slate-200 flex justify-between items-center shadow-sm">
                                 <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Total Estimate:</span>
                                 <span className="text-lg font-bold text-primary-600 dark:text-primary-400">{calculatedFee}</span>
                             </div>
@@ -553,30 +437,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
           )
         })}
       </div>
-      
-      {menu.groundingChunks && menu.groundingChunks.length > 0 && (
-        <div className="mt-8 pt-4 border-t-2 border-slate-200 dark:border-slate-700">
-          <h4 className="text-md font-semibold text-slate-700 dark:text-slate-300 mb-2">
-            Sourcing & Location Information
-          </h4>
-          <ul className="list-disc list-inside space-y-1 text-sm">
-            {menu.groundingChunks.map((chunk, index) => {
-              const source = chunk.maps || chunk.web;
-              if (!source || !source.uri) return null;
-              return (
-                <li key={index}>
-                  <a href={source.uri} target="_blank" rel="noopener noreferrer" className={t.sourcingLink}>
-                    {source.title || source.uri}
-                  </a>
-                </li>
-              );
-            })}
-          </ul>
-          <p className="text-xs text-slate-400 dark:text-slate-500 mt-2">
-            Powered by Google Maps and Search for relevant, local results.
-          </p>
-        </div>
-      )}
       </div>
     </div>
   );
