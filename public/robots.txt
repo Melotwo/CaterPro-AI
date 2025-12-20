@@ -1,0 +1,6 @@
+
+User-agent: *
+Allow: /
+Allow: /index.html
+Disallow: /dist/
+Sitemap: https://caterpro-ai.web.app/sitemap.xml
