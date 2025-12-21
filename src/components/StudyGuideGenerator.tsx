@@ -1,10 +1,11 @@
+
 import React, { useState } from 'react';
 import { BookOpen, GraduationCap, FileText, Download, Loader2, Lock, ChevronRight } from 'lucide-react';
 import { CURRICULUM_STANDARDS, EDUCATION_LEVELS, EDUCATION_TOPICS } from '../constants';
 import { generateStudyGuideFromApi } from '../services/geminiService';
 import { getApiErrorState } from '../services/apiErrorHandler';
 import { EducationContent, ErrorState } from '../types';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 
 interface StudyGuideGeneratorProps {
   isPro: boolean;
@@ -31,7 +32,6 @@ const StudyGuideGenerator: React.FC<StudyGuideGeneratorProps> = ({ isPro, onAtte
     setResult(null);
 
     try {
-      // Get the label for the curriculum ID for better prompting
       const curriculumLabel = CURRICULUM_STANDARDS.find(c => c.id === curriculum)?.label || curriculum;
       const content = await generateStudyGuideFromApi(topic, curriculumLabel, level, type);
       setResult(content);
