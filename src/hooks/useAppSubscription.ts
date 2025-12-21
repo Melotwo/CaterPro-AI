@@ -9,7 +9,7 @@ export interface SubscriptionState {
   lastGenerationDate: string | null;
 }
 
-const MAX_FREE_GENERATIONS = 5; // Reduced for monetization focus
+const MAX_FREE_GENERATIONS = 5;
 
 const getInitialState = (): SubscriptionState => {
   try {
@@ -17,10 +17,13 @@ const getInitialState = (): SubscriptionState => {
     if (storedState) {
       const parsed = JSON.parse(storedState);
       const today = new Date().toDateString();
-      // Reset daily counter if it's a new day
       if (parsed.lastGenerationDate !== today) {
         parsed.generationsToday = 0;
         parsed.lastGenerationDate = today;
+      }
+      // Ensure we don't accidentally load an invalid state
+      if (!['free', 'starter', 'professional', 'business'].includes(parsed.plan)) {
+          parsed.plan = 'free';
       }
       return parsed;
     }
@@ -43,7 +46,6 @@ export const useAppSubscription = () => {
   }, [subscription]);
 
   const selectPlan = (plan: SubscriptionPlan) => {
-    // This is now only called after a successful payment verification
     setSubscription(prev => ({ ...prev, plan }));
   };
 
