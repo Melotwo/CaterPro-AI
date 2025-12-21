@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, Printer, FileDown, Copy, Sparkles, Megaphone, GraduationCap, ChevronRight, Coins, Share2, Film, Mail } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -11,7 +11,6 @@ import SavedChecklistsModal from './components/SavedChecklistsModal';
 import Toast from './components/Toast';
 import AiChatBot from './components/AiChatBot';
 import QrCodeModal from './components/QrCodeModal';
-import ShareModal from './components/ShareModal';
 import SocialMediaModal from './components/SocialMediaModal';
 import MultiSelectDropdown from './components/MultiSelectDropdown';
 import GenerationHistory from './components/GenerationHistory';
@@ -25,10 +24,11 @@ import ProductivityLab from './components/ProductivityLab';
 import StudyGuideGenerator from './components/StudyGuideGenerator';
 import MarketingRoadmap from './components/MarketingRoadmap';
 import ResearchHub from './components/ResearchHub';
+import FounderRoadmap from './components/FounderRoadmap';
 import SEOHead from './components/SEOHead';
 import { trackEvent } from './components/GoogleAnalytics';
 import { useAppSubscription } from './hooks/useAppSubscription';
-import { CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, CURRENCIES } from './constants';
+import { CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS } from './constants';
 import { SavedMenu, ErrorState, ValidationErrors, Menu, MenuSection } from './types';
 import { getApiErrorState } from './services/apiErrorHandler';
 import { generateMenuFromApi, generateMenuImageFromApi } from './services/geminiService';
@@ -340,6 +340,7 @@ const App: React.FC = () => {
                 onItemClick={() => {}} 
                 onClear={() => {}} 
               />
+              <FounderRoadmap />
               <ResearchHub onShowToast={setToastMessage} />
             </div>
           )}
@@ -439,9 +440,8 @@ const App: React.FC = () => {
                 </div>
                 
                 <MarketingRoadmap />
-                
+                <FounderRoadmap />
                 <ResearchHub onShowToast={setToastMessage} />
-                
                 <ProductivityLab dietaryRestrictions={dietaryRestrictions} />
                 <StudyGuideGenerator isPro={subscription.plan === 'business'} onAttemptAccess={() => setShowUpgradeModal(true)} />
             </div>
