@@ -24,6 +24,7 @@ import LandingPage from './components/LandingPage';
 import ProductivityLab from './components/ProductivityLab';
 import StudyGuideGenerator from './components/StudyGuideGenerator';
 import SEOHead from './components/SEOHead';
+import { trackEvent } from './components/GoogleAnalytics';
 import { useAppSubscription } from './hooks/useAppSubscription';
 import { CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, CURRENCIES } from './constants';
 import { SavedMenu, ErrorState, ValidationErrors, Menu, MenuSection } from './types';
@@ -119,6 +120,7 @@ const App: React.FC = () => {
   const handleDownloadPDF = async () => {
     if (!menuRef.current) return;
     setIsExporting(true);
+    trackEvent('download_pdf', { menu_title: menu?.menuTitle });
     try {
       const canvas = await html2canvas(menuRef.current, {
         scale: 2,
@@ -146,6 +148,7 @@ const App: React.FC = () => {
 
   const handleStartFromLanding = () => {
       setShowLanding(false);
+      trackEvent('start_app_from_landing');
       if (!localStorage.getItem('caterpro-subscription')) {
           selectPlan('free');
       }
@@ -156,6 +159,7 @@ const App: React.FC = () => {
       if (mode === 'video' || mode === 'pitch') {
           if (!attemptAccess('educationTools')) return;
       }
+      trackEvent('open_social_creator', { mode });
       setSocialModalMode(mode);
       setIsSocialModalOpen(true);
   };
@@ -172,6 +176,9 @@ const App: React.FC = () => {
     setIsLoading(true);
     setError(null);
     setMenu(null);
+    
+    trackEvent('generate_menu_start', { eventType, cuisine, budget });
+
     try {
       const result = await generateMenuFromApi({
         eventType: eventType === 'Other...' ? customEventType : eventType,
@@ -186,6 +193,8 @@ const App: React.FC = () => {
       const newMenu = { ...result.menu, theme: proposalTheme };
       setMenu(newMenu);
       setIsLoading(false);
+      
+      trackEvent('generate_menu_success', { menu_title: newMenu.menuTitle });
 
       setIsGeneratingImage(true);
       try {
@@ -203,6 +212,7 @@ const App: React.FC = () => {
     } catch (e) {
       setError(getApiErrorState(e));
       setIsLoading(false);
+      trackEvent('generate_menu_error', { error_type: (e as Error).name });
     }
   };
 
