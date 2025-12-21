@@ -146,6 +146,7 @@ const App: React.FC = () => {
 
   const handleStartFromLanding = () => {
       setShowLanding(false);
+      // Ensure we have a default free plan set if nothing exists
       if (!localStorage.getItem('caterpro-subscription')) {
           selectPlan('free');
       }
