@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 
 export type SubscriptionPlan = 'free' | 'starter' | 'professional' | 'business';
@@ -8,7 +9,7 @@ export interface SubscriptionState {
   lastGenerationDate: string | null;
 }
 
-const MAX_FREE_GENERATIONS = 3;
+const MAX_FREE_GENERATIONS = 5; // Reduced for monetization focus
 
 const getInitialState = (): SubscriptionState => {
   try {
@@ -21,19 +22,12 @@ const getInitialState = (): SubscriptionState => {
         parsed.generationsToday = 0;
         parsed.lastGenerationDate = today;
       }
-      // Migrate old plan names if necessary
-      if (parsed.plan === 'premium') parsed.plan = 'professional';
-      if (parsed.plan === 'pro') parsed.plan = 'business';
-      if (parsed.plan === 'enterprise') parsed.plan = 'business'; // Downgrade legacy enterprise to business
-      
       return parsed;
     }
   } catch (e) {
-    console.error("Failed to parse subscription state from localStorage", e);
+    console.error("Failed to parse subscription state", e);
   }
   return {
-    // CRITICAL UPDATE: Default to 'free' so new users don't get premium features automatically.
-    // They must upgrade or use a promo code.
     plan: 'free',
     generationsToday: 0,
     lastGenerationDate: new Date().toDateString(),
@@ -49,6 +43,7 @@ export const useAppSubscription = () => {
   }, [subscription]);
 
   const selectPlan = (plan: SubscriptionPlan) => {
+    // This is now only called after a successful payment verification
     setSubscription(prev => ({ ...prev, plan }));
   };
 
@@ -59,41 +54,27 @@ export const useAppSubscription = () => {
     const isBusiness = p === 'business';
 
     switch (feature) {
-      case 'unlimitedGenerations':
-        return isPaid; // Starter and up
-      case 'noWatermark':
-        return isPaid; // Starter and up
-      case 'allThemes':
-        return isProfessionalOrHigher;
-      case 'saveMenus':
-        return isProfessionalOrHigher;
-      case 'beveragePairings':
-        return isProfessionalOrHigher;
-      case 'recommendedEquipment':
-        return isProfessionalOrHigher;
-      case 'aiChatBot':
-        return isProfessionalOrHigher;
-      case 'shareableLinks':
-        return isBusiness;
-      case 'findSuppliers':
-        return isBusiness;
-      case 'bulkEdit':
-        return isBusiness;
-      case 'itemEditing':
-        return isBusiness;
-      case 'customItemGeneration':
-        return isBusiness;
-      case 'educationTools':
-        return isBusiness;
-      default:
-        return false;
+      case 'unlimitedGenerations': return isPaid;
+      case 'noWatermark': return isPaid;
+      case 'allThemes': return isProfessionalOrHigher;
+      case 'saveMenus': return isProfessionalOrHigher;
+      case 'beveragePairings': return isProfessionalOrHigher;
+      case 'recommendedEquipment': return isProfessionalOrHigher;
+      case 'aiChatBot': return isProfessionalOrHigher;
+      case 'shareableLinks': return isBusiness;
+      case 'findSuppliers': return isBusiness;
+      case 'bulkEdit': return isBusiness;
+      case 'itemEditing': return isBusiness;
+      case 'customItemGeneration': return isBusiness;
+      case 'educationTools': return isBusiness;
+      default: return false;
     }
   }, [subscription.plan]);
 
   const recordGeneration = useCallback((): boolean => {
     const today = new Date().toDateString();
-    
     let currentGenerations = subscription.generationsToday;
+    
     if (subscription.lastGenerationDate !== today) {
         currentGenerations = 0;
     }
@@ -104,27 +85,23 @@ export const useAppSubscription = () => {
     }
     
     if (currentGenerations < MAX_FREE_GENERATIONS) {
-        setSubscription(prev => ({ ...prev, generationsToday: currentGenerations + 1, lastGenerationDate: today }));
+        setSubscription(prev => ({ 
+            ...prev, 
+            generationsToday: currentGenerations + 1, 
+            lastGenerationDate: today 
+        }));
         return true;
     }
     
     setShowUpgradeModal(true);
     return false;
-
   }, [subscription, canAccessFeature]);
 
   const attemptAccess = (feature: string): boolean => {
-      if (canAccessFeature(feature)) {
-          return true;
-      }
+      if (canAccessFeature(feature)) return true;
       setShowUpgradeModal(true);
       return false;
   };
-
-  const generationsLeft = canAccessFeature('unlimitedGenerations')
-    ? Infinity
-    : Math.max(0, MAX_FREE_GENERATIONS - (subscription.lastGenerationDate === new Date().toDateString() ? subscription.generationsToday : 0));
-
 
   return { 
     subscription, 
@@ -133,7 +110,6 @@ export const useAppSubscription = () => {
     recordGeneration,
     showUpgradeModal,
     setShowUpgradeModal,
-    attemptAccess,
-    generationsLeft,
+    attemptAccess
   };
 };
