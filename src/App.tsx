@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, Printer, FileDown, Copy, Sparkles, Megaphone, GraduationCap, ChevronRight, Coins } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, Printer, FileDown, Copy, Sparkles, Megaphone, GraduationCap, ChevronRight, Coins, Share2, Film, Mail } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -146,11 +146,18 @@ const App: React.FC = () => {
 
   const handleStartFromLanding = () => {
       setShowLanding(false);
-      // Ensure we have a default free plan set if nothing exists
       if (!localStorage.getItem('caterpro-subscription')) {
           selectPlan('free');
       }
       setIsAppVisible(true);
+  };
+
+  const openSocialCreator = (mode: 'create' | 'pitch' | 'video') => {
+      if (mode === 'video' || mode === 'pitch') {
+          if (!attemptAccess('educationTools')) return;
+      }
+      setSocialModalMode(mode);
+      setIsSocialModalOpen(true);
   };
 
   const generateMenu = async () => {
@@ -334,20 +341,53 @@ const App: React.FC = () => {
 
           {menu && !isLoading && (
             <div className="space-y-8 animate-fade-in">
-                <div className="no-print flex flex-col sm:flex-row gap-3 mb-4">
-                    <button onClick={() => setMenu(null)} className="flex-1 py-3 px-4 bg-slate-100 dark:bg-slate-800 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-all">
-                        ← Create New
-                    </button>
-                    <button onClick={handleDownloadPDF} className="flex-1 py-3 px-4 bg-primary-600 text-white rounded-xl font-bold shadow-lg flex items-center justify-center gap-2">
-                        {isExporting ? <Loader2 className="animate-spin" size={20} /> : <FileDown size={20} />}
-                        Export PDF
-                    </button>
-                    <button onClick={() => setIsSavedModalOpen(true)} className="py-3 px-6 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50">
-                        <Save size={20} />
-                    </button>
+                {/* Dashboard Action Header */}
+                <div className="no-print bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-primary-100 dark:bg-primary-900/30 rounded-2xl">
+                            <Sparkles className="text-primary-600 w-6 h-6" />
+                        </div>
+                        <div>
+                            <h3 className="text-xl font-black text-slate-900 dark:text-white">Proposal Live</h3>
+                            <p className="text-sm text-slate-500 font-medium">Manage, Share & Market your event.</p>
+                        </div>
+                    </div>
+                    <div className="flex flex-wrap justify-center gap-2">
+                        <button onClick={() => setMenu(null)} className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-black uppercase text-slate-600 dark:text-slate-300">← New</button>
+                        <button onClick={handleDownloadPDF} className="px-4 py-2.5 bg-primary-600 text-white rounded-xl text-xs font-black uppercase flex items-center gap-2 shadow-lg">
+                            {isExporting ? <Loader2 className="animate-spin" size={14} /> : <FileDown size={14} />} PDF
+                        </button>
+                        <button onClick={() => setIsSavedModalOpen(true)} className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-black uppercase flex items-center gap-2"><Save size={14} /> Save</button>
+                    </div>
                 </div>
 
-                <div ref={menuRef} className="rounded-3xl shadow-2xl overflow-hidden bg-white dark:bg-slate-950">
+                {/* Social & Marketing Creator (The Missing Part) */}
+                <div className="no-print bg-gradient-to-br from-indigo-600 to-purple-700 p-8 rounded-3xl text-white shadow-2xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-10 opacity-10 transform translate-x-1/4 -translate-y-1/4 group-hover:rotate-12 transition-transform">
+                        <Megaphone size={120} />
+                    </div>
+                    <div className="relative z-10">
+                        <div className="flex items-center gap-2 mb-2">
+                            <span className="px-2 py-0.5 rounded bg-white/20 text-[10px] font-black uppercase tracking-widest">Growth Engine</span>
+                        </div>
+                        <h4 className="text-2xl font-black mb-1">Social Media Creator</h4>
+                        <p className="text-indigo-100 text-sm mb-8 max-w-md">Turn this menu into a viral marketing campaign. Generate captions, reels, and academic pitches.</p>
+                        
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <button onClick={() => openSocialCreator('create')} className="flex items-center justify-center gap-2 py-4 px-6 bg-white text-indigo-700 rounded-2xl font-black text-sm shadow-xl hover:scale-105 transition-all">
+                                <Share2 size={18} /> Social Posts
+                            </button>
+                            <button onClick={() => openSocialCreator('video')} className="flex items-center justify-center gap-2 py-4 px-6 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-white/20 transition-all">
+                                <Film size={18} /> Cinematic Reel
+                            </button>
+                            <button onClick={() => openSocialCreator('pitch')} className="flex items-center justify-center gap-2 py-4 px-6 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-white/20 transition-all">
+                                <Mail size={18} /> Pitch Email
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div ref={menuRef} className="rounded-3xl shadow-2xl overflow-hidden bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
                     <MenuDisplay 
                         menu={menu}
                         checkedItems={checkedItems}
@@ -430,6 +470,14 @@ const App: React.FC = () => {
         onUpgrade={(p) => { selectPlan(p); setShowUpgradeModal(false); }} 
       />
       <PwaInstallModal isOpen={isInstallModalOpen} onClose={() => setIsInstallModalOpen(false)} />
+      <SocialMediaModal 
+        isOpen={isSocialModalOpen} 
+        onClose={() => setIsSocialModalOpen(false)} 
+        image={menu?.image}
+        menuTitle={menu?.menuTitle || ''}
+        menuDescription={menu?.description || ''}
+        initialMode={socialModalMode}
+      />
       
       <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
     </div>
