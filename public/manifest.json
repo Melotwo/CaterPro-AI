@@ -1,3 +1,4 @@
+
 {
   "name": "CaterPro AI",
   "short_name": "CaterPro",
@@ -8,14 +9,16 @@
   "description": "AI-powered menu planning for catering professionals.",
   "icons": [
     {
-      "src": "/logo.svg?v=3",
+      "src": "/logo.svg?v=2",
       "type": "image/svg+xml",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     },
     {
-      "src": "/logo.svg?v=3",
+      "src": "/logo.svg?v=2",
       "type": "image/svg+xml",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     }
   ]
 }
