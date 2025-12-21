@@ -1,10 +1,19 @@
 
-import React, { useState, useEffect } from 'react';
-import { Calendar, GraduationCap, Layout, BookOpen, Clock, CheckCircle2, Zap, Rocket, Pin, Instagram, Briefcase, Plus, Target, Timer, TrendingUp, ChevronRight, ChefHat, PartyPopper, BookCheck, Sparkles } from 'lucide-react';
+import React, { useState } from 'react';
+import { Calendar, GraduationCap, Layout, BookOpen, Clock, CheckCircle2, Zap, UserRound, Sparkles, TrendingUp, ChevronRight, BookCheck, Target, Anchor, Utensils, Copy } from 'lucide-react';
+
+// Define the missing dailyTasks variable for goal tracking
+const dailyTasks = [
+  { id: 'notebook', label: 'NotebookLM Vision Features' },
+  { id: 'identity-doc', label: 'Career Identity Statement' },
+  { id: 'disney-milestone', label: 'Disney Cruise Line Milestone' },
+  { id: 'marketing-module', label: 'Complete Digital Marketing Module 2' },
+  { id: 'proposal-demo', label: 'Record Catering Proposal Demo' },
+];
 
 const FounderRoadmap: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'blueprint' | 'growth' | 'tools'>('growth');
-  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['pin1', 'reel', 'assignment1', 'notebook']));
+  const [activeTab, setActiveTab] = useState<'blueprint' | 'growth' | 'vault'>('growth');
+  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['notebook', 'identity-doc', 'disney-milestone']));
 
   const toggleTask = (taskId: string) => {
     const newTasks = new Set(completedTasks);
@@ -13,59 +22,125 @@ const FounderRoadmap: React.FC = () => {
     setCompletedTasks(newTasks);
   };
 
-  const schedule = [
-    { id: 'build', time: 'Deep Work (3h)', task: 'Implementing NotebookLM Vision Features', icon: Sparkles, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20' },
-    { id: 'learn', time: 'Growth (3h)', task: 'Google Course 2: Advanced Productivity', icon: GraduationCap, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
-    { id: 'post', time: 'Marketing (3h)', task: 'Share Vision AI demo on Pinterest', icon: Pin, color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-900/20' },
-  ];
+  const handleCopyBio = () => {
+    const bio = "I am a Culinary Founder and AI Solutions Architect with over 10 years of experience in the global hospitality industry—from the front-of-house to the high-pressure kitchens of Disney Cruise Line. My greatest strengths are perseverance and creative innovation; I have a unique talent for transforming complex workflows into intuitive, beautiful tools like CaterPro AI. I am passionate about the intersection of culinary arts and technology, and I value honesty, respect, and the gift of time.";
+    navigator.clipboard.writeText(bio);
+    alert("Bio copied to clipboard!");
+  };
 
-  const dailyTasks = [
-    { id: 'notebook', label: 'NotebookLM Feature Brainstorming', platform: 'study' },
-    { id: 'vision', label: 'Deploy Receipt Vision Logic', platform: 'build' },
-    { id: 'reel', label: 'Instagram: Showcasing Product Lab', platform: 'instagram' },
-    { id: 'assignment1', label: 'Submit Course 2 Social Assignment', platform: 'coursera' },
+  const schedule = [
+    { id: 'build', time: 'Deep Work', task: 'NotebookLM Vision Features', icon: Sparkles, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20' },
+    { id: 'learn', time: 'Course 2', task: 'Digital Marketing Foundations', icon: GraduationCap, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
+    { id: 'identity', time: 'Branding', task: 'Finalize Career Identity Doc', icon: UserRound, color: 'text-purple-500', bg: 'bg-purple-50 dark:bg-purple-900/20' },
   ];
 
   return (
     <section className="mt-16 animate-slide-in border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden">
-      {/* Header Section */}
       <div className="p-8 bg-gradient-to-r from-slate-900 to-slate-800 text-white">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
-                <div className="px-2 py-0.5 rounded bg-amber-500 text-[10px] font-black uppercase tracking-widest">NotebookLM Integrated</div>
-                <div className="flex items-center gap-1 text-slate-400 text-xs"><Clock size={12} /> Active Goal: Vision AI Integration</div>
+                <div className="px-2 py-0.5 rounded bg-primary-500 text-[10px] font-black uppercase tracking-widest">Digital Marketing Path</div>
+                <div className="flex items-center gap-1 text-slate-400 text-xs"><Clock size={12} /> Goal: Brand Clarity</div>
             </div>
             <h2 className="text-3xl font-black flex items-center gap-3">
               <Zap className="text-amber-400 fill-amber-400" /> Melotwo's Roadmap
             </h2>
-            <p className="text-slate-400 text-sm mt-1 max-w-md">Course 2 Mastery: Turning AI theory into kitchen productivity.</p>
+            <p className="text-slate-400 text-sm mt-1 max-w-md">10+ Years Culinary Expertise | AI Solutions Architect</p>
           </div>
           
           <div className="flex bg-slate-800 p-1 rounded-xl border border-slate-700">
-            <button onClick={() => setActiveTab('blueprint')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'blueprint' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}>
-                <Calendar size={14} /> Schedule
-            </button>
             <button onClick={() => setActiveTab('growth')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'growth' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}>
                 <GraduationCap size={14} /> Course Tracker
             </button>
-            <button onClick={() => setActiveTab('tools')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'tools' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}>
-                <Layout size={14} /> Stack
+            <button onClick={() => setActiveTab('vault')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'vault' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}>
+                <UserRound size={14} /> Brand Vault
+            </button>
+            <button onClick={() => setActiveTab('blueprint')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'blueprint' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}>
+                <Calendar size={14} /> Schedule
             </button>
           </div>
         </div>
       </div>
 
       <div className="p-8">
+        {activeTab === 'growth' && (
+          <div className="space-y-10 animate-fade-in max-w-4xl mx-auto py-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="space-y-6">
+                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                        <TrendingUp size={16} /> Career Milestones
+                    </h3>
+                    <div className="space-y-3">
+                        <div className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <Anchor className="text-blue-500" size={24} />
+                            <div>
+                                <h4 className="font-bold text-sm">Disney Cruise Line Expert</h4>
+                                <p className="text-[10px] text-slate-500 uppercase font-black">International Standard Training</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <Utensils className="text-primary-500" size={24} />
+                            <div>
+                                <h4 className="font-bold text-sm">10+ Years Kitchen Leadership</h4>
+                                <p className="text-[10px] text-slate-500 uppercase font-black">Front-to-Back House Mastery</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="bg-primary-50/30 dark:bg-primary-900/10 p-6 rounded-3xl border-2 border-primary-100 dark:border-primary-800">
+                    <h3 className="text-sm font-black uppercase tracking-widest text-primary-600 mb-4 flex items-center gap-2">
+                        <GraduationCap size={16} /> Course 2 Status
+                    </h3>
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-center text-xs font-bold">
+                            <span className="text-slate-600 dark:text-slate-300">Foundations of Digital Marketing</span>
+                            <span className="text-primary-600">Module 1: 25%</span>
+                        </div>
+                        <div className="h-3 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                            <div className="h-full bg-primary-500 w-1/4"></div>
+                        </div>
+                        <ul className="text-[11px] space-y-2 mt-4 text-slate-500 font-medium">
+                            <li className="flex items-center gap-2"><CheckCircle2 size={12} className="text-green-500" /> Career Identity Statement drafted</li>
+                            <li className="flex items-center gap-2 text-slate-400"><Clock size={12} /> Submit Course 2 Practice Activity</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'vault' && (
+          <div className="animate-fade-in py-4">
+            <div className="max-w-3xl mx-auto space-y-6">
+                <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl relative overflow-hidden group">
+                    <div className="absolute top-0 right-0 p-8 opacity-10 transform translate-x-1/4 -translate-y-1/4 group-hover:rotate-6 transition-transform">
+                        <UserRound size={120} />
+                    </div>
+                    <h3 className="text-lg font-black uppercase tracking-widest text-primary-400 mb-6 flex items-center gap-2">
+                        <Sparkles size={16} /> Refined Career Statement
+                    </h3>
+                    <p className="text-lg font-medium leading-relaxed italic text-slate-200 mb-8">
+                        "I am a Culinary Founder and AI Solutions Architect with over 10 years of experience in the global hospitality industry—from the front-of-house to the high-pressure kitchens of Disney Cruise Line. My greatest strengths are perseverance and creative innovation; I have a unique talent for transforming complex workflows into intuitive, beautiful tools like CaterPro AI. I am passionate about the intersection of culinary arts and technology, and I value honesty, respect, and the gift of time."
+                    </p>
+                    <button 
+                        onClick={handleCopyBio}
+                        className="flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-black text-xs transition-all active:scale-95"
+                    >
+                        <Copy size={16} /> Copy Bio for LinkedIn
+                    </button>
+                </div>
+            </div>
+          </div>
+        )}
+
         {activeTab === 'blueprint' && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in">
             <div className="lg:col-span-2 space-y-6">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                    <Target size={16} /> Course 2 Blueprint
-                </h3>
-                <span className="text-[10px] font-bold text-amber-500 bg-amber-50 dark:bg-amber-900/20 px-2 py-1 rounded">Vision Lab Active</span>
-              </div>
+              <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                  <Target size={16} /> Founder Schedule
+              </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {schedule.map((item) => (
                   <div key={item.id} className={`p-5 rounded-2xl border-2 border-transparent transition-all hover:scale-105 shadow-sm ${item.bg}`}>
@@ -74,21 +149,6 @@ const FounderRoadmap: React.FC = () => {
                     <p className="text-sm font-bold text-slate-900 dark:text-white leading-tight">{item.task}</p>
                   </div>
                 ))}
-              </div>
-
-              <div className="bg-slate-50 dark:bg-slate-800/50 rounded-2xl p-6 border border-slate-200 dark:border-slate-700">
-                <h4 className="font-bold text-slate-900 dark:text-white flex items-center gap-2 mb-4">
-                    <TrendingUp size={18} className="text-amber-500" /> NotebookLM Synergy
-                </h4>
-                <div className="space-y-4">
-                    <div className="flex justify-between items-center text-xs">
-                        <span className="text-slate-500">Feature Roadmap Completion</span>
-                        <span className="font-bold">65%</span>
-                    </div>
-                    <div className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                        <div className="h-full bg-amber-500 w-[65%] transition-all duration-500"></div>
-                    </div>
-                </div>
               </div>
             </div>
 
@@ -114,80 +174,6 @@ const FounderRoadmap: React.FC = () => {
                 ))}
               </div>
             </div>
-          </div>
-        )}
-
-        {activeTab === 'growth' && (
-          <div className="space-y-10 animate-fade-in max-w-2xl mx-auto py-6">
-            <div className="text-center">
-                <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-4 relative">
-                    <GraduationCap className="w-10 h-10 text-blue-600 dark:text-blue-400" />
-                    <div className="absolute -top-1 -right-1 bg-amber-400 text-slate-900 rounded-full p-1.5 shadow-lg border-2 border-white dark:border-slate-900">
-                        <Zap size={14} />
-                    </div>
-                </div>
-                <h3 className="text-2xl font-black text-slate-900 dark:text-white">Google AI Essentials</h3>
-                <p className="text-blue-600 dark:text-blue-400 font-bold text-sm mt-1 uppercase tracking-widest flex items-center justify-center gap-2">
-                   <Clock size={16} /> Course 2 (65% Optimized)
-                </p>
-            </div>
-            
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border-2 border-green-500 shadow-sm opacity-60">
-                    <div className="flex justify-between items-center mb-2">
-                         <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Course 1</span>
-                         <CheckCircle2 size={16} className="text-green-500" />
-                    </div>
-                    <h4 className="font-bold text-sm">Introduction to AI</h4>
-                    <p className="text-xs text-slate-500 mt-1">100% Complete</p>
-                </div>
-                <div className="bg-white dark:bg-slate-800 p-6 rounded-2xl border-4 border-amber-500 shadow-xl shadow-amber-500/10 scale-105">
-                    <div className="flex justify-between items-center mb-2">
-                         <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Active Sprint</span>
-                         <Sparkles size={16} className="text-amber-500 animate-pulse" />
-                    </div>
-                    <h4 className="font-bold text-sm">Vision AI Productivity</h4>
-                    <p className="text-xs text-slate-500 mt-1">Based on NotebookLM Insights</p>
-                    <div className="mt-4 w-full bg-slate-100 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
-                        <div className="bg-amber-500 h-full w-[65%]"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div className="mt-8 p-6 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-700 text-center">
-                <p className="text-slate-600 dark:text-slate-400 text-sm mb-4 italic">"Integrating NotebookLM with Gemini ensures your roadmap stays ahead of the competition."</p>
-                <div className="flex flex-col sm:flex-row gap-3">
-                    <div className="flex-1 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase mb-1 tracking-widest">Thinking Partner</p>
-                        <h4 className="font-bold text-sm">NotebookLM Sources Synced</h4>
-                    </div>
-                </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'tools' && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fade-in">
-             <div className="group p-8 bg-white dark:bg-slate-800 rounded-3xl border-2 border-slate-100 dark:border-slate-700 hover:border-blue-500/30 transition-all hover:shadow-2xl">
-                <div className="flex items-center gap-4 mb-6">
-                    <div className="p-3 bg-blue-50 dark:bg-blue-900/30 rounded-2xl transition-transform group-hover:rotate-6 text-blue-500"><Layout size={24} /></div>
-                    <div>
-                        <h4 className="font-black text-slate-900 dark:text-white">Notion</h4>
-                        <p className="text-xs text-slate-500 font-medium">The Asset Library</p>
-                    </div>
-                </div>
-                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Store your recipes and Course 2 insights here.</p>
-             </div>
-             <div className="group p-8 bg-white dark:bg-slate-800 rounded-3xl border-2 border-slate-100 dark:border-slate-700 hover:border-amber-500/30 transition-all hover:shadow-2xl">
-                <div className="flex items-center gap-4 mb-6">
-                    <div className="p-3 bg-amber-50 dark:bg-amber-900/30 rounded-2xl transition-transform group-hover:-rotate-6 text-amber-500"><BookOpen size={24} /></div>
-                    <div>
-                        <h4 className="font-black text-slate-900 dark:text-white">NotebookLM</h4>
-                        <p className="text-xs text-slate-500 font-medium">The Intelligence Hub</p>
-                    </div>
-                </div>
-                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">Your source for these new Vision AI features!</p>
-             </div>
           </div>
         )}
       </div>
