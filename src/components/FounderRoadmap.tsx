@@ -1,8 +1,7 @@
 
 import React, { useState } from 'react';
-import { Calendar, GraduationCap, Layout, BookOpen, Clock, CheckCircle2, Zap, UserRound, Sparkles, TrendingUp, ChevronRight, BookCheck, Target, Anchor, Utensils, Copy } from 'lucide-react';
+import { Calendar, GraduationCap, Layout, BookOpen, Clock, CheckCircle2, Zap, UserRound, Sparkles, TrendingUp, ChevronRight, BookCheck, Target, Anchor, Utensils, Copy, Info } from 'lucide-react';
 
-// Define the missing dailyTasks variable for goal tracking
 const dailyTasks = [
   { id: 'notebook', label: 'NotebookLM Vision Features' },
   { id: 'identity-doc', label: 'Career Identity Statement' },
@@ -22,11 +21,13 @@ const FounderRoadmap: React.FC = () => {
     setCompletedTasks(newTasks);
   };
 
-  const handleCopyBio = () => {
-    const bio = "I am a Culinary Founder and AI Solutions Architect with over 10 years of experience in the global hospitality industry—from the front-of-house to the high-pressure kitchens of Disney Cruise Line. My greatest strengths are perseverance and creative innovation; I have a unique talent for transforming complex workflows into intuitive, beautiful tools like CaterPro AI. I am passionate about the intersection of culinary arts and technology, and I value honesty, respect, and the gift of time.";
-    navigator.clipboard.writeText(bio);
-    alert("Bio copied to clipboard!");
+  const handleCopy = (text: string, label: string) => {
+    navigator.clipboard.writeText(text);
+    alert(`${label} copied to clipboard!`);
   };
+
+  const linkedinHeadline = "Culinary Founder & AI Solutions Architect | 10+ Years Hospitality Expertise | Ex-Disney Cruise Line";
+  const linkedinAbout = "I am a Culinary Founder and AI Solutions Architect with over 10 years of experience in the global hospitality industry—from the front-of-house to the high-pressure kitchens of Disney Cruise Line. My greatest strengths are perseverance and creative innovation; I have a unique talent for transforming complex workflows into intuitive, beautiful tools like CaterPro AI. I am passionate about the intersection of culinary arts and technology, and I value honesty, respect, and the efficiency that gives people back their most precious resource: time.";
 
   const schedule = [
     { id: 'build', time: 'Deep Work', task: 'NotebookLM Vision Features', icon: Sparkles, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20' },
@@ -112,24 +113,41 @@ const FounderRoadmap: React.FC = () => {
         )}
 
         {activeTab === 'vault' && (
-          <div className="animate-fade-in py-4">
-            <div className="max-w-3xl mx-auto space-y-6">
-                <div className="bg-slate-900 text-white p-8 rounded-3xl shadow-2xl relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-8 opacity-10 transform translate-x-1/4 -translate-y-1/4 group-hover:rotate-6 transition-transform">
-                        <UserRound size={120} />
+          <div className="animate-fade-in py-4 max-w-3xl mx-auto space-y-8">
+            <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-3xl border-2 border-slate-100 dark:border-slate-700">
+                <div className="flex items-center gap-2 mb-4 text-primary-600 dark:text-primary-400">
+                    <Info size={18} />
+                    <p className="text-xs font-bold uppercase tracking-widest">LinkedIn Optimization Guide</p>
+                </div>
+                
+                <div className="space-y-6">
+                    {/* Headline Section */}
+                    <div>
+                        <div className="flex items-center justify-between mb-2">
+                            <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">1. Your Headline</h4>
+                            <button onClick={() => handleCopy(linkedinHeadline, 'Headline')} className="p-1.5 bg-white dark:bg-slate-700 rounded-lg shadow-sm border border-slate-200 dark:border-slate-600 text-primary-600">
+                                <Copy size={14} />
+                            </button>
+                        </div>
+                        <p className="text-xs text-slate-500 mb-2">Punchy & Keyword-rich. Paste this in the "Headline" box.</p>
+                        <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-200">
+                            {linkedinHeadline}
+                        </div>
                     </div>
-                    <h3 className="text-lg font-black uppercase tracking-widest text-primary-400 mb-6 flex items-center gap-2">
-                        <Sparkles size={16} /> Refined Career Statement
-                    </h3>
-                    <p className="text-lg font-medium leading-relaxed italic text-slate-200 mb-8">
-                        "I am a Culinary Founder and AI Solutions Architect with over 10 years of experience in the global hospitality industry—from the front-of-house to the high-pressure kitchens of Disney Cruise Line. My greatest strengths are perseverance and creative innovation; I have a unique talent for transforming complex workflows into intuitive, beautiful tools like CaterPro AI. I am passionate about the intersection of culinary arts and technology, and I value honesty, respect, and the gift of time."
-                    </p>
-                    <button 
-                        onClick={handleCopyBio}
-                        className="flex items-center gap-2 px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-black text-xs transition-all active:scale-95"
-                    >
-                        <Copy size={16} /> Copy Bio for LinkedIn
-                    </button>
+
+                    {/* About Section */}
+                    <div>
+                        <div className="flex items-center justify-between mb-2">
+                            <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">2. Your "About" Summary</h4>
+                            <button onClick={() => handleCopy(linkedinAbout, 'About summary')} className="p-1.5 bg-white dark:bg-slate-700 rounded-lg shadow-sm border border-slate-200 dark:border-slate-600 text-primary-600">
+                                <Copy size={14} />
+                            </button>
+                        </div>
+                        <p className="text-xs text-slate-500 mb-2">The Story. Paste this in the "About" section on your profile.</p>
+                        <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 text-sm italic leading-relaxed text-slate-600 dark:text-slate-400">
+                            {linkedinAbout}
+                        </div>
+                    </div>
                 </div>
             </div>
           </div>
