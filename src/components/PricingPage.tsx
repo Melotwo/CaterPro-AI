@@ -125,7 +125,11 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
   const [selectedPrice, setSelectedPrice] = useState('');
 
   const handleTierClick = (planId: string, price: string) => {
-    if (planId === 'free') return; // Cannot "buy" free
+    // SECURITY: Users can only unlock Free immediately. Everything else triggers payment.
+    if (planId === 'free') {
+        onSelectPlan('free');
+        return;
+    }
     setSelectedPlanForPayment(planId as SubscriptionPlan);
     setSelectedPrice(price);
   };
@@ -195,8 +199,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
 
                   <button
                     onClick={() => handleTierClick(tier.id, tier.price)}
-                    disabled={tier.id === 'free'}
-                    className={`w-full rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-colors disabled:opacity-50 ${
+                    className={`w-full rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-colors ${
                       tier.highlight ? styles.buttonHighlight : styles.button
                     }`}
                   >
