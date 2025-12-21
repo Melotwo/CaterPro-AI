@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Check, Star, Zap, Briefcase, GraduationCap, Building2, Users } from 'lucide-react';
+import { Check, Star, Zap, Briefcase } from 'lucide-react';
 import { SubscriptionPlan } from '../hooks/useAppSubscription';
 import Footer from './Footer';
 import PaymentModal from './PaymentModal';
@@ -55,14 +55,14 @@ const getTiers = (currency: string = 'ZAR') => {
       id: 'free',
       price: symbol + '0',
       icon: Star,
-      description: 'Perfect for individual meal prep and testing.',
+      description: 'Test the AI and generate simple menus.',
       features: [
-        '50 Menu Generations per Day',
+        '5 Menu Generations per Day',
         'Basic Menu Export (PDF)',
         'Standard Theme',
         'Watermarked Documents',
       ],
-      cta: 'Start for Free',
+      cta: 'Current Plan',
       colorKey: 'slate' as keyof typeof TIER_STYLES,
     },
     {
@@ -76,7 +76,7 @@ const getTiers = (currency: string = 'ZAR') => {
         'Unlimited Generations',
         'No Watermarks',
         'Commercial Usage Rights',
-        'Priority Generation Speed',
+        'Standard Themes',
       ],
       cta: 'Get Starter',
       colorKey: 'green' as keyof typeof TIER_STYLES,
@@ -90,7 +90,7 @@ const getTiers = (currency: string = 'ZAR') => {
       description: 'Tools for better presentation.',
       features: [
         'All Starter Features',
-        'AI Food Photography (Michelin Style)',
+        'AI Food Photography',
         'Save up to 10 Menus',
         'AI Chat Consultant',
         'Beverage Pairings',
@@ -106,13 +106,13 @@ const getTiers = (currency: string = 'ZAR') => {
       price: symbol + (isZar ? '549' : '29'),
       priceSuffix: '/mo',
       icon: Briefcase,
-      description: 'Complete toolkit for catering companies.',
+      description: 'Complete toolkit for companies.',
       features: [
         'All Professional Features',
         'Unlimited Saved Menus',
         'Shareable Proposal Links',
-        'Find Local Suppliers',
-        'Education & Training Hub',
+        'Suppliers & Education Hub',
+        'Priority Support',
       ],
       cta: 'Get Business',
       colorKey: 'royal' as keyof typeof TIER_STYLES,
@@ -125,12 +125,9 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
   const [selectedPrice, setSelectedPrice] = useState('');
 
   const handleTierClick = (planId: string, price: string) => {
-    if (planId === 'free') {
-      onSelectPlan('free');
-    } else {
-      setSelectedPlanForPayment(planId as SubscriptionPlan);
-      setSelectedPrice(price);
-    }
+    if (planId === 'free') return; // Cannot "buy" free
+    setSelectedPlanForPayment(planId as SubscriptionPlan);
+    setSelectedPrice(price);
   };
 
   const handlePaymentSuccess = () => {
@@ -146,29 +143,29 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans">
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto">
+          <div className="text-center max-w-3xl mx-auto mb-16">
             <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Plans for Every Stage
+              Pricing & Plans
             </h1>
             <p className="mt-4 text-xl text-slate-600 dark:text-slate-400">
-              Scalable solutions for individuals, catering businesses, and large institutions in {currency}.
+              Stop doing paperwork. Start cooking. Unlock your potential today.
             </p>
           </div>
 
-          <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
             {tiers.map((tier) => {
               const styles = TIER_STYLES[tier.colorKey];
               return (
                 <div
                   key={tier.id}
-                  className={`relative flex flex-col rounded-2xl border p-6 shadow-sm h-full transition-transform hover:-translate-y-1 ${
+                  className={`relative flex flex-col rounded-2xl border p-6 shadow-sm h-full transition-all hover:shadow-xl ${
                     tier.highlight 
-                      ? `${styles.highlightBorder} bg-white dark:bg-slate-900 z-10 scale-105 md:scale-100 xl:scale-110` 
+                      ? `${styles.highlightBorder} bg-white dark:bg-slate-900 z-10` 
                       : `${styles.border} bg-white dark:bg-slate-900`
                   }`}
                 >
                   {tier.highlight && (
-                    <div className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 transform rounded-full px-4 py-1 text-xs font-bold text-white uppercase tracking-wide whitespace-nowrap shadow-md ${styles.badge}`}>
+                    <div className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 transform rounded-full px-4 py-1 text-xs font-bold text-white uppercase tracking-wide shadow-md ${styles.badge}`}>
                       {tier.badge}
                     </div>
                   )}
@@ -190,9 +187,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
                   <ul role="list" className="space-y-3 mb-8 flex-grow">
                     {tier.features.map((feature) => (
                       <li key={feature} className="flex items-start text-sm">
-                        <div className="flex-shrink-0 mt-0.5">
-                          <Check className="h-4 w-4 text-green-500" aria-hidden="true" />
-                        </div>
+                        <Check className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
                         <p className="ml-3 text-slate-600 dark:text-slate-300">{feature}</p>
                       </li>
                     ))}
@@ -200,7 +195,8 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
 
                   <button
                     onClick={() => handleTierClick(tier.id, tier.price)}
-                    className={`w-full rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-colors ${
+                    disabled={tier.id === 'free'}
+                    className={`w-full rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-colors disabled:opacity-50 ${
                       tier.highlight ? styles.buttonHighlight : styles.button
                     }`}
                   >
