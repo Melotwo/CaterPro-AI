@@ -23,6 +23,7 @@ import PwaInstallModal from './components/PwaInstallModal';
 import LandingPage from './components/LandingPage';
 import ProductivityLab from './components/ProductivityLab';
 import StudyGuideGenerator from './components/StudyGuideGenerator';
+import MarketingRoadmap from './components/MarketingRoadmap';
 import SEOHead from './components/SEOHead';
 import { trackEvent } from './components/GoogleAnalytics';
 import { useAppSubscription } from './hooks/useAppSubscription';
@@ -371,7 +372,7 @@ const App: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Social & Marketing Creator (The Missing Part) */}
+                {/* Social & Marketing Creator */}
                 <div className="no-print bg-gradient-to-br from-indigo-600 to-purple-700 p-8 rounded-3xl text-white shadow-2xl relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-10 opacity-10 transform translate-x-1/4 -translate-y-1/4 group-hover:rotate-12 transition-transform">
                         <Megaphone size={120} />
@@ -434,6 +435,8 @@ const App: React.FC = () => {
                         calculatedFee={null}
                     />
                 </div>
+                
+                <MarketingRoadmap />
                 
                 <ProductivityLab dietaryRestrictions={dietaryRestrictions} />
                 <StudyGuideGenerator isPro={subscription.plan === 'business'} onAttemptAccess={() => setShowUpgradeModal(true)} />
