@@ -1,5 +1,6 @@
+
 import React, { useEffect, useRef, useState } from 'react';
-import { X, Star, Briefcase, Check, Gift, Zap } from 'lucide-react';
+import { X, Star, Briefcase, Check, Gift } from 'lucide-react';
 import { SubscriptionPlan } from '../hooks/useAppSubscription';
 
 interface UpgradeModalProps {
@@ -14,185 +15,100 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade 
   const [promoError, setPromoError] = useState('');
 
   const modalRef = useRef<HTMLDivElement>(null);
-  const triggerElementRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (isOpen) {
-      triggerElementRef.current = document.activeElement as HTMLElement;
       setShowPromo(false);
       setPromoCode('');
       setPromoError('');
-      
-      const focusableElements = modalRef.current?.querySelectorAll<HTMLElement>('button, [href], [tabindex]:not([tabindex="-1"])');
-      const firstElement = focusableElements?.[0];
-      const lastElement = focusableElements?.[focusableElements.length - 1];
-      
-      setTimeout(() => firstElement?.focus(), 100);
-
-      const handleKeyDown = (e: KeyboardEvent) => {
-        if (e.key === 'Escape') onClose();
-        if (e.key === 'Tab' && firstElement && lastElement) {
-          if (e.shiftKey) {
-            if (document.activeElement === firstElement) {
-              e.preventDefault();
-              lastElement.focus();
-            }
-          } else {
-            if (document.activeElement === lastElement) {
-              e.preventDefault();
-              firstElement.focus();
-            }
-          }
-        }
-      };
-      
-      document.addEventListener('keydown', handleKeyDown);
-      return () => {
-        document.removeEventListener('keydown', handleKeyDown);
-        triggerElementRef.current?.focus();
-      };
     }
-  }, [isOpen, onClose]);
+  }, [isOpen]);
   
   const handleApplyPromo = () => {
       const code = promoCode.trim().toUpperCase();
-      if (['VIP', 'FAMILY', 'SISTER', 'ADMIN'].includes(code)) {
+      // Special Founder & Admin Codes
+      if (['MELOTWO-FOUNDER', 'VIP', 'ADMIN', 'SISTER-ACCESS'].includes(code)) {
           onUpgrade('business');
           setPromoCode('');
           setShowPromo(false);
+          onClose();
       } else {
-          setPromoError('Invalid promo code');
+          setPromoError('Invalid code');
       }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div role="dialog" aria-modal="true" aria-labelledby="upgrade-modal-title" className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div onClick={onClose} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm animate-[fade-in_0.2s_ease-out]"></div>
-      <div ref={modalRef} className="relative w-full max-w-2xl bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 transition-all animate-[scale-up_0.2s_ease-out] overflow-hidden">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-400 to-purple-600"></div>
-        <button onClick={onClose} className="absolute top-3 right-3 p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 z-10" aria-label="Close modal">
+      <div ref={modalRef} className="relative w-full max-w-2xl bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 transition-all animate-[scale-up_0.2s_ease-out] overflow-hidden">
+        <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 z-10">
           <X size={20} />
         </button>
 
-        <div className="p-8 text-center border-b border-slate-100 dark:border-slate-700">
-             <h3 id="upgrade-modal-title" className="text-2xl font-bold text-slate-900 dark:text-white">Unlock Full Potential</h3>
-             <p className="mt-2 text-slate-600 dark:text-slate-400">Choose the plan that fits your growth.</p>
+        <div className="p-8 text-center bg-slate-50 dark:bg-slate-900/50">
+             <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Upgrade Your Kitchen</h3>
+             <p className="mt-1 text-slate-500 text-sm">Join the pro chefs using AI to grow their business.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-slate-700">
-            {/* Professional Plan */}
-            <div className="p-6 hover:bg-amber-50/50 dark:hover:bg-amber-900/10 transition-colors">
-                <div className="flex items-center gap-2 mb-4">
-                    <div className="p-2 bg-amber-100 dark:bg-amber-900/50 rounded-lg text-amber-600 dark:text-amber-400">
-                        <Star size={24} />
-                    </div>
-                    <div>
-                        <h4 className="font-bold text-lg text-slate-900 dark:text-white">Professional</h4>
-                        <p className="text-sm text-amber-600 dark:text-amber-400 font-medium">$19 / month</p>
-                    </div>
+        <div className="grid grid-cols-1 md:grid-cols-2">
+            <div className="p-8 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-700">
+                <div className="flex items-center gap-3 mb-6">
+                    <Star className="text-amber-500" />
+                    <h4 className="font-black text-lg">Professional</h4>
                 </div>
-                <ul className="space-y-3 mb-6">
-                    <li className="flex gap-2 text-sm text-slate-600 dark:text-slate-300">
-                        <Check size={16} className="text-green-500 flex-shrink-0" />
-                        <span><strong>AI Food Photography</strong> (Michelin Style)</span>
-                    </li>
-                    <li className="flex gap-2 text-sm text-slate-600 dark:text-slate-300">
-                        <Check size={16} className="text-green-500 flex-shrink-0" />
-                        <span>Save up to 10 Menus</span>
-                    </li>
-                    <li className="flex gap-2 text-sm text-slate-600 dark:text-slate-300">
-                        <Check size={16} className="text-green-500 flex-shrink-0" />
-                        <span>AI Chat Consultant</span>
-                    </li>
+                <ul className="space-y-3 mb-8">
+                    {['AI Food Photos', 'Save 10 Menus', 'AI Consultant'].map(f => (
+                        <li key={f} className="flex gap-2 text-sm text-slate-600 dark:text-slate-400">
+                            <Check size={16} className="text-green-500" /> {f}
+                        </li>
+                    ))}
                 </ul>
                 <button 
-                    onClick={() => onUpgrade('professional')}
-                    className="w-full py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white font-semibold shadow-sm transition-all hover:shadow-md"
+                    onClick={() => { window.location.href='/#pricing'; onClose(); }}
+                    className="w-full py-3 rounded-2xl bg-amber-500 text-white font-black text-sm shadow-lg shadow-amber-500/20"
                 >
-                    Upgrade to Professional
+                    View Pricing
                 </button>
             </div>
 
-            {/* Business Plan */}
-            <div className="p-6 hover:bg-purple-50/50 dark:hover:bg-purple-900/10 transition-colors relative overflow-hidden">
-                <div className="absolute top-3 right-3 bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-300 text-xs font-bold px-2 py-1 rounded-full">
-                    BEST VALUE
+            <div className="p-8 bg-primary-50/20 dark:bg-primary-900/10">
+                <div className="flex items-center gap-3 mb-6">
+                    <Briefcase className="text-primary-600" />
+                    <h4 className="font-black text-lg">Business</h4>
                 </div>
-                <div className="flex items-center gap-2 mb-4">
-                    <div className="p-2 bg-purple-100 dark:bg-purple-900/50 rounded-lg text-purple-600 dark:text-purple-400">
-                        <Briefcase size={24} />
-                    </div>
-                    <div>
-                        <h4 className="font-bold text-lg text-slate-900 dark:text-white">Business</h4>
-                        <p className="text-sm text-purple-600 dark:text-purple-400 font-medium">$29 / month</p>
-                    </div>
-                </div>
-                <ul className="space-y-3 mb-6">
-                    <li className="flex gap-2 text-sm text-slate-600 dark:text-slate-300">
-                        <Check size={16} className="text-green-500 flex-shrink-0" />
-                        <span><strong>Unlimited</strong> Saved Menus</span>
-                    </li>
-                    <li className="flex gap-2 text-sm text-slate-600 dark:text-slate-300">
-                        <Check size={16} className="text-green-500 flex-shrink-0" />
-                        <span>Shareable Client Links</span>
-                    </li>
-                    <li className="flex gap-2 text-sm text-slate-600 dark:text-slate-300">
-                        <Check size={16} className="text-green-500 flex-shrink-0" />
-                        <span>Find Local Suppliers</span>
-                    </li>
+                <ul className="space-y-3 mb-8">
+                    {['Unlimited Storage', 'Suppliers Hub', 'Pro Tools'].map(f => (
+                        <li key={f} className="flex gap-2 text-sm text-slate-600 dark:text-slate-400">
+                            <Check size={16} className="text-green-500" /> {f}
+                        </li>
+                    ))}
                 </ul>
                 <button 
-                    onClick={() => onUpgrade('business')}
-                    className="w-full py-2.5 rounded-lg bg-purple-600 hover:bg-purple-700 text-white font-semibold shadow-sm transition-all hover:shadow-md"
+                    onClick={() => { window.location.href='/#pricing'; onClose(); }}
+                    className="w-full py-3 rounded-2xl bg-primary-600 text-white font-black text-sm shadow-lg shadow-primary-500/20"
                 >
-                    Upgrade to Business
+                    Get Business
                 </button>
             </div>
         </div>
         
-        <div className="p-4 bg-slate-50 dark:bg-slate-900 border-t border-slate-100 dark:border-slate-700 flex flex-col items-center gap-3">
-             <button onClick={() => onUpgrade('starter')} className="text-sm text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 underline">
-                 Just need to remove watermarks? Get Starter for $9/mo
-             </button>
-             
+        <div className="p-6 bg-slate-50 dark:bg-slate-900 flex flex-col items-center gap-4">
              {!showPromo ? (
-                <div className="flex flex-col items-center w-full gap-2">
-                     <button 
-                        onClick={() => onUpgrade('business')}
-                        className="w-full py-2 text-xs font-bold uppercase tracking-wider text-white bg-slate-800 dark:bg-slate-600 rounded hover:bg-slate-700 dark:hover:bg-slate-500 flex items-center justify-center gap-2"
-                    >
-                         <Zap size={12} className="text-yellow-400" fill="currentColor" />
-                         Activate Demo Mode (Free)
-                     </button>
-                     <button 
-                        onClick={() => setShowPromo(true)}
-                        className="flex items-center gap-1.5 text-xs font-semibold text-primary-600 dark:text-primary-400 hover:underline"
-                    >
-                         <Gift size={14} />
-                         Have a promo code?
-                     </button>
-                </div>
+                <button onClick={() => setShowPromo(true)} className="flex items-center gap-2 text-xs font-bold text-primary-600 hover:underline">
+                    <Gift size={14} /> Redem Access Code
+                </button>
              ) : (
-                 <div className="w-full max-w-xs flex gap-2 animate-fade-in">
-                     <div className="flex-grow">
-                        <input 
-                            type="text" 
-                            placeholder="Enter Code (e.g. VIP)" 
-                            value={promoCode}
-                            onChange={(e) => { setPromoCode(e.target.value); setPromoError(''); }}
-                            className={`w-full px-3 py-1.5 text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 dark:bg-slate-800 dark:text-white ${promoError ? 'border-red-500' : 'border-slate-300 dark:border-slate-600'}`}
-                            autoFocus
-                        />
-                        {promoError && <p className="text-xs text-red-500 mt-1 text-left">{promoError}</p>}
-                     </div>
-                     <button 
-                        onClick={handleApplyPromo}
-                        className="px-3 py-1.5 text-sm font-semibold text-white bg-slate-800 dark:bg-slate-600 rounded-md hover:bg-slate-900 dark:hover:bg-slate-500"
-                     >
-                         Apply
-                     </button>
+                 <div className="w-full max-w-xs flex gap-2">
+                    <input 
+                        type="text" 
+                        placeholder="Founder/Promo Code" 
+                        value={promoCode}
+                        onChange={(e) => { setPromoCode(e.target.value); setPromoError(''); }}
+                        className={`w-full px-4 py-2 text-xs border-2 rounded-xl bg-white dark:bg-slate-800 ${promoError ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`}
+                    />
+                    <button onClick={handleApplyPromo} className="px-4 py-2 text-xs font-black bg-slate-900 text-white rounded-xl">Apply</button>
                  </div>
              )}
         </div>
