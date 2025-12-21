@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Loader2, Save, AlertTriangle, Printer, FileDown, Copy, Sparkles, Megaphone, GraduationCap, ChevronRight, Coins } from 'lucide-react';
-import jsPDF from 'jsPDF';
+import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
 import Navbar from './components/Navbar';
@@ -21,10 +21,10 @@ import PricingPage from './components/PricingPage';
 import UpgradeModal from './components/UpgradeModal';
 import PwaInstallModal from './components/PwaInstallModal';
 import LandingPage from './components/LandingPage';
-import FounderRoadmap from './components/FounderRoadmap';
 import ProductivityLab from './components/ProductivityLab';
+import StudyGuideGenerator from './components/StudyGuideGenerator';
 import SEOHead from './components/SEOHead';
-import { useAppSubscription, type SubscriptionPlan } from './hooks/useAppSubscription';
+import { useAppSubscription } from './hooks/useAppSubscription';
 import { CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS, SERVICE_STYLES, CURRENCIES } from './constants';
 import { SavedMenu, ErrorState, ValidationErrors, Menu, MenuSection } from './types';
 import { getApiErrorState } from './services/apiErrorHandler';
@@ -144,6 +144,14 @@ const App: React.FC = () => {
     }
   };
 
+  const handleStartFromLanding = () => {
+      setShowLanding(false);
+      if (!localStorage.getItem('caterpro-subscription')) {
+          selectPlan('free');
+      }
+      setIsAppVisible(true);
+  };
+
   const generateMenu = async () => {
     if (!recordGeneration()) return;
     const newValidationErrors: ValidationErrors = {};
@@ -190,13 +198,6 @@ const App: React.FC = () => {
     }
   };
 
-  const handleOpenSocialModal = (mode: typeof socialModalMode) => {
-    setSocialModalMode(mode);
-    setIsSocialModalOpen(true);
-  };
-
-  const currentCurrencySymbol = CURRENCIES.find(c => c.code === currency)?.symbol || 'R';
-
   return (
     <div className={`flex flex-col min-h-screen font-sans antialiased ${isDarkMode ? 'dark' : ''}`}>
       <SEOHead menu={menu} title={showLanding ? "The Chef's Secret Weapon" : "Generate Menu"} />
@@ -213,170 +214,223 @@ const App: React.FC = () => {
       
       {showLanding && !isAppVisible ? (
         <>
-            <LandingPage onGetStarted={() => { setShowLanding(false); if (localStorage.getItem('caterpro-subscription')) setIsAppVisible(true); }} />
+            <LandingPage onGetStarted={handleStartFromLanding} />
             <Footer />
         </>
       ) : !isAppVisible ? (
         <PricingPage onSelectPlan={(p) => { selectPlan(p); setIsAppVisible(true); }} currency={currency} />
       ) : (
         <main className="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
-          <header className="text-center animate-slide-in">
-            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-slate-800 dark:text-slate-200">CaterPro AI Dashboard</h1>
-            <p className="mt-4 text-lg text-slate-600 dark:text-slate-300">Intelligent catering paperwork for busy chefs.</p>
-          </header>
-
-          {!menu && <FounderRoadmap />}
-
-          <section className="mt-12 bg-white dark:bg-slate-800/50 p-6 sm:p-8 rounded-2xl shadow-md border border-slate-200 dark:border-slate-700/80 animate-slide-in">
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white">New Proposal</h2>
-              <div className="mt-8 space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Event Type *</label>
-                    <select value={eventType} onChange={(e) => setEventType(e.target.value)} className="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm">
-                      <option value="" disabled>Select an event...</option>
-                      {EVENT_TYPES.map((e) => <option key={e} value={e}>{e}</option>)}
-                    </select>
-                    {validationErrors.eventType && <p className="text-red-500 text-sm mt-1">{validationErrors.eventType}</p>}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Guests *</label>
-                    <select value={guestCount} onChange={e => setGuestCount(e.target.value)} className="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm">
-                      <option value="" disabled>Select range...</option>
-                      {GUEST_COUNT_OPTIONS.map(g => <option key={g} value={g}>{g}</option>)}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Preferred Currency</label>
-                    <div className="relative mt-1">
-                        <Coins className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="block w-full pl-9 pr-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm">
-                          {CURRENCIES.map(c => <option key={c.code} value={c.code}>{c.label}</option>)}
-                        </select>
+          {error && (
+            <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/30 border-2 border-red-200 dark:border-red-800">
+                <div className="flex items-start">
+                    <AlertTriangle className="h-6 w-6 text-red-500 dark:text-red-400 flex-shrink-0 mr-3" />
+                    <div>
+                        <h3 className="text-lg font-bold text-red-800 dark:text-red-200">{error.title}</h3>
+                        <div className="text-sm text-red-700 dark:text-red-300 mt-1">{error.message}</div>
                     </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Budget Level</label>
-                    <select value={budget} onChange={(e) => setBudget(e.target.value)} className="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm">
-                      {BUDGET_LEVELS.map(b => <option key={b.value} value={b.value}>{currentCurrencySymbol} {b.label}</option>)}
-                    </select>
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">Cuisine Style *</label>
-                    <select value={cuisine} onChange={(e) => setCuisine(e.target.value)} className="mt-1 block w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-md shadow-sm">
-                      <option value="" disabled>Select cuisine...</option>
-                      {CUISINES.map(c => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                  </div>
                 </div>
-
-                {error && (
-                  <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 animate-slide-in">
-                    <div className="flex gap-3">
-                        <AlertTriangle className="w-6 h-6 text-red-500 flex-shrink-0" />
-                        <div>
-                          <p className="font-bold text-red-800 dark:text-red-200">{error.title}</p>
-                          <p className="text-sm text-red-700 dark:text-red-300 mt-1">{error.message}</p>
-                        </div>
-                    </div>
-                  </div>
-                )}
-
-                <button 
-                  onClick={generateMenu} 
-                  disabled={isLoading} 
-                  className="w-full inline-flex items-center justify-center px-6 py-4 text-lg font-black text-white bg-primary-600 rounded-2xl shadow-xl hover:bg-primary-700 transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50"
-                >
-                  {isLoading ? <Loader2 className="mr-2 animate-spin" /> : <Sparkles className="mr-2" />}
-                  {isLoading ? loadingMessage : `Generate Proposal in ${currency}`}
-                </button>
-              </div>
-          </section>
-
-          <div className="mt-12">
-              <ProductivityLab dietaryRestrictions={dietaryRestrictions} />
-          </div>
-
-          {menu && (
-            <section className="mt-12 animate-slide-in">
-              <div className="mb-4 flex flex-wrap items-center gap-2 no-print">
-                  <button onClick={() => handleOpenSocialModal('pitch')} className="flex-1 min-w-[200px] flex items-center justify-center gap-2 py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-sm shadow-lg transition-all active:scale-95">
-                      <GraduationCap size={18} /> Draft Assignment Email
-                  </button>
-                  <button onClick={handleDownloadPDF} disabled={isExporting} className="flex items-center gap-2 py-3 px-4 bg-white dark:bg-slate-800 text-slate-700 dark:text-white rounded-xl font-bold text-sm hover:bg-slate-50 transition-all shadow-md border border-slate-200 dark:border-slate-700">
-                      {isExporting ? <Loader2 className="animate-spin" size={18} /> : <FileDown size={18} />}
-                      Download PDF
-                  </button>
-                  <button onClick={() => handleOpenSocialModal('create')} className="flex items-center gap-2 py-3 px-4 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-white rounded-xl font-bold text-sm hover:bg-slate-200 transition-all">
-                      <Megaphone size={18} /> Social Post
-                  </button>
-              </div>
-
-              <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                <div ref={menuRef} className="print-area">
-                  <MenuDisplay 
-                    menu={menu}
-                    checkedItems={checkedItems}
-                    onToggleItem={(k) => setCheckedItems(prev => {
-                      const next = new Set(prev);
-                      if (next.has(k)) next.delete(k); else next.add(k);
-                      return next;
-                    })}
-                    isEditable={canAccessFeature('itemEditing')}
-                    onEditItem={(s, i) => {
-                      const items = menu[s];
-                      if (items && Array.isArray(items)) {
-                        setItemToEdit({ section: s, index: i, text: items[i] as string });
-                        setIsCustomizationModalOpen(true);
-                      }
-                    }}
-                    showToast={setToastMessage}
-                    isGeneratingImage={isGeneratingImage}
-                    onUpdateShoppingItemQuantity={() => {}}
-                    bulkSelectedItems={new Set()}
-                    onToggleBulkSelect={() => {}}
-                    onBulkCheck={() => {}}
-                    onBulkUpdateQuantity={() => {}}
-                    onClearBulkSelection={() => {}}
-                    onSelectAllShoppingListItems={() => {}}
-                    proposalTheme={proposalTheme}
-                    canAccessFeature={canAccessFeature}
-                    onAttemptAccess={attemptAccess}
-                    deliveryRadius=""
-                    onDeliveryRadiusChange={() => {}}
-                    onCalculateFee={() => {}}
-                    calculatedFee={null}
-                    preferredCurrency={currency}
-                  />
-                </div>
-              </div>
-            </section>
+            </div>
           )}
-          <Footer />
+
+          {!menu && !isLoading && (
+            <div className="space-y-8 animate-slide-in">
+              <div className="text-center">
+                <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white">What are we cooking?</h1>
+                <p className="mt-2 text-slate-600 dark:text-slate-400">Design your perfect menu in seconds with AI.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-800">
+                <div className="space-y-1">
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Event Type</label>
+                  <select 
+                    value={eventType} 
+                    onChange={(e) => setEventType(e.target.value)}
+                    className="w-full p-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white"
+                  >
+                    <option value="">Select Event...</option>
+                    {EVENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                  </select>
+                  {validationErrors.eventType && <p className="text-red-500 text-xs font-bold mt-1">{validationErrors.eventType}</p>}
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Guest Count</label>
+                  <select 
+                    value={guestCount} 
+                    onChange={(e) => setGuestCount(e.target.value)}
+                    className="w-full p-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white"
+                  >
+                    <option value="">Select Guests...</option>
+                    {GUEST_COUNT_OPTIONS.map(g => <option key={g} value={g}>{g}</option>)}
+                  </select>
+                  {validationErrors.guestCount && <p className="text-red-500 text-xs font-bold mt-1">{validationErrors.guestCount}</p>}
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Cuisine Style</label>
+                  <select 
+                    value={cuisine} 
+                    onChange={(e) => setCuisine(e.target.value)}
+                    className="w-full p-3 rounded-xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white"
+                  >
+                    <option value="">Select Cuisine...</option>
+                    {CUISINES.map(c => <option key={c} value={c}>{c}</option>)}
+                  </select>
+                  {validationErrors.cuisine && <p className="text-red-500 text-xs font-bold mt-1">{validationErrors.cuisine}</p>}
+                </div>
+
+                <div className="space-y-1">
+                  <label className="block text-sm font-bold text-slate-700 dark:text-slate-300">Budget Level</label>
+                  <div className="flex gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-xl">
+                    {BUDGET_LEVELS.map(b => (
+                      <button 
+                        key={b.value}
+                        onClick={() => setBudget(b.value)}
+                        className={`flex-1 py-2 text-xs font-black rounded-lg transition-all ${budget === b.value ? 'bg-white dark:bg-slate-700 shadow-sm text-primary-600' : 'text-slate-500'}`}
+                      >
+                        {b.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="md:col-span-2">
+                   <MultiSelectDropdown 
+                      label="Dietary Restrictions"
+                      options={DIETARY_RESTRICTIONS}
+                      selectedItems={dietaryRestrictions}
+                      onChange={setDietaryRestrictions}
+                      placeholder="Add restrictions..."
+                   />
+                </div>
+
+                <div className="md:col-span-2 pt-4">
+                  <button 
+                    onClick={generateMenu}
+                    className="w-full py-5 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-black text-lg shadow-xl shadow-primary-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+                  >
+                    <Sparkles className="w-6 h-6" /> Generate Full Menu Proposal
+                  </button>
+                </div>
+              </div>
+
+              <GenerationHistory 
+                history={[]} 
+                onItemClick={() => {}} 
+                onClear={() => {}} 
+              />
+            </div>
+          )}
+
+          {isLoading && (
+            <div className="flex flex-col items-center justify-center py-24 animate-pulse">
+                <Loader2 className="w-16 h-16 text-primary-500 animate-spin mb-6" />
+                <h2 className="text-2xl font-black text-slate-900 dark:text-white">{loadingMessage}</h2>
+                <p className="text-slate-500 mt-2 font-medium">This usually takes about 10-15 seconds.</p>
+            </div>
+          )}
+
+          {menu && !isLoading && (
+            <div className="space-y-8 animate-fade-in">
+                <div className="no-print flex flex-col sm:flex-row gap-3 mb-4">
+                    <button onClick={() => setMenu(null)} className="flex-1 py-3 px-4 bg-slate-100 dark:bg-slate-800 rounded-xl font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-all">
+                        ← Create New
+                    </button>
+                    <button onClick={handleDownloadPDF} className="flex-1 py-3 px-4 bg-primary-600 text-white rounded-xl font-bold shadow-lg flex items-center justify-center gap-2">
+                        {isExporting ? <Loader2 className="animate-spin" size={20} /> : <FileDown size={20} />}
+                        Export PDF
+                    </button>
+                    <button onClick={() => setIsSavedModalOpen(true)} className="py-3 px-6 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50">
+                        <Save size={20} />
+                    </button>
+                </div>
+
+                <div ref={menuRef} className="rounded-3xl shadow-2xl overflow-hidden bg-white dark:bg-slate-950">
+                    <MenuDisplay 
+                        menu={menu}
+                        checkedItems={checkedItems}
+                        onToggleItem={(key) => {
+                            const newChecked = new Set(checkedItems);
+                            if (newChecked.has(key)) newChecked.delete(key);
+                            else newChecked.add(key);
+                            setCheckedItems(newChecked);
+                        }}
+                        isEditable={subscription.plan === 'business'}
+                        onEditItem={(section, index) => {
+                             setItemToEdit({ section, index, text: (menu[section] as string[])[index] });
+                             setIsCustomizationModalOpen(true);
+                        }}
+                        showToast={setToastMessage}
+                        isGeneratingImage={isGeneratingImage}
+                        onUpdateShoppingItemQuantity={(index, qty) => {
+                            const newShoppingList = [...menu.shoppingList];
+                            newShoppingList[index].quantity = qty;
+                            setMenu({ ...menu, shoppingList: newShoppingList });
+                        }}
+                        bulkSelectedItems={new Set()}
+                        onToggleBulkSelect={() => {}}
+                        onBulkCheck={() => {}}
+                        onBulkUpdateQuantity={() => {}}
+                        onClearBulkSelection={() => {}}
+                        onSelectAllShoppingListItems={() => {}}
+                        proposalTheme={proposalTheme}
+                        canAccessFeature={canAccessFeature}
+                        onAttemptAccess={attemptAccess}
+                        deliveryRadius="10"
+                        onDeliveryRadiusChange={() => {}}
+                        onCalculateFee={() => {}}
+                        calculatedFee={null}
+                    />
+                </div>
+                
+                <ProductivityLab dietaryRestrictions={dietaryRestrictions} />
+                <StudyGuideGenerator isPro={subscription.plan === 'business'} onAttemptAccess={() => setShowUpgradeModal(true)} />
+            </div>
+          )}
         </main>
       )}
 
-      <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
-      <EmailCapture isOpen={isEmailCaptureModalOpen} onClose={() => setIsEmailCaptureModalOpen(false)} onSave={(e, w) => { localStorage.setItem('caterpro_user_email', e); localStorage.setItem('caterpro_user_whatsapp', w); setIsEmailCaptureModalOpen(false); }} />
-      <SocialMediaModal 
-        isOpen={isSocialModalOpen} 
-        onClose={() => setIsSocialModalOpen(false)} 
-        image={menu?.image} 
-        menuTitle={menu?.menuTitle || ''} 
-        menuDescription={menu?.description || ''} 
-        initialMode={socialModalMode} 
-        onImageGenerated={(b64) => setMenu(prev => prev ? { ...prev, image: b64 } : null)}
-      />
-      <SavedChecklistsModal isOpen={isSavedModalOpen} onClose={() => setIsSavedModalOpen(false)} savedMenus={savedMenus} onDelete={() => {}} />
-      <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={(p) => { selectPlan(p); setShowUpgradeModal(false); }} />
-      <CustomizationModal isOpen={isCustomizationModalOpen} onClose={() => setIsCustomizationModalOpen(false)} itemToEdit={itemToEdit} onSave={(s, i, t) => {
-        if (!menu) return;
-        const newItems = [...(menu[s] as any[])];
-        newItems[i] = t;
-        setMenu({ ...menu, [s]: newItems });
-        setIsCustomizationModalOpen(false);
-      }} />
+      <Footer />
       <AiChatBot onAttemptAccess={() => attemptAccess('aiChatBot')} isPro={canAccessFeature('aiChatBot')} />
+      
+      <SavedChecklistsModal 
+        isOpen={isSavedModalOpen} 
+        onClose={() => setIsSavedModalOpen(false)} 
+        savedMenus={savedMenus} 
+        onDelete={(id) => setSavedMenus(prev => prev.filter(m => m.id !== id))} 
+      />
+
+      <QrCodeModal isOpen={isQrModalOpen} onClose={() => setIsQrModalOpen(false)} />
+      <CustomizationModal 
+        isOpen={isCustomizationModalOpen} 
+        onClose={() => setIsCustomizationModalOpen(false)} 
+        itemToEdit={itemToEdit} 
+        onSave={(section, index, text) => {
+            const newSection = [...(menu![section] as string[])];
+            newSection[index] = text;
+            setMenu({ ...menu!, [section]: newSection });
+            setIsCustomizationModalOpen(false);
+        }} 
+      />
+      <EmailCapture 
+        isOpen={isEmailCaptureModalOpen} 
+        onClose={() => setIsEmailCaptureModalOpen(false)} 
+        onSave={(email, whatsapp) => {
+            localStorage.setItem('caterpro_user_email', email);
+            localStorage.setItem('caterpro_user_whatsapp', whatsapp);
+            setIsEmailCaptureModalOpen(false);
+            setToastMessage("Settings saved!");
+        }} 
+      />
+      <UpgradeModal 
+        isOpen={showUpgradeModal} 
+        onClose={() => setShowUpgradeModal(false)} 
+        onUpgrade={(p) => { selectPlan(p); setShowUpgradeModal(false); }} 
+      />
+      <PwaInstallModal isOpen={isInstallModalOpen} onClose={() => setIsInstallModalOpen(false)} />
+      
+      <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
     </div>
   );
 };
