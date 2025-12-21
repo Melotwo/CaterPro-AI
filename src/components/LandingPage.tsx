@@ -115,20 +115,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
       <div className="bg-slate-950 text-white py-20 sm:py-32 relative overflow-hidden">
         <div className="max-w-6xl mx-auto px-6 relative z-10">
             <div className="flex flex-col md:flex-row gap-12 items-center lg:items-start">
-                {/* Image first on mobile */}
-                <div className="w-full md:w-2/5 order-1 md:order-1">
+                <div className="w-full md:w-2/5 order-first md:order-last">
                     <div className="relative group">
                         <div className="absolute -inset-1 bg-gradient-to-r from-primary-500 to-blue-500 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
                         <img 
                             src={imageSrc} 
                             alt="Founder" 
-                            className="relative rounded-2xl shadow-2xl w-full object-cover aspect-[4/5] sm:aspect-square md:aspect-[3/4]" 
+                            className="relative rounded-2xl shadow-2xl w-full object-cover aspect-square md:aspect-[3/4]" 
                             onError={handleImageError}
                         />
                     </div>
                 </div>
                 
-                <div className="w-full md:w-3/5 order-2 md:order-2 space-y-8">
+                <div className="w-full md:w-3/5 space-y-8">
                     <div className="inline-block p-3 bg-primary-500/10 rounded-2xl">
                         <Brain className="w-8 h-8 text-primary-500" />
                     </div>
