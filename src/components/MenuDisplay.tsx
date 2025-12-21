@@ -70,7 +70,8 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
     workspaceText += `Dessert:\n${menu.dessert.map(d => `• ${d}`).join('\n')}\n\n`;
 
     workspaceText += `--- LOGISTICS & PREP ---\n`;
-    workspaceText += `Dietary Notes: ${menu.dietaryNotes?.join(', ') || 'None'}\n\n`;
+    // Fix: Explicitly cast dietaryNotes to string array to resolve "type unknown" error when calling join()
+    workspaceText += `Dietary Notes: ${(menu.dietaryNotes as string[] | undefined)?.join(', ') || 'None'}\n\n`;
     workspaceText += `Mise en Place:\n${menu.miseEnPlace.map(m => `• ${m}`).join('\n')}\n\n`;
     
     workspaceText += `--- SHOPPING LIST ---\n`;
