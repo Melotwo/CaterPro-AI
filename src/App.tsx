@@ -24,6 +24,7 @@ import LandingPage from './components/LandingPage';
 import ProductivityLab from './components/ProductivityLab';
 import StudyGuideGenerator from './components/StudyGuideGenerator';
 import MarketingRoadmap from './components/MarketingRoadmap';
+import ResearchHub from './components/ResearchHub';
 import SEOHead from './components/SEOHead';
 import { trackEvent } from './components/GoogleAnalytics';
 import { useAppSubscription } from './hooks/useAppSubscription';
@@ -339,6 +340,7 @@ const App: React.FC = () => {
                 onItemClick={() => {}} 
                 onClear={() => {}} 
               />
+              <ResearchHub onShowToast={setToastMessage} />
             </div>
           )}
 
@@ -437,6 +439,8 @@ const App: React.FC = () => {
                 </div>
                 
                 <MarketingRoadmap />
+                
+                <ResearchHub onShowToast={setToastMessage} />
                 
                 <ProductivityLab dietaryRestrictions={dietaryRestrictions} />
                 <StudyGuideGenerator isPro={subscription.plan === 'business'} onAttemptAccess={() => setShowUpgradeModal(true)} />
