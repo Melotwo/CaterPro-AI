@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Image as ImageIcon, Check, RefreshCw, Linkedin, Twitter, MessageCircle, Send, Film, Play, Zap, GraduationCap, ArrowRight, Loader2, Mail, Pin, Sparkles } from 'lucide-react';
-import { generateSocialCaption, generateSocialVideoFromApi, generateAssignmentEmail, generateMenuImageFromApi } from '../services/geminiService';
+import { X, Copy, Image as ImageIcon, Check, RefreshCw, Linkedin, Twitter, MessageCircle, Send, Film, Play, Zap, GraduationCap, ArrowRight, Loader2, Mail, Pin, Sparkles, Mic2, Layout } from 'lucide-react';
+import { generateSocialCaption, generateSocialVideoFromApi, generateAssignmentEmail, generateMenuImageFromApi, generatePodcastStoryboard } from '../services/geminiService';
 
 interface SocialMediaModalProps {
   isOpen: boolean;
@@ -14,7 +14,7 @@ interface SocialMediaModalProps {
 }
 
 type Platform = 'instagram' | 'linkedin' | 'twitter' | 'pinterest';
-type Mode = 'create' | 'pitch' | 'video';
+type Mode = 'create' | 'pitch' | 'video' | 'podcast';
 
 const SocialMediaModal: React.FC<SocialMediaModalProps> = ({ 
   isOpen, onClose, image, menuTitle, menuDescription, initialMode = 'create', onImageGenerated
@@ -35,7 +35,9 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
       setVideoUrl(null);
       setCurrentImage(image);
       
-      handleGenerate(activePlatform);
+      if (initialMode !== 'video' && initialMode !== 'podcast') {
+        handleGenerate(activePlatform);
+      }
     }
   }, [isOpen, initialMode, image]);
 
@@ -65,6 +67,9 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
       } else if (activeMode === 'video') {
         const url = await generateSocialVideoFromApi(menuTitle, menuDescription);
         setVideoUrl(url);
+      } else if (activeMode === 'podcast') {
+        const storyboard = await generatePodcastStoryboard(menuTitle, menuDescription);
+        setEditedContent(storyboard);
       }
     } catch (e) {
       setEditedContent("AI is busy in the kitchen. Please try again in a moment.");
@@ -97,6 +102,12 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                 className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'create' ? 'bg-white dark:bg-slate-700 shadow-md text-primary-600' : 'text-slate-500'}`}
             >
                 <ImageIcon size={16} /> Social Post
+            </button>
+            <button 
+                onClick={() => setActiveMode('podcast')} 
+                className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'podcast' ? 'bg-white dark:bg-slate-700 shadow-md text-amber-600' : 'text-slate-500'}`}
+            >
+                <Mic2 size={16} /> Podcast Storyboard
             </button>
             <button 
                 onClick={() => setActiveMode('pitch')} 
@@ -163,6 +174,24 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                             ))}
                         </div>
                     </div>
+                ) : activeMode === 'podcast' ? (
+                    <div className="space-y-6">
+                        <div className="bg-amber-100 dark:bg-amber-900/30 p-8 rounded-3xl border-2 border-amber-200 dark:border-amber-800 flex flex-col items-center text-center">
+                            <Mic2 size={48} className="text-amber-600 mb-4" />
+                            <h3 className="text-xl font-black text-amber-900 dark:text-amber-100">Podcast to Video Lab</h3>
+                            <p className="text-sm text-amber-800 dark:text-amber-300 mt-2">
+                                Turn your <strong>NotebookLM Deep Dive</strong> into a cinematic video. I will create a scene-by-scene storyboard.
+                            </p>
+                        </div>
+                        <button 
+                            onClick={() => handleGenerate()} 
+                            disabled={isGenerating} 
+                            className="w-full py-5 bg-amber-500 text-white rounded-2xl font-black shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 hover:bg-amber-600 transition-all"
+                        >
+                            {isGenerating ? <Loader2 className="animate-spin" size={20} /> : <Layout size={20} />}
+                            {isGenerating ? 'Drafting Storyboard...' : 'Generate 60s Storyboard'}
+                        </button>
+                    </div>
                 ) : activeMode === 'pitch' ? (
                     <div className="flex-grow flex flex-col items-center justify-center text-center space-y-6">
                         <div className="bg-blue-600 text-white p-8 rounded-3xl shadow-xl w-full max-w-sm">
@@ -197,7 +226,9 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
 
             <div className="md:w-1/2 flex flex-col bg-white dark:bg-slate-900">
                 <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                    <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">AI Output</h4>
+                    <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">
+                        {activeMode === 'podcast' ? 'Visual Storyboard' : 'AI Output'}
+                    </h4>
                     {isGenerating && <Loader2 size={16} className="text-primary-500 animate-spin" />}
                 </div>
                 
