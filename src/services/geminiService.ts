@@ -281,6 +281,24 @@ export const generateSocialCaption = async (menuTitle: string, description: stri
     return response.text?.trim() || "";
 };
 
+export const generatePodcastStoryboard = async (menuTitle: string, description: string): Promise<string> => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const prompt = `
+    I have a 60-second podcast audio about "${menuTitle}". 
+    Create a visual storyboard timeline for a video Reel. 
+    Format: 
+    0-10s: [Visual Description] - [Text Overlay]
+    10-20s: ... etc.
+    Include scenes for: The Founder's Kitchen background, high-end food closeups, and the app interface.
+    The tone should be professional but personal (mentioning the 10-year culinary background).
+  `;
+  const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: prompt
+  });
+  return response.text?.trim() || "";
+};
+
 export const generateAssignmentEmail = async (menuTitle: string, menuDescription: string): Promise<string> => {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const prompt = `Draft a professional email pitching CaterPro AI (an AI tool for chefs) to Limpopo Chefs Academy. Context: Built by a student with ADHD/Dyslexia to solve paperwork hurdles. Attached menu: ${menuTitle}.`;
