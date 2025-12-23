@@ -89,7 +89,6 @@ const App: React.FC = () => {
 
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Check for shared links on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const viewData = params.get('view');
@@ -167,6 +166,36 @@ const App: React.FC = () => {
     }
   };
 
+  const applyWatermark = (base64: string): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return resolve(base64);
+        
+        ctx.drawImage(img, 0, 0);
+        
+        // Watermark style
+        ctx.font = 'bold 40px Inter, sans-serif';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'bottom';
+        
+        // Draw shadow for visibility
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
+        ctx.shadowBlur = 10;
+        
+        ctx.fillText('CaterPro AI - Free Tier', canvas.width - 40, canvas.height - 40);
+        
+        resolve(canvas.toDataURL('image/png').split(',')[1]);
+      };
+      img.src = `data:image/png;base64,${base64}`;
+    });
+  };
+
   const handleStartFromLanding = () => {
       setShowLanding(false);
       trackEvent('start_app_from_landing');
@@ -220,7 +249,13 @@ const App: React.FC = () => {
 
       setIsGeneratingImage(true);
       try {
-        const imageBase64 = await generateMenuImageFromApi(newMenu.menuTitle, newMenu.description);
+        let imageBase64 = await generateMenuImageFromApi(newMenu.menuTitle, newMenu.description);
+        
+        // Apply watermark if on free plan
+        if (subscription.plan === 'free') {
+            imageBase64 = await applyWatermark(imageBase64);
+        }
+        
         setMenu(prev => prev ? { ...prev, image: imageBase64 } : null);
       } catch (imgErr) {
         console.warn("Auto image generation failed", imgErr);
