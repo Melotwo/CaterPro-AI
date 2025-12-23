@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { ChefHat, Sun, Moon, Bookmark, Share2, Download, LogOut, Globe } from 'lucide-react';
+import { ChefHat, Sun, Moon, Bookmark, Share2, Download, LogOut, Globe, Zap } from 'lucide-react';
 
 const Navbar: React.FC<{
   onThemeToggle: () => void;
@@ -10,11 +11,11 @@ const Navbar: React.FC<{
   onOpenInstall: () => void;
   onReset?: () => void;
   onViewLanding?: () => void;
-}> = ({ onThemeToggle, isDarkMode, onOpenSaved, savedCount, onOpenQrCode, onOpenInstall, onReset, onViewLanding }) => (
+  onViewPricing?: () => void;
+}> = ({ onThemeToggle, isDarkMode, onOpenSaved, savedCount, onOpenQrCode, onOpenInstall, onReset, onViewLanding, onViewPricing }) => (
   <nav role="navigation" aria-label="Main navigation" className="no-print bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200 dark:border-slate-800 pt-[env(safe-area-inset-top)]">
     <div className="max-w-4xl mx-auto px-4">
       <div className="flex justify-between items-center h-16">
-        {/* Logo - Click to go to Landing Page */}
         <div 
             className={`flex items-center space-x-3 ${onViewLanding ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`} 
             onClick={onViewLanding}
@@ -32,14 +33,14 @@ const Navbar: React.FC<{
         </div>
 
         <div className="flex items-center space-x-2 sm:space-x-4">
-           {onViewLanding && (
+           {onViewPricing && (
             <button 
-                onClick={onViewLanding} 
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors border border-slate-200 dark:border-slate-700" 
-                title="Go to Website / Landing Page"
+                onClick={onViewPricing} 
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-black bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 hover:bg-amber-100 transition-colors border border-amber-200 dark:border-amber-700" 
+                title="View Plans"
             >
-                <Globe size={18} />
-                <span className="hidden md:inline">Website</span>
+                <Zap size={18} className="fill-amber-400" />
+                <span className="hidden md:inline">Upgrade</span>
             </button>
           )}
 
