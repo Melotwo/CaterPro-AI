@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { Calendar, GraduationCap, Layout, BookOpen, Clock, CheckCircle2, Zap, UserRound, Sparkles, TrendingUp, ChevronRight, BookCheck, Target, Anchor, Utensils, Copy, Info, Briefcase, Award, Linkedin, Twitter, AlertCircle, Video } from 'lucide-react';
+// Add missing ArrowRight icon to the lucide-react import list
+import { Calendar, GraduationCap, Layout, BookOpen, Clock, CheckCircle2, Zap, UserRound, Sparkles, TrendingUp, ChevronRight, BookCheck, Target, Anchor, Utensils, Copy, Info, Briefcase, Award, Linkedin, Twitter, AlertCircle, Video, Fingerprint, ArrowRight } from 'lucide-react';
 
 const dailyTasks = [
   { id: 'notebook', label: 'NotebookLM Vision Features' },
@@ -26,8 +27,14 @@ const FounderRoadmap: React.FC = () => {
     alert(`${label} copied to clipboard!`);
   };
 
+  const handleScrollToResearch = () => {
+    const hub = document.getElementById('research-hub-section');
+    if (hub) hub.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const linkedinHeadline = "Culinary Founder & AI Solutions Architect | 10+ Years Hospitality Expertise | Ex-Disney Cruise Line";
   const courseraBio = "Founder of CaterPro AI. 10+ years in hospitality (Disney Cruise Line). Applying AI to solve admin stress for chefs. 100% Grade in Google AI Productivity.";
+  const brandStatement = "I bridge the gap between world-class culinary excellence and cutting-edge software engineering. As a chef with ADHD/Dyslexia, my brand is built on radical accessibility: creating tools that remove administrative friction so creators can focus on their craft.";
 
   const schedule = [
     { id: 'build', time: 'Deep Work', task: 'NotebookLM Vision Features', icon: Sparkles, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20' },
@@ -80,13 +87,19 @@ const FounderRoadmap: React.FC = () => {
                                 <p className="text-[10px] text-slate-500 uppercase font-black">Teaming with Videographer</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-4 p-4 bg-amber-50 dark:bg-amber-900/10 rounded-xl border-2 border-amber-200 dark:border-amber-800/30">
-                            <AlertCircle className="text-amber-500" size={24} />
+                        {/* Interactive "Orange" Button */}
+                        <button 
+                            onClick={handleScrollToResearch}
+                            className="w-full text-left flex items-center gap-4 p-4 bg-amber-50 dark:bg-amber-900/10 rounded-xl border-2 border-amber-500 shadow-lg shadow-amber-500/10 transform transition-all hover:scale-[1.02] active:scale-[0.98]"
+                        >
+                            <AlertCircle className="text-amber-500 animate-pulse" size={24} />
                             <div>
-                                <h4 className="font-bold text-sm">Grade Recovery Needed</h4>
+                                <h4 className="font-black text-sm text-amber-900 dark:text-amber-100 flex items-center gap-2">
+                                    Grade Recovery Needed <ArrowRight size={14} />
+                                </h4>
                                 <p className="text-[10px] text-amber-600 uppercase font-black">Refining Reflection Assignment</p>
                             </div>
-                        </div>
+                        </button>
                     </div>
                 </div>
 
@@ -114,24 +127,38 @@ const FounderRoadmap: React.FC = () => {
 
         {activeTab === 'vault' && (
           <div className="animate-fade-in py-4 max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-3xl border-2 border-slate-100 dark:border-slate-700 h-fit">
-                <div className="flex items-center gap-2 mb-4 text-primary-600 dark:text-primary-400">
+            <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-3xl border-2 border-slate-100 dark:border-slate-700 h-fit space-y-6">
+                <div className="flex items-center gap-2 text-primary-600 dark:text-primary-400">
                     <Linkedin size={18} />
                     <p className="text-xs font-bold uppercase tracking-widest">LinkedIn Optimization</p>
                 </div>
                 
-                <div className="space-y-6">
-                    <div>
-                        <div className="flex items-center justify-between mb-2">
-                            <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Headline</h4>
-                            <button onClick={() => handleCopy(linkedinHeadline, 'Headline')} className="p-1.5 bg-white dark:bg-slate-700 rounded-lg shadow-sm border border-slate-200 dark:border-slate-600 text-primary-600">
-                                <Copy size={14} />
-                            </button>
-                        </div>
-                        <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-200 leading-relaxed">
-                            {linkedinHeadline}
-                        </div>
+                <div>
+                    <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Headline</h4>
+                        <button onClick={() => handleCopy(linkedinHeadline, 'Headline')} className="p-1.5 bg-white dark:bg-slate-700 rounded-lg shadow-sm border border-slate-200 dark:border-slate-600 text-primary-600">
+                            <Copy size={14} />
+                        </button>
                     </div>
+                    <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-200 leading-relaxed">
+                        {linkedinHeadline}
+                    </div>
+                </div>
+
+                {/* Personal Brand Section */}
+                <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
+                    <div className="flex items-center justify-between mb-2">
+                        <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
+                            <Fingerprint size={16} className="text-primary-500" /> Brand Identity Statement
+                        </h4>
+                        <button onClick={() => handleCopy(brandStatement, 'Brand Statement')} className="p-1.5 bg-white dark:bg-slate-700 rounded-lg shadow-sm border border-slate-200 dark:border-slate-600 text-primary-600">
+                            <Copy size={14} />
+                        </button>
+                    </div>
+                    <div className="p-4 bg-primary-600 text-white rounded-xl text-xs leading-relaxed italic font-medium">
+                        "{brandStatement}"
+                    </div>
+                    <p className="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-tighter">Use this for Course 2 Brand Reflection Assignment</p>
                 </div>
             </div>
 
