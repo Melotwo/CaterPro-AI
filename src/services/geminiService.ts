@@ -299,6 +299,29 @@ export const generatePodcastStoryboard = async (menuTitle: string, description: 
   return response.text?.trim() || "";
 };
 
+/**
+ * NEW: Explainer Architect Script
+ * Combines React Architecture and Food Safety Management into a 60s video script.
+ */
+export const generateExplainerScript = async (menuTitle: string, description: string): Promise<string> => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const prompt = `
+    Generate a 60-second video explainer script for CaterPro AI.
+    Context:
+    - Founder has 10+ years hospitality (Disney Cruise Line).
+    - App is built with React Functional Components & Hooks (Modular Precision).
+    - Focus: A "Safe Catering Plan" (Food Safety, Cross-contamination, temperature control).
+    - Format: 
+      [TIME] [VISUAL CUE] [NARRATION SCRIPT]
+    Narrative Goal: "CaterPro AI isn't just a menu generator; it's a structured framework that brings the same precision to your paperwork that you bring to your food safety."
+  `;
+  const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: prompt
+  });
+  return response.text?.trim() || "";
+};
+
 export const generateAssignmentEmail = async (menuTitle: string, menuDescription: string): Promise<string> => {
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     const prompt = `Draft a professional email pitching CaterPro AI (an AI tool for chefs) to Limpopo Chefs Academy. Context: Built by a student with ADHD/Dyslexia to solve paperwork hurdles. Attached menu: ${menuTitle}.`;
