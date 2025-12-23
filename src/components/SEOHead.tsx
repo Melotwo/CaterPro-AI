@@ -25,15 +25,19 @@ const SEOHead: React.FC<SEOHeadProps> = ({ title, description, menu }) => {
       const existingScript = document.getElementById('json-ld-schema');
       if (existingScript) existingScript.remove();
 
+      const appetizers = Array.isArray(menu.appetizers) ? menu.appetizers : [];
+      const mainCourses = Array.isArray(menu.mainCourses) ? menu.mainCourses : [];
+      const desserts = Array.isArray(menu.dessert) ? menu.dessert : [];
+
       const schemaData = {
         "@context": "https://schema.org",
         "@type": "Menu",
         "name": menu.menuTitle,
         "description": menu.description,
         "hasMenuItem": [
-          ...(menu.appetizers || []).map(item => ({ "@type": "MenuItem", "name": item })),
-          ...(menu.mainCourses || []).map(item => ({ "@type": "MenuItem", "name": item })),
-          ...(menu.dessert || []).map(item => ({ "@type": "MenuItem", "name": item }))
+          ...appetizers.map(item => ({ "@type": "MenuItem", "name": item })),
+          ...mainCourses.map(item => ({ "@type": "MenuItem", "name": item })),
+          ...desserts.map(item => ({ "@type": "MenuItem", "name": item }))
         ]
       };
 
