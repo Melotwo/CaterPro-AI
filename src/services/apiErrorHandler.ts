@@ -2,18 +2,15 @@ import React from 'react';
 import { ErrorState } from '../types';
 
 /**
- * Processes an unknown error from an API call and returns a structured ErrorState object
- * with a user-friendly title and actionable troubleshooting steps.
- * @param err The error object caught from a try...catch block.
- * @returns An ErrorState object to be used in the UI.
+ * Processes an unknown error from an API call and returns a structured ErrorState object.
+ * Strictly normalizes messages to prevent React "Objects are not valid as a React child" crashes.
  */
 export const getApiErrorState = (err: unknown): ErrorState => {
-    console.error("API Error:", err);
+    console.error("API Error Trace:", err);
     
-    // Default error state for unexpected issues
     let errorState: ErrorState = {
-      title: 'An Unexpected Error Occurred',
-      message: 'Something went wrong while communicating with the AI service. Please check the console for details and try again later.',
+      title: 'Action Required',
+      message: 'The AI encountered an issue generating your proposal. Please refresh and try again.',
     };
 
     if (err instanceof Error) {
@@ -21,41 +18,26 @@ export const getApiErrorState = (err: unknown): ErrorState => {
       
       if (lowerCaseMessage.includes('api key') || lowerCaseMessage.includes('permission denied')) {
           errorState = {
-              title: 'API Key or Permission Issue',
-              message: (
-                React.createElement(React.Fragment, null,
-                  React.createElement("p", null, "There seems to be an issue with the API key configuration. Please take the following steps:"),
-                  React.createElement("ul", { className: "list-disc list-inside mt-2 space-y-1 text-sm" },
-                    React.createElement("li", null,
-                      React.createElement("strong", null, "Verify Key:"),
-                      " Ensure the API key is correct and properly configured."
-                    ),
-                    React.createElement("li", null,
-                      React.createElement("strong", null, "Check Permissions:"),
-                      " Log in to your Google AI Studio dashboard and confirm the API key is valid and enabled."
-                    ),
-                    React.createElement("li", null,
-                      React.createElement("strong", null, "Enable API:"),
-                      " Make sure the Generative Language API is enabled for your project."
-                    )
-                  )
-                )
-              ),
-          };
-      } else if (lowerCaseMessage.includes('model not found')) {
-          errorState = {
-              title: 'Model Not Found',
-              message: "The specified AI model could not be found. This might be a temporary issue or a configuration error. Please try again shortly.",
+              title: 'API Configuration Alert',
+              message: 'The AI service is unreachable. This usually means the API key is invalid or missing from the deployment environment. Please check your GitHub/Netlify secrets.',
           };
       } else if (lowerCaseMessage.includes('billing') || lowerCaseMessage.includes('quota')) {
           errorState = {
-              title: 'Billing or Quota Issue',
-              message: "Your request could not be completed due to a billing or quota limit. Please check your project's billing status and API usage quotas in your Google Cloud dashboard.",
+              title: 'Service Limit Reached',
+              message: "Your AI generation quota for today has been reached or your billing account is inactive. Please check your Google AI Studio status.",
           };
       } else {
-        // For other generic errors, use the error message directly if it's informative
-        errorState.message = err.message;
+        errorState.message = String(err.message);
       }
+    } else if (typeof err === 'string') {
+        errorState.message = err;
+    } else if (err && typeof err === 'object') {
+        // Fallback for objects that aren't instances of Error
+        try {
+            errorState.message = JSON.stringify(err);
+        } catch {
+            errorState.message = "A complex system error occurred. Please try again.";
+        }
     }
     
     return errorState;
