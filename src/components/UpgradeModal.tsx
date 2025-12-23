@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { X, Star, Briefcase, Check, Gift } from 'lucide-react';
+import { X, Star, Briefcase, Check, Gift, Key } from 'lucide-react';
 import { SubscriptionPlan } from '../hooks/useAppSubscription';
 
 interface UpgradeModalProps {
@@ -26,14 +26,16 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade 
   
   const handleApplyPromo = () => {
       const code = promoCode.trim().toUpperCase();
-      // Special Founder & Admin Codes
-      if (['MELOTWO-FOUNDER', 'VIP', 'ADMIN', 'SISTER-ACCESS'].includes(code)) {
-          onUpgrade('business');
+      // SECRET FOUNDER CODES
+      const validCodes = ['MELOTWO-FOUNDER', 'ADMIN-CHEF-2025', 'CATERPRO-VIP', 'SISTER-ACCESS'];
+      
+      if (validCodes.includes(code)) {
+          onUpgrade('business'); // Unlock full suite
           setPromoCode('');
           setShowPromo(false);
           onClose();
       } else {
-          setPromoError('Invalid code');
+          setPromoError('Invalid access code');
       }
   };
 
@@ -66,7 +68,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade 
                     ))}
                 </ul>
                 <button 
-                    onClick={() => { window.location.href='/#pricing'; onClose(); }}
+                    onClick={() => { window.location.hash='pricing'; onClose(); }}
                     className="w-full py-3 rounded-2xl bg-amber-500 text-white font-black text-sm shadow-lg shadow-amber-500/20"
                 >
                     View Pricing
@@ -86,7 +88,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade 
                     ))}
                 </ul>
                 <button 
-                    onClick={() => { window.location.href='/#pricing'; onClose(); }}
+                    onClick={() => { window.location.hash='pricing'; onClose(); }}
                     className="w-full py-3 rounded-2xl bg-primary-600 text-white font-black text-sm shadow-lg shadow-primary-500/20"
                 >
                     Get Business
@@ -97,20 +99,21 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade 
         <div className="p-6 bg-slate-50 dark:bg-slate-900 flex flex-col items-center gap-4">
              {!showPromo ? (
                 <button onClick={() => setShowPromo(true)} className="flex items-center gap-2 text-xs font-bold text-primary-600 hover:underline">
-                    <Gift size={14} /> Redem Access Code
+                    <Key size={14} /> Founder Access Code
                 </button>
              ) : (
                  <div className="w-full max-w-xs flex gap-2">
                     <input 
                         type="text" 
-                        placeholder="Founder/Promo Code" 
+                        placeholder="Enter Code" 
                         value={promoCode}
                         onChange={(e) => { setPromoCode(e.target.value); setPromoError(''); }}
                         className={`w-full px-4 py-2 text-xs border-2 rounded-xl bg-white dark:bg-slate-800 ${promoError ? 'border-red-500' : 'border-slate-200 dark:border-slate-700'}`}
                     />
-                    <button onClick={handleApplyPromo} className="px-4 py-2 text-xs font-black bg-slate-900 text-white rounded-xl">Apply</button>
+                    <button onClick={handleApplyPromo} className="px-4 py-2 text-xs font-black bg-slate-900 text-white rounded-xl">Unlock</button>
                  </div>
              )}
+             {promoError && <p className="text-[10px] text-red-500 font-bold">{promoError}</p>}
         </div>
       </div>
     </div>
