@@ -40,14 +40,13 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
     preferredCurrency = 'ZAR'
 }) => {
   const [isBulkEditMode, setIsBulkEditMode] = useState(false);
-  const [bulkQuantity, setBulkQuantity] = useState('');
   
   const theme = PROPOSAL_THEMES[proposalTheme as keyof typeof PROPOSAL_THEMES] || PROPOSAL_THEMES.classic;
   const t = theme.classes;
 
   if (!menu) return null;
 
-  // Robust Encoding for iPad/Mobile Safari
+  // Robust Encoding for Sharing
   const safeEncode = (str: string) => {
     return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
         return String.fromCharCode(parseInt(p1, 16));
@@ -56,10 +55,8 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
 
   const handleGenerateShareLink = () => {
     try {
-        // We create a lightweight copy for sharing to avoid URL size limits
         const shareData = { ...menu };
         if (shareData.image && shareData.image.length > 50000) {
-            // If image is too big, don't include it in URL to prevent iPad crash
             delete shareData.image; 
         }
 
@@ -82,29 +79,36 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
     workspaceText += `--------------------------------------------------\n\n`;
     workspaceText += `PROPOSAL OVERVIEW:\n${menu.description}\n\n`;
 
+    const appetizersArr = Array.isArray(menu.appetizers) ? menu.appetizers : [];
+    const mainCoursesArr = Array.isArray(menu.mainCourses) ? menu.mainCourses : [];
+    const sideDishesArr = Array.isArray(menu.sideDishes) ? menu.sideDishes : [];
+    const dessertArr = Array.isArray(menu.dessert) ? menu.dessert : [];
+    const miseEnPlaceArr = Array.isArray(menu.miseEnPlace) ? menu.miseEnPlace : [];
+
     workspaceText += `MENU SELECTION:\n`;
-    workspaceText += `\nAPPETIZERS:\n${menu.appetizers.map(a => `• ${a}`).join('\n')}\n`;
-    workspaceText += `\nMAIN COURSES:\n${menu.mainCourses.map(m => `• ${m}`).join('\n')}\n`;
-    workspaceText += `\nSIDE DISHES:\n${menu.sideDishes?.map(s => `• ${s}`).join('\n') || 'None'}\n`;
-    workspaceText += `\nDESSERT:\n${menu.dessert.map(d => `• ${d}`).join('\n')}\n\n`;
+    workspaceText += `\nAPPETIZERS:\n${appetizersArr.map(a => `• ${a}`).join('\n')}\n`;
+    workspaceText += `\nMAIN COURSES:\n${mainCoursesArr.map(m => `• ${m}`).join('\n')}\n`;
+    workspaceText += `\nSIDE DISHES:\n${sideDishesArr.map(s => `• ${s}`).join('\n') || 'None'}\n`;
+    workspaceText += `\nDESSERT:\n${dessertArr.map(d => `• ${d}`).join('\n')}\n\n`;
 
     workspaceText += `LOGISTICS & PREP:\n`;
-    // Fix: Using Array.isArray and local variable to safely join dietary notes which might be unknown to compiler in this scope
-    const dietaryNotesArr = menu.dietaryNotes as string[] | undefined;
-    workspaceText += `\nDIETARY NOTES: ${Array.isArray(dietaryNotesArr) ? dietaryNotesArr.join(', ') : 'None'}\n`;
-    workspaceText += `\nMISE EN PLACE:\n${menu.miseEnPlace.map(m => `• ${m}`).join('\n')}\n\n`;
+    const dietaryNotesArr = Array.isArray(menu.dietaryNotes) ? menu.dietaryNotes : [];
+    workspaceText += `\nDIETARY NOTES: ${dietaryNotesArr.join(', ') || 'None'}\n`;
+    workspaceText += `\nMISE EN PLACE:\n${miseEnPlaceArr.map(m => `• ${m}`).join('\n')}\n\n`;
     
     workspaceText += `SHOPPING LIST:\n`;
-    const groupedData = menu.shoppingList.reduce((acc, item) => {
-        const cat = item.category || 'Other';
-        if (!acc[cat]) acc[cat] = [];
-        acc[cat].push(`• ${item.item} (${item.quantity}) - Est: ${item.estimatedCost || 'N/A'}`);
-        return acc;
-    }, {} as Record<string, string[]>);
-    
-    Object.entries(groupedData).forEach(([cat, items]) => {
-        workspaceText += `\n[${cat.toUpperCase()}]\n${items.join('\n')}\n`;
-    });
+    if (Array.isArray(menu.shoppingList)) {
+        const groupedData = menu.shoppingList.filter(item => item && typeof item === 'object').reduce((acc, item) => {
+            const cat = item.category || 'Other';
+            if (!acc[cat]) acc[cat] = [];
+            acc[cat].push(`• ${item.item} (${item.quantity}) - Est: ${item.estimatedCost || 'N/A'}`);
+            return acc;
+        }, {} as Record<string, string[]>);
+        
+        Object.entries(groupedData).forEach(([cat, items]) => {
+            workspaceText += `\n[${cat.toUpperCase()}]\n${items.join('\n')}\n`;
+        });
+    }
 
     workspaceText += `\n\nGenerated via CaterPro AI - https://caterpro-ai.web.app/`;
 
@@ -114,16 +118,21 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
   };
 
   const handleCopySection = (title: string, items: any[]) => {
-    if (!items || items.length === 0) return;
+    if (!Array.isArray(items) || items.length === 0) return;
     let textToCopy: string;
-    if (typeof items[0] === 'string') {
+    
+    // Ensure first item exists before checking type
+    const firstItem = items[0];
+    if (!firstItem) return;
+
+    if (typeof firstItem === 'string') {
        textToCopy = `${title}\n\n${(items as string[]).map(i => `• ${i}`).join('\n')}`;
-    } else if ('pairingSuggestion' in items[0]) {
+    } else if (typeof firstItem === 'object' && 'pairingSuggestion' in firstItem) {
       const pairingItems = items as BeveragePairing[];
       textToCopy = `${title}\n\n${pairingItems.map(p => `• ${p.menuItem}: ${p.pairingSuggestion}`).join('\n')}`;
     } else {
       const shoppingListItems = items as ShoppingListItem[];
-      const groupedData = shoppingListItems.reduce((acc, item) => {
+      const groupedData = shoppingListItems.filter(item => item && typeof item === 'object').reduce((acc, item) => {
         const store = item.store || 'Uncategorized Store';
         const category = item.category || 'Other';
         if (!acc[store]) acc[store] = {};
@@ -206,7 +215,9 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
         {MENU_SECTIONS.map(({ title, key }, catIdx) => {
-          const items = menu[key] || [];
+          const rawItems = menu[key];
+          const items = Array.isArray(rawItems) ? rawItems : [];
+          
           if (items.length === 0) return null;
           
           if (key === 'beveragePairings' && !canAccessFeature('beveragePairings')) return null;
@@ -228,7 +239,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                   </h3>
                 </div>
                 <div className="px-4 sm:px-6 pb-6 space-y-3">
-                  {pairingItems.map((pairing, itemIdx) => {
+                  {pairingItems.filter(p => p && typeof p === 'object').map((pairing, itemIdx) => {
                     const checkKey = `${key}-${itemIdx}`;
                     const isChecked = checkedItems.has(checkKey);
                     return (
@@ -256,7 +267,9 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
           }
           
           if (key === 'shoppingList') {
-            const shoppingListItems = (items as ShoppingListItem[]).map((item, index) => ({...item, originalIndex: index}));
+            const shoppingListItems = (items as ShoppingListItem[])
+                .filter(item => item && typeof item === 'object')
+                .map((item, index) => ({...item, originalIndex: index}));
             
             const groupedByStoreThenCategory = shoppingListItems.reduce((acc, item) => {
               const store = item.store || 'Uncategorized Store';
@@ -291,7 +304,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                         {isBulkEditMode ? 'Done' : 'Bulk Edit'}
                       </button>
                       <button
-                          onClick={() => handleCopySection(title, items as ShoppingListItem[])}
+                          onClick={() => handleCopySection(title, items)}
                           className="no-print no-copy p-2 rounded-full text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-300"
                       >
                           <Copy size={16} />
@@ -364,7 +377,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                 </h3>
                 {!isReadOnlyView && (
                 <button
-                    onClick={() => handleCopySection(title, items as string[])}
+                    onClick={() => handleCopySection(title, items)}
                     className="no-print no-copy p-2 rounded-full text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-300"
                 >
                     <Copy size={16} />
@@ -372,7 +385,8 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                 )}
               </div>
               <ul className="px-4 sm:px-6 pb-6 space-y-2">
-                {(items as string[]).map((item, index) => {
+                {/* Fixed: Narrowing the union type for item mapping to avoid ReactNode assignment errors */}
+                {items.filter((i): i is string => typeof i === 'string').map((item, index) => {
                   const checkKey = `${key}-${index}`;
                   const isChecked = checkedItems.has(checkKey);
                   return (
