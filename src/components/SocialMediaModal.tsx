@@ -3,8 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Copy, Image as ImageIcon, Check, RefreshCw, Linkedin, Twitter, MessageCircle, Send, Film, Play, Zap, GraduationCap, ArrowRight, Loader2, Mail, Pin, Sparkles, Mic2, Layout, Video } from 'lucide-react';
 import { generateSocialCaption, generateSocialVideoFromApi, generateAssignmentEmail, generateMenuImageFromApi, generatePodcastStoryboard, generateExplainerScript } from '../services/geminiService';
 
-// Synchronized with App.tsx
-type Mode = 'create' | 'pitch' | 'video' | 'podcast' | 'explainer';
+export type Mode = 'create' | 'pitch' | 'video' | 'podcast' | 'explainer';
 
 interface SocialMediaModalProps {
   isOpen: boolean;
@@ -84,7 +83,8 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
   };
 
   const handleCopyText = () => {
-    navigator.clipboard.writeText(editedContent).then(() => {
+    const content = editedContent || '';
+    navigator.clipboard.writeText(content).then(() => {
       setCopiedText(true);
       setTimeout(() => setCopiedText(false), 2000);
     });
@@ -93,11 +93,11 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div onClick={onClose} className="fixed inset-0 bg-slate-900/80 backdrop-blur-sm animate-[fade-in_0.2s_ease-out]"></div>
       <div className="relative w-full max-w-5xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-[scale-up_0.2s_ease-out] flex flex-col h-[90dvh]">
         
-        <button onClick={onClose} className="absolute top-5 right-5 p-2 z-20 bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-700 rounded-full transition-colors">
+        <button onClick={onClose} className="absolute top-5 right-5 p-2 z-20 bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-700 rounded-full transition-colors shadow-sm">
           <X size={20} />
         </button>
 
