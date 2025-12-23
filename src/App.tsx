@@ -57,6 +57,7 @@ const App: React.FC = () => {
   const [error, setError] = useState<ErrorState | null>(null);
   const [menu, setMenu] = useState<Menu | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  const [isReadOnlyView, setIsReadOnlyView] = useState(false);
   
   const [isDarkMode, setIsDarkMode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -84,15 +85,33 @@ const App: React.FC = () => {
   const [itemToEdit, setItemToEdit] = useState<{ section: MenuSection; index: number; text: string } | null>(null);
   const [isEmailCaptureModalOpen, setIsEmailCaptureModalOpen] = useState(false);
   const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
-  const [socialModalMode, setSocialModalMode] = useState<'create' | 'pitch' | 'video'>('create');
+  const [socialModalMode, setSocialModalMode] = useState<'create' | 'pitch' | 'video' | 'podcast' | 'explainer'>('create');
 
   const menuRef = useRef<HTMLDivElement>(null);
 
+  // Check for shared links on mount
   useEffect(() => {
-    const hasSelectedPlan = localStorage.getItem('caterpro-subscription');
-    if (hasSelectedPlan) {
-      setIsAppVisible(true);
-      setShowLanding(false);
+    const params = new URLSearchParams(window.location.search);
+    const viewData = params.get('view');
+    if (viewData) {
+      try {
+        const decodedData = decodeURIComponent(escape(atob(viewData)));
+        const sharedMenu = JSON.parse(decodedData);
+        setMenu(sharedMenu);
+        setIsReadOnlyView(true);
+        setShowLanding(false);
+        setIsAppVisible(true);
+        setToastMessage("Viewing shared proposal");
+        trackEvent('view_shared_menu');
+      } catch (e) {
+        console.error("Failed to decode shared menu", e);
+      }
+    } else {
+      const hasSelectedPlan = localStorage.getItem('caterpro-subscription');
+      if (hasSelectedPlan) {
+        setIsAppVisible(true);
+        setShowLanding(false);
+      }
     }
   }, []);
   
@@ -157,8 +176,8 @@ const App: React.FC = () => {
       setIsAppVisible(true);
   };
 
-  const openSocialCreator = (mode: 'create' | 'pitch' | 'video') => {
-      if (mode === 'video' || mode === 'pitch') {
+  const openSocialCreator = (mode: 'create' | 'pitch' | 'video' | 'podcast' | 'explainer') => {
+      if (mode === 'video' || mode === 'pitch' || mode === 'explainer' || mode === 'podcast') {
           if (!attemptAccess('educationTools')) return;
       }
       trackEvent('open_social_creator', { mode });
@@ -178,6 +197,7 @@ const App: React.FC = () => {
     setIsLoading(true);
     setError(null);
     setMenu(null);
+    setIsReadOnlyView(false);
     
     trackEvent('generate_menu_start', { eventType, cuisine, budget });
 
@@ -228,7 +248,11 @@ const App: React.FC = () => {
         savedCount={savedMenus.length} 
         onOpenQrCode={() => setIsQrModalOpen(true)}
         onOpenInstall={() => setIsInstallModalOpen(true)}
-        onReset={() => { localStorage.removeItem('caterpro-subscription'); window.location.reload(); }}
+        onReset={() => { 
+          localStorage.removeItem('caterpro-subscription'); 
+          window.history.replaceState({}, '', window.location.pathname);
+          window.location.reload(); 
+        }}
         onViewLanding={() => { setShowLanding(true); setIsAppVisible(false); }}
       />
       
@@ -362,20 +386,23 @@ const App: React.FC = () => {
                             <Sparkles className="text-primary-600 w-6 h-6" />
                         </div>
                         <div>
-                            <h3 className="text-xl font-black text-slate-900 dark:text-white">Proposal Live</h3>
-                            <p className="text-sm text-slate-500 font-medium">Manage, Share & Market your event.</p>
+                            <h3 className="text-xl font-black text-slate-900 dark:text-white">{isReadOnlyView ? 'Shared Proposal' : 'Proposal Live'}</h3>
+                            <p className="text-sm text-slate-500 font-medium">
+                              {isReadOnlyView ? 'This menu was shared with you for viewing.' : 'Manage, Share & Market your event.'}
+                            </p>
                         </div>
                     </div>
                     <div className="flex flex-wrap justify-center gap-2">
-                        <button onClick={() => setMenu(null)} className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-black uppercase text-slate-600 dark:text-slate-300">← New</button>
+                        {!isReadOnlyView && <button onClick={() => setMenu(null)} className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-black uppercase text-slate-600 dark:text-slate-300">← New</button>}
                         <button onClick={handleDownloadPDF} className="px-4 py-2.5 bg-primary-600 text-white rounded-xl text-xs font-black uppercase flex items-center gap-2 shadow-lg">
                             {isExporting ? <Loader2 className="animate-spin" size={14} /> : <FileDown size={14} />} PDF
                         </button>
-                        <button onClick={() => setIsSavedModalOpen(true)} className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-black uppercase flex items-center gap-2"><Save size={14} /> Save</button>
+                        {!isReadOnlyView && <button onClick={() => setIsSavedModalOpen(true)} className="px-4 py-2.5 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-xs font-black uppercase flex items-center gap-2"><Save size={14} /> Save</button>}
                     </div>
                 </div>
 
                 {/* Social & Marketing Creator */}
+                {!isReadOnlyView && (
                 <div className="no-print bg-gradient-to-br from-indigo-600 to-purple-700 p-8 rounded-3xl text-white shadow-2xl relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-10 opacity-10 transform translate-x-1/4 -translate-y-1/4 group-hover:rotate-12 transition-transform">
                         <Megaphone size={120} />
@@ -394,12 +421,13 @@ const App: React.FC = () => {
                             <button onClick={() => openSocialCreator('video')} className="flex items-center justify-center gap-2 py-4 px-6 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-white/20 transition-all">
                                 <Film size={18} /> Cinematic Reel
                             </button>
-                            <button onClick={() => openSocialCreator('pitch')} className="flex items-center justify-center gap-2 py-4 px-6 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-white/20 transition-all">
-                                <Mail size={18} /> Pitch Email
+                            <button onClick={() => openSocialCreator('explainer')} className="flex items-center justify-center gap-2 py-4 px-6 bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-2xl font-black text-sm shadow-xl hover:bg-white/20 transition-all">
+                                <GraduationCap size={18} /> Explainer Script
                             </button>
                         </div>
                     </div>
                 </div>
+                )}
 
                 <div ref={menuRef} className="rounded-3xl shadow-2xl overflow-hidden bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800">
                     <MenuDisplay 
@@ -411,7 +439,7 @@ const App: React.FC = () => {
                             else newChecked.add(key);
                             setCheckedItems(newChecked);
                         }}
-                        isEditable={subscription.plan === 'business'}
+                        isEditable={!isReadOnlyView && subscription.plan === 'business'}
                         onEditItem={(section, index) => {
                              setItemToEdit({ section, index, text: (menu[section] as string[])[index] });
                              setIsCustomizationModalOpen(true);
@@ -430,20 +458,25 @@ const App: React.FC = () => {
                         onClearBulkSelection={() => {}}
                         onSelectAllShoppingListItems={() => {}}
                         proposalTheme={proposalTheme}
-                        canAccessFeature={canAccessFeature}
+                        canAccessFeature={isReadOnlyView ? (f => true) : canAccessFeature}
                         onAttemptAccess={attemptAccess}
                         deliveryRadius="10"
                         onDeliveryRadiusChange={() => {}}
                         onCalculateFee={() => {}}
                         calculatedFee={null}
+                        isReadOnlyView={isReadOnlyView}
                     />
                 </div>
                 
-                <MarketingRoadmap />
-                <FounderRoadmap />
-                <ResearchHub onShowToast={setToastMessage} />
-                <ProductivityLab dietaryRestrictions={dietaryRestrictions} />
-                <StudyGuideGenerator isPro={subscription.plan === 'business'} onAttemptAccess={() => setShowUpgradeModal(true)} />
+                {!isReadOnlyView && (
+                  <>
+                    <MarketingRoadmap />
+                    <FounderRoadmap />
+                    <ResearchHub onShowToast={setToastMessage} />
+                    <ProductivityLab dietaryRestrictions={dietaryRestrictions} />
+                    <StudyGuideGenerator isPro={subscription.plan === 'business'} onAttemptAccess={() => setShowUpgradeModal(true)} />
+                  </>
+                )}
             </div>
           )}
         </main>
