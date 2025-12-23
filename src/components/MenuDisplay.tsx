@@ -31,18 +31,6 @@ interface MenuDisplayProps {
   preferredCurrency?: string;
 }
 
-const getAffiliateLink = (keywords: string) => {
-    return `https://www.amazon.com/s?k=${encodeURIComponent(keywords)}&tag=caterproai-20`;
-};
-
-const formatLocalCurrency = (amount: number, currencyCode: string = 'ZAR') => {
-    return new Intl.NumberFormat(currencyCode === 'ZAR' ? 'en-ZA' : 'en-US', {
-        style: 'currency',
-        currency: currencyCode,
-        minimumFractionDigits: 2,
-    }).format(amount);
-};
-
 const MenuDisplay: React.FC<MenuDisplayProps> = ({ 
     menu, checkedItems, onToggleItem, isEditable, onEditItem, showToast, 
     isGeneratingImage, onUpdateShoppingItemQuantity, bulkSelectedItems, onToggleBulkSelect,
@@ -59,19 +47,32 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
 
   if (!menu) return null;
 
+  // Robust Encoding for iPad/Mobile Safari
+  const safeEncode = (str: string) => {
+    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+        return String.fromCharCode(parseInt(p1, 16));
+    }));
+  };
+
   const handleGenerateShareLink = () => {
     try {
-        // Encode menu object to Base64 to put in URL
-        const jsonString = JSON.stringify(menu);
-        const encodedData = btoa(unescape(encodeURIComponent(jsonString)));
+        // We create a lightweight copy for sharing to avoid URL size limits
+        const shareData = { ...menu };
+        if (shareData.image && shareData.image.length > 50000) {
+            // If image is too big, don't include it in URL to prevent iPad crash
+            delete shareData.image; 
+        }
+
+        const jsonString = JSON.stringify(shareData);
+        const encodedData = safeEncode(jsonString);
         const shareUrl = `${window.location.origin}${window.location.pathname}?view=${encodedData}`;
         
         navigator.clipboard.writeText(shareUrl).then(() => {
-            showToast("Magic Share Link copied! Send this to your videographer.");
+            showToast("Magic Share Link copied! Reliable on all devices.");
         });
     } catch (e) {
         console.error("Failed to generate share link", e);
-        showToast("Error generating link. Try downloading PDF.");
+        showToast("Error generating link. Proposal might be too large.");
     }
   };
 
