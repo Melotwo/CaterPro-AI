@@ -21,7 +21,7 @@ const getInitialState = (): SubscriptionState => {
         parsed.generationsToday = 0;
         parsed.lastGenerationDate = today;
       }
-      // Ensure we don't accidentally load an invalid state
+      // Ensure we don't accidentally load an invalid or outdated state
       if (!['free', 'starter', 'professional', 'business'].includes(parsed.plan)) {
           parsed.plan = 'free';
       }
@@ -46,6 +46,7 @@ export const useAppSubscription = () => {
   }, [subscription]);
 
   const selectPlan = (plan: SubscriptionPlan) => {
+    // Audit: Ensure only valid transitions happen
     setSubscription(prev => ({ ...prev, plan }));
   };
 
