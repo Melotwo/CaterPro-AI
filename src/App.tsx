@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail } from 'lucide-react';
 import { jsPDF } from 'jspdf';
@@ -11,7 +10,7 @@ import SavedChecklistsModal from './components/SavedChecklistsModal';
 import Toast from './components/Toast';
 import AiChatBot from './components/AiChatBot';
 import QrCodeModal from './components/QrCodeModal';
-import SocialMediaModal from './components/SocialMediaModal';
+import SocialMediaModal, { Mode as SocialMode } from './components/SocialMediaModal';
 import MultiSelectDropdown from './components/MultiSelectDropdown';
 import GenerationHistory from './components/GenerationHistory';
 import CustomizationModal from './components/CustomizationModal';
@@ -85,7 +84,7 @@ const App: React.FC = () => {
   const [itemToEdit, setItemToEdit] = useState<{ section: MenuSection; index: number; text: string } | null>(null);
   const [isEmailCaptureModalOpen, setIsEmailCaptureModalOpen] = useState(false);
   const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
-  const [socialModalMode, setSocialModalMode] = useState<'create' | 'pitch' | 'video' | 'podcast' | 'explainer'>('create');
+  const [socialModalMode, setSocialModalMode] = useState<SocialMode>('create');
 
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -94,17 +93,21 @@ const App: React.FC = () => {
     const viewData = params.get('view');
     if (viewData) {
       try {
-        // More robust decoding for iPad/Safari
-        const decodedData = decodeURIComponent(atob(viewData).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
-        const sharedMenu = JSON.parse(decodedData);
+        // Robust multi-platform decoding logic
+        const jsonStr = decodeURIComponent(escape(atob(viewData)));
+        const sharedMenu = JSON.parse(jsonStr);
         setMenu(sharedMenu);
         setIsReadOnlyView(true);
         setShowLanding(false);
         setIsAppVisible(true);
-        setToastMessage("Viewing shared proposal");
+        setToastMessage("Shared proposal unlocked");
         trackEvent('view_shared_menu');
       } catch (e) {
-        console.error("Failed to decode shared menu", e);
+        console.error("Link decoding error:", e);
+        setError({
+          title: "Invalid Share Link",
+          message: "This proposal link may be too large or malformed for your device's browser memory."
+        });
       }
     } else {
       const hasSelectedPlan = localStorage.getItem('caterpro-subscription');
@@ -168,7 +171,7 @@ const App: React.FC = () => {
   };
 
   /**
-   * Client-side Watermark logic for Free Tier
+   * WATERMARK ENGINE: Protects free-tier image assets
    */
   const applyWatermarkToImage = (base64: string): Promise<string> => {
     return new Promise((resolve) => {
@@ -183,21 +186,21 @@ const App: React.FC = () => {
         
         ctx.drawImage(img, 0, 0);
         
-        // Semi-transparent overlay at bottom
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        // Draw bottom protection bar
+        ctx.fillStyle = 'rgba(2, 6, 23, 0.6)'; // Dark slate
         ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
         
-        // Text Style
-        ctx.font = 'bold 32px Inter, sans-serif';
+        // Add Branding Text
+        ctx.font = 'bold 36px Inter, system-ui, sans-serif';
         ctx.fillStyle = 'white';
         ctx.textAlign = 'right';
         ctx.textBaseline = 'middle';
-        
         ctx.fillText('CaterPro AI - Free Tier', canvas.width - 40, canvas.height - 40);
         
-        // Icon (Chef Hat proxy)
+        // Add Icon Proxy
         ctx.textAlign = 'left';
-        ctx.fillText('🍽️ Professional Proposal', 40, canvas.height - 40);
+        ctx.font = '36px sans-serif';
+        ctx.fillText('👨‍🍳 Unbranded available on Pro', 40, canvas.height - 40);
         
         resolve(canvas.toDataURL('image/png').split(',')[1]);
       };
@@ -214,7 +217,7 @@ const App: React.FC = () => {
       setIsAppVisible(true);
   };
 
-  const openSocialCreator = (mode: 'create' | 'pitch' | 'video' | 'podcast' | 'explainer') => {
+  const openSocialCreator = (mode: SocialMode) => {
       if (mode === 'video' || mode === 'pitch' || mode === 'explainer' || mode === 'podcast') {
           if (!attemptAccess('educationTools')) return;
       }
@@ -260,14 +263,14 @@ const App: React.FC = () => {
       try {
         let imageBase64 = await generateMenuImageFromApi(newMenu.menuTitle, newMenu.description);
         
-        // Watermark application if not paid
+        // Watermark check
         if (!canAccessFeature('noWatermark')) {
             imageBase64 = await applyWatermarkToImage(imageBase64);
         }
         
         setMenu(prev => prev ? { ...prev, image: imageBase64 } : null);
       } catch (imgErr) {
-        console.warn("Auto image generation failed", imgErr);
+        console.warn("Image generation failed", imgErr);
       } finally {
         setIsGeneratingImage(false);
       }
