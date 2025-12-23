@@ -125,7 +125,6 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
   const [selectedPrice, setSelectedPrice] = useState('');
 
   const handleTierClick = (planId: string, price: string) => {
-    // SECURITY: Users can only unlock Free immediately. Everything else triggers payment.
     if (planId === 'free') {
         onSelectPlan('free');
         return;
