@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { Menu, Supplier, EducationContent, ShoppingListItem, BeveragePairing } from "../types";
 
@@ -12,14 +11,17 @@ const safeParseMenuJson = (text: string): Menu => {
         const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
         const parsed = JSON.parse(cleaned);
         
-        // Ensure required arrays exist and contain valid objects to prevent downstream crashes
-        const ensureArray = (arr: any) => Array.isArray(arr) ? arr : [];
-        const ensureObjectArray = (arr: any) => Array.isArray(arr) ? arr.filter(i => i !== null && typeof i === 'object') : [];
+        // Helper to ensure we have an array and never null/undefined
+        const ensureArray = (arr: any) => (Array.isArray(arr) ? arr : []);
+        
+        // Helper to ensure we have an array of valid objects
+        const ensureObjectArray = (arr: any) => 
+            (Array.isArray(arr) ? arr.filter(i => i !== null && typeof i === 'object') : []);
         
         return {
             ...parsed,
             menuTitle: parsed.menuTitle || "New Menu Proposal",
-            description: parsed.description || "No description provided.",
+            description: parsed.description || "A custom catering proposal designed just for you.",
             appetizers: ensureArray(parsed.appetizers),
             mainCourses: ensureArray(parsed.mainCourses),
             sideDishes: ensureArray(parsed.sideDishes),
@@ -34,14 +36,14 @@ const safeParseMenuJson = (text: string): Menu => {
         };
     } catch (e) {
         console.error("JSON Parse Error. Raw text:", text);
-        throw new Error("The AI returned data in an invalid format. Please try generating again.");
+        throw new Error("The AI returned data in an invalid format. This occasionally happens with complex menus. Please try generating again.");
     }
 };
 
 const getApiKey = () => {
     const key = process.env.API_KEY;
     if (!key || key.trim() === '') {
-        throw new Error("API Key is missing. Please ensure GEMINI_API_KEY is configured in your environment secrets.");
+        throw new Error("API Key is missing. If you are the developer, ensure GEMINI_API_KEY is configured in your hosting environment.");
     }
     return key;
 };
