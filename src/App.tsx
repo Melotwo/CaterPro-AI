@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail } from 'lucide-react';
 import { jsPDF } from 'jspdf';
@@ -88,25 +89,40 @@ const App: React.FC = () => {
 
   const menuRef = useRef<HTMLDivElement>(null);
 
+  // Robust Decoding for iPad Safari
+  const safeDecode = (str: string) => {
+    try {
+        return decodeURIComponent(atob(str).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+    } catch (e) {
+        console.error("Safe decode failed", e);
+        return null;
+    }
+  };
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const viewData = params.get('view');
     if (viewData) {
       try {
-        // Robust multi-platform decoding logic
-        const jsonStr = decodeURIComponent(escape(atob(viewData)));
-        const sharedMenu = JSON.parse(jsonStr);
-        setMenu(sharedMenu);
-        setIsReadOnlyView(true);
-        setShowLanding(false);
-        setIsAppVisible(true);
-        setToastMessage("Shared proposal unlocked");
-        trackEvent('view_shared_menu');
+        const jsonStr = safeDecode(viewData);
+        if (jsonStr) {
+            const sharedMenu = JSON.parse(jsonStr);
+            setMenu(sharedMenu);
+            setIsReadOnlyView(true);
+            setShowLanding(false);
+            setIsAppVisible(true);
+            setToastMessage("Shared proposal unlocked");
+            trackEvent('view_shared_menu');
+        } else {
+            throw new Error("Decoding error");
+        }
       } catch (e) {
         console.error("Link decoding error:", e);
         setError({
-          title: "Invalid Share Link",
-          message: "This proposal link may be too large or malformed for your device's browser memory."
+          title: "Proposal Connection Failed",
+          message: "The shared proposal could not be loaded. It may be too large for your browser's address bar. Try opening on a Desktop if you're on a mobile device."
         });
       }
     } else {
@@ -170,9 +186,6 @@ const App: React.FC = () => {
     }
   };
 
-  /**
-   * WATERMARK ENGINE: Protects free-tier image assets
-   */
   const applyWatermarkToImage = (base64: string): Promise<string> => {
     return new Promise((resolve) => {
       const img = new Image();
@@ -185,23 +198,16 @@ const App: React.FC = () => {
         if (!ctx) return resolve(base64);
         
         ctx.drawImage(img, 0, 0);
-        
-        // Draw bottom protection bar
-        ctx.fillStyle = 'rgba(2, 6, 23, 0.6)'; // Dark slate
+        ctx.fillStyle = 'rgba(2, 6, 23, 0.6)';
         ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
-        
-        // Add Branding Text
         ctx.font = 'bold 36px Inter, system-ui, sans-serif';
         ctx.fillStyle = 'white';
         ctx.textAlign = 'right';
         ctx.textBaseline = 'middle';
         ctx.fillText('CaterPro AI - Free Tier', canvas.width - 40, canvas.height - 40);
-        
-        // Add Icon Proxy
         ctx.textAlign = 'left';
         ctx.font = '36px sans-serif';
         ctx.fillText('👨‍🍳 Unbranded available on Pro', 40, canvas.height - 40);
-        
         resolve(canvas.toDataURL('image/png').split(',')[1]);
       };
       img.src = `data:image/png;base64,${base64}`;
@@ -262,12 +268,9 @@ const App: React.FC = () => {
       setIsGeneratingImage(true);
       try {
         let imageBase64 = await generateMenuImageFromApi(newMenu.menuTitle, newMenu.description);
-        
-        // Watermark check
         if (!canAccessFeature('noWatermark')) {
             imageBase64 = await applyWatermarkToImage(imageBase64);
         }
-        
         setMenu(prev => prev ? { ...prev, image: imageBase64 } : null);
       } catch (imgErr) {
         console.warn("Image generation failed", imgErr);
