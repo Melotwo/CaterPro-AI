@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { Menu, Supplier, EducationContent } from "../types";
 
@@ -300,25 +299,25 @@ export const generatePodcastStoryboard = async (menuTitle: string, description: 
 };
 
 /**
- * PRODUCTION READY SCRIPT: React + Food Safety
- * Weaves together technical architecture and safe catering plans.
+ * EXPLAINER ARCHITECT: React + Food Safety Narrative
+ * Created for Tumi's Videographer.
  */
 export const generateExplainerScript = async (menuTitle: string, description: string): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const prompt = `
-    Generate a 60-second professional explainer script for CaterPro AI.
-    Story Goal: Contrast the 'Modular Architecture' of React with the 'Modular Safety' of Catering.
+    Generate a 60-second professional explainer video transcript for CaterPro AI.
+    The core message is: "CaterPro AI bridges Digital Engineering Precision with Public Health Compliance."
     
-    Topics to weave in:
-    - React's functional components & Hooks (The logic).
-    - PDF generation from DOM elements (The output).
-    - Safe Catering Plans: Preventing bacterial growth, temperature control, cross-contamination safeguards.
-    - Systematic recording forms vs. Manual paperwork.
+    Script Themes to weave in:
+    1. React's modular component architecture & functional programming with Hooks (Logic & Precision).
+    2. Generating professional PDFs from DOM elements (Outcome).
+    3. Food Safety Management: Preventing bacterial growth through strict temperature controls.
+    4. Cross-contamination safeguards & Systematic recording forms (Tracking & Safety).
     
-    Format:
-    [SCENE #] [TIME] [VISUAL: Description of Code or Kitchen] [NARRATION: Pro Script]
-    
-    Closing Thought: CaterPro AI brings Digital Engineering Precision to Public Health Compliance.
+    Format output:
+    [00:00 - 00:10] VISUAL: [Description] AUDIO: [Script]
+    ...
+    Closing: "Built for Chefs. Powered by Code."
   `;
   const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
