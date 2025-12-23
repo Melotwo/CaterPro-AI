@@ -1,18 +1,18 @@
 
 import React, { useState } from 'react';
-import { Calendar, GraduationCap, Layout, BookOpen, Clock, CheckCircle2, Zap, UserRound, Sparkles, TrendingUp, ChevronRight, BookCheck, Target, Anchor, Utensils, Copy, Info } from 'lucide-react';
+import { Calendar, GraduationCap, Layout, BookOpen, Clock, CheckCircle2, Zap, UserRound, Sparkles, TrendingUp, ChevronRight, BookCheck, Target, Anchor, Utensils, Copy, Info, Briefcase, Award, Linkedin, Twitter, AlertCircle, Video } from 'lucide-react';
 
 const dailyTasks = [
   { id: 'notebook', label: 'NotebookLM Vision Features' },
+  { id: 'video-prod', label: 'Send Explainer Script to Videographer', highPriority: true },
+  { id: 'grade-recovery', label: 'Resubmit Course 2 Reflection (Aim for 100%)', highPriority: true },
   { id: 'identity-doc', label: 'Career Identity Statement' },
-  { id: 'disney-milestone', label: 'Disney Cruise Line Milestone' },
   { id: 'marketing-module', label: 'Complete Digital Marketing Module 2' },
-  { id: 'proposal-demo', label: 'Record Catering Proposal Demo' },
 ];
 
 const FounderRoadmap: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'blueprint' | 'growth' | 'vault'>('growth');
-  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['notebook', 'identity-doc', 'disney-milestone']));
+  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['notebook', 'identity-doc']));
 
   const toggleTask = (taskId: string) => {
     const newTasks = new Set(completedTasks);
@@ -27,7 +27,7 @@ const FounderRoadmap: React.FC = () => {
   };
 
   const linkedinHeadline = "Culinary Founder & AI Solutions Architect | 10+ Years Hospitality Expertise | Ex-Disney Cruise Line";
-  const linkedinAbout = "I am a Culinary Founder and AI Solutions Architect with over 10 years of experience in the global hospitality industry—from the front-of-house to the high-pressure kitchens of Disney Cruise Line. My greatest strengths are perseverance and creative innovation; I have a unique talent for transforming complex workflows into intuitive, beautiful tools like CaterPro AI. I am passionate about the intersection of culinary arts and technology, and I value honesty, respect, and the efficiency that gives people back their most precious resource: time.";
+  const courseraBio = "Founder of CaterPro AI. 10+ years in hospitality (Disney Cruise Line). Applying AI to solve admin stress for chefs. 100% Grade in Google AI Productivity.";
 
   const schedule = [
     { id: 'build', time: 'Deep Work', task: 'NotebookLM Vision Features', icon: Sparkles, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20' },
@@ -42,12 +42,12 @@ const FounderRoadmap: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 mb-2">
                 <div className="px-2 py-0.5 rounded bg-primary-500 text-[10px] font-black uppercase tracking-widest">Digital Marketing Path</div>
-                <div className="flex items-center gap-1 text-slate-400 text-xs"><Clock size={12} /> Goal: Brand Clarity</div>
+                <div className="flex items-center gap-1 text-slate-400 text-xs"><Clock size={12} /> Status: Course 2, Module 1</div>
             </div>
             <h2 className="text-3xl font-black flex items-center gap-3">
-              <Zap className="text-amber-400 fill-amber-400" /> Melotwo's Roadmap
+              <Zap className="text-amber-400 fill-amber-400" /> Tumi's Roadmap
             </h2>
-            <p className="text-slate-400 text-sm mt-1 max-w-md">10+ Years Culinary Expertise | AI Solutions Architect</p>
+            <p className="text-slate-400 text-sm mt-1 max-w-md">Founder & AI Architect | 10+ Years Culinary Exp.</p>
           </div>
           
           <div className="flex bg-slate-800 p-1 rounded-xl border border-slate-700">
@@ -70,21 +70,21 @@ const FounderRoadmap: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
                     <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                        <TrendingUp size={16} /> Career Milestones
+                        <TrendingUp size={16} /> Progress Milestones
                     </h3>
                     <div className="space-y-3">
                         <div className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-                            <Anchor className="text-blue-500" size={24} />
+                            <Video className="text-purple-500" size={24} />
                             <div>
-                                <h4 className="font-bold text-sm">Disney Cruise Line Expert</h4>
-                                <p className="text-[10px] text-slate-500 uppercase font-black">International Standard Training</p>
+                                <h4 className="font-bold text-sm">Explainer Video Production</h4>
+                                <p className="text-[10px] text-slate-500 uppercase font-black">Teaming with Videographer</p>
                             </div>
                         </div>
-                        <div className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-                            <Utensils className="text-primary-500" size={24} />
+                        <div className="flex items-center gap-4 p-4 bg-amber-50 dark:bg-amber-900/10 rounded-xl border-2 border-amber-200 dark:border-amber-800/30">
+                            <AlertCircle className="text-amber-500" size={24} />
                             <div>
-                                <h4 className="font-bold text-sm">10+ Years Kitchen Leadership</h4>
-                                <p className="text-[10px] text-slate-500 uppercase font-black">Front-to-Back House Mastery</p>
+                                <h4 className="font-bold text-sm">Grade Recovery Needed</h4>
+                                <p className="text-[10px] text-amber-600 uppercase font-black">Refining Reflection Assignment</p>
                             </div>
                         </div>
                     </div>
@@ -97,14 +97,14 @@ const FounderRoadmap: React.FC = () => {
                     <div className="space-y-4">
                         <div className="flex justify-between items-center text-xs font-bold">
                             <span className="text-slate-600 dark:text-slate-300">Foundations of Digital Marketing</span>
-                            <span className="text-primary-600">Module 1: 25%</span>
+                            <span className="text-primary-600">Overall: 45%</span>
                         </div>
                         <div className="h-3 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                            <div className="h-full bg-primary-500 w-1/4"></div>
+                            <div className="h-full bg-primary-500 w-[45%]"></div>
                         </div>
                         <ul className="text-[11px] space-y-2 mt-4 text-slate-500 font-medium">
-                            <li className="flex items-center gap-2"><CheckCircle2 size={12} className="text-green-500" /> Career Identity Statement drafted</li>
-                            <li className="flex items-center gap-2 text-slate-400"><Clock size={12} /> Submit Course 2 Practice Activity</li>
+                            <li className="flex items-center gap-2"><CheckCircle2 size={12} className="text-green-500" /> Professional Course 1 (100% Grade)</li>
+                            <li className="flex items-center gap-2 text-slate-400"><Clock size={12} /> Resubmit Module 1 Reflection</li>
                         </ul>
                     </div>
                 </div>
@@ -113,40 +113,61 @@ const FounderRoadmap: React.FC = () => {
         )}
 
         {activeTab === 'vault' && (
-          <div className="animate-fade-in py-4 max-w-3xl mx-auto space-y-8">
-            <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-3xl border-2 border-slate-100 dark:border-slate-700">
+          <div className="animate-fade-in py-4 max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-3xl border-2 border-slate-100 dark:border-slate-700 h-fit">
                 <div className="flex items-center gap-2 mb-4 text-primary-600 dark:text-primary-400">
-                    <Info size={18} />
-                    <p className="text-xs font-bold uppercase tracking-widest">LinkedIn Optimization Guide</p>
+                    <Linkedin size={18} />
+                    <p className="text-xs font-bold uppercase tracking-widest">LinkedIn Optimization</p>
                 </div>
                 
                 <div className="space-y-6">
-                    {/* Headline Section */}
                     <div>
                         <div className="flex items-center justify-between mb-2">
-                            <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">1. Your Headline</h4>
+                            <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Headline</h4>
                             <button onClick={() => handleCopy(linkedinHeadline, 'Headline')} className="p-1.5 bg-white dark:bg-slate-700 rounded-lg shadow-sm border border-slate-200 dark:border-slate-600 text-primary-600">
                                 <Copy size={14} />
                             </button>
                         </div>
-                        <p className="text-xs text-slate-500 mb-2">Punchy & Keyword-rich. Paste this in the "Headline" box.</p>
-                        <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-200">
+                        <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-200 leading-relaxed">
                             {linkedinHeadline}
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    {/* About Section */}
+            <div className="bg-blue-50/50 dark:bg-blue-900/20 p-6 rounded-3xl border-2 border-blue-100 dark:border-blue-800 h-fit">
+                <div className="flex items-center gap-2 mb-4 text-blue-600 dark:text-blue-400">
+                    <Award size={18} />
+                    <p className="text-xs font-bold uppercase tracking-widest">Coursera Profile Sync</p>
+                </div>
+                
+                <div className="space-y-6">
                     <div>
                         <div className="flex items-center justify-between mb-2">
-                            <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">2. Your "About" Summary</h4>
-                            <button onClick={() => handleCopy(linkedinAbout, 'About summary')} className="p-1.5 bg-white dark:bg-slate-700 rounded-lg shadow-sm border border-slate-200 dark:border-slate-600 text-primary-600">
+                            <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Bio / Summary</h4>
+                            <button onClick={() => handleCopy(courseraBio, 'Coursera Bio')} className="p-1.5 bg-white dark:bg-slate-700 rounded-lg shadow-sm border border-slate-200 dark:border-slate-600 text-blue-600">
                                 <Copy size={14} />
                             </button>
                         </div>
-                        <p className="text-xs text-slate-500 mb-2">The Story. Paste this in the "About" section on your profile.</p>
-                        <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 text-sm italic leading-relaxed text-slate-600 dark:text-slate-400">
-                            {linkedinAbout}
+                        <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 text-sm italic text-slate-600 dark:text-slate-300">
+                            {courseraBio}
                         </div>
+                    </div>
+
+                    <div>
+                         <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight mb-2 flex items-center gap-2">
+                            <Briefcase size={14} /> Work History Template
+                         </h4>
+                         <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+                            <div className="border-b border-slate-100 dark:border-slate-800 pb-2">
+                                <p className="text-xs font-black text-blue-600 uppercase">CaterPro AI</p>
+                                <p className="text-[11px] text-slate-500 font-bold">Founder & AI Architect (Current)</p>
+                            </div>
+                            <div className="border-b border-slate-100 dark:border-slate-800 pb-2">
+                                <p className="text-xs font-black text-blue-600 uppercase">Disney Cruise Line</p>
+                                <p className="text-[11px] text-slate-500 font-bold">Culinary Specialist & Trainer</p>
+                            </div>
+                         </div>
                     </div>
                 </div>
             </div>
@@ -172,19 +193,19 @@ const FounderRoadmap: React.FC = () => {
 
             <div className="space-y-4">
               <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                <BookCheck size={16} /> Goal Tracking
+                <BookCheck size={16} /> Focus List
               </h3>
               <div className="bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl overflow-hidden">
                 {dailyTasks.map((task) => (
                   <button 
                     key={task.id} 
                     onClick={() => toggleTask(task.id)}
-                    className={`w-full flex items-center gap-3 p-4 border-b border-slate-100 dark:border-slate-700 transition-colors text-left group ${completedTasks.has(task.id) ? 'bg-slate-50 dark:bg-slate-900/50' : 'hover:bg-slate-50 dark:hover:bg-slate-900/30'}`}
+                    className={`w-full flex items-center gap-3 p-4 border-b border-slate-100 dark:border-slate-700 transition-colors text-left group ${completedTasks.has(task.id) ? 'bg-slate-50 dark:bg-slate-900/50' : 'hover:bg-slate-50 dark:hover:bg-slate-900/30'} ${task.highPriority ? 'bg-amber-50/30 dark:bg-amber-900/10' : ''}`}
                   >
                     <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${completedTasks.has(task.id) ? 'bg-primary-500 border-primary-500' : 'border-slate-300'}`}>
                       {completedTasks.has(task.id) && <CheckCircle2 size={12} className="text-white" />}
                     </div>
-                    <span className={`text-sm font-medium ${completedTasks.has(task.id) ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-200'}`}>
+                    <span className={`text-sm font-medium ${completedTasks.has(task.id) ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-200'} ${task.highPriority ? 'font-black text-amber-700 dark:text-amber-400' : ''}`}>
                       {task.label}
                     </span>
                     <ChevronRight size={14} className="ml-auto text-slate-300 opacity-0 group-hover:opacity-100 transition-opacity" />
