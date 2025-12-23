@@ -89,7 +89,9 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
     workspaceText += `\nDESSERT:\n${menu.dessert.map(d => `• ${d}`).join('\n')}\n\n`;
 
     workspaceText += `LOGISTICS & PREP:\n`;
-    workspaceText += `\nDIETARY NOTES: ${(menu.dietaryNotes as string[] | undefined)?.join(', ') || 'None'}\n`;
+    // Fix: Using Array.isArray and local variable to safely join dietary notes which might be unknown to compiler in this scope
+    const dietaryNotesArr = menu.dietaryNotes as string[] | undefined;
+    workspaceText += `\nDIETARY NOTES: ${Array.isArray(dietaryNotesArr) ? dietaryNotesArr.join(', ') : 'None'}\n`;
     workspaceText += `\nMISE EN PLACE:\n${menu.miseEnPlace.map(m => `• ${m}`).join('\n')}\n\n`;
     
     workspaceText += `SHOPPING LIST:\n`;
