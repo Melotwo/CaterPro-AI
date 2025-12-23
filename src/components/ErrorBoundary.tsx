@@ -10,8 +10,8 @@ interface State {
   hasError: boolean;
 }
 
-// Fix: Explicitly using Component from react and ensuring generic types are correctly applied to the class.
-class ErrorBoundary extends Component<Props, State> {
+// Fix: Explicitly using React.Component to ensure generic types are correctly applied to the class and props are accessible.
+class ErrorBoundary extends React.Component<Props, State> {
   public state: State = {
     hasError: false
   };
@@ -52,9 +52,8 @@ class ErrorBoundary extends Component<Props, State> {
       );
     }
 
-    // Explicitly destructure children from props to resolve property access issues on type ErrorBoundary
-    const { children } = this.props;
-    return children;
+    // Access children directly from props on the React.Component instance
+    return this.props.children;
   }
 }
 
