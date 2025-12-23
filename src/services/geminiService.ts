@@ -300,20 +300,25 @@ export const generatePodcastStoryboard = async (menuTitle: string, description: 
 };
 
 /**
- * NEW: Explainer Architect Script
- * Combines React Architecture and Food Safety Management into a 60s video script.
+ * PRODUCTION READY SCRIPT: React + Food Safety
+ * Weaves together technical architecture and safe catering plans.
  */
 export const generateExplainerScript = async (menuTitle: string, description: string): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   const prompt = `
-    Generate a 60-second video explainer script for CaterPro AI.
-    Context:
-    - Founder has 10+ years hospitality (Disney Cruise Line).
-    - App is built with React Functional Components & Hooks (Modular Precision).
-    - Focus: A "Safe Catering Plan" (Food Safety, Cross-contamination, temperature control).
-    - Format: 
-      [TIME] [VISUAL CUE] [NARRATION SCRIPT]
-    Narrative Goal: "CaterPro AI isn't just a menu generator; it's a structured framework that brings the same precision to your paperwork that you bring to your food safety."
+    Generate a 60-second professional explainer script for CaterPro AI.
+    Story Goal: Contrast the 'Modular Architecture' of React with the 'Modular Safety' of Catering.
+    
+    Topics to weave in:
+    - React's functional components & Hooks (The logic).
+    - PDF generation from DOM elements (The output).
+    - Safe Catering Plans: Preventing bacterial growth, temperature control, cross-contamination safeguards.
+    - Systematic recording forms vs. Manual paperwork.
+    
+    Format:
+    [SCENE #] [TIME] [VISUAL: Description of Code or Kitchen] [NARRATION: Pro Script]
+    
+    Closing Thought: CaterPro AI brings Digital Engineering Precision to Public Health Compliance.
   `;
   const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
