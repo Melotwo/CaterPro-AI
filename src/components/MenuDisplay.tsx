@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types';
-import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon } from 'lucide-react';
+import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet } from 'lucide-react';
 import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES } from '../constants';
 
 interface MenuDisplayProps {
@@ -45,6 +45,17 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
   const t = theme.classes;
 
   if (!menu) return null;
+
+  // Helper to parse numeric values from currency strings (e.g., "R 150.00" -> 150)
+  const calculateTotal = (items: ShoppingListItem[]) => {
+    return items.reduce((acc, item) => {
+      if (!item.estimatedCost) return acc;
+      const numericValue = parseFloat(item.estimatedCost.replace(/[^0-9.]/g, ''));
+      return isNaN(numericValue) ? acc : acc + numericValue;
+    }, 0);
+  };
+
+  const totalCost = Array.isArray(menu.shoppingList) ? calculateTotal(menu.shoppingList) : 0;
 
   // Robust Encoding for Sharing
   const safeEncode = (str: string) => {
@@ -108,6 +119,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
         Object.entries(groupedData).forEach(([cat, items]) => {
             workspaceText += `\n[${cat.toUpperCase()}]\n${items.join('\n')}\n`;
         });
+        workspaceText += `\nESTIMATED TOTAL COST: ${preferredCurrency} ${totalCost.toFixed(2)}\n`;
     }
 
     workspaceText += `\n\nGenerated via CaterPro AI - https://caterpro-ai.web.app/`;
@@ -361,6 +373,25 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                           </div>
                       </div>
                   ))}
+                  
+                  {/* Total Cost Summary */}
+                  <div className="mt-8 p-6 bg-slate-900 dark:bg-slate-950 text-white rounded-2xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 border-t-4 border-primary-500">
+                    <div className="flex items-center gap-4">
+                        <div className="p-3 bg-primary-500/20 rounded-xl text-primary-400">
+                            <Wallet size={24} />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Procurement Summary</p>
+                            <h4 className="text-sm font-bold">Estimated Sourcing Total</h4>
+                        </div>
+                    </div>
+                    <div className="text-center sm:text-right">
+                        <p className="text-3xl font-black text-primary-400">
+                           {preferredCurrency} {totalCost.toFixed(2)}
+                        </p>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">*Prices vary by supplier location</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             );
@@ -385,7 +416,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                 )}
               </div>
               <ul className="px-4 sm:px-6 pb-6 space-y-2">
-                {/* Fixed: Narrowing the union type for item mapping to avoid ReactNode assignment errors */}
                 {items.filter((i): i is string => typeof i === 'string').map((item, index) => {
                   const checkKey = `${key}-${index}`;
                   const isChecked = checkedItems.has(checkKey);
