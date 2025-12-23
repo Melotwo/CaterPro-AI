@@ -3,6 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { X, Copy, Image as ImageIcon, Check, RefreshCw, Linkedin, Twitter, MessageCircle, Send, Film, Play, Zap, GraduationCap, ArrowRight, Loader2, Mail, Pin, Sparkles, Mic2, Layout, Video } from 'lucide-react';
 import { generateSocialCaption, generateSocialVideoFromApi, generateAssignmentEmail, generateMenuImageFromApi, generatePodcastStoryboard, generateExplainerScript } from '../services/geminiService';
 
+// Synchronized with App.tsx
+type Mode = 'create' | 'pitch' | 'video' | 'podcast' | 'explainer';
+
 interface SocialMediaModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -14,7 +17,6 @@ interface SocialMediaModalProps {
 }
 
 type Platform = 'instagram' | 'linkedin' | 'twitter' | 'pinterest';
-type Mode = 'create' | 'pitch' | 'video' | 'podcast' | 'explainer';
 
 const SocialMediaModal: React.FC<SocialMediaModalProps> = ({ 
   isOpen, onClose, image, menuTitle, menuDescription, initialMode = 'create', onImageGenerated
