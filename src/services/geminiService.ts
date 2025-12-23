@@ -1,6 +1,47 @@
-// Fixed: Corrected the import statement to use 'import' instead of 'Tear'.
+
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { Menu, Supplier, EducationContent } from "../types";
+
+/**
+ * Utility to safely extract and parse JSON from an AI response string,
+ * even if it's wrapped in markdown code blocks.
+ */
+const safeParseMenuJson = (text: string): Menu => {
+    try {
+        // Remove markdown formatting if present
+        const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
+        const parsed = JSON.parse(cleaned);
+        
+        // Ensure required arrays exist to prevent downstream crashes
+        const ensureArray = (arr: any) => Array.isArray(arr) ? arr : [];
+        
+        return {
+            ...parsed,
+            appetizers: ensureArray(parsed.appetizers),
+            mainCourses: ensureArray(parsed.mainCourses),
+            sideDishes: ensureArray(parsed.sideDishes),
+            dessert: ensureArray(parsed.dessert),
+            dietaryNotes: ensureArray(parsed.dietaryNotes),
+            beveragePairings: ensureArray(parsed.beveragePairings),
+            miseEnPlace: ensureArray(parsed.miseEnPlace),
+            serviceNotes: ensureArray(parsed.serviceNotes),
+            deliveryLogistics: ensureArray(parsed.deliveryLogistics),
+            shoppingList: ensureArray(parsed.shoppingList),
+            recommendedEquipment: ensureArray(parsed.recommendedEquipment),
+        };
+    } catch (e) {
+        console.error("JSON Parse Error. Raw text:", text);
+        throw new Error("The AI returned data in an invalid format. Please try generating again.");
+    }
+};
+
+const getApiKey = () => {
+    const key = process.env.API_KEY;
+    if (!key || key.trim() === '') {
+        throw new Error("API Key is missing. Please ensure GEMINI_API_KEY is configured in your environment secrets.");
+    }
+    return key;
+};
 
 export interface MenuGenerationParams {
   eventType: string;
@@ -19,11 +60,8 @@ export interface MenuGenerationResult {
   totalChecklistItems: number;
 }
 
-/**
- * Vision AI: Analyzes a receipt image to extract merchant data.
- */
 export const analyzeReceiptFromApi = async (base64Image: string): Promise<any> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: getApiKey() });
   const prompt = "Analyze this receipt. Extract: Merchant Name, Date, Total Amount, Currency, and a list of itemized categories (Food, Equipment, etc.). Return as JSON.";
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
@@ -53,11 +91,8 @@ export const analyzeReceiptFromApi = async (base64Image: string): Promise<any> =
   return JSON.parse(response.text);
 };
 
-/**
- * Vision AI: Analyzes an ingredient label for hidden allergens.
- */
 export const analyzeLabelFromApi = async (base64Image: string, restrictions: string[]): Promise<any> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: getApiKey() });
   const prompt = `Analyze this food ingredient label. Based on the dietary restrictions: [${restrictions.join(", ")}], flag any problematic ingredients. Provide a "Suitability Score" from 1-10.`;
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
@@ -85,9 +120,6 @@ export const analyzeLabelFromApi = async (base64Image: string, restrictions: str
   return JSON.parse(response.text);
 };
 
-/**
- * Generates a full catering menu proposal using Gemini 3 Flash.
- */
 export const generateMenuFromApi = async ({
   eventType,
   guestCount,
@@ -97,7 +129,7 @@ export const generateMenuFromApi = async ({
   dietaryRestrictions,
   currency,
 }: MenuGenerationParams): Promise<MenuGenerationResult> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: getApiKey() });
   const prompt = `
     You are an expert Michelin-star catering menu planner and Sommelier. 
     Create a professional, detailed menu proposal for:
@@ -181,14 +213,14 @@ export const generateMenuFromApi = async ({
             }
           }
         },
-        required: ["menuTitle", "description", "appetizers", "mainCourses", "shoppingList", "deliveryFeeStructure"]
+        required: ["menuTitle", "description", "appetizers", "mainCourses", "shoppingList"]
       }
     }
   });
 
   const text = response.text;
   if (!text) throw new Error("AI failed to generate menu content.");
-  const menu: Menu = JSON.parse(text);
+  const menu = safeParseMenuJson(text);
 
   const totalChecklistItems = [
     ...(menu.appetizers || []),
@@ -200,7 +232,7 @@ export const generateMenuFromApi = async ({
 };
 
 export const generateMenuImageFromApi = async (title: string, description: string): Promise<string> => {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: getApiKey() });
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
         contents: {
@@ -219,7 +251,7 @@ export const generateMenuImageFromApi = async (title: string, description: strin
 };
 
 export const regenerateMenuItemFromApi = async (originalText: string, instruction: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: getApiKey() });
   const prompt = `Original menu item: "${originalText}". User instruction for modification: "${instruction}". Rewrite the menu item to reflect these changes. Keep it concise and professional.`;
   const response = await ai.models.generateContent({
     model: 'gemini-3-flash-preview',
@@ -229,7 +261,7 @@ export const regenerateMenuItemFromApi = async (originalText: string, instructio
 };
 
 export const generateStudyGuideFromApi = async (topic: string, curriculum: string, level: string, type: 'guide' | 'curriculum'): Promise<EducationContent> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: getApiKey() });
   const prompt = `Generate a ${type === 'guide' ? 'detailed Study Guide' : 'Curriculum Syllabus'} for the topic: "${topic}". 
   Standard: ${curriculum}. Level: ${level}. 
   Include: Title, Overview, Modules (with title and 3-5 content bullet points each), Key Vocabulary, Assessment Criteria, and Practical Exercises.`;
@@ -272,7 +304,7 @@ export const generateStudyGuideFromApi = async (topic: string, curriculum: strin
 };
 
 export const generateSocialCaption = async (menuTitle: string, description: string, platform: string = 'instagram'): Promise<string> => {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: getApiKey() });
     const prompt = `Write a viral ${platform} caption for: "${menuTitle}". Content: ${description}. Tone: Professional and enticing. Perfect spelling. Link: https://caterpro-ai.web.app/`;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -282,7 +314,7 @@ export const generateSocialCaption = async (menuTitle: string, description: stri
 };
 
 export const generatePodcastStoryboard = async (menuTitle: string, description: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: getApiKey() });
   const prompt = `
     I have a 60-second podcast audio about "${menuTitle}". 
     Create a visual storyboard timeline for a video Reel. 
@@ -299,12 +331,8 @@ export const generatePodcastStoryboard = async (menuTitle: string, description: 
   return response.text?.trim() || "";
 };
 
-/**
- * EXPLAINER ARCHITECT: React + Food Safety Narrative
- * Created for Tumi's Videographer.
- */
 export const generateExplainerScript = async (menuTitle: string, description: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  const ai = new GoogleGenAI({ apiKey: getApiKey() });
   const prompt = `
     Generate a 60-second professional explainer video transcript for CaterPro AI.
     The core message is: "CaterPro AI bridges Digital Engineering Precision with Public Health Compliance."
@@ -328,7 +356,7 @@ export const generateExplainerScript = async (menuTitle: string, description: st
 };
 
 export const generateAssignmentEmail = async (menuTitle: string, menuDescription: string): Promise<string> => {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: getApiKey() });
     const prompt = `Draft a professional email pitching CaterPro AI (an AI tool for chefs) to Limpopo Chefs Academy. Context: Built by a student with ADHD/Dyslexia to solve paperwork hurdles. Attached menu: ${menuTitle}.`;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -338,7 +366,7 @@ export const generateAssignmentEmail = async (menuTitle: string, menuDescription
 };
 
 export const generateSocialVideoFromApi = async (menuTitle: string, description: string): Promise<string> => {
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    const ai = new GoogleGenAI({ apiKey: getApiKey() });
     let operation = await ai.models.generateVideos({
         model: 'veo-3.1-fast-generate-preview',
         prompt: `Vertical cinematic commercial for a catering event titled "${menuTitle}". Glistening gourmet food, professional plating, elegant vibe.`,
@@ -346,10 +374,10 @@ export const generateSocialVideoFromApi = async (menuTitle: string, description:
     });
     while (!operation.done) {
         await new Promise(resolve => setTimeout(resolve, 8000));
-        const aiPoll = new GoogleGenAI({ apiKey: process.env.API_KEY });
+        const aiPoll = new GoogleGenAI({ apiKey: getApiKey() });
         operation = await aiPoll.operations.getVideosOperation({operation: operation});
     }
     const videoUri = operation.response?.generatedVideos?.[0]?.video?.uri;
     if (!videoUri) throw new Error("Video generation failed.");
-    return `${videoUri}&key=${process.env.API_KEY}`;
+    return `${videoUri}&key=${getApiKey()}`;
 };
