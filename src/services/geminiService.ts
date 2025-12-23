@@ -1,10 +1,10 @@
 
 import { GoogleGenAI, Type, Modality } from "@google/genai";
-import { Menu, Supplier, EducationContent } from "../types";
+import { Menu, Supplier, EducationContent, ShoppingListItem, BeveragePairing } from "../types";
 
 /**
  * Utility to safely extract and parse JSON from an AI response string,
- * even if it's wrapped in markdown code blocks.
+ * ensuring all collections are valid arrays to prevent UI rendering crashes.
  */
 const safeParseMenuJson = (text: string): Menu => {
     try {
@@ -12,22 +12,25 @@ const safeParseMenuJson = (text: string): Menu => {
         const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
         const parsed = JSON.parse(cleaned);
         
-        // Ensure required arrays exist to prevent downstream crashes
+        // Ensure required arrays exist and contain valid objects to prevent downstream crashes
         const ensureArray = (arr: any) => Array.isArray(arr) ? arr : [];
+        const ensureObjectArray = (arr: any) => Array.isArray(arr) ? arr.filter(i => i !== null && typeof i === 'object') : [];
         
         return {
             ...parsed,
+            menuTitle: parsed.menuTitle || "New Menu Proposal",
+            description: parsed.description || "No description provided.",
             appetizers: ensureArray(parsed.appetizers),
             mainCourses: ensureArray(parsed.mainCourses),
             sideDishes: ensureArray(parsed.sideDishes),
             dessert: ensureArray(parsed.dessert),
             dietaryNotes: ensureArray(parsed.dietaryNotes),
-            beveragePairings: ensureArray(parsed.beveragePairings),
+            beveragePairings: ensureObjectArray(parsed.beveragePairings),
             miseEnPlace: ensureArray(parsed.miseEnPlace),
             serviceNotes: ensureArray(parsed.serviceNotes),
             deliveryLogistics: ensureArray(parsed.deliveryLogistics),
-            shoppingList: ensureArray(parsed.shoppingList),
-            recommendedEquipment: ensureArray(parsed.recommendedEquipment),
+            shoppingList: ensureObjectArray(parsed.shoppingList),
+            recommendedEquipment: ensureObjectArray(parsed.recommendedEquipment),
         };
     } catch (e) {
         console.error("JSON Parse Error. Raw text:", text);
@@ -219,7 +222,7 @@ export const generateMenuFromApi = async ({
   });
 
   const text = response.text;
-  if (!text) throw new Error("AI failed to generate menu content.");
+  if (!text) throw new Error("AI failed to generate menu content. Please try again.");
   const menu = safeParseMenuJson(text);
 
   const totalChecklistItems = [
