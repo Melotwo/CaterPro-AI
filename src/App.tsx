@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail } from 'lucide-react';
 import { jsPDF } from 'jspdf';
@@ -212,7 +211,9 @@ const App: React.FC = () => {
   };
 
   const generateMenu = async () => {
+    // Audit check for generation limit
     if (!recordGeneration()) return;
+    
     const newValidationErrors: ValidationErrors = {};
     if (!eventType) newValidationErrors.eventType = "Please select an event type.";
     if (!guestCount) newValidationErrors.guestCount = "Please select a guest count.";
@@ -236,6 +237,10 @@ const App: React.FC = () => {
         currency,
       });
       
+      if (!result || !result.menu) {
+          throw new Error("The AI returned an invalid or empty response. Please try again.");
+      }
+
       const newMenu = { ...result.menu, theme: proposalTheme };
       setMenu(newMenu);
       setIsLoading(false);
@@ -519,7 +524,7 @@ const App: React.FC = () => {
             localStorage.setItem('caterpro_user_whatsapp', whatsapp);
             setToastMessage("Settings saved!");
       }} />
-      <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={(p) => { selectPlan(p); setViewMode('generator'); setShowUpgradeModal(false); }} />
+      <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={(p) => { selectPlan(p); setViewMode('generator'); setShowUpgradeModal(false); }} onViewPricing={() => setViewMode('pricing')} />
       <PwaInstallModal isOpen={isInstallModalOpen} onClose={() => setIsInstallModalOpen(false)} />
       <SocialMediaModal isOpen={isSocialModalOpen} onClose={() => setIsSocialModalOpen(false)} image={menu?.image} menuTitle={menu?.menuTitle || ''} menuDescription={menu?.description || ''} initialMode={socialModalMode} onImageGenerated={(base64) => setMenu(prev => prev ? { ...prev, image: base64 } : null)} />
       <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
