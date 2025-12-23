@@ -1,3 +1,4 @@
+// Fixed: Corrected the import statement to use 'import' instead of 'Tear'.
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { Menu, Supplier, EducationContent } from "../types";
 
