@@ -41,7 +41,10 @@ const LOADING_MESSAGES = [
   'Organizing your shopping list...',
 ];
 
+type AppView = 'landing' | 'generator' | 'pricing';
+
 const App: React.FC = () => {
+  const [viewMode, setViewMode] = useState<AppView>('landing');
   const [eventType, setEventType] = useState('');
   const [customEventType, setCustomEventType] = useState('');
   const [guestCount, setGuestCount] = useState('');
@@ -75,9 +78,7 @@ const App: React.FC = () => {
   const [loadingMessage, setLoadingMessage] = useState(LOADING_MESSAGES[0]);
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
-  const [isAppVisible, setIsAppVisible] = useState(false);
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
-  const [showLanding, setShowLanding] = useState(true);
 
   const { subscription, selectPlan, recordGeneration, setShowUpgradeModal, showUpgradeModal, attemptAccess, canAccessFeature } = useAppSubscription();
 
@@ -89,16 +90,12 @@ const App: React.FC = () => {
 
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Robust Decoding for iPad Safari
   const safeDecode = (str: string) => {
     try {
         return decodeURIComponent(atob(str).split('').map(function(c) {
             return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
         }).join(''));
-    } catch (e) {
-        console.error("Safe decode failed", e);
-        return null;
-    }
+    } catch (e) { return null; }
   };
 
   useEffect(() => {
@@ -111,26 +108,18 @@ const App: React.FC = () => {
             const sharedMenu = JSON.parse(jsonStr);
             setMenu(sharedMenu);
             setIsReadOnlyView(true);
-            setShowLanding(false);
-            setIsAppVisible(true);
+            setViewMode('generator');
             setToastMessage("Shared proposal unlocked");
-            trackEvent('view_shared_menu');
-        } else {
-            throw new Error("Decoding error");
         }
       } catch (e) {
-        console.error("Link decoding error:", e);
         setError({
           title: "Proposal Connection Failed",
-          message: "The shared proposal could not be loaded. It may be too large for your browser's address bar. Try opening on a Desktop if you're on a mobile device."
+          message: "The shared proposal could not be loaded."
         });
       }
     } else {
       const hasSelectedPlan = localStorage.getItem('caterpro-subscription');
-      if (hasSelectedPlan) {
-        setIsAppVisible(true);
-        setShowLanding(false);
-      }
+      if (hasSelectedPlan) setViewMode('generator');
     }
   }, []);
   
@@ -160,26 +149,20 @@ const App: React.FC = () => {
   const handleDownloadPDF = async () => {
     if (!menuRef.current) return;
     setIsExporting(true);
-    trackEvent('download_pdf', { menu_title: menu?.menuTitle });
     try {
       const canvas = await html2canvas(menuRef.current, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
+        scale: 2, useCORS: true, logging: false,
         backgroundColor: isDarkMode ? '#020617' : '#ffffff',
       });
-      
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('p', 'mm', 'a4');
       const imgProps = pdf.getImageProperties(imgData);
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-      
       pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
       pdf.save(`${menu?.menuTitle.replace(/\s+/g, '_') || 'Catering_Proposal'}.pdf`);
       setToastMessage("PDF downloaded successfully!");
     } catch (e) {
-      console.error("PDF Export failed:", e);
       setToastMessage("Failed to generate PDF. Try again.");
     } finally {
       setIsExporting(false);
@@ -196,7 +179,6 @@ const App: React.FC = () => {
         canvas.height = img.height;
         const ctx = canvas.getContext('2d');
         if (!ctx) return resolve(base64);
-        
         ctx.drawImage(img, 0, 0);
         ctx.fillStyle = 'rgba(2, 6, 23, 0.6)';
         ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
@@ -215,19 +197,16 @@ const App: React.FC = () => {
   };
 
   const handleStartFromLanding = () => {
-      setShowLanding(false);
-      trackEvent('start_app_from_landing');
       if (!localStorage.getItem('caterpro-subscription')) {
           selectPlan('free');
       }
-      setIsAppVisible(true);
+      setViewMode('generator');
   };
 
   const openSocialCreator = (mode: SocialMode) => {
       if (mode === 'video' || mode === 'pitch' || mode === 'explainer' || mode === 'podcast') {
           if (!attemptAccess('educationTools')) return;
       }
-      trackEvent('open_social_creator', { mode });
       setSocialModalMode(mode);
       setIsSocialModalOpen(true);
   };
@@ -245,8 +224,6 @@ const App: React.FC = () => {
     setError(null);
     setMenu(null);
     setIsReadOnlyView(false);
-    
-    trackEvent('generate_menu_start', { eventType, cuisine, budget });
 
     try {
       const result = await generateMenuFromApi({
@@ -263,8 +240,6 @@ const App: React.FC = () => {
       setMenu(newMenu);
       setIsLoading(false);
       
-      trackEvent('generate_menu_success', { menu_title: newMenu.menuTitle });
-
       setIsGeneratingImage(true);
       try {
         let imageBase64 = await generateMenuImageFromApi(newMenu.menuTitle, newMenu.description);
@@ -284,13 +259,12 @@ const App: React.FC = () => {
     } catch (e) {
       setError(getApiErrorState(e));
       setIsLoading(false);
-      trackEvent('generate_menu_error', { error_type: (e as Error).name });
     }
   };
 
   return (
     <div className={`flex flex-col min-h-screen font-sans antialiased ${isDarkMode ? 'dark' : ''}`}>
-      <SEOHead menu={menu} title={showLanding ? "The Chef's Secret Weapon" : "Generate Menu"} />
+      <SEOHead menu={menu} title={viewMode === 'landing' ? "The Chef's Secret Weapon" : "Generate Menu"} />
       
       <Navbar 
         onThemeToggle={toggleTheme} isDarkMode={isDarkMode} 
@@ -300,20 +274,24 @@ const App: React.FC = () => {
         onOpenInstall={() => setIsInstallModalOpen(true)}
         onReset={() => { 
           localStorage.removeItem('caterpro-subscription'); 
-          window.history.replaceState({}, '', window.location.pathname);
           window.location.reload(); 
         }}
-        onViewLanding={() => { setShowLanding(true); setIsAppVisible(false); }}
+        onViewLanding={() => setViewMode('landing')}
+        onViewPricing={() => setViewMode('pricing')}
       />
       
-      {showLanding && !isAppVisible ? (
+      {viewMode === 'landing' && (
         <>
             <LandingPage onGetStarted={handleStartFromLanding} />
             <Footer />
         </>
-      ) : !isAppVisible ? (
-        <PricingPage onSelectPlan={(p) => { selectPlan(p); setIsAppVisible(true); }} currency={currency} />
-      ) : (
+      )}
+
+      {viewMode === 'pricing' && (
+        <PricingPage onSelectPlan={(p) => { selectPlan(p); setViewMode('generator'); }} currency={currency} />
+      )}
+
+      {viewMode === 'generator' && (
         <main className="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
           {error && (
             <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/30 border-2 border-red-200 dark:border-red-800">
@@ -409,11 +387,7 @@ const App: React.FC = () => {
                 </div>
               </div>
 
-              <GenerationHistory 
-                history={[]} 
-                onItemClick={() => {}} 
-                onClear={() => {}} 
-              />
+              <GenerationHistory history={[]} onItemClick={() => {}} onClear={() => {}} />
               <FounderRoadmap />
               <ResearchHub onShowToast={setToastMessage} />
             </div>
@@ -429,7 +403,6 @@ const App: React.FC = () => {
 
           {menu && !isLoading && (
             <div className="space-y-8 animate-fade-in">
-                {/* Dashboard Action Header */}
                 <div className="no-print bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
                     <div className="flex items-center gap-4">
                         <div className="p-3 bg-primary-100 dark:bg-primary-900/30 rounded-2xl">
@@ -451,7 +424,6 @@ const App: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Social & Marketing Creator */}
                 {!isReadOnlyView && (
                 <div className="no-print bg-gradient-to-br from-indigo-600 to-purple-700 p-8 rounded-3xl text-white shadow-2xl relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-10 opacity-10 transform translate-x-1/4 -translate-y-1/4 group-hover:rotate-12 transition-transform">
@@ -534,54 +506,22 @@ const App: React.FC = () => {
 
       <Footer />
       <AiChatBot onAttemptAccess={() => attemptAccess('aiChatBot')} isPro={canAccessFeature('aiChatBot')} />
-      
-      <SavedChecklistsModal 
-        isOpen={isSavedModalOpen} 
-        onClose={() => setIsSavedModalOpen(false)} 
-        savedMenus={savedMenus} 
-        onDelete={(id) => setSavedMenus(prev => prev.filter(m => m.id !== id))} 
-      />
-
+      <SavedChecklistsModal isOpen={isSavedModalOpen} onClose={() => setIsSavedModalOpen(false)} savedMenus={savedMenus} onDelete={(id) => setSavedMenus(prev => prev.filter(m => m.id !== id))} />
       <QrCodeModal isOpen={isQrModalOpen} onClose={() => setIsQrModalOpen(false)} />
-      <CustomizationModal 
-        isOpen={isCustomizationModalOpen} 
-        onClose={() => setIsCustomizationModalOpen(false)} 
-        itemToEdit={itemToEdit} 
-        onSave={(section, index, text) => {
+      <CustomizationModal isOpen={isCustomizationModalOpen} onClose={() => setIsCustomizationModalOpen(false)} itemToEdit={itemToEdit} onSave={(section, index, text) => {
             const newSection = [...(menu![section] as string[])];
             newSection[index] = text;
             setMenu({ ...menu!, [section]: newSection });
             setIsCustomizationModalOpen(false);
-        }} 
-      />
-      <EmailCapture 
-        isOpen={isEmailCaptureModalOpen} 
-        onClose={() => setIsEmailCaptureModalOpen(false)} 
-        onSave={(email, whatsapp) => {
+      }} />
+      <EmailCapture isOpen={isEmailCaptureModalOpen} onClose={() => setIsEmailCaptureModalOpen(false)} onSave={(email, whatsapp) => {
             localStorage.setItem('caterpro_user_email', email);
             localStorage.setItem('caterpro_user_whatsapp', whatsapp);
-            setIsEmailCaptureModalOpen(false);
             setToastMessage("Settings saved!");
-        }} 
-      />
-      <UpgradeModal 
-        isOpen={showUpgradeModal} 
-        onClose={() => setShowUpgradeModal(false)} 
-        onUpgrade={(p) => { selectPlan(p); setShowUpgradeModal(false); }} 
-      />
+      }} />
+      <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={(p) => { selectPlan(p); setViewMode('generator'); setShowUpgradeModal(false); }} />
       <PwaInstallModal isOpen={isInstallModalOpen} onClose={() => setIsInstallModalOpen(false)} />
-      <SocialMediaModal 
-        isOpen={isSocialModalOpen} 
-        onClose={() => setIsSocialModalOpen(false)} 
-        image={menu?.image}
-        menuTitle={menu?.menuTitle || ''}
-        menuDescription={menu?.description || ''}
-        initialMode={socialModalMode}
-        onImageGenerated={(base64) => {
-            setMenu(prev => prev ? { ...prev, image: base64 } : null);
-        }}
-      />
-      
+      <SocialMediaModal isOpen={isSocialModalOpen} onClose={() => setIsSocialModalOpen(false)} image={menu?.image} menuTitle={menu?.menuTitle || ''} menuDescription={menu?.description || ''} initialMode={socialModalMode} onImageGenerated={(base64) => setMenu(prev => prev ? { ...prev, image: base64 } : null)} />
       <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
     </div>
   );
