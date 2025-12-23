@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Image as ImageIcon, Check, RefreshCw, Linkedin, Twitter, MessageCircle, Send, Film, Play, Zap, GraduationCap, ArrowRight, Loader2, Mail, Pin, Sparkles, Mic2, Layout } from 'lucide-react';
-import { generateSocialCaption, generateSocialVideoFromApi, generateAssignmentEmail, generateMenuImageFromApi, generatePodcastStoryboard } from '../services/geminiService';
+import { X, Copy, Image as ImageIcon, Check, RefreshCw, Linkedin, Twitter, MessageCircle, Send, Film, Play, Zap, GraduationCap, ArrowRight, Loader2, Mail, Pin, Sparkles, Mic2, Layout, Video } from 'lucide-react';
+import { generateSocialCaption, generateSocialVideoFromApi, generateAssignmentEmail, generateMenuImageFromApi, generatePodcastStoryboard, generateExplainerScript } from '../services/geminiService';
 
 interface SocialMediaModalProps {
   isOpen: boolean;
@@ -14,7 +14,7 @@ interface SocialMediaModalProps {
 }
 
 type Platform = 'instagram' | 'linkedin' | 'twitter' | 'pinterest';
-type Mode = 'create' | 'pitch' | 'video' | 'podcast';
+type Mode = 'create' | 'pitch' | 'video' | 'podcast' | 'explainer';
 
 const SocialMediaModal: React.FC<SocialMediaModalProps> = ({ 
   isOpen, onClose, image, menuTitle, menuDescription, initialMode = 'create', onImageGenerated
@@ -35,7 +35,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
       setVideoUrl(null);
       setCurrentImage(image);
       
-      if (initialMode !== 'video' && initialMode !== 'podcast') {
+      if (initialMode !== 'video' && initialMode !== 'podcast' && initialMode !== 'explainer') {
         handleGenerate(activePlatform);
       }
     }
@@ -70,6 +70,9 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
       } else if (activeMode === 'podcast') {
         const storyboard = await generatePodcastStoryboard(menuTitle, menuDescription);
         setEditedContent(storyboard);
+      } else if (activeMode === 'explainer') {
+        const script = await generateExplainerScript(menuTitle, menuDescription);
+        setEditedContent(script);
       }
     } catch (e) {
       setEditedContent("AI is busy in the kitchen. Please try again in a moment.");
@@ -102,6 +105,12 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                 className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'create' ? 'bg-white dark:bg-slate-700 shadow-md text-primary-600' : 'text-slate-500'}`}
             >
                 <ImageIcon size={16} /> Social Post
+            </button>
+            <button 
+                onClick={() => setActiveMode('explainer')} 
+                className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'explainer' ? 'bg-white dark:bg-slate-700 shadow-md text-amber-600' : 'text-slate-500'}`}
+            >
+                <Video size={16} /> Explainer Script
             </button>
             <button 
                 onClick={() => setActiveMode('podcast')} 
@@ -174,6 +183,24 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                             ))}
                         </div>
                     </div>
+                ) : activeMode === 'explainer' ? (
+                    <div className="space-y-6">
+                        <div className="bg-primary-50 dark:bg-primary-900/20 p-8 rounded-3xl border-2 border-primary-100 dark:border-primary-800 flex flex-col items-center text-center">
+                            <Video size={48} className="text-primary-600 mb-4" />
+                            <h3 className="text-xl font-black text-slate-900 dark:text-white">Explainer Architect</h3>
+                            <p className="text-sm text-slate-500 mt-2">
+                                I will write a script for your videographer that bridges **React Engineering** and **Food Safety HACCP**.
+                            </p>
+                        </div>
+                        <button 
+                            onClick={() => handleGenerate()} 
+                            disabled={isGenerating} 
+                            className="w-full py-5 bg-primary-600 text-white rounded-2xl font-black shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 hover:bg-primary-700 transition-all"
+                        >
+                            {isGenerating ? <Loader2 className="animate-spin" size={20} /> : <Sparkles size={20} />}
+                            {isGenerating ? 'Architecting...' : 'Generate Explainer Script'}
+                        </button>
+                    </div>
                 ) : activeMode === 'podcast' ? (
                     <div className="space-y-6">
                         <div className="bg-amber-100 dark:bg-amber-900/30 p-8 rounded-3xl border-2 border-amber-200 dark:border-amber-800 flex flex-col items-center text-center">
@@ -227,7 +254,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
             <div className="md:w-1/2 flex flex-col bg-white dark:bg-slate-900">
                 <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
                     <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">
-                        {activeMode === 'podcast' ? 'Visual Storyboard' : 'AI Output'}
+                        {activeMode === 'podcast' || activeMode === 'explainer' ? 'Production Script' : 'AI Output'}
                     </h4>
                     {isGenerating && <Loader2 size={16} className="text-primary-500 animate-spin" />}
                 </div>
