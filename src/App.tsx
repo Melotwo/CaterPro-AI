@@ -94,7 +94,8 @@ const App: React.FC = () => {
     const viewData = params.get('view');
     if (viewData) {
       try {
-        const decodedData = decodeURIComponent(escape(atob(viewData)));
+        // More robust decoding for iPad/Safari
+        const decodedData = decodeURIComponent(atob(viewData).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
         const sharedMenu = JSON.parse(decodedData);
         setMenu(sharedMenu);
         setIsReadOnlyView(true);
@@ -166,9 +167,13 @@ const App: React.FC = () => {
     }
   };
 
-  const applyWatermark = (base64: string): Promise<string> => {
+  /**
+   * Client-side Watermark logic for Free Tier
+   */
+  const applyWatermarkToImage = (base64: string): Promise<string> => {
     return new Promise((resolve) => {
       const img = new Image();
+      img.crossOrigin = "anonymous";
       img.onload = () => {
         const canvas = document.createElement('canvas');
         canvas.width = img.width;
@@ -178,17 +183,21 @@ const App: React.FC = () => {
         
         ctx.drawImage(img, 0, 0);
         
-        // Watermark style
-        ctx.font = 'bold 40px Inter, sans-serif';
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'bottom';
+        // Semi-transparent overlay at bottom
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.4)';
+        ctx.fillRect(0, canvas.height - 80, canvas.width, 80);
         
-        // Draw shadow for visibility
-        ctx.shadowColor = 'rgba(0, 0, 0, 0.5)';
-        ctx.shadowBlur = 10;
+        // Text Style
+        ctx.font = 'bold 32px Inter, sans-serif';
+        ctx.fillStyle = 'white';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'middle';
         
         ctx.fillText('CaterPro AI - Free Tier', canvas.width - 40, canvas.height - 40);
+        
+        // Icon (Chef Hat proxy)
+        ctx.textAlign = 'left';
+        ctx.fillText('🍽️ Professional Proposal', 40, canvas.height - 40);
         
         resolve(canvas.toDataURL('image/png').split(',')[1]);
       };
@@ -251,9 +260,9 @@ const App: React.FC = () => {
       try {
         let imageBase64 = await generateMenuImageFromApi(newMenu.menuTitle, newMenu.description);
         
-        // Apply watermark if on free plan
-        if (subscription.plan === 'free') {
-            imageBase64 = await applyWatermark(imageBase64);
+        // Watermark application if not paid
+        if (!canAccessFeature('noWatermark')) {
+            imageBase64 = await applyWatermarkToImage(imageBase64);
         }
         
         setMenu(prev => prev ? { ...prev, image: imageBase64 } : null);
@@ -562,6 +571,9 @@ const App: React.FC = () => {
         menuTitle={menu?.menuTitle || ''}
         menuDescription={menu?.description || ''}
         initialMode={socialModalMode}
+        onImageGenerated={(base64) => {
+            setMenu(prev => prev ? { ...prev, image: base64 } : null);
+        }}
       />
       
       <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
