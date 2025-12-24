@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { BookOpen, Copy, ExternalLink, Zap, Brain, Terminal, UserRound, CheckCircle2, Sparkles, Award, Target, MousePointer2, Link as LinkIcon, Info, MessageSquareQuote } from 'lucide-react';
+import { BookOpen, Copy, ExternalLink, Zap, Brain, Terminal, UserRound, CheckCircle2, Sparkles, Award, Target, MousePointer2, Link as LinkIcon, Info, MessageSquareQuote, GraduationCap } from 'lucide-react';
 
 const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowToast }) => {
   const handleCopyBacklinkPitch = () => {
@@ -10,11 +10,11 @@ const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowT
     onShowToast("Partnership Pitch Copied! Use this for Referrals.");
   };
 
-  const handleCopyAdsGuide = () => {
-    const text = `⚠️ GOOGLE ADS CAUTION: The ZAR 6000 credit is usually a 'Matching Credit'. You must SPEND ZAR 6000 to RECEIVE ZAR 6000. If budget is tight, focus on Organic Social and Referrals first. Use the 'Referral Pitch Architect' below to grow for free.`;
+  const handleCopyStudyPrompt = () => {
+    const text = `I am a culinary professional studying Digital Marketing. Please act as my tutor. Explain the following concept or answer this question using a culinary/kitchen analogy so it's easier for me to grasp with my ADHD/Dyslexia: [PASTE YOUR QUESTION HERE]`;
     
     navigator.clipboard.writeText(text);
-    onShowToast("Ads Guide Copied to Clipboard.");
+    onShowToast("Study Tutor Prompt Copied! Paste into AI Chat.");
   };
 
   const handleCopyGradeRecovery = () => {
@@ -32,7 +32,7 @@ const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowT
                 <div className="p-2 bg-indigo-500 rounded-lg text-white">
                     <Brain size={20} />
                 </div>
-                <h3 className="font-black text-slate-900 dark:text-white uppercase tracking-tight text-sm">Zero-Cost Growth Lab</h3>
+                <h3 className="font-black text-slate-900 dark:text-white uppercase tracking-tight text-sm">Founder's Research Hub</h3>
             </div>
             <a 
                 href="https://notebooklm.google.com/" 
@@ -45,6 +45,22 @@ const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowT
 
         <div className="p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {/* Study & FET Lab */}
+                <div className="space-y-4 p-6 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-800">
+                    <h4 className="text-lg font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2">
+                        <GraduationCap size={18} className="text-blue-500" /> Study & FET Lab
+                    </h4>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                        Use this to "translate" marketing quiz questions into Chef Language for easier learning.
+                    </p>
+                    <button 
+                        onClick={handleCopyStudyPrompt}
+                        className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
+                    >
+                        <Copy size={14} /> Copy Study Tutor Prompt
+                    </button>
+                </div>
+
                 {/* Referral/Backlink Tool */}
                 <div className="space-y-4 p-6 bg-purple-50 dark:bg-purple-900/10 rounded-2xl border border-purple-100 dark:border-purple-800">
                     <h4 className="text-lg font-bold text-purple-900 dark:text-purple-100 flex items-center gap-2">
@@ -58,22 +74,6 @@ const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowT
                         className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-black text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
                     >
                         <MessageSquareQuote size={14} /> Copy Outreach Pitch
-                    </button>
-                </div>
-
-                {/* Ads Truth Tool */}
-                <div className="space-y-4 p-6 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800">
-                    <h4 className="text-lg font-bold text-amber-900 dark:text-amber-100 flex items-center gap-2">
-                        <Info size={18} className="text-amber-500" /> Ads Credit Guide
-                    </h4>
-                    <p className="text-xs text-slate-500 leading-relaxed">
-                        Read this before using your ZAR 6000 credit to avoid unexpected costs.
-                    </p>
-                    <button 
-                        onClick={handleCopyAdsGuide}
-                        className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-black text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
-                    >
-                        <Copy size={14} /> Copy Credit Guide
                     </button>
                 </div>
 
