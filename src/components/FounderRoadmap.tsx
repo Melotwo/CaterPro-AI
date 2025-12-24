@@ -1,13 +1,13 @@
 
 import React, { useState } from 'react';
-import { Calendar, GraduationCap, Layout, BookOpen, Clock, CheckCircle2, Zap, UserRound, Sparkles, TrendingUp, ChevronRight, BookCheck, Target, Anchor, Utensils, Copy, Info, Briefcase, Award, Linkedin, Twitter, AlertCircle, Video, Fingerprint, ArrowRight, BarChart3, MousePointer2 } from 'lucide-react';
+import { Calendar, GraduationCap, Layout, BookOpen, Clock, CheckCircle2, Zap, UserRound, Sparkles, TrendingUp, ChevronRight, BookCheck, Target, Anchor, Utensils, Copy, Info, Briefcase, Award, Linkedin, Twitter, AlertCircle, Video, Fingerprint, ArrowRight, BarChart3, MousePointer2, Gift } from 'lucide-react';
 
 const dailyTasks = [
-  { id: 'ads-setup', label: 'Activate ZAR 6000 Google Ads Credit', highPriority: true },
-  { id: 'analytics-audit', label: 'Analyze US vs SA Traffic Trends', highPriority: false },
-  { id: 'video-prod', label: 'Send Explainer Script to Videographer', highPriority: true },
-  { id: 'grade-recovery', label: 'Resubmit Course 2 Reflection (Aim for 100%)', highPriority: true },
-  { id: 'marketing-module', label: 'Complete Digital Marketing Module 2' },
+  { id: 'module-4-final', label: 'Finish Module 4: Measure Success', highPriority: true },
+  { id: 'data-ethics', label: 'Complete Data Ethics Reading', highPriority: false },
+  { id: 'exam-prep', label: 'Review Module 1-4 for Final Assessment', highPriority: true },
+  { id: 'festive-post', label: 'Post Christmas Eve Founder Update', highPriority: true },
+  { id: 'analytics-setup', label: 'Confirm GA4 Tag is firing correctly' },
 ];
 
 const FounderRoadmap: React.FC = () => {
@@ -36,9 +36,9 @@ const FounderRoadmap: React.FC = () => {
   const brandStatement = "I bridge the gap between world-class culinary excellence and cutting-edge software engineering. As a chef with ADHD/Dyslexia, my brand is built on radical accessibility: creating tools that remove administrative friction so creators can focus on their craft.";
 
   const schedule = [
-    { id: 'build', time: 'Deep Work', task: 'Google Ads Keyword Research', icon: MousePointer2, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
-    { id: 'learn', time: 'Course 2', task: 'Digital Marketing Analytics', icon: BarChart3, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
-    { id: 'identity', time: 'Branding', task: 'Backlink & Referral Outreach', icon: Zap, color: 'text-purple-500', bg: 'bg-purple-50 dark:bg-purple-900/20' },
+    { id: 'build', time: 'Final Push', task: 'Complete Course 2 Final', icon: Award, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20' },
+    { id: 'learn', time: 'Module 4', task: 'Measuring Performance', icon: BarChart3, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
+    { id: 'identity', time: 'Festive', task: 'Holiday Brand Message', icon: Gift, color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-900/20' },
   ];
 
   return (
@@ -47,24 +47,24 @@ const FounderRoadmap: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
-                <div className="px-2 py-0.5 rounded bg-primary-500 text-[10px] font-black uppercase tracking-widest">Growth Phase</div>
-                <div className="flex items-center gap-1 text-slate-400 text-xs"><BarChart3 size={12} /> Active Users: 29 (Spiking!)</div>
+                <div className="px-2 py-0.5 rounded bg-amber-500 text-[10px] font-black uppercase tracking-widest animate-pulse">Certification Sprint</div>
+                <div className="flex items-center gap-1 text-slate-400 text-xs"><Gift size={12} className="text-red-400" /> Goal: Finish before Christmas</div>
             </div>
             <h2 className="text-3xl font-black flex items-center gap-3">
-              <Zap className="text-amber-400 fill-amber-400" /> Tumi's Roadmap
+              <Zap className="text-amber-400 fill-amber-400" /> Tumi's Final Push
             </h2>
-            <p className="text-slate-400 text-sm mt-1 max-w-md">Founder & Data Scientist | Marketing Architecture</p>
+            <p className="text-slate-400 text-sm mt-1 max-w-md">The "Closing Shift" of Google Digital Marketing</p>
           </div>
           
           <div className="flex bg-slate-800 p-1 rounded-xl border border-slate-700">
             <button onClick={() => setActiveTab('growth')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'growth' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}>
-                <GraduationCap size={14} /> Course Tracker
+                <GraduationCap size={14} /> Week 4 Status
             </button>
             <button onClick={() => setActiveTab('vault')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'vault' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}>
                 <UserRound size={14} /> Brand Vault
             </button>
             <button onClick={() => setActiveTab('blueprint')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'blueprint' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}>
-                <Calendar size={14} /> Schedule
+                <Calendar size={14} /> Sprints
             </button>
           </div>
         </div>
@@ -76,26 +76,26 @@ const FounderRoadmap: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
                     <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                        <TrendingUp size={16} /> Data Milestones
+                        <TrendingUp size={16} /> Measuring Success
                     </h3>
                     <div className="space-y-3">
                         <div className="flex items-center gap-4 p-4 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl border-2 border-emerald-500">
                             <BarChart3 className="text-emerald-500" size={24} />
                             <div>
-                                <h4 className="font-bold text-sm text-emerald-900 dark:text-emerald-100 uppercase">US/SA Market Penetration</h4>
-                                <p className="text-[10px] text-emerald-600 uppercase font-black">20 Active Global Sessions</p>
+                                <h4 className="font-bold text-sm text-emerald-900 dark:text-emerald-100 uppercase">Module 4 KPIs</h4>
+                                <p className="text-[10px] text-emerald-600 uppercase font-black">Performance Marketing Mastered</p>
                             </div>
                         </div>
                         <button 
                             onClick={handleScrollToResearch}
-                            className="w-full text-left flex items-center gap-4 p-4 bg-amber-50 dark:bg-amber-900/10 rounded-xl border-2 border-amber-500 shadow-lg shadow-amber-500/10 transform transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            className="w-full text-left flex items-center gap-4 p-4 bg-red-50 dark:bg-red-900/10 rounded-xl border-2 border-red-500 shadow-lg shadow-red-500/10 transform transition-all hover:scale-[1.02] active:scale-[0.98]"
                         >
-                            <AlertCircle className="text-amber-500 animate-pulse" size={24} />
+                            <Gift className="text-red-500 animate-bounce" size={24} />
                             <div>
-                                <h4 className="font-black text-sm text-amber-900 dark:text-amber-100 flex items-center gap-2">
-                                    Ads Credit Waiting <ArrowRight size={14} />
+                                <h4 className="font-black text-sm text-red-900 dark:text-red-100 flex items-center gap-2">
+                                    Christmas Eve Goal <ArrowRight size={14} />
                                 </h4>
-                                <p className="text-[10px] text-amber-600 uppercase font-black">ZAR 6000 Opportunity Found</p>
+                                <p className="text-[10px] text-red-600 uppercase font-black">Certification unlocked tonight!</p>
                             </div>
                         </button>
                     </div>
@@ -103,19 +103,19 @@ const FounderRoadmap: React.FC = () => {
 
                 <div className="bg-primary-50/30 dark:bg-primary-900/10 p-6 rounded-3xl border-2 border-primary-100 dark:border-primary-800">
                     <h3 className="text-sm font-black uppercase tracking-widest text-primary-600 mb-4 flex items-center gap-2">
-                        <GraduationCap size={16} /> Course 2 Status
+                        <GraduationCap size={16} /> Course 2 Final Progress
                     </h3>
                     <div className="space-y-4">
                         <div className="flex justify-between items-center text-xs font-bold">
                             <span className="text-slate-600 dark:text-slate-300">Foundations of Digital Marketing</span>
-                            <span className="text-primary-600">Overall: 45%</span>
+                            <span className="text-primary-600">Overall: 85%</span>
                         </div>
                         <div className="h-3 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                            <div className="h-full bg-primary-500 w-[45%]"></div>
+                            <div className="h-full bg-primary-500 w-[85%] transition-all duration-1000"></div>
                         </div>
                         <ul className="text-[11px] space-y-2 mt-4 text-slate-500 font-medium">
-                            <li className="flex items-center gap-2"><CheckCircle2 size={12} className="text-green-500" /> SEO Optimization (Done)</li>
-                            <li className="flex items-center gap-2"><Clock size={12} /> Analytics Assignment (Current)</li>
+                            <li className="flex items-center gap-2"><CheckCircle2 size={12} className="text-green-500" /> Module 3: Social & Email (100%)</li>
+                            <li className="flex items-center gap-2 text-primary-600 font-black"><Clock size={12} className="animate-spin" /> Module 4: Measure Success (In Progress)</li>
                         </ul>
                     </div>
                 </div>
@@ -185,7 +185,7 @@ const FounderRoadmap: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in">
             <div className="lg:col-span-2 space-y-6">
               <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                  <Target size={16} /> Marketing Sprints
+                  <Target size={16} /> Finals Sprint
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {schedule.map((item) => (
