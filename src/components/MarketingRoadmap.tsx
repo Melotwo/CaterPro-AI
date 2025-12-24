@@ -1,18 +1,23 @@
 
 import React, { useState } from 'react';
-import { Target, Linkedin, Share2, Search, TrendingUp, CheckCircle2, Award, ArrowRight, Zap, Globe } from 'lucide-react';
+import { Target, Linkedin, Share2, Search, TrendingUp, CheckCircle2, Award, ArrowRight, Zap, Globe, Link as LinkIcon } from 'lucide-react';
 
 const MarketingRoadmap: React.FC = () => {
   const [missions, setMissions] = useState([
     { id: 1, title: 'Share 100% Grade on LinkedIn', category: 'Social', completed: false, icon: Award, action: 'Share Success' },
-    { id: 2, title: 'Check Google Analytics Realtime', category: 'Data', completed: true, icon: TrendingUp, action: 'View Dashboard' },
-    { id: 3, title: 'Optimize SEO Keywords', category: 'Search', completed: false, icon: Search, action: 'Edit Meta' },
-    { id: 4, title: 'Generate 1st Pinterest Pin', category: 'Visual', completed: false, icon: Share2, action: 'Open Lab' },
+    { id: 2, title: 'Convert Direct Traffic to Referrals', category: 'Growth', completed: false, icon: LinkIcon, action: 'Pitch Schools' },
+    { id: 3, title: 'Check Google Analytics Realtime', category: 'Data', completed: true, icon: TrendingUp, action: 'View Dashboard' },
+    { id: 4, title: 'Analyze US vs SA User Intent', category: 'Search', completed: false, icon: Globe, action: 'View Stats' },
   ]);
 
   const handleShareCertificate = () => {
       const text = encodeURIComponent("I'm thrilled to share that I've achieved a 100% grade in the Google 'Maximize Productivity with AI Tools' certificate! 🎓✨\n\nI applied these skills to build CaterPro AI, a tool that helps chefs automate proposals and admin. Check it out at https://caterpro-ai.web.app/");
       window.open(`https://www.linkedin.com/feed/?shareActive=true&text=${text}`, '_blank');
+  };
+
+  const handleScrollToResearch = () => {
+    const hub = document.getElementById('research-hub-section');
+    if (hub) hub.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (
@@ -53,6 +58,13 @@ const MarketingRoadmap: React.FC = () => {
                             >
                                 <Linkedin size={14} /> Share
                             </button>
+                        ) : mission.id === 2 ? (
+                            <button 
+                                onClick={handleScrollToResearch}
+                                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-xl text-xs font-black flex items-center gap-2 transition-all shadow-lg"
+                            >
+                                <LinkIcon size={14} /> Pitch
+                            </button>
                         ) : mission.completed ? (
                             <CheckCircle2 size={20} className="text-green-500" />
                         ) : (
@@ -64,12 +76,12 @@ const MarketingRoadmap: React.FC = () => {
 
             <div className="mt-8 pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
-                    <Globe size={16} /> Global SEO Rating: <span className="text-green-500">Optimized</span>
+                    <Globe size={16} /> Global SEO Rating: <span className="text-green-500">High</span>
                 </div>
                 <div className="flex items-center gap-4">
-                    <span className="text-xs text-slate-500">Learn more in Module 1: SEO Basics</span>
+                    <span className="text-xs text-slate-500 font-bold">Priority: Build Free Referrals</span>
                     <div className="h-1.5 w-32 bg-slate-800 rounded-full overflow-hidden">
-                        <div className="h-full bg-primary-500 w-1/4"></div>
+                        <div className="h-full bg-primary-500 w-1/3"></div>
                     </div>
                 </div>
             </div>
