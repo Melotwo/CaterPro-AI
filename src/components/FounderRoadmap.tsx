@@ -1,19 +1,18 @@
 
 import React, { useState } from 'react';
-// Add missing ArrowRight icon to the lucide-react import list
-import { Calendar, GraduationCap, Layout, BookOpen, Clock, CheckCircle2, Zap, UserRound, Sparkles, TrendingUp, ChevronRight, BookCheck, Target, Anchor, Utensils, Copy, Info, Briefcase, Award, Linkedin, Twitter, AlertCircle, Video, Fingerprint, ArrowRight } from 'lucide-react';
+import { Calendar, GraduationCap, Layout, BookOpen, Clock, CheckCircle2, Zap, UserRound, Sparkles, TrendingUp, ChevronRight, BookCheck, Target, Anchor, Utensils, Copy, Info, Briefcase, Award, Linkedin, Twitter, AlertCircle, Video, Fingerprint, ArrowRight, BarChart3, MousePointer2 } from 'lucide-react';
 
 const dailyTasks = [
-  { id: 'notebook', label: 'NotebookLM Vision Features' },
+  { id: 'ads-setup', label: 'Activate ZAR 6000 Google Ads Credit', highPriority: true },
+  { id: 'analytics-audit', label: 'Analyze US vs SA Traffic Trends', highPriority: false },
   { id: 'video-prod', label: 'Send Explainer Script to Videographer', highPriority: true },
   { id: 'grade-recovery', label: 'Resubmit Course 2 Reflection (Aim for 100%)', highPriority: true },
-  { id: 'identity-doc', label: 'Career Identity Statement' },
   { id: 'marketing-module', label: 'Complete Digital Marketing Module 2' },
 ];
 
 const FounderRoadmap: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'blueprint' | 'growth' | 'vault'>('growth');
-  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['notebook', 'identity-doc']));
+  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['notebook']));
 
   const toggleTask = (taskId: string) => {
     const newTasks = new Set(completedTasks);
@@ -37,9 +36,9 @@ const FounderRoadmap: React.FC = () => {
   const brandStatement = "I bridge the gap between world-class culinary excellence and cutting-edge software engineering. As a chef with ADHD/Dyslexia, my brand is built on radical accessibility: creating tools that remove administrative friction so creators can focus on their craft.";
 
   const schedule = [
-    { id: 'build', time: 'Deep Work', task: 'NotebookLM Vision Features', icon: Sparkles, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20' },
-    { id: 'learn', time: 'Course 2', task: 'Digital Marketing Foundations', icon: GraduationCap, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
-    { id: 'identity', time: 'Branding', task: 'Finalize Career Identity Doc', icon: UserRound, color: 'text-purple-500', bg: 'bg-purple-50 dark:bg-purple-900/20' },
+    { id: 'build', time: 'Deep Work', task: 'Google Ads Keyword Research', icon: MousePointer2, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
+    { id: 'learn', time: 'Course 2', task: 'Digital Marketing Analytics', icon: BarChart3, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
+    { id: 'identity', time: 'Branding', task: 'Backlink & Referral Outreach', icon: Zap, color: 'text-purple-500', bg: 'bg-purple-50 dark:bg-purple-900/20' },
   ];
 
   return (
@@ -48,13 +47,13 @@ const FounderRoadmap: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
-                <div className="px-2 py-0.5 rounded bg-primary-500 text-[10px] font-black uppercase tracking-widest">Digital Marketing Path</div>
-                <div className="flex items-center gap-1 text-slate-400 text-xs"><Clock size={12} /> Status: Course 2, Module 1</div>
+                <div className="px-2 py-0.5 rounded bg-primary-500 text-[10px] font-black uppercase tracking-widest">Growth Phase</div>
+                <div className="flex items-center gap-1 text-slate-400 text-xs"><BarChart3 size={12} /> Active Users: 29 (Spiking!)</div>
             </div>
             <h2 className="text-3xl font-black flex items-center gap-3">
               <Zap className="text-amber-400 fill-amber-400" /> Tumi's Roadmap
             </h2>
-            <p className="text-slate-400 text-sm mt-1 max-w-md">Founder & AI Architect | 10+ Years Culinary Exp.</p>
+            <p className="text-slate-400 text-sm mt-1 max-w-md">Founder & Data Scientist | Marketing Architecture</p>
           </div>
           
           <div className="flex bg-slate-800 p-1 rounded-xl border border-slate-700">
@@ -77,17 +76,16 @@ const FounderRoadmap: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
                     <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                        <TrendingUp size={16} /> Progress Milestones
+                        <TrendingUp size={16} /> Data Milestones
                     </h3>
                     <div className="space-y-3">
-                        <div className="flex items-center gap-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-                            <Video className="text-purple-500" size={24} />
+                        <div className="flex items-center gap-4 p-4 bg-emerald-50 dark:bg-emerald-900/10 rounded-xl border-2 border-emerald-500">
+                            <BarChart3 className="text-emerald-500" size={24} />
                             <div>
-                                <h4 className="font-bold text-sm">Explainer Video Production</h4>
-                                <p className="text-[10px] text-slate-500 uppercase font-black">Teaming with Videographer</p>
+                                <h4 className="font-bold text-sm text-emerald-900 dark:text-emerald-100 uppercase">US/SA Market Penetration</h4>
+                                <p className="text-[10px] text-emerald-600 uppercase font-black">20 Active Global Sessions</p>
                             </div>
                         </div>
-                        {/* Interactive "Orange" Button */}
                         <button 
                             onClick={handleScrollToResearch}
                             className="w-full text-left flex items-center gap-4 p-4 bg-amber-50 dark:bg-amber-900/10 rounded-xl border-2 border-amber-500 shadow-lg shadow-amber-500/10 transform transition-all hover:scale-[1.02] active:scale-[0.98]"
@@ -95,9 +93,9 @@ const FounderRoadmap: React.FC = () => {
                             <AlertCircle className="text-amber-500 animate-pulse" size={24} />
                             <div>
                                 <h4 className="font-black text-sm text-amber-900 dark:text-amber-100 flex items-center gap-2">
-                                    Grade Recovery Needed <ArrowRight size={14} />
+                                    Ads Credit Waiting <ArrowRight size={14} />
                                 </h4>
-                                <p className="text-[10px] text-amber-600 uppercase font-black">Refining Reflection Assignment</p>
+                                <p className="text-[10px] text-amber-600 uppercase font-black">ZAR 6000 Opportunity Found</p>
                             </div>
                         </button>
                     </div>
@@ -116,8 +114,8 @@ const FounderRoadmap: React.FC = () => {
                             <div className="h-full bg-primary-500 w-[45%]"></div>
                         </div>
                         <ul className="text-[11px] space-y-2 mt-4 text-slate-500 font-medium">
-                            <li className="flex items-center gap-2"><CheckCircle2 size={12} className="text-green-500" /> Professional Course 1 (100% Grade)</li>
-                            <li className="flex items-center gap-2 text-slate-400"><Clock size={12} /> Resubmit Module 1 Reflection</li>
+                            <li className="flex items-center gap-2"><CheckCircle2 size={12} className="text-green-500" /> SEO Optimization (Done)</li>
+                            <li className="flex items-center gap-2"><Clock size={12} /> Analytics Assignment (Current)</li>
                         </ul>
                     </div>
                 </div>
@@ -145,7 +143,6 @@ const FounderRoadmap: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Personal Brand Section */}
                 <div className="pt-4 border-t border-slate-200 dark:border-slate-700">
                     <div className="flex items-center justify-between mb-2">
                         <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight flex items-center gap-2">
@@ -158,7 +155,6 @@ const FounderRoadmap: React.FC = () => {
                     <div className="p-4 bg-primary-600 text-white rounded-xl text-xs leading-relaxed italic font-medium">
                         "{brandStatement}"
                     </div>
-                    <p className="text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-tighter">Use this for Course 2 Brand Reflection Assignment</p>
                 </div>
             </div>
 
@@ -180,22 +176,6 @@ const FounderRoadmap: React.FC = () => {
                             {courseraBio}
                         </div>
                     </div>
-
-                    <div>
-                         <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight mb-2 flex items-center gap-2">
-                            <Briefcase size={14} /> Work History Template
-                         </h4>
-                         <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
-                            <div className="border-b border-slate-100 dark:border-slate-800 pb-2">
-                                <p className="text-xs font-black text-blue-600 uppercase">CaterPro AI</p>
-                                <p className="text-[11px] text-slate-500 font-bold">Founder & AI Architect (Current)</p>
-                            </div>
-                            <div className="border-b border-slate-100 dark:border-slate-800 pb-2">
-                                <p className="text-xs font-black text-blue-600 uppercase">Disney Cruise Line</p>
-                                <p className="text-[11px] text-slate-500 font-bold">Culinary Specialist & Trainer</p>
-                            </div>
-                         </div>
-                    </div>
                 </div>
             </div>
           </div>
@@ -205,7 +185,7 @@ const FounderRoadmap: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in">
             <div className="lg:col-span-2 space-y-6">
               <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                  <Target size={16} /> Founder Schedule
+                  <Target size={16} /> Marketing Sprints
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {schedule.map((item) => (
