@@ -1,20 +1,21 @@
 
 import React from 'react';
-import { BookOpen, Copy, ExternalLink, Zap, Brain, Terminal, UserRound, CheckCircle2, Sparkles, Award, Target, MousePointer2, Link as LinkIcon, Info, MessageSquareQuote, GraduationCap, BarChart3, ShieldCheck } from 'lucide-react';
+// Fixed: Added missing ArrowRight to the lucide-react imports
+import { BookOpen, Copy, ExternalLink, Zap, Brain, Terminal, UserRound, CheckCircle2, Sparkles, Award, Target, MousePointer2, Link as LinkIcon, Info, MessageSquareQuote, GraduationCap, BarChart3, ShieldCheck, Trophy, BadgeCheck, ArrowRight } from 'lucide-react';
 
 const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowToast }) => {
-  const handleCopyKPIPrompt = () => {
-    const text = `I am in Module 4 of the Google Digital Marketing course. I am building CaterPro AI. Please explain these metrics (KPIs) in simple 'Chef Language': Conversion Rate, Bounce Rate, and Cost Per Click. Then, suggest 3 specific KPIs I should track for my catering app to know if my marketing is successful.`;
+  const handleCopyGraduationPrompt = () => {
+    const text = `I just completed 'Course 1: Foundations of Digital Marketing' in the Google Professional Certificate program with a 100% grade. I am building CaterPro AI. Draft a LinkedIn post that celebrates this milestone, mentions my 10 years of Disney Cruise Line experience, and explains how I'm applying these new skills to help chefs automate their paperwork. Use a professional but festive tone for Christmas Eve.`;
     
     navigator.clipboard.writeText(text);
-    onShowToast("KPI Architect Prompt Copied!");
+    onShowToast("Graduation Post Prompt Copied!");
   };
 
-  const handleCopyEthicsPrompt = () => {
-    const text = `Explain the importance of 'Data Ethics' for a small catering software founder. My app handles customer emails and event locations. What are the 3 golden rules of data ethics I should follow to build trust with chefs? (Reference the Module 4 Data Ethics reading).`;
+  const handleCopyVerificationGuide = () => {
+    const text = `Explain the 'Identity Verification' process on Coursera for a professional certificate. What documents do I need, and how long does it usually take to get my certificate once verified? Also, explain the difference between a 'Course Certificate' and a 'Professional Certificate' in simple terms.`;
     
     navigator.clipboard.writeText(text);
-    onShowToast("Data Ethics Prompt Copied!");
+    onShowToast("Verification Guide Prompt Copied!");
   };
 
   const handleCopyStudyPrompt = () => {
@@ -27,67 +28,67 @@ const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowT
   return (
     <div id="research-hub-section" className="mt-12 animate-slide-in scroll-mt-24">
       <div className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-800 rounded-3xl overflow-hidden shadow-xl">
-        <div className="p-6 bg-indigo-50 dark:bg-indigo-800/20 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+        <div className="p-6 bg-amber-50 dark:bg-amber-900/20 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
             <div className="flex items-center gap-3">
-                <div className="p-2 bg-indigo-500 rounded-lg text-white">
-                    <Brain size={20} />
+                <div className="p-2 bg-amber-500 rounded-lg text-white">
+                    <Trophy size={20} />
                 </div>
-                <h3 className="font-black text-slate-900 dark:text-white uppercase tracking-tight text-sm">Module 4 Research Lab</h3>
+                <h3 className="font-black text-slate-900 dark:text-white uppercase tracking-tight text-sm">Course 1 Graduation Lab</h3>
             </div>
             <a 
-                href="https://notebooklm.google.com/" 
+                href="https://www.coursera.org/settings/profile" 
                 target="_blank" 
-                className="text-xs font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1 hover:underline"
+                className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1 hover:underline"
             >
-                Open NotebookLM <ExternalLink size={12} />
+                Confirm Identity Now <ExternalLink size={12} />
             </a>
         </div>
 
         <div className="p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {/* KPI Architect */}
-                <div className="space-y-4 p-6 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-800">
-                    <h4 className="text-lg font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2">
-                        <BarChart3 size={18} className="text-blue-500" /> KPI Architect
-                    </h4>
-                    <p className="text-xs text-slate-500 leading-relaxed">
-                        Measure your success. Translate "Module 4" metrics into simple Chef Language.
-                    </p>
-                    <button 
-                        onClick={handleCopyKPIPrompt}
-                        className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
-                    >
-                        <Copy size={14} /> Copy KPI Prompt
-                    </button>
-                </div>
-
-                {/* Data Ethics Lab */}
-                <div className="space-y-4 p-6 bg-purple-50 dark:bg-purple-900/10 rounded-2xl border border-purple-100 dark:border-purple-800">
-                    <h4 className="text-lg font-bold text-purple-900 dark:text-purple-100 flex items-center gap-2">
-                        <ShieldCheck size={18} className="text-purple-500" /> Data Ethics Lab
-                    </h4>
-                    <p className="text-xs text-slate-500 leading-relaxed">
-                        Learn how to handle data safely. Build trust with your fellow chefs.
-                    </p>
-                    <button 
-                        onClick={handleCopyEthicsPrompt}
-                        className="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-black text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
-                    >
-                        <Copy size={14} /> Copy Ethics Prompt
-                    </button>
-                </div>
-
-                {/* Study & FET Lab */}
+                {/* Milestone Celebrator */}
                 <div className="space-y-4 p-6 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border border-amber-100 dark:border-amber-800">
                     <h4 className="text-lg font-bold text-amber-900 dark:text-amber-100 flex items-center gap-2">
-                        <GraduationCap size={18} className="text-amber-500" /> Study Tutor
+                        <BadgeCheck size={18} className="text-amber-500" /> Milestone Post
                     </h4>
                     <p className="text-xs text-slate-500 leading-relaxed">
-                        Use this to "translate" any question into Chef Language for easier learning.
+                        Celebrate your 100% grade. Draft a viral post for LinkedIn to share your victory.
+                    </p>
+                    <button 
+                        onClick={handleCopyGraduationPrompt}
+                        className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-black text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
+                    >
+                        <Copy size={14} /> Copy Post Prompt
+                    </button>
+                </div>
+
+                {/* Verification Helper */}
+                <div className="space-y-4 p-6 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-800">
+                    <h4 className="text-lg font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2">
+                        <ShieldCheck size={18} className="text-blue-500" /> Unlock Certificate
+                    </h4>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                        Confused about "Identity Verification"? Get a simple guide to unlocking your PDF.
+                    </p>
+                    <button 
+                        onClick={handleCopyVerificationGuide}
+                        className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
+                    >
+                        <Copy size={14} /> Copy Verification Guide
+                    </button>
+                </div>
+
+                {/* Next Course Tutor */}
+                <div className="space-y-4 p-6 bg-emerald-50 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100 dark:border-emerald-800">
+                    <h4 className="text-lg font-bold text-emerald-900 dark:text-emerald-100 flex items-center gap-2">
+                        <ArrowRight size={18} className="text-emerald-500" /> Course 2 Tutor
+                    </h4>
+                    <p className="text-xs text-slate-500 leading-relaxed">
+                        Ready for "Attract & Engage"? Use this to translate next-week's concepts early.
                     </p>
                     <button 
                         onClick={handleCopyStudyPrompt}
-                        className="w-full py-3 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-black text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
+                        className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-black text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
                     >
                         <Sparkles size={14} /> Copy Tutor Prompt
                     </button>
