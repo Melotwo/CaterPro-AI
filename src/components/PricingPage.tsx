@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Check, Star, Zap, Briefcase } from 'lucide-react';
+import { Check, Star, Zap, Briefcase, GraduationCap } from 'lucide-react';
 import { SubscriptionPlan } from '../hooks/useAppSubscription';
 import Footer from './Footer';
 import PaymentModal from './PaymentModal';
@@ -18,6 +18,14 @@ const TIER_STYLES = {
     icon: 'text-slate-500',
     button: 'bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700',
     buttonHighlight: 'bg-slate-500 text-white hover:bg-slate-600 shadow-md',
+  },
+  blue: {
+    border: 'border-slate-200 dark:border-slate-700',
+    highlightBorder: 'border-blue-500 ring-2 ring-blue-500',
+    badge: 'bg-blue-600',
+    icon: 'text-blue-600',
+    button: 'bg-blue-50 text-blue-800 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-200 dark:hover:bg-blue-900/50',
+    buttonHighlight: 'bg-blue-600 text-white hover:bg-blue-700 shadow-md',
   },
   green: {
     border: 'border-slate-200 dark:border-slate-700',
@@ -59,40 +67,41 @@ const getTiers = (currency: string = 'ZAR') => {
       features: [
         '5 Menu Generations per Day',
         'Basic Menu Export (PDF)',
-        'Standard Theme',
         'Watermarked Documents',
       ],
       cta: 'Current Plan',
       colorKey: 'slate' as keyof typeof TIER_STYLES,
     },
     {
-      name: 'Starter',
-      id: 'starter',
-      price: symbol + (isZar ? '169' : '9'),
+      name: 'Student',
+      id: 'student',
+      price: symbol + (isZar ? '69' : '4'),
       priceSuffix: '/mo',
-      icon: Zap,
-      description: 'For private chefs and small events.',
+      icon: GraduationCap,
+      description: 'For TVET & Culinary students.',
       features: [
-        'Unlimited Generations',
-        'No Watermarks',
-        'Commercial Usage Rights',
-        'Standard Themes',
+        'Unlimited Generations (PoE)',
+        'Education Hub Access',
+        'AI Tutor Consultant',
+        'Save up to 5 Menus',
+        'Watermarked "Student Edition"',
       ],
-      cta: 'Get Starter',
-      colorKey: 'green' as keyof typeof TIER_STYLES,
+      cta: 'Start Learning',
+      badge: 'Best for Schools',
+      colorKey: 'blue' as keyof typeof TIER_STYLES,
     },
     {
       name: 'Professional',
       id: 'professional',
       price: symbol + (isZar ? '349' : '19'),
       priceSuffix: '/mo',
-      icon: Star,
-      description: 'Tools for better presentation.',
+      icon: Zap,
+      description: 'No watermarks. Professional looks.',
       features: [
-        'All Starter Features',
+        'Everything in Student',
+        'NO Watermarks',
         'AI Food Photography',
         'Save up to 10 Menus',
-        'AI Chat Consultant',
         'Beverage Pairings',
       ],
       cta: 'Go Professional',
@@ -106,13 +115,13 @@ const getTiers = (currency: string = 'ZAR') => {
       price: symbol + (isZar ? '549' : '29'),
       priceSuffix: '/mo',
       icon: Briefcase,
-      description: 'Complete toolkit for companies.',
+      description: 'The complete enterprise suite.',
       features: [
-        'All Professional Features',
+        'Everything in Pro',
         'Unlimited Saved Menus',
+        'Social Media Video Reels',
         'Shareable Proposal Links',
-        'Suppliers & Education Hub',
-        'Priority Support',
+        'Suppliers Hub',
       ],
       cta: 'Get Business',
       colorKey: 'royal' as keyof typeof TIER_STYLES,
@@ -148,10 +157,10 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
         <div className="max-w-7xl mx-auto py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Pricing & Plans
+              Simple Pricing
             </h1>
             <p className="mt-4 text-xl text-slate-600 dark:text-slate-400">
-              Stop doing paperwork. Start cooking. Unlock your potential today.
+              Whether you're a student in Limpopo or a business in London, we have a plan for you.
             </p>
           </div>
 
@@ -162,12 +171,12 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
                 <div
                   key={tier.id}
                   className={`relative flex flex-col rounded-2xl border p-6 shadow-sm h-full transition-all hover:shadow-xl ${
-                    tier.highlight 
+                    tier.highlight || tier.id === 'student'
                       ? `${styles.highlightBorder} bg-white dark:bg-slate-900 z-10` 
                       : `${styles.border} bg-white dark:bg-slate-900`
                   }`}
                 >
-                  {tier.highlight && (
+                  {(tier.highlight || tier.badge) && (
                     <div className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 transform rounded-full px-4 py-1 text-xs font-bold text-white uppercase tracking-wide shadow-md ${styles.badge}`}>
                       {tier.badge}
                     </div>
@@ -199,7 +208,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
                   <button
                     onClick={() => handleTierClick(tier.id, tier.price)}
                     className={`w-full rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-colors ${
-                      tier.highlight ? styles.buttonHighlight : styles.button
+                      tier.highlight || tier.id === 'student' ? styles.buttonHighlight : styles.button
                     }`}
                   >
                     {tier.cta}
