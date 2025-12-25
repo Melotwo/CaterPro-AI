@@ -21,7 +21,6 @@ const getInitialState = (): SubscriptionState => {
         parsed.generationsToday = 0;
         parsed.lastGenerationDate = today;
       }
-      // Ensure we don't accidentally load an invalid or outdated state
       if (!['free', 'student', 'starter', 'professional', 'business'].includes(parsed.plan)) {
           parsed.plan = 'free';
       }
@@ -53,24 +52,17 @@ export const useAppSubscription = () => {
     const p = subscription.plan;
     const isPaid = p !== 'free';
     const isStudent = p === 'student';
-    const isProfessionalOrHigher = ['professional', 'business'].includes(p);
-    const isBusiness = p === 'business';
+    const isProPlus = ['professional', 'business'].includes(p);
 
     switch (feature) {
-      case 'unlimitedGenerations': return isPaid; // Students get unlimited for PoE practice
-      case 'noWatermark': return ['starter', 'professional', 'business'].includes(p); // Students STILL HAVE watermarks
-      case 'allThemes': return isProfessionalOrHigher;
-      case 'saveMenus': return isPaid; // Students can save (limited to 5)
-      case 'beveragePairings': return isProfessionalOrHigher;
-      case 'recommendedEquipment': return isProfessionalOrHigher;
-      case 'aiChatBot': return isStudent || isProfessionalOrHigher; // Students get the tutor bot
-      case 'shareableLinks': return isBusiness;
-      case 'findSuppliers': return isBusiness;
-      case 'bulkEdit': return isBusiness;
-      case 'itemEditing': return isBusiness;
-      case 'customItemGeneration': return isBusiness;
-      case 'educationTools': return isStudent || isBusiness; // Students get PoE/Study tools
-      case 'socialMediaTools': return isProfessionalOrHigher; // Students DON'T get Reels/Captions
+      case 'unlimitedGenerations': return isPaid; // Both Student and Pro get unlimited
+      case 'noWatermark': return ['starter', 'professional', 'business'].includes(p); // Students get watermark
+      case 'aiChatBot': return isStudent || isProPlus; 
+      case 'saveMenus': return isPaid;
+      case 'educationTools': return isStudent || isProPlus; 
+      case 'socialMediaTools': return isProPlus; // Students DO NOT get video reels
+      case 'reelsMode': return p === 'business';
+      case 'beveragePairings': return isProPlus;
       default: return false;
     }
   }, [subscription.plan]);
