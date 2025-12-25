@@ -1,15 +1,16 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { X, Star, Briefcase, Check, Gift, Key } from 'lucide-react';
+import { X, Star, Briefcase, Check, Gift, Key, GraduationCap } from 'lucide-react';
 import { SubscriptionPlan } from '../hooks/useAppSubscription';
 
 interface UpgradeModalProps {
   isOpen: boolean;
   onClose: () => void;
   onUpgrade: (plan: SubscriptionPlan) => void;
+  onViewPricing: () => void;
 }
 
-const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade }) => {
+const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade, onViewPricing }) => {
   const [showPromo, setShowPromo] = useState(false);
   const [promoCode, setPromoCode] = useState('');
   const [promoError, setPromoError] = useState('');
@@ -26,11 +27,10 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade 
   
   const handleApplyPromo = () => {
       const code = promoCode.trim().toUpperCase();
-      // SECRET FOUNDER CODES
-      const validCodes = ['MELOTWO-FOUNDER', 'ADMIN-CHEF-2025', 'CATERPRO-VIP', 'SISTER-ACCESS'];
+      const validCodes = ['MELOTWO-FOUNDER', 'ADMIN-CHEF-2025', 'CATERPRO-VIP', 'SISTER-ACCESS', 'TVET-2026'];
       
       if (validCodes.includes(code)) {
-          onUpgrade('business'); // Unlock full suite
+          onUpgrade('business');
           setPromoCode('');
           setShowPromo(false);
           onClose();
@@ -51,27 +51,47 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade 
 
         <div className="p-8 text-center bg-slate-50 dark:bg-slate-900/50">
              <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Upgrade Your Kitchen</h3>
-             <p className="mt-1 text-slate-500 text-sm">Join the pro chefs using AI to grow their business.</p>
+             <p className="mt-1 text-slate-500 text-sm">Join the pro chefs and students using AI to grow.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2">
+        <div className="grid grid-cols-1 md:grid-cols-3">
             <div className="p-8 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-700">
                 <div className="flex items-center gap-3 mb-6">
-                    <Star className="text-amber-500" />
-                    <h4 className="font-black text-lg">Professional</h4>
+                    <GraduationCap className="text-blue-500" />
+                    <h4 className="font-black text-lg">Student</h4>
                 </div>
                 <ul className="space-y-3 mb-8">
-                    {['AI Food Photos', 'Save 10 Menus', 'AI Consultant'].map(f => (
+                    {['Unlimited PoE', 'Education Hub', 'AI Tutor Bot'].map(f => (
                         <li key={f} className="flex gap-2 text-sm text-slate-600 dark:text-slate-400">
                             <Check size={16} className="text-green-500" /> {f}
                         </li>
                     ))}
                 </ul>
                 <button 
-                    onClick={() => { window.location.hash='pricing'; onClose(); }}
+                    onClick={() => { onViewPricing(); onClose(); }}
+                    className="w-full py-3 rounded-2xl bg-blue-600 text-white font-black text-sm shadow-lg shadow-blue-500/20"
+                >
+                    Learn More
+                </button>
+            </div>
+
+            <div className="p-8 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-700 bg-amber-50/20 dark:bg-amber-900/10">
+                <div className="flex items-center gap-3 mb-6">
+                    <Star className="text-amber-500" />
+                    <h4 className="font-black text-lg">Professional</h4>
+                </div>
+                <ul className="space-y-3 mb-8">
+                    {['NO Watermarks', 'AI Food Photos', 'Unlimited Storage'].map(f => (
+                        <li key={f} className="flex gap-2 text-sm text-slate-600 dark:text-slate-400">
+                            <Check size={16} className="text-green-500" /> {f}
+                        </li>
+                    ))}
+                </ul>
+                <button 
+                    onClick={() => { onViewPricing(); onClose(); }}
                     className="w-full py-3 rounded-2xl bg-amber-500 text-white font-black text-sm shadow-lg shadow-amber-500/20"
                 >
-                    View Pricing
+                    Pro Tools
                 </button>
             </div>
 
@@ -81,14 +101,14 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade 
                     <h4 className="font-black text-lg">Business</h4>
                 </div>
                 <ul className="space-y-3 mb-8">
-                    {['Unlimited Storage', 'Suppliers Hub', 'Pro Tools'].map(f => (
+                    {['Shareable Links', 'Suppliers Hub', 'Video Reels'].map(f => (
                         <li key={f} className="flex gap-2 text-sm text-slate-600 dark:text-slate-400">
                             <Check size={16} className="text-green-500" /> {f}
                         </li>
                     ))}
                 </ul>
                 <button 
-                    onClick={() => { window.location.hash='pricing'; onClose(); }}
+                    onClick={() => { onViewPricing(); onClose(); }}
                     className="w-full py-3 rounded-2xl bg-primary-600 text-white font-black text-sm shadow-lg shadow-primary-500/20"
                 >
                     Get Business
