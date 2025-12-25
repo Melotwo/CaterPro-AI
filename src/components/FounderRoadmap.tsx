@@ -25,8 +25,12 @@ const FounderRoadmap: React.FC = () => {
     alert(`${label} copied to clipboard!`);
   };
 
-  const linkedinHeadline = "Founder @ CaterPro AI | Ex-Disney Chef | Mastering Digital Performance (Google AI Certified)";
-  const brandMoat = "My Moat: 10 Years Disney Hospitality Standards + ADHD-Centric UI + Professional Logistics Automation. Not just AI, but Chef Intelligence.";
+  const handleScrollToResearch = () => {
+    const hub = document.getElementById('research-hub-section');
+    if (hub) {
+      hub.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   const schedule = [
     { id: 'tvet-local', time: 'Local Strategy', task: 'Waterberg TVET Outreach', icon: MapPin, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
@@ -72,13 +76,17 @@ const FounderRoadmap: React.FC = () => {
                         <TrendingUp size={16} /> Performance Strategy
                     </h3>
                     <div className="space-y-3">
-                        <div className="flex items-center gap-4 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-xl border-2 border-blue-500">
-                            <GraduationCap className="text-blue-500" size={24} />
-                            <div>
+                        <button 
+                            onClick={handleScrollToResearch}
+                            className="w-full text-left flex items-center gap-4 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-xl border-2 border-blue-500 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-500/5 group"
+                        >
+                            <GraduationCap className="text-blue-500 group-hover:rotate-12 transition-transform" size={24} />
+                            <div className="flex-1">
                                 <h4 className="font-bold text-sm text-blue-900 dark:text-blue-100 uppercase">TVET Alignment</h4>
                                 <p className="text-[10px] text-blue-600 uppercase font-black">Pitch: "Automation for Occupational Students"</p>
                             </div>
-                        </div>
+                            <ArrowRight size={16} className="text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </button>
                         <button 
                             onClick={() => window.open('https://www.coursera.org/learn/foundations-of-digital-marketing-and-e-commerce/home/week/4', '_blank')}
                             className="w-full text-left flex items-center gap-4 p-4 bg-red-50 dark:bg-red-900/10 rounded-xl border-2 border-red-500 shadow-lg shadow-red-500/10 transform transition-all hover:scale-[1.02] active:scale-[0.98]"
