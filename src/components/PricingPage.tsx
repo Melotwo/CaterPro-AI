@@ -27,14 +27,6 @@ const TIER_STYLES = {
     button: 'bg-blue-50 text-blue-800 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-200 dark:hover:bg-blue-900/50',
     buttonHighlight: 'bg-blue-600 text-white hover:bg-blue-700 shadow-md',
   },
-  green: {
-    border: 'border-slate-200 dark:border-slate-700',
-    highlightBorder: 'border-primary-500 ring-2 ring-primary-500',
-    badge: 'bg-primary-600',
-    icon: 'text-primary-600',
-    button: 'bg-primary-50 text-primary-800 hover:bg-primary-100 dark:bg-primary-900/30 dark:text-primary-200 dark:hover:bg-primary-900/50',
-    buttonHighlight: 'bg-primary-600 text-white hover:bg-primary-700 shadow-md',
-  },
   amber: {
     border: 'border-slate-200 dark:border-slate-700',
     highlightBorder: 'border-amber-500 ring-2 ring-amber-500',
@@ -63,11 +55,11 @@ const getTiers = (currency: string = 'ZAR') => {
       id: 'free',
       price: symbol + '0',
       icon: Star,
-      description: 'Test the AI and generate simple menus.',
+      description: 'Explore the AI basics.',
       features: [
-        '5 Menu Generations per Day',
-        'Basic Menu Export (PDF)',
-        'Watermarked Documents',
+        '5 Generations per Day',
+        'Basic PDF Export',
+        'Standard Watermark',
       ],
       cta: 'Current Plan',
       colorKey: 'slate' as keyof typeof TIER_STYLES,
@@ -75,19 +67,19 @@ const getTiers = (currency: string = 'ZAR') => {
     {
       name: 'Student',
       id: 'student',
-      price: symbol + (isZar ? '69' : '4'),
+      price: symbol + (isZar ? '110' : '6'),
       priceSuffix: '/mo',
       icon: GraduationCap,
-      description: 'For TVET & Culinary students.',
+      description: 'The PoE Powerhouse.',
       features: [
-        'Unlimited Generations (PoE)',
-        'Education Hub Access',
+        'UNLIMITED Generations',
+        'Built for PoE Assignments',
         'AI Tutor Consultant',
-        'Save up to 5 Menus',
+        'Save up to 10 Menus',
         'Watermarked "Student Edition"',
       ],
-      cta: 'Start Learning',
-      badge: 'Best for Schools',
+      cta: 'Pass Your PoE',
+      badge: 'Best Value',
       colorKey: 'blue' as keyof typeof TIER_STYLES,
     },
     {
@@ -96,13 +88,13 @@ const getTiers = (currency: string = 'ZAR') => {
       price: symbol + (isZar ? '349' : '19'),
       priceSuffix: '/mo',
       icon: Zap,
-      description: 'No watermarks. Professional looks.',
+      description: 'For working Caterers.',
       features: [
         'Everything in Student',
         'NO Watermarks',
         'AI Food Photography',
-        'Save up to 10 Menus',
         'Beverage Pairings',
+        'Unlimited Storage',
       ],
       cta: 'Go Professional',
       highlight: true,
@@ -115,13 +107,13 @@ const getTiers = (currency: string = 'ZAR') => {
       price: symbol + (isZar ? '549' : '29'),
       priceSuffix: '/mo',
       icon: Briefcase,
-      description: 'The complete enterprise suite.',
+      description: 'The Ultimate Suite.',
       features: [
         'Everything in Pro',
-        'Unlimited Saved Menus',
         'Social Media Video Reels',
         'Shareable Proposal Links',
         'Suppliers Hub',
+        'Priority Support',
       ],
       cta: 'Get Business',
       colorKey: 'royal' as keyof typeof TIER_STYLES,
@@ -157,10 +149,10 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
         <div className="max-w-7xl mx-auto py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Simple Pricing
+              Chef-Friendly Pricing
             </h1>
             <p className="mt-4 text-xl text-slate-600 dark:text-slate-400">
-              Whether you're a student in Limpopo or a business in London, we have a plan for you.
+              Pick the plan that matches your current kitchen hustle.
             </p>
           </div>
 
