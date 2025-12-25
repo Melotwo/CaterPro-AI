@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-export type SubscriptionPlan = 'free' | 'starter' | 'professional' | 'business';
+export type SubscriptionPlan = 'free' | 'student' | 'starter' | 'professional' | 'business';
 
 export interface SubscriptionState {
   plan: SubscriptionPlan;
@@ -22,7 +22,7 @@ const getInitialState = (): SubscriptionState => {
         parsed.lastGenerationDate = today;
       }
       // Ensure we don't accidentally load an invalid or outdated state
-      if (!['free', 'starter', 'professional', 'business'].includes(parsed.plan)) {
+      if (!['free', 'student', 'starter', 'professional', 'business'].includes(parsed.plan)) {
           parsed.plan = 'free';
       }
       return parsed;
@@ -46,30 +46,31 @@ export const useAppSubscription = () => {
   }, [subscription]);
 
   const selectPlan = (plan: SubscriptionPlan) => {
-    // Audit: Ensure only valid transitions happen
     setSubscription(prev => ({ ...prev, plan }));
   };
 
   const canAccessFeature = useCallback((feature: string): boolean => {
     const p = subscription.plan;
     const isPaid = p !== 'free';
+    const isStudent = p === 'student';
     const isProfessionalOrHigher = ['professional', 'business'].includes(p);
     const isBusiness = p === 'business';
 
     switch (feature) {
-      case 'unlimitedGenerations': return isPaid;
-      case 'noWatermark': return isPaid;
+      case 'unlimitedGenerations': return isPaid; // Students get unlimited for PoE practice
+      case 'noWatermark': return ['starter', 'professional', 'business'].includes(p); // Students STILL HAVE watermarks
       case 'allThemes': return isProfessionalOrHigher;
-      case 'saveMenus': return isProfessionalOrHigher;
+      case 'saveMenus': return isPaid; // Students can save (limited to 5)
       case 'beveragePairings': return isProfessionalOrHigher;
       case 'recommendedEquipment': return isProfessionalOrHigher;
-      case 'aiChatBot': return isProfessionalOrHigher;
+      case 'aiChatBot': return isStudent || isProfessionalOrHigher; // Students get the tutor bot
       case 'shareableLinks': return isBusiness;
       case 'findSuppliers': return isBusiness;
       case 'bulkEdit': return isBusiness;
       case 'itemEditing': return isBusiness;
       case 'customItemGeneration': return isBusiness;
-      case 'educationTools': return isBusiness;
+      case 'educationTools': return isStudent || isBusiness; // Students get PoE/Study tools
+      case 'socialMediaTools': return isProfessionalOrHigher; // Students DON'T get Reels/Captions
       default: return false;
     }
   }, [subscription.plan]);
