@@ -1,17 +1,17 @@
 
 import React, { useState } from 'react';
-import { Calendar, GraduationCap, Layout, BookOpen, Clock, CheckCircle2, Zap, UserRound, Sparkles, TrendingUp, ChevronRight, BookCheck, Target, Anchor, Utensils, Copy, Info, Briefcase, Award, Linkedin, Twitter, AlertCircle, Video, Fingerprint, ArrowRight, BarChart3, MousePointer2, Gift, ShieldCheck, Trophy } from 'lucide-react';
+import { Calendar, GraduationCap, Layout, BookOpen, Clock, CheckCircle2, Zap, UserRound, Sparkles, TrendingUp, ChevronRight, BookCheck, Target, Anchor, Utensils, Copy, Info, Briefcase, Award, Linkedin, Twitter, AlertCircle, Video, Fingerprint, ArrowRight, BarChart3, MousePointer2, Gift, ShieldCheck, Trophy, Shield, Play, MapPin } from 'lucide-react';
 
 const dailyTasks = [
-  { id: 'verify-id', label: 'Verify ID on Coursera (Critical)', highPriority: true },
-  { id: 'course-1-share', label: 'Post Course 1 Graduation on LinkedIn', highPriority: true },
-  { id: 'course-2-intro', label: 'Watch Intro to Course 2 (4 mins)', highPriority: false },
-  { id: 'christmas-rest', label: 'Rest & Recharge for Christmas', highPriority: true },
+  { id: 'module-4-final', label: 'Finish Module 4: Performance Measurement', highPriority: true },
+  { id: 'tvet-pitch', label: 'Draft Waterberg TVET Partnership Pitch', highPriority: true },
+  { id: 'video-takeaways', label: 'Implement "Logistics First" Strategy', highPriority: false },
+  { id: 'dad-cooking', label: 'Enjoy Dads Christmas Eve Cooking 🎄', highPriority: false },
 ];
 
 const FounderRoadmap: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'blueprint' | 'growth' | 'vault'>('growth');
-  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['module-4-final', 'exam-prep']));
+  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['dad-cooking']));
 
   const toggleTask = (taskId: string) => {
     const newTasks = new Set(completedTasks);
@@ -25,18 +25,13 @@ const FounderRoadmap: React.FC = () => {
     alert(`${label} copied to clipboard!`);
   };
 
-  const handleScrollToResearch = () => {
-    const hub = document.getElementById('research-hub-section');
-    if (hub) hub.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const linkedinHeadline = "Founder @ CaterPro AI | Ex-Disney Cruise Line Chef | Google Certified Digital Marketer (Foundations)";
-  const courseraBio = "Founder of CaterPro AI. Applying Google-certified digital marketing strategies to revolutionize catering tech. 10+ years Disney hospitality experience.";
+  const linkedinHeadline = "Founder @ CaterPro AI | Ex-Disney Chef | Mastering Digital Performance (Google AI Certified)";
+  const brandMoat = "My Moat: 10 Years Disney Hospitality Standards + ADHD-Centric UI + Professional Logistics Automation. Not just AI, but Chef Intelligence.";
 
   const schedule = [
-    { id: 'victory', time: 'Goal Reached', task: 'Course 1 100% Complete', icon: Trophy, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20' },
-    { id: 'verify', time: 'Next Step', task: 'Verify Identity', icon: ShieldCheck, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
-    { id: 'future', time: 'Course 2', task: 'Attract & Engage', icon: ArrowRight, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
+    { id: 'tvet-local', time: 'Local Strategy', task: 'Waterberg TVET Outreach', icon: MapPin, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
+    { id: 'kpi-tracking', time: 'Module 4', task: 'Track "Time-to-Table" ROI', icon: BarChart3, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
+    { id: 'cert-unlocked', time: 'Tonight', task: 'Course 1 Graduation', icon: Trophy, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20' },
   ];
 
   return (
@@ -45,13 +40,13 @@ const FounderRoadmap: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
-                <div className="px-2 py-0.5 rounded bg-amber-500 text-[10px] font-black uppercase tracking-widest animate-bounce">Milestone Reached!</div>
-                <div className="flex items-center gap-1 text-slate-400 text-xs"><Trophy size={12} className="text-amber-400" /> Foundations Graduated</div>
+                <div className="px-2 py-0.5 rounded bg-blue-500 text-[10px] font-black uppercase tracking-widest animate-pulse">Local Opportunity Detected</div>
+                <div className="flex items-center gap-1 text-slate-400 text-xs"><MapPin size={12} className="text-blue-400" /> Waterberg TVET 2026 Drive</div>
             </div>
             <h2 className="text-3xl font-black flex items-center gap-3">
-              <Sparkles className="text-amber-400" /> Tumi's Victory Lap
+              <Zap className="text-amber-400 fill-amber-400" /> Tumi's Growth Engine
             </h2>
-            <p className="text-slate-400 text-sm mt-1 max-w-md">You've mastered the first course before Christmas.</p>
+            <p className="text-slate-400 text-sm mt-1 max-w-md">Bridging Google Certified Marketing with local culinary education.</p>
           </div>
           
           <div className="flex bg-slate-800 p-1 rounded-xl border border-slate-700">
@@ -59,10 +54,10 @@ const FounderRoadmap: React.FC = () => {
                 <Trophy size={14} /> Course Status
             </button>
             <button onClick={() => setActiveTab('vault')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'vault' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}>
-                <UserRound size={14} /> Updated Bio
+                <Shield size={14} /> Local Moat
             </button>
             <button onClick={() => setActiveTab('blueprint')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'blueprint' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400 hover:text-white'}`}>
-                <Calendar size={14} /> Next Course
+                <Calendar size={14} /> Next Steps
             </button>
           </div>
         </div>
@@ -74,49 +69,46 @@ const FounderRoadmap: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-6">
                     <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                        <TrendingUp size={16} /> Course 1 Graduation
+                        <TrendingUp size={16} /> Performance Strategy
                     </h3>
                     <div className="space-y-3">
-                        <div className="flex items-center gap-4 p-4 bg-amber-50 dark:bg-amber-900/20 rounded-xl border-2 border-amber-500">
-                            <Trophy className="text-amber-500" size={24} />
+                        <div className="flex items-center gap-4 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-xl border-2 border-blue-500">
+                            <GraduationCap className="text-blue-500" size={24} />
                             <div>
-                                <h4 className="font-bold text-sm text-amber-900 dark:text-amber-100 uppercase">Course 1 Complete</h4>
-                                <p className="text-[10px] text-amber-600 uppercase font-black">Foundation logic unlocked</p>
+                                <h4 className="font-bold text-sm text-blue-900 dark:text-blue-100 uppercase">TVET Alignment</h4>
+                                <p className="text-[10px] text-blue-600 uppercase font-black">Pitch: "Automation for Occupational Students"</p>
                             </div>
                         </div>
                         <button 
-                            onClick={() => window.open('https://www.coursera.org/settings/profile', '_blank')}
-                            className="w-full text-left flex items-center gap-4 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-xl border-2 border-blue-500 shadow-lg shadow-blue-500/10 transform transition-all hover:scale-[1.02] active:scale-[0.98]"
+                            onClick={() => window.open('https://www.coursera.org/learn/foundations-of-digital-marketing-and-e-commerce/home/week/4', '_blank')}
+                            className="w-full text-left flex items-center gap-4 p-4 bg-red-50 dark:bg-red-900/10 rounded-xl border-2 border-red-500 shadow-lg shadow-red-500/10 transform transition-all hover:scale-[1.02] active:scale-[0.98]"
                         >
-                            <ShieldCheck className="text-blue-500 animate-pulse" size={24} />
+                            <Gift className="text-red-500 animate-bounce" size={24} />
                             <div>
-                                <h4 className="font-black text-sm text-blue-900 dark:text-blue-100 flex items-center gap-2">
-                                    Confirm Identity <ArrowRight size={14} />
+                                <h4 className="font-black text-sm text-red-900 dark:text-red-100 flex items-center gap-2">
+                                    Course 1 Graduation Tonight! <ArrowRight size={14} />
                                 </h4>
-                                <p className="text-[10px] text-blue-600 uppercase font-black">Click to unlock your certificate</p>
+                                <p className="text-[10px] text-red-600 uppercase font-black">Your final module is ready</p>
                             </div>
                         </button>
                     </div>
                 </div>
 
-                <div className="bg-primary-50/30 dark:bg-primary-900/10 p-6 rounded-3xl border-2 border-primary-500 dark:border-primary-800 relative overflow-hidden">
-                    <div className="absolute top-2 right-2 p-1 bg-primary-500 text-white rounded-full">
-                        <CheckCircle2 size={16} />
-                    </div>
+                <div className="bg-primary-50/30 dark:bg-primary-900/10 p-6 rounded-3xl border-2 border-primary-100 dark:border-primary-800">
                     <h3 className="text-sm font-black uppercase tracking-widest text-primary-600 mb-4 flex items-center gap-2">
-                        <Award size={16} /> Course 1 Finalized
+                        <Award size={16} /> Progress Tracking
                     </h3>
                     <div className="space-y-4">
                         <div className="flex justify-between items-center text-xs font-bold">
-                            <span className="text-slate-600 dark:text-slate-300">Foundations Level</span>
-                            <span className="text-primary-600">PASSED (100%)</span>
+                            <span className="text-slate-600 dark:text-slate-300">Google Foundations</span>
+                            <span className="text-primary-600">88% (Almost Finished)</span>
                         </div>
                         <div className="h-3 w-full bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
-                            <div className="h-full bg-primary-500 w-[100%] transition-all duration-1000"></div>
+                            <div className="h-full bg-primary-500 w-[88%] transition-all duration-1000"></div>
                         </div>
                         <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-primary-100 dark:border-primary-800">
                              <p className="text-[10px] text-slate-500 leading-relaxed italic">
-                                "Chef, the kitchen is clean. You've mastered SEO, Branding, and ROI basics. Enjoy Christmas, then we start Course 2: Attract & Engage."
+                                "Tumi, using the TVET opportunity as a case study for Module 4 will help you pass with flying colors. It's real-world business thinking!"
                              </p>
                         </div>
                     </div>
@@ -126,44 +118,22 @@ const FounderRoadmap: React.FC = () => {
         )}
 
         {activeTab === 'vault' && (
-          <div className="animate-fade-in py-4 max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-3xl border-2 border-slate-100 dark:border-slate-700 h-fit space-y-6">
-                <div className="flex items-center gap-2 text-primary-600 dark:text-primary-400">
-                    <Linkedin size={18} />
-                    <p className="text-xs font-bold uppercase tracking-widest">Updated Headline</p>
+          <div className="animate-fade-in py-4 max-w-4xl mx-auto space-y-8">
+            <div className="bg-blue-50 dark:bg-blue-900/20 p-8 rounded-3xl border-2 border-blue-100 dark:border-blue-800 flex flex-col md:flex-row items-center gap-8">
+                <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-xl text-blue-600">
+                    <MapPin size={48} />
                 </div>
-                
-                <div>
-                    <div className="flex items-center justify-between mb-2">
-                        <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">LinkedIn Status</h4>
-                        <button onClick={() => handleCopy(linkedinHeadline, 'Headline')} className="p-1.5 bg-white dark:bg-slate-700 rounded-lg shadow-sm border border-slate-200 dark:border-slate-600 text-primary-600">
-                            <Copy size={14} />
-                        </button>
+                <div className="space-y-4 flex-1">
+                    <h4 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">The "Local Hero" Moat</h4>
+                    <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                        Silicon Valley can't walk into **Waterberg TVET College** and talk to the Dean. You can. Your Disney background + your local presence is a moat they can never cross.
+                    </p>
+                    <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-blue-200 dark:border-blue-700 font-bold text-xs text-blue-800 dark:text-blue-300 italic">
+                        "CaterPro AI: Built by a local Chef to empower the next generation of Limpopo culinary talent."
                     </div>
-                    <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 text-sm font-bold text-slate-800 dark:text-slate-200 leading-relaxed">
-                        {linkedinHeadline}
-                    </div>
-                </div>
-            </div>
-
-            <div className="bg-blue-50/50 dark:bg-blue-900/20 p-6 rounded-3xl border-2 border-blue-100 dark:border-blue-800 h-fit">
-                <div className="flex items-center gap-2 mb-4 text-blue-600 dark:text-blue-400">
-                    <Award size={18} />
-                    <p className="text-xs font-bold uppercase tracking-widest">Updated Coursera Bio</p>
-                </div>
-                
-                <div className="space-y-6">
-                    <div>
-                        <div className="flex items-center justify-between mb-2">
-                            <h4 className="text-sm font-black text-slate-900 dark:text-white uppercase tracking-tight">Professional Bio</h4>
-                            <button onClick={() => handleCopy(courseraBio, 'Coursera Bio')} className="p-1.5 bg-white dark:bg-slate-700 rounded-lg shadow-sm border border-slate-200 dark:border-slate-600 text-blue-600">
-                                <Copy size={14} />
-                            </button>
-                        </div>
-                        <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 text-sm italic text-slate-600 dark:text-slate-300">
-                            {courseraBio}
-                        </div>
-                    </div>
+                    <button onClick={() => handleCopy("CaterPro AI: Built by a local Chef to empower the next generation of Limpopo culinary talent.", 'Local Hero Moat')} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-black shadow-lg">
+                        <Copy size={14} /> Copy Local Moat
+                    </button>
                 </div>
             </div>
           </div>
@@ -173,7 +143,7 @@ const FounderRoadmap: React.FC = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fade-in">
             <div className="lg:col-span-2 space-y-6">
               <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                  <Target size={16} /> Course 2 Prep
+                  <Target size={16} /> Strategy Sprint
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {schedule.map((item) => (
@@ -188,7 +158,7 @@ const FounderRoadmap: React.FC = () => {
 
             <div className="space-y-4">
               <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
-                <BookCheck size={16} /> Victory Focus
+                <BookCheck size={16} /> Mission List
               </h3>
               <div className="bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl overflow-hidden">
                 {dailyTasks.map((task) => (
