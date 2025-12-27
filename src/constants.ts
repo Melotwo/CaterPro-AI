@@ -64,6 +64,7 @@ export const SERVICE_STYLES = [
 export const CUISINES = [
   'Any / International',
   'South African',
+  'Hungarian (Cruise Line Style)',
   'African',
   'Croatian / Balkan',
   'Italian',
