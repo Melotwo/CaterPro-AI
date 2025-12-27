@@ -1,57 +1,49 @@
 
 import React from 'react';
-// Added missing ShieldCheck and Info icons to the lucide-react import
-import { BookOpen, Copy, Zap, CheckCircle2, Sparkles, Award, GraduationCap, Share2, Scale, MessageSquare, Phone, ShieldCheck, Info } from 'lucide-react';
+import { BookOpen, Copy, Zap, CheckCircle2, Sparkles, Award, GraduationCap, Share2, Scale, MessageSquare, Phone, ShieldCheck, Info, Anchor } from 'lucide-react';
 
 const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowToast }) => {
   
   const handleCopyPersonalPost = () => {
-    const text = `👨‍🍳 TO MY FELLOW CULINARY STUDENTS & CHEFS 🇿🇦
+    const text = `👨‍🍳 TO MY FELLOW CULINARY STUDENTS & CHEFS 🇿🇦🇭🇺
 
-We all know the stress of a Portfolio of Evidence (PoE). Spending 8 hours on Sunday writing menus, calculating costing, and trying to remember the City & Guilds standards instead of actually COOKING. 🔪🔥
+I’ve been where you are. I remember my cruise line days, working alongside my Hungarian brothers (shoutout to my cruise fam! ⚓️), and the one thing we all hated? THE PAPERWORK. 
 
-I’m Tumi—I’ve been in the industry for 10 years (from Limpopo to Disney) and I know the struggle, especially if you deal with ADHD or Dyslexia like I do. Paperwork shouldn't stop a great chef.
+Spending 8 hours on Sunday writing 20 menus for your City & Guilds or QCTO Portfolio of Evidence (PoE) instead of mastering your knife skills is frustrating. 
 
-That’s why I built the **CaterPro AI: Student Edition**.
+I built **CaterPro AI** specifically for us. Whether you are dealing with ADHD/Dyslexia like me, or just tired of manual costing, I’ve got your back.
 
-Specifically designed for:
-✅ TVET Occupational Programmes
-✅ City & Guilds (Level 1-3)
-✅ QCTO Culinary Assignments
+✅ UNLIMITED Menu Generations (City & Guilds Standards)
+✅ Full Shopping Lists & Costing (ZAR)
+✅ AI Tutor Mode (Ask any culinary question 24/7)
+✅ Professional PDF Exports for your assignments
 
-What you get for R110/month:
-🚀 UNLIMITED Menu Generations (No more writer's block)
-📊 Full Shopping Lists & Costing (Automated for SA Rands)
-🎓 AI Tutor Consultant (Ask any culinary question 24/7)
-📄 Professional PDF Exports for your PoE
+R110/month. That’s cheaper than a burger and chips, and it buys you your weekend back. 🔪🔥
 
-Stop the admin headache. Focus on the flavor. 
+Focus on the flavor, let the AI handle the admin.
 
-Get started here: https://caterpro-ai.web.app/
-OR WhatsApp me if you're stuck: [INSERT YOUR NUMBER HERE]
+Check it out: https://caterpro-ai.web.app/
+WhatsApp me if you need help getting set up: [INSERT YOUR NUMBER]
 
-#ChefLifeSA #TVETCulinary #CityAndGuilds #PoEStruggle #CaterProAI #SouthAfricanChefs #CulinaryStudent`;
+#ChefLifeSA #TVETCulinary #CityAndGuilds #PoEStruggle #CaterProAI #SouthAfricanChefs #QCTO`;
 
     navigator.clipboard.writeText(text);
-    onShowToast("High-Impact Post Copied!");
+    onShowToast("Viral Post Copied!");
   };
 
-  const handleCopyWhatsAppStatus = () => {
-    const text = `🔥 SMASH YOUR CULINARY PoE! 🇿🇦
-Writing menus & costing taking too long? 
-CaterPro AI Student Edition is here!
-✅ Unlimited Menus
-✅ Full Costing (ZAR)
+  const handleCopyWhatsAppPitch = () => {
+    const text = `🔥 STOP STRESSING OVER YOUR PoE! 🇿🇦
+I built CaterPro AI to help SA students smash their City & Guilds assignments. 
+✅ Get 20 menus & costing in seconds.
 ✅ R110/mo 
-Specifically for City & Guilds / TVET.
-Link in bio: https://caterpro-ai.web.app/`;
+Check it out: https://caterpro-ai.web.app/`;
     
     navigator.clipboard.writeText(text);
-    onShowToast("WhatsApp Status Copied!");
+    onShowToast("WhatsApp Pitch Copied!");
   };
 
   const handleCopyTvetPitchPrompt = () => {
-    const text = `Draft a professional B2B partnership proposal for Waterberg TVET College regarding their 2026 NSF Occupational Culinary programmes. Highlight that CaterPro AI helps students with Dyslexia/ADHD automate the complex paperwork and menu costing required for their Portfolio of Evidence (PoE). Use a professional and community-focused tone.`;
+    const text = `Draft a professional B2B partnership proposal for Waterberg TVET College regarding their 2026 NSF Occupational Culinary programmes. Highlight that CaterPro AI helps students with Dyslexia/ADHD automate the complex paperwork and menu costing required for their Portfolio of Evidence (PoE). Mention my 10 years of international cruise line experience as a quality guarantee.`;
     navigator.clipboard.writeText(text);
     onShowToast("Dean Pitch Prompt Copied!");
   };
@@ -67,7 +59,7 @@ Link in bio: https://caterpro-ai.web.app/`;
                 <h3 className="font-black text-white uppercase tracking-tight text-sm">Student Growth Lab</h3>
             </div>
             <div className="px-3 py-1 bg-primary-500 rounded-full text-[10px] font-black text-white animate-pulse">
-                CITY & GUILDS COMPLIANT
+                QCTO & CITY & GUILDS READY
             </div>
         </div>
 
@@ -77,37 +69,37 @@ Link in bio: https://caterpro-ai.web.app/`;
                 <div className="space-y-4 p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-primary-100 dark:border-primary-900 shadow-sm hover:shadow-md transition-all">
                     <div className="flex justify-between items-start">
                         <h4 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                            <Share2 size={18} className="text-primary-500" /> Viral FB Post
+                            <Share2 size={18} className="text-primary-500" /> Personal FB Post
                         </h4>
                         <MessageSquare size={16} className="text-slate-400" />
                     </div>
                     <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                        The "Street-Smart" post. Personal, persuasive, and hits the City & Guilds pain points.
+                        The "Cruise Line & Hungarian Heritage" post. Hits the City & Guilds pain points with authority.
                     </p>
                     <button 
                         onClick={handleCopyPersonalPost}
                         className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-black text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
                     >
-                        <Copy size={14} /> Copy High-Impact Post
+                        <Copy size={14} /> Copy Viral Post
                     </button>
                 </div>
 
-                {/* WhatsApp Status */}
+                {/* WhatsApp Pitch */}
                 <div className="space-y-4 p-6 bg-emerald-50 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100 dark:border-emerald-800 shadow-sm">
                     <div className="flex justify-between items-start">
                         <h4 className="text-lg font-bold text-emerald-900 dark:text-emerald-100 flex items-center gap-2">
-                            <Phone size={18} className="text-emerald-500" /> WhatsApp Status
+                            <Phone size={18} className="text-emerald-500" /> WhatsApp Pitch
                         </h4>
                         <Zap size={16} className="text-amber-500" />
                     </div>
                     <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                        Short, punchy, and urgent. Perfect for a quick link-in-bio update.
+                        Perfect for sending directly to student groups or as a WhatsApp status.
                     </p>
                     <button 
-                        onClick={handleCopyWhatsAppStatus}
+                        onClick={handleCopyWhatsAppPitch}
                         className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
                     >
-                        <Copy size={14} /> Copy Status Text
+                        <Copy size={14} /> Copy WhatsApp Text
                     </button>
                 </div>
 
@@ -115,18 +107,18 @@ Link in bio: https://caterpro-ai.web.app/`;
                 <div className="space-y-4 p-6 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-800 shadow-sm">
                     <div className="flex justify-between items-start">
                         <h4 className="text-lg font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2">
-                            <Award size={18} className="text-blue-500" /> Dean Outreach
+                            <Anchor size={18} className="text-blue-500" /> Global Expert Pitch
                         </h4>
                         <ShieldCheck size={16} className="text-slate-400" />
                     </div>
                     <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                        Pitch to TVET Colleges. Mention the 100% Grade Google Certificate to build trust.
+                        Pitch to TVET Deans. Mentions your Cruise Line & Google AI expertise to build instant trust.
                     </p>
                     <button 
                         onClick={handleCopyTvetPitchPrompt}
                         className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
                     >
-                        <Sparkles size={14} /> Copy Dean Pitch Prompt
+                        <Sparkles size={14} /> Copy Global Pitch
                     </button>
                 </div>
             </div>
@@ -136,9 +128,9 @@ Link in bio: https://caterpro-ai.web.app/`;
                     <Info size={20} />
                 </div>
                 <div>
-                    <h5 className="text-xs font-black text-primary-900 dark:text-primary-100 uppercase tracking-widest">Tumi's Pro-Tip</h5>
+                    <h5 className="text-xs font-black text-primary-900 dark:text-primary-100 uppercase tracking-widest">Tumi's Growth Tip</h5>
                     <p className="text-[10px] text-primary-700 dark:text-primary-300 leading-relaxed mt-0.5 font-medium">
-                        When you post on Facebook, add a photo of yourself in your Chef whites or a screenshot of a perfect menu generated by the app. Visuals increase engagement by 40%!
+                        "Mentioning my Hungarian friend from the cruise lines isn't just a story—it's a credential. It shows I've worked at the highest global level."
                     </p>
                 </div>
             </div>
