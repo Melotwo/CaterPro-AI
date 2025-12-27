@@ -1,11 +1,11 @@
 
 import React, { useState } from 'react';
-import { Calendar, GraduationCap, Layout, BookOpen, Clock, CheckCircle2, Zap, UserRound, Sparkles, TrendingUp, ChevronRight, BookCheck, Target, Anchor, Utensils, Copy, Info, Briefcase, Award, Linkedin, Twitter, AlertCircle, Video, Fingerprint, ArrowRight, BarChart3, MousePointer2, Gift, ShieldCheck, Trophy, Shield, Play, MapPin } from 'lucide-react';
+import { Calendar, GraduationCap, Layout, BookOpen, Clock, CheckCircle2, Zap, UserRound, Sparkles, TrendingUp, ChevronRight, BookCheck, Target, Anchor, Utensils, Copy, Info, Briefcase, Award, Linkedin, Twitter, AlertCircle, Video, Fingerprint, ArrowRight, BarChart3, MousePointer2, Gift, ShieldCheck, Trophy, Shield, Play, MapPin, Globe } from 'lucide-react';
 
 const dailyTasks = [
   { id: 'module-4-final', label: 'Finish Module 4: Performance Measurement', highPriority: true },
   { id: 'tvet-pitch', label: 'Draft Waterberg TVET Partnership Pitch', highPriority: true },
-  { id: 'video-takeaways', label: 'Implement "Logistics First" Strategy', highPriority: false },
+  { id: 'hungarian-fusion', label: 'Draft Hungarian Fusion Cruise Menu Case Study', highPriority: false },
   { id: 'dad-cooking', label: 'Enjoy Dads Christmas Eve Cooking 🎄', highPriority: false },
 ];
 
@@ -33,7 +33,7 @@ const FounderRoadmap: React.FC = () => {
   };
 
   const schedule = [
-    { id: 'tvet-local', time: 'Local Strategy', task: 'Waterberg TVET Outreach', icon: MapPin, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
+    { id: 'tvet-local', time: 'Global Heritage', task: 'Cruise Line Standards Pitch', icon: Anchor, color: 'text-blue-500', bg: 'bg-blue-50 dark:bg-blue-900/20' },
     { id: 'kpi-tracking', time: 'Module 4', task: 'Track "Time-to-Table" ROI', icon: BarChart3, color: 'text-emerald-500', bg: 'bg-emerald-50 dark:bg-emerald-900/20' },
     { id: 'cert-unlocked', time: 'Tonight', task: 'Course 1 Graduation', icon: Trophy, color: 'text-amber-500', bg: 'bg-amber-50 dark:bg-amber-900/20' },
   ];
@@ -44,13 +44,13 @@ const FounderRoadmap: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
-                <div className="px-2 py-0.5 rounded bg-blue-500 text-[10px] font-black uppercase tracking-widest animate-pulse">Local Opportunity Detected</div>
-                <div className="flex items-center gap-1 text-slate-400 text-xs"><MapPin size={12} className="text-blue-400" /> Waterberg TVET 2026 Drive</div>
+                <div className="px-2 py-0.5 rounded bg-blue-500 text-[10px] font-black uppercase tracking-widest animate-pulse">Global Credibility Unlocked</div>
+                <div className="flex items-center gap-1 text-slate-400 text-xs"><Anchor size={12} className="text-blue-400" /> International Cruise Standards</div>
             </div>
             <h2 className="text-3xl font-black flex items-center gap-3">
               <Zap className="text-amber-400 fill-amber-400" /> Tumi's Growth Engine
             </h2>
-            <p className="text-slate-400 text-sm mt-1 max-w-md">Bridging Google Certified Marketing with local culinary education.</p>
+            <p className="text-slate-400 text-sm mt-1 max-w-md">Bridging Google Certified Marketing with global culinary expertise.</p>
           </div>
           
           <div className="flex bg-slate-800 p-1 rounded-xl border border-slate-700">
@@ -80,10 +80,10 @@ const FounderRoadmap: React.FC = () => {
                             onClick={handleScrollToResearch}
                             className="w-full text-left flex items-center gap-4 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-xl border-2 border-blue-500 transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-blue-500/5 group"
                         >
-                            <GraduationCap className="text-blue-500 group-hover:rotate-12 transition-transform" size={24} />
+                            <Anchor className="text-blue-500 group-hover:rotate-12 transition-transform" size={24} />
                             <div className="flex-1">
-                                <h4 className="font-bold text-sm text-blue-900 dark:text-blue-100 uppercase">TVET Alignment</h4>
-                                <p className="text-[10px] text-blue-600 uppercase font-black">Pitch: "Automation for Occupational Students"</p>
+                                <h4 className="font-bold text-sm text-blue-900 dark:text-blue-100 uppercase">The Cruise Standard</h4>
+                                <p className="text-[10px] text-blue-600 uppercase font-black">Pitch: "Global Compliance for Local Students"</p>
                             </div>
                             <ArrowRight size={16} className="text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                         </button>
@@ -116,7 +116,7 @@ const FounderRoadmap: React.FC = () => {
                         </div>
                         <div className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-primary-100 dark:border-primary-800">
                              <p className="text-[10px] text-slate-500 leading-relaxed italic">
-                                "Tumi, using the TVET opportunity as a case study for Module 4 will help you pass with flying colors. It's real-world business thinking!"
+                                "Tumi, combining your Cruise heritage with Google's marketing data will make CaterPro AI unstoppable in the TVET space."
                              </p>
                         </div>
                     </div>
@@ -129,18 +129,18 @@ const FounderRoadmap: React.FC = () => {
           <div className="animate-fade-in py-4 max-w-4xl mx-auto space-y-8">
             <div className="bg-blue-50 dark:bg-blue-900/20 p-8 rounded-3xl border-2 border-blue-100 dark:border-blue-800 flex flex-col md:flex-row items-center gap-8">
                 <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-xl text-blue-600">
-                    <MapPin size={48} />
+                    <Globe size={48} />
                 </div>
                 <div className="space-y-4 flex-1">
-                    <h4 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">The "Local Hero" Moat</h4>
+                    <h4 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">The "Cruise Heritage" Moat</h4>
                     <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
-                        Silicon Valley can't walk into **Waterberg TVET College** and talk to the Dean. You can. Your Disney background + your local presence is a moat they can never cross.
+                        You have worked with chefs from **Hungary**, Croatia, and the US. You know how to manage a kitchen at scale. This is your most powerful selling point to the TVET Colleges.
                     </p>
                     <div className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-blue-200 dark:border-blue-700 font-bold text-xs text-blue-800 dark:text-blue-300 italic">
-                        "CaterPro AI: Built by a local Chef to empower the next generation of Limpopo culinary talent."
+                        "CaterPro AI: Built with International Cruise Line Standards to empower local South African talent."
                     </div>
-                    <button onClick={() => handleCopy("CaterPro AI: Built by a local Chef to empower the next generation of Limpopo culinary talent.", 'Local Hero Moat')} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-black shadow-lg">
-                        <Copy size={14} /> Copy Local Moat
+                    <button onClick={() => handleCopy("CaterPro AI: Built with International Cruise Line Standards to empower local South African talent.", 'Global Moat')} className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-xs font-black shadow-lg">
+                        <Copy size={14} /> Copy Global Moat
                     </button>
                 </div>
             </div>
