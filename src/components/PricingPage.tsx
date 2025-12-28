@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Check, Star, Zap, Briefcase, GraduationCap } from 'lucide-react';
+import { Check, Star, Zap, Briefcase, GraduationCap, ExternalLink, ShieldCheck, Globe } from 'lucide-react';
 import { SubscriptionPlan } from '../hooks/useAppSubscription';
 import Footer from './Footer';
 import PaymentModal from './PaymentModal';
@@ -21,11 +21,11 @@ const TIER_STYLES = {
   },
   blue: {
     border: 'border-slate-200 dark:border-slate-700',
-    highlightBorder: 'border-blue-500 ring-2 ring-blue-500',
-    badge: 'bg-blue-600',
-    icon: 'text-blue-600',
-    button: 'bg-blue-50 text-blue-800 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-200 dark:hover:bg-blue-900/50',
-    buttonHighlight: 'bg-blue-600 text-white hover:bg-blue-700 shadow-md',
+    highlightBorder: 'border-indigo-500 ring-2 ring-indigo-500',
+    badge: 'bg-indigo-600',
+    icon: 'text-indigo-600',
+    button: 'bg-indigo-50 text-indigo-800 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-200 dark:hover:bg-indigo-900/50',
+    buttonHighlight: 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-500/20',
   },
   amber: {
     border: 'border-slate-200 dark:border-slate-700',
@@ -45,9 +45,11 @@ const TIER_STYLES = {
   },
 };
 
+const WHOP_PROFILE_URL = "https://whop.com/CaterProAi";
+
 const getTiers = (currency: string = 'ZAR') => {
   const isZar = currency === 'ZAR';
-  const symbol = isZar ? 'R' : '$';
+  const symbol = isZar ? 'R' : (currency === 'EUR' ? '€' : (currency === 'GBP' ? '£' : '$'));
   
   return [
     {
@@ -59,28 +61,29 @@ const getTiers = (currency: string = 'ZAR') => {
       features: [
         '5 Generations per Day',
         'Basic PDF Export',
-        'Standard Watermark',
+        'Global Cuisine Support',
       ],
       cta: 'Current Plan',
       colorKey: 'slate' as keyof typeof TIER_STYLES,
     },
     {
-      name: 'Student',
+      name: 'Student Edition',
       id: 'student',
       price: symbol + (isZar ? '110' : '6'),
       priceSuffix: '/mo',
       icon: GraduationCap,
-      description: 'The PoE Powerhouse.',
+      description: 'The Academy Secret Weapon.',
       features: [
         'UNLIMITED Generations',
-        'Built for PoE Assignments',
-        'AI Tutor Consultant',
-        'Save up to 10 Menus',
-        'Watermarked "Student Edition"',
+        'Local Currency Costing',
+        'AI Tutor (Ask any PoE question)',
+        'ADHD/Dyslexia Helper Mode',
+        'Direct Support via Whop',
       ],
-      cta: 'Pass Your PoE',
+      cta: 'Buy Access on Whop',
       badge: 'Best Value',
       colorKey: 'blue' as keyof typeof TIER_STYLES,
+      whopLink: WHOP_PROFILE_URL,
     },
     {
       name: 'Professional',
@@ -88,18 +91,19 @@ const getTiers = (currency: string = 'ZAR') => {
       price: symbol + (isZar ? '349' : '19'),
       priceSuffix: '/mo',
       icon: Zap,
-      description: 'For working Caterers.',
+      description: 'For Working Caterers.',
       features: [
         'Everything in Student',
-        'NO Watermarks',
+        'NO Watermarks on PDFs',
         'AI Food Photography',
-        'Beverage Pairings',
-        'Unlimited Storage',
+        'Sommelier AI Pairings',
+        'Whop Affiliate Access',
       ],
-      cta: 'Go Professional',
+      cta: 'Buy Access on Whop',
       highlight: true,
-      badge: 'Most Popular',
+      badge: 'Chef Choice',
       colorKey: 'amber' as keyof typeof TIER_STYLES,
+      whopLink: WHOP_PROFILE_URL,
     },
     {
       name: 'Business',
@@ -110,13 +114,14 @@ const getTiers = (currency: string = 'ZAR') => {
       description: 'The Ultimate Suite.',
       features: [
         'Everything in Pro',
-        'Social Media Video Reels',
-        'Shareable Proposal Links',
-        'Suppliers Hub',
-        'Priority Support',
+        'Viral Video Reel Creator',
+        'Magic Share Links',
+        'Global Supply Hub',
+        'Custom Growth Roadmap',
       ],
-      cta: 'Get Business',
+      cta: 'Buy Access on Whop',
       colorKey: 'royal' as keyof typeof TIER_STYLES,
+      whopLink: WHOP_PROFILE_URL,
     },
   ];
 };
@@ -125,13 +130,20 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState<SubscriptionPlan | null>(null);
   const [selectedPrice, setSelectedPrice] = useState('');
 
-  const handleTierClick = (planId: string, price: string) => {
-    if (planId === 'free') {
+  const handleTierClick = (tier: any) => {
+    if (tier.id === 'free') {
         onSelectPlan('free');
         return;
     }
-    setSelectedPlanForPayment(planId as SubscriptionPlan);
-    setSelectedPrice(price);
+    
+    if (tier.whopLink) {
+        window.open(tier.whopLink, '_blank');
+        onSelectPlan(tier.id as SubscriptionPlan);
+        return;
+    }
+
+    setSelectedPlanForPayment(tier.id as SubscriptionPlan);
+    setSelectedPrice(tier.price);
   };
 
   const handlePaymentSuccess = () => {
@@ -148,11 +160,15 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
+            <div className="flex items-center justify-center gap-2 mb-4">
+                <ShieldCheck className="text-indigo-600 w-6 h-6" />
+                <span className="text-xs font-black uppercase tracking-widest text-slate-500">Secure Global Access via Whop</span>
+            </div>
             <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Chef-Friendly Pricing
+              Professional Pricing
             </h1>
             <p className="mt-4 text-xl text-slate-600 dark:text-slate-400">
-              Pick the plan that matches your current kitchen hustle.
+              Pick the right tools for your kitchen, anywhere in the world. 🌍
             </p>
           </div>
 
@@ -162,48 +178,49 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
               return (
                 <div
                   key={tier.id}
-                  className={`relative flex flex-col rounded-2xl border p-6 shadow-sm h-full transition-all hover:shadow-xl ${
+                  className={`relative flex flex-col rounded-3xl border p-8 shadow-sm h-full transition-all hover:shadow-xl ${
                     tier.highlight || tier.id === 'student'
                       ? `${styles.highlightBorder} bg-white dark:bg-slate-900 z-10` 
                       : `${styles.border} bg-white dark:bg-slate-900`
                   }`}
                 >
                   {(tier.highlight || tier.badge) && (
-                    <div className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 transform rounded-full px-4 py-1 text-xs font-bold text-white uppercase tracking-wide shadow-md ${styles.badge}`}>
+                    <div className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 transform rounded-full px-5 py-1.5 text-[10px] font-black text-white uppercase tracking-widest shadow-lg ${styles.badge}`}>
                       {tier.badge}
                     </div>
                   )}
                   
-                  <div className="mb-4">
-                      <tier.icon className={`w-8 h-8 ${styles.icon}`} />
+                  <div className="mb-6">
+                      <tier.icon className={`w-10 h-10 ${styles.icon}`} />
                   </div>
 
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">{tier.name}</h3>
-                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 min-h-[2.5rem]">{tier.description}</p>
+                  <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{tier.name}</h3>
+                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 min-h-[2.5rem] font-medium leading-relaxed">{tier.description}</p>
                   
-                  <div className="mt-6 mb-6">
-                    <span className="text-3xl font-bold text-slate-900 dark:text-white">{tier.price}</span>
+                  <div className="mt-6 mb-8">
+                    <span className="text-4xl font-black text-slate-900 dark:text-white">{tier.price}</span>
                     {tier.priceSuffix && (
-                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{tier.priceSuffix}</span>
+                      <span className="text-xs font-black text-slate-400 uppercase tracking-tighter ml-1">{tier.priceSuffix}</span>
                     )}
                   </div>
 
-                  <ul role="list" className="space-y-3 mb-8 flex-grow">
+                  <ul role="list" className="space-y-4 mb-10 flex-grow">
                     {tier.features.map((feature) => (
                       <li key={feature} className="flex items-start text-sm">
-                        <Check className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
-                        <p className="ml-3 text-slate-600 dark:text-slate-300">{feature}</p>
+                        <Check className="h-4 w-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                        <p className="ml-3 text-slate-600 dark:text-slate-300 font-medium">{feature}</p>
                       </li>
                     ))}
                   </ul>
 
                   <button
-                    onClick={() => handleTierClick(tier.id, tier.price)}
-                    className={`w-full rounded-lg px-4 py-2.5 text-center text-sm font-semibold transition-colors ${
+                    onClick={() => handleTierClick(tier)}
+                    className={`w-full rounded-2xl px-4 py-4 text-center text-sm font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
                       tier.highlight || tier.id === 'student' ? styles.buttonHighlight : styles.button
-                    }`}
+                    } active:scale-95`}
                   >
                     {tier.cta}
+                    {tier.whopLink && <ExternalLink size={16} />}
                   </button>
                 </div>
               );
