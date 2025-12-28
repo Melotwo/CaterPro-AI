@@ -1,51 +1,28 @@
 
 import React from 'react';
-import { BookOpen, Copy, Zap, CheckCircle2, Sparkles, Award, GraduationCap, Share2, Scale, MessageSquare, Phone, ShieldCheck, Info, Anchor } from 'lucide-react';
+import { BookOpen, Copy, Zap, CheckCircle2, Sparkles, Award, GraduationCap, Share2, Scale, MessageSquare, Phone, ShieldCheck, Info, Anchor, CreditCard, Mail, User, Globe, Users, Briefcase, Send } from 'lucide-react';
 
 const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowToast }) => {
   
-  const handleCopyPersonalPost = () => {
-    const text = `👨‍🍳 TO MY FELLOW CULINARY STUDENTS & CHEFS 🇿🇦🇭🇺
+  const handleCopyCollegePitch = () => {
+    const text = `Subject: Solving Portfolio of Evidence (PoE) hurdles for your Academy
 
-I’ve been where you are. I remember my cruise line days, working alongside my Hungarian brothers (shoutout to my cruise fam! ⚓️), and the one thing we all hated? THE PAPERWORK. 
+Dear Dean,
 
-Spending 8 hours on Sunday writing 20 menus for your City & Guilds or QCTO Portfolio of Evidence (PoE) instead of mastering your knife skills is frustrating. 
+I'm Tumi, founder of CaterPro AI. As a culinary professional with international cruise line experience, I built a tool that helps students solve the #1 barrier to graduation: The complex Portfolio of Evidence (PoE) paperwork.
 
-I built **CaterPro AI** specifically for us. Whether you are dealing with ADHD/Dyslexia like me, or just tired of manual costing, I’ve got your back.
+CaterPro AI automates menu planning and precise costing to international standards (City & Guilds/QCTO), specifically supporting neurodivergent students (ADHD/Dyslexia). I'd love to show you how we can improve your academy's graduation rates.
 
-✅ UNLIMITED Menu Generations (City & Guilds Standards)
-✅ Full Shopping Lists & Costing (ZAR)
-✅ AI Tutor Mode (Ask any culinary question 24/7)
-✅ Professional PDF Exports for your assignments
-
-R110/month. That’s cheaper than a burger and chips, and it buys you your weekend back. 🔪🔥
-
-Focus on the flavor, let the AI handle the admin.
-
-Check it out: https://caterpro-ai.web.app/
-WhatsApp me if you need help getting set up: [INSERT YOUR NUMBER]
-
-#ChefLifeSA #TVETCulinary #CityAndGuilds #PoEStruggle #CaterProAI #SouthAfricanChefs #QCTO`;
-
+Best,
+Tumi | CaterPro AI`;
     navigator.clipboard.writeText(text);
-    onShowToast("Viral Post Copied!");
+    onShowToast("Global Dean Pitch Copied!");
   };
 
-  const handleCopyWhatsAppPitch = () => {
-    const text = `🔥 STOP STRESSING OVER YOUR PoE! 🇿🇦
-I built CaterPro AI to help SA students smash their City & Guilds assignments. 
-✅ Get 20 menus & costing in seconds.
-✅ R110/mo 
-Check it out: https://caterpro-ai.web.app/`;
-    
+  const handleCopyWhopDescription = () => {
+    const text = `The AI Secret Weapon for Chefs & Culinary Students Worldwide. Stop spending Sundays on admin. We automate professional menu planning, precise local currency food costing, and academic Portfolio of Evidence (PoE) paperwork. Built by an international chef to help you achieve global standards. Fully optimized for students with ADHD & Dyslexia. Join the kitchen of the future.`;
     navigator.clipboard.writeText(text);
-    onShowToast("WhatsApp Pitch Copied!");
-  };
-
-  const handleCopyTvetPitchPrompt = () => {
-    const text = `Draft a professional B2B partnership proposal for Waterberg TVET College regarding their 2026 NSF Occupational Culinary programmes. Highlight that CaterPro AI helps students with Dyslexia/ADHD automate the complex paperwork and menu costing required for their Portfolio of Evidence (PoE). Mention my 10 years of international cruise line experience as a quality guarantee.`;
-    navigator.clipboard.writeText(text);
-    onShowToast("Dean Pitch Prompt Copied!");
+    onShowToast("Global Bio Copied!");
   };
 
   return (
@@ -54,85 +31,91 @@ Check it out: https://caterpro-ai.web.app/`;
         <div className="p-6 bg-primary-600 border-b border-primary-700 flex items-center justify-between">
             <div className="flex items-center gap-3">
                 <div className="p-2 bg-white rounded-lg text-primary-600">
-                    <GraduationCap size={20} />
+                    <Globe size={20} />
                 </div>
-                <h3 className="font-black text-white uppercase tracking-tight text-sm">Student Growth Lab</h3>
+                <h3 className="font-black text-white uppercase tracking-tight text-sm">Global Growth Hub</h3>
             </div>
             <div className="px-3 py-1 bg-primary-500 rounded-full text-[10px] font-black text-white animate-pulse">
-                QCTO & CITY & GUILDS READY
+                INTERNATIONAL READY
             </div>
         </div>
 
         <div className="p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {/* Viral Student Post */}
-                <div className="space-y-4 p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-primary-100 dark:border-primary-900 shadow-sm hover:shadow-md transition-all">
+                {/* College Dean Pitch */}
+                <div className="space-y-4 p-6 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border-2 border-blue-200 dark:border-blue-900 shadow-sm hover:shadow-md transition-all">
                     <div className="flex justify-between items-start">
-                        <h4 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                            <Share2 size={18} className="text-primary-500" /> Personal FB Post
-                        </h4>
-                        <MessageSquare size={16} className="text-slate-400" />
-                    </div>
-                    <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                        The "Cruise Line & Hungarian Heritage" post. Hits the City & Guilds pain points with authority.
-                    </p>
-                    <button 
-                        onClick={handleCopyPersonalPost}
-                        className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-black text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
-                    >
-                        <Copy size={14} /> Copy Viral Post
-                    </button>
-                </div>
-
-                {/* WhatsApp Pitch */}
-                <div className="space-y-4 p-6 bg-emerald-50 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100 dark:border-emerald-800 shadow-sm">
-                    <div className="flex justify-between items-start">
-                        <h4 className="text-lg font-bold text-emerald-900 dark:text-emerald-100 flex items-center gap-2">
-                            <Phone size={18} className="text-emerald-500" /> WhatsApp Pitch
-                        </h4>
-                        <Zap size={16} className="text-amber-500" />
-                    </div>
-                    <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                        Perfect for sending directly to student groups or as a WhatsApp status.
-                    </p>
-                    <button 
-                        onClick={handleCopyWhatsAppPitch}
-                        className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
-                    >
-                        <Copy size={14} /> Copy WhatsApp Text
-                    </button>
-                </div>
-
-                {/* Dean Outreach */}
-                <div className="space-y-4 p-6 bg-blue-50 dark:bg-blue-900/10 rounded-2xl border border-blue-100 dark:border-blue-800 shadow-sm">
-                    <div className="flex justify-between items-start">
-                        <h4 className="text-lg font-bold text-blue-900 dark:text-blue-100 flex items-center gap-2">
-                            <Anchor size={18} className="text-blue-500" /> Global Expert Pitch
+                        <h4 className="text-lg font-bold text-blue-900 dark:text-white flex items-center gap-2">
+                            <Users size={18} className="text-blue-500" /> Academy Deans
                         </h4>
                         <ShieldCheck size={16} className="text-slate-400" />
                     </div>
                     <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                        Pitch to TVET Deans. Mentions your Cruise Line & Google AI expertise to build instant trust.
+                        Pitch to global culinary schools for PoE automation.
                     </p>
                     <button 
-                        onClick={handleCopyTvetPitchPrompt}
+                        onClick={handleCopyCollegePitch}
                         className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-black text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
                     >
-                        <Sparkles size={14} /> Copy Global Pitch
+                        <Copy size={14} /> Copy Global Pitch
+                    </button>
+                </div>
+
+                {/* Whop Global Bio */}
+                <div className="space-y-4 p-6 bg-indigo-50 dark:bg-indigo-900/10 rounded-2xl border border-indigo-200 dark:border-indigo-800 shadow-sm">
+                    <div className="flex justify-between items-start">
+                        <h4 className="text-lg font-bold text-indigo-900 dark:text-indigo-100 flex items-center gap-2">
+                            <Briefcase size={18} className="text-indigo-500" /> Global Whop Bio
+                        </h4>
+                        <Zap size={16} className="text-amber-500" />
+                    </div>
+                    <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                        High-converting bio for international customers.
+                    </p>
+                    <button 
+                        onClick={handleCopyWhopDescription}
+                        className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
+                    >
+                        <Copy size={14} /> Copy Global Bio
+                    </button>
+                </div>
+
+                {/* Authority Story */}
+                <div className="space-y-4 p-6 bg-emerald-50 dark:bg-emerald-900/10 rounded-2xl border border-emerald-100 dark:border-emerald-800 shadow-sm">
+                    <div className="flex justify-between items-start">
+                        <h4 className="text-lg font-bold text-emerald-900 dark:text-emerald-100 flex items-center gap-2">
+                            <Anchor size={18} className="text-emerald-500" /> International Moat
+                        </h4>
+                        <Sparkles size={16} className="text-slate-400" />
+                    </div>
+                    <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                        Leveraging your cruise experience as a "Global Standard".
+                    </p>
+                    <button 
+                        onClick={() => { navigator.clipboard.writeText("CaterPro AI: International culinary standards built by a chef with global cruise line rigor."); onShowToast("Authority Story Copied!"); }}
+                        className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black text-[10px] flex items-center justify-center gap-2 shadow-lg transition-all active:scale-95"
+                    >
+                        <Copy size={14} /> Copy Authority Story
                     </button>
                 </div>
             </div>
 
-            <div className="mt-8 p-4 bg-primary-50 dark:bg-primary-900/20 rounded-2xl border-2 border-dashed border-primary-200 dark:border-primary-800 flex items-center gap-4">
-                <div className="p-3 bg-white dark:bg-slate-800 rounded-xl text-primary-600 shadow-sm">
-                    <Info size={20} />
+            <div className="mt-8 p-6 bg-slate-900 rounded-3xl border-2 border-primary-500/20 flex flex-col md:flex-row items-center gap-6">
+                <div className="p-4 bg-primary-500/10 rounded-2xl text-primary-500">
+                    <Globe size={32} />
                 </div>
-                <div>
-                    <h5 className="text-xs font-black text-primary-900 dark:text-primary-100 uppercase tracking-widest">Tumi's Growth Tip</h5>
-                    <p className="text-[10px] text-primary-700 dark:text-primary-300 leading-relaxed mt-0.5 font-medium">
-                        "Mentioning my Hungarian friend from the cruise lines isn't just a story—it's a credential. It shows I've worked at the highest global level."
+                <div className="flex-1">
+                    <h5 className="text-sm font-black text-white uppercase tracking-widest">Global Payout Note</h5>
+                    <p className="text-xs text-slate-400 leading-relaxed mt-1 font-medium">
+                        Whop handles currency conversion automatically. Your customers pay in their currency, and you receive your payouts in your preferred local bank account. Set your Whop Handle to <span className="text-primary-400 font-bold">CaterProAi</span> to go live.
                     </p>
                 </div>
+                <button 
+                    onClick={() => window.open('https://whop.com/dash/settings/general', '_blank')}
+                    className="px-6 py-3 bg-white text-slate-900 rounded-xl font-black text-xs uppercase tracking-tight shadow-xl hover:scale-105 transition-transform"
+                >
+                    Whop Settings
+                </button>
             </div>
         </div>
       </div>
