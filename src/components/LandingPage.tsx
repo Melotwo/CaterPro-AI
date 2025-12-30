@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ChefHat, Check, ArrowRight, Star, Zap, Quote, ChevronDown, ChevronUp, HelpCircle, AlignLeft, Linkedin, Twitter, Brain, Heart, Gift, Globe } from 'lucide-react';
+import { ChefHat, Check, ArrowRight, Star, Zap, Quote, ChevronDown, ChevronUp, HelpCircle, AlignLeft, Linkedin, Twitter, Brain, Heart, Gift, Globe, Rocket } from 'lucide-react';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -12,6 +12,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
+  };
+
+  const handleScrollToPricing = () => {
+    const pricingSection = document.getElementById('pricing-plans');
+    if (pricingSection) {
+      pricingSection.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      onGetStarted(); // Fallback to generator view
+    }
   };
 
   const handleShare = (platform: 'linkedin' | 'twitter') => {
@@ -36,15 +45,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   const faqs = [
     {
       question: "Is this for a specific country?",
-      answer: "No. CaterPro AI is global. It generates menus based on any cuisine (from Balkan to South African) and calculates logistics for any region."
+      answer: "No. CaterPro AI is global. It generates menus based on any cuisine (from Balkan to South African) and calculates logistics for any region with local currency support."
     },
     {
       question: "Is CaterPro AI really free to try?",
-      answer: "Yes! You can generate your first few menus for free. We want you to see the magic before you commit to a pro plan."
+      answer: "Yes! You can generate your first few menus for free. We want you to see the magic before you commit to a founder's plan."
     },
     {
       question: "I have Dyslexia/ADHD. Will this help?",
-      answer: "I built this specifically for us. It handles the spelling, formatting, and organization that often causes us stress. It is 100% ADHD-friendly."
+      answer: "I built this specifically for us. It handles the spelling, formatting, and organization that often causes us stress. It is 100% ADHD-friendly and visually structured."
     }
   ];
 
@@ -55,14 +64,20 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center">
           <div className="lg:w-1/2 text-center lg:text-left z-10">
             <div className="flex flex-wrap justify-center lg:justify-start gap-2 mb-6">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 text-sm font-semibold animate-fade-in border border-primary-200 dark:border-primary-700">
+                <button 
+                  onClick={handleScrollToPricing}
+                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 text-sm font-semibold animate-fade-in border border-primary-200 dark:border-primary-700 hover:scale-105 transition-transform"
+                >
                   <Globe size={14} />
                   <span>Global AI Assistant</span>
-                </div>
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 text-sm font-bold animate-bounce border border-red-200 dark:border-red-700">
-                  <Gift size={14} />
-                  <span>Holiday Sale Live 🎁</span>
-                </div>
+                </button>
+                <button 
+                  onClick={handleScrollToPricing}
+                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300 text-sm font-bold animate-bounce border border-indigo-200 dark:border-indigo-700 hover:scale-105 transition-transform"
+                >
+                  <Rocket size={14} />
+                  <span>Founder's Launch Live 🚀</span>
+                </button>
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-6 leading-tight">
               You are a Chef. <br />
@@ -179,6 +194,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             </div>
          </div>
       </div>
+      
+      {/* Target for scrolling to pricing */}
+      <div id="pricing-plans"></div>
     </div>
   );
 };
