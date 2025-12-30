@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Check, Star, Zap, Briefcase, GraduationCap, ExternalLink, ShieldCheck, Globe } from 'lucide-react';
+import { Check, Star, Zap, Briefcase, GraduationCap, ExternalLink, ShieldCheck, Globe, Clock } from 'lucide-react';
 import { SubscriptionPlan } from '../hooks/useAppSubscription';
 import Footer from './Footer';
 import PaymentModal from './PaymentModal';
@@ -69,7 +69,7 @@ const getTiers = (currency: string = 'ZAR') => {
     {
       name: 'Student Edition',
       id: 'student',
-      price: symbol + (isZar ? '110' : '6'),
+      price: symbol + (isZar ? '110' : '5.99'),
       priceSuffix: '/mo',
       icon: GraduationCap,
       description: 'The Academy Secret Weapon.',
@@ -80,15 +80,15 @@ const getTiers = (currency: string = 'ZAR') => {
         'ADHD/Dyslexia Helper Mode',
         'Direct Support via Whop',
       ],
-      cta: 'Buy Access on Whop',
-      badge: 'Best Value',
+      cta: 'Lock in Founder Price',
+      badge: 'Launch Deal',
       colorKey: 'blue' as keyof typeof TIER_STYLES,
       whopLink: WHOP_PROFILE_URL,
     },
     {
       name: 'Professional',
       id: 'professional',
-      price: symbol + (isZar ? '349' : '19'),
+      price: symbol + (isZar ? '349' : '19.99'),
       priceSuffix: '/mo',
       icon: Zap,
       description: 'For Working Caterers.',
@@ -99,16 +99,16 @@ const getTiers = (currency: string = 'ZAR') => {
         'Sommelier AI Pairings',
         'Whop Affiliate Access',
       ],
-      cta: 'Buy Access on Whop',
+      cta: 'Lock in Founder Price',
       highlight: true,
-      badge: 'Chef Choice',
+      badge: 'Limited: Founder Rate',
       colorKey: 'amber' as keyof typeof TIER_STYLES,
       whopLink: WHOP_PROFILE_URL,
     },
     {
       name: 'Business',
       id: 'business',
-      price: symbol + (isZar ? '549' : '29'),
+      price: symbol + (isZar ? '549' : '29.99'),
       priceSuffix: '/mo',
       icon: Briefcase,
       description: 'The Ultimate Suite.',
@@ -119,7 +119,7 @@ const getTiers = (currency: string = 'ZAR') => {
         'Global Supply Hub',
         'Custom Growth Roadmap',
       ],
-      cta: 'Buy Access on Whop',
+      cta: 'Lock in Founder Price',
       colorKey: 'royal' as keyof typeof TIER_STYLES,
       whopLink: WHOP_PROFILE_URL,
     },
@@ -160,15 +160,15 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <div className="flex items-center justify-center gap-2 mb-4">
-                <ShieldCheck className="text-indigo-600 w-6 h-6" />
-                <span className="text-xs font-black uppercase tracking-widest text-slate-500">Secure Global Access via Whop</span>
+            <div className="flex items-center justify-center gap-2 mb-4 bg-indigo-50 dark:bg-indigo-900/30 w-fit mx-auto px-4 py-2 rounded-full border border-indigo-100 dark:border-indigo-800">
+                <Clock className="text-indigo-600 w-4 h-4 animate-pulse" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-300">Launch Phase: Founder Prices Active</span>
             </div>
             <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
-              Professional Pricing
+              Pick Your Toolkit
             </h1>
             <p className="mt-4 text-xl text-slate-600 dark:text-slate-400">
-              Pick the right tools for your kitchen, anywhere in the world. 🌍
+              Join the global community of smart chefs. Lock in launch rates today.
             </p>
           </div>
 
