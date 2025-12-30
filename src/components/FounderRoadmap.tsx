@@ -1,6 +1,10 @@
 
 import React, { useState } from 'react';
-import { Calendar, CheckCircle2, Zap, Trophy, Shield, Globe, CreditCard, Mail, Users, DollarSign, Smartphone, Target, BookCheck, ChevronRight, Copy, Award, ShieldCheck, ShoppingBag, Terminal, HelpCircle, MessageSquareQuote, MessageSquareText } from 'lucide-react';
+import { Calendar, CheckCircle2, Zap, Trophy, Shield, Globe, CreditCard, Mail, Users, DollarSign, Smartphone, Target, BookCheck, ChevronRight, Copy, Award, ShieldCheck, ShoppingBag, Terminal, HelpCircle, MessageSquareQuote, MessageSquareText, Activity, AlertCircle, ExternalLink } from 'lucide-react';
+
+interface FounderRoadmapProps {
+  whopUrl: string;
+}
 
 const dailyTasks = [
   { id: 'whop-delete-old', label: 'Delete "Melotwo Bliss" from Whop Products', highPriority: true },
@@ -65,8 +69,8 @@ const whopProducts = [
   },
 ];
 
-const FounderRoadmap: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'blueprint' | 'growth' | 'whop'>('growth');
+const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
+  const [activeTab, setActiveTab] = useState<'growth' | 'whop' | 'diagnostics'>('growth');
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set([]));
 
   const toggleTask = (taskId: string) => {
@@ -88,7 +92,7 @@ const FounderRoadmap: React.FC = () => {
           <div>
             <div className="flex items-center gap-2 mb-2">
                 <div className="px-2 py-0.5 rounded bg-emerald-500 text-[10px] font-black uppercase tracking-widest animate-pulse">Live Dashboard</div>
-                <div className="flex items-center gap-1 text-slate-400 text-xs"><ShieldCheck size={12} className="text-amber-400" /> Whop Sync Week</div>
+                <div className="flex items-center gap-1 text-slate-400 text-xs"><ShieldCheck size={12} className="text-amber-400" /> System Sync</div>
             </div>
             <h2 className="text-3xl font-black flex items-center gap-3">
               <Zap className="text-amber-400 fill-amber-400" /> Tumi's Command Center
@@ -100,10 +104,10 @@ const FounderRoadmap: React.FC = () => {
                 <Trophy size={14} /> Mission
             </button>
             <button onClick={() => setActiveTab('whop')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'whop' ? 'bg-indigo-500 text-white shadow-lg' : 'text-slate-400'}`}>
-                <ShoppingBag size={14} /> Whop Cheat Sheet
+                <ShoppingBag size={14} /> Whop Content
             </button>
-            <button onClick={() => setActiveTab('blueprint')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'blueprint' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>
-                <Calendar size={14} /> Schedule
+            <button onClick={() => setActiveTab('diagnostics')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'diagnostics' ? 'bg-rose-500 text-white shadow-lg' : 'text-slate-400'}`}>
+                <Activity size={14} /> Whop Link Doctor
             </button>
           </div>
         </div>
@@ -130,7 +134,7 @@ const FounderRoadmap: React.FC = () => {
                 <div className="bg-primary-50/30 dark:bg-primary-900/10 p-6 rounded-3xl border-2 border-primary-100 dark:border-primary-800">
                     <h3 className="text-sm font-black uppercase tracking-widest text-primary-600 mb-4 flex items-center gap-2"><Award size={16} /> Strategy Note</h3>
                     <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">
-                        "Tumi, the low prices are perfect for a **Founder's Launch**. Use the 'Early Bird' labels I added to the Whop descriptions. It tells global users: 'This is usually $50, but it's $19 for now because you are early.' It increases sales dramatically."
+                        "Tumi, the 'Whop Not Found' issue in your screenshot means the Link I have in my code and your Store Slug in Whop don't match yet. Use the 'Link Doctor' tab next to this one to fix it!"
                     </p>
                 </div>
             </div>
@@ -225,22 +229,62 @@ const FounderRoadmap: React.FC = () => {
           </div>
         )}
 
-        {activeTab === 'blueprint' && (
-           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-fade-in">
-              <div className="p-5 bg-blue-50 dark:bg-blue-900/20 rounded-2xl">
-                 <Globe className="text-blue-500 mb-3" />
-                 <p className="text-[10px] font-black uppercase text-slate-500">Jan 7th</p>
-                 <p className="text-sm font-bold">Register caterpro.ai</p>
-              </div>
-              <div className="p-5 bg-rose-50 dark:bg-rose-900/20 rounded-2xl">
-                 <Mail className="text-rose-500 mb-3" />
-                 <p className="text-[10px] font-black uppercase text-slate-500">Jan 14th</p>
-                 <p className="text-sm font-bold">Klaviyo Email Flows</p>
-              </div>
-              <div className="p-5 bg-amber-50 dark:bg-amber-900/20 rounded-2xl">
-                 <Users className="text-amber-500 mb-3" />
-                 <p className="text-[10px] font-black uppercase text-slate-500">Jan 21st</p>
-                 <p className="text-sm font-bold">Academy Partnership Pitch</p>
+        {activeTab === 'diagnostics' && (
+           <div className="animate-fade-in space-y-8 max-w-2xl mx-auto py-6">
+              <div className="p-6 bg-rose-50 dark:bg-rose-900/20 border-2 border-rose-200 dark:border-rose-800 rounded-3xl">
+                 <div className="flex items-center gap-4 mb-6">
+                    <div className="p-3 bg-rose-600 rounded-2xl text-white">
+                        <AlertCircle size={24} />
+                    </div>
+                    <div>
+                        <h4 className="font-black text-rose-900 dark:text-rose-100 uppercase tracking-tight">Whop Link Fixer</h4>
+                        <p className="text-xs text-rose-700 dark:text-rose-400">Fixing the "Whop Not Found" error</p>
+                    </div>
+                 </div>
+
+                 <div className="space-y-6">
+                    <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-rose-100 dark:border-rose-800">
+                        <p className="text-xs font-black text-slate-400 uppercase mb-2">Current App Link:</p>
+                        <div className="flex items-center justify-between gap-4">
+                            <code className="text-xs font-bold text-rose-600 break-all">{whopUrl}</code>
+                            <button 
+                                onClick={() => window.open(whopUrl, '_blank')}
+                                className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 text-slate-600 transition-all flex-shrink-0"
+                            >
+                                <ExternalLink size={16} />
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                        <h5 className="text-sm font-bold text-slate-900 dark:text-white">How to fix this:</h5>
+                        <ul className="space-y-3">
+                            <li className="flex items-start gap-3 text-xs text-slate-600 dark:text-slate-400">
+                                <span className="font-black text-rose-600">1.</span>
+                                <span>Go to your <strong>Whop Dashboard</strong> &gt; <strong>Settings</strong> &gt; <strong>General</strong>.</span>
+                            </li>
+                            <li className="flex items-start gap-3 text-xs text-slate-600 dark:text-slate-400">
+                                <span className="font-black text-rose-600">2.</span>
+                                <span>Look for <strong>"Whop URL"</strong> (also called a slug). It's likely something like <code>turoka15</code> or <code>melotwo2</code>.</span>
+                            </li>
+                            <li className="flex items-start gap-3 text-xs text-slate-600 dark:text-slate-400">
+                                <span className="font-black text-rose-600">3.</span>
+                                <span>Change that slug to <strong>CaterProAi</strong> (case sensitive!) or change the <code>WHOP_STORE_URL</code> in <code>App.tsx</code> to match your current slug.</span>
+                            </li>
+                            <li className="flex items-start gap-3 text-xs text-slate-600 dark:text-slate-400">
+                                <span className="font-black text-rose-600">4.</span>
+                                <span>Make sure your store is set to <strong>"Visible"</strong> in the visibility settings.</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <button 
+                        onClick={() => window.open('https://whop.com/dash/settings/general', '_blank')}
+                        className="w-full py-4 bg-rose-600 text-white rounded-2xl font-black text-sm shadow-lg hover:bg-rose-700 transition-all flex items-center justify-center gap-2"
+                    >
+                        Go to Whop Settings <ChevronRight size={18} />
+                    </button>
+                 </div>
               </div>
            </div>
         )}
