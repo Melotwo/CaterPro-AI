@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Check, Star, Zap, Briefcase, GraduationCap, ExternalLink, ShieldCheck, Globe, Clock } from 'lucide-react';
+import { Check, Star, Zap, Briefcase, GraduationCap, ExternalLink, ShieldCheck, Globe, Clock, Lock } from 'lucide-react';
 import { SubscriptionPlan } from '../hooks/useAppSubscription';
 import Footer from './Footer';
 import PaymentModal from './PaymentModal';
@@ -30,10 +30,10 @@ const TIER_STYLES = {
   },
   amber: {
     border: 'border-slate-200 dark:border-slate-700',
-    highlightBorder: 'border-amber-500 ring-2 ring-amber-500',
+    highlightBorder: 'border-amber-500 ring-2 border-4 ring-amber-500',
     badge: 'bg-amber-500',
     icon: 'text-amber-500',
-    button: 'bg-amber-50 text-amber-800 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-amber-200 dark:hover:bg-amber-900/50',
+    button: 'bg-amber-50 text-amber-800 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-indigo-200 dark:hover:bg-amber-900/50',
     buttonHighlight: 'bg-amber-500 text-white hover:bg-amber-600 shadow-md',
   },
   royal: {
@@ -79,7 +79,7 @@ const getTiers = (currency: string = 'ZAR', whopUrl: string) => {
         'ADHD/Dyslexia Helper Mode',
         'Direct Support via Whop',
       ],
-      cta: 'Lock in Founder Price',
+      cta: 'Lock in Price',
       badge: 'Launch Deal',
       colorKey: 'blue' as keyof typeof TIER_STYLES,
       whopLink: whopUrl,
@@ -98,7 +98,7 @@ const getTiers = (currency: string = 'ZAR', whopUrl: string) => {
         'Sommelier AI Pairings',
         'Whop Affiliate Access',
       ],
-      cta: 'Lock in Founder Price',
+      cta: 'Lock in Price',
       highlight: true,
       badge: 'Limited: Founder Rate',
       colorKey: 'amber' as keyof typeof TIER_STYLES,
@@ -118,7 +118,7 @@ const getTiers = (currency: string = 'ZAR', whopUrl: string) => {
         'Global Supply Hub',
         'Custom Growth Roadmap',
       ],
-      cta: 'Lock in Founder Price',
+      cta: 'Lock in Price',
       colorKey: 'royal' as keyof typeof TIER_STYLES,
       whopLink: whopUrl,
     },
@@ -163,7 +163,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
           <div className="text-center max-w-3xl mx-auto mb-16">
             <div className="flex items-center justify-center gap-2 mb-4 bg-indigo-50 dark:bg-indigo-900/30 w-fit mx-auto px-4 py-2 rounded-full border border-indigo-100 dark:border-indigo-800">
                 <Clock className="text-indigo-600 w-4 h-4 animate-pulse" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-300">Launch Phase: Founder Prices Active</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-300">Founder Phase: 70% Off Launch Special</span>
             </div>
             <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
               Pick Your Toolkit
@@ -181,7 +181,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
                   key={tier.id}
                   className={`relative flex flex-col rounded-3xl border p-8 shadow-sm h-full transition-all hover:shadow-xl ${
                     tier.highlight || tier.id === 'student'
-                      ? `${styles.highlightBorder} bg-white dark:bg-slate-900 z-10` 
+                      ? `${styles.highlightBorder} bg-white dark:bg-slate-900 z-10 scale-105` 
                       : `${styles.border} bg-white dark:bg-slate-900`
                   }`}
                 >
@@ -223,6 +223,17 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
                     {tier.cta}
                     {tier.whopLink && <ExternalLink size={16} />}
                   </button>
+
+                  <div className="mt-6 flex flex-col items-center gap-2">
+                      <div className="flex items-center gap-1.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">
+                         <Lock size={10} className="text-emerald-500" /> Secure via PayPal
+                      </div>
+                      <div className="flex gap-2 grayscale opacity-30">
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" className="h-3" />
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-3" />
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-3" />
+                      </div>
+                  </div>
                 </div>
               );
             })}
