@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Calendar, CheckCircle2, Zap, Trophy, Shield, Globe, CreditCard, Mail, Users, DollarSign, Smartphone, Target, BookCheck, ChevronRight, Copy, Award, ShieldCheck, ShoppingBag, Terminal, HelpCircle, MessageSquareQuote, MessageSquareText, Activity, AlertCircle, ExternalLink, Settings } from 'lucide-react';
+import { Calendar, CheckCircle2, Zap, Trophy, Shield, Globe, CreditCard, Mail, Users, DollarSign, Smartphone, Target, BookCheck, ChevronRight, Copy, Award, ShieldCheck, ShoppingBag, Terminal, HelpCircle, MessageSquareQuote, MessageSquareText, Activity, AlertCircle, ExternalLink, Settings, Wallet } from 'lucide-react';
 
 interface FounderRoadmapProps {
   whopUrl: string;
@@ -9,20 +9,9 @@ interface FounderRoadmapProps {
 const dailyTasks = [
   { id: 'whop-post-1', label: 'Publish First Whop Post (DONE! 🤙🏿)', highPriority: true, initialDone: true },
   { id: 'whop-id-verify', label: 'Verify Identity on Whop (DONE! 🪪)', highPriority: true, initialDone: true },
-  { id: 'whop-url-sync', label: 'Sync App to "melotwo2" Link (FIXED! ✅)', highPriority: true, initialDone: true },
+  { id: 'whop-paypal', label: 'Connect PayPal to Whop Dashboard', highPriority: true },
   { id: 'whop-create-pro', label: 'Create "Professional" ($19.99/mo)', highPriority: true },
   { id: 'whop-create-biz', label: 'Create "Business" ($29.99/mo)', highPriority: true },
-];
-
-const whopFaqs = [
-  {
-    q: "How does this help with my PoE?",
-    a: "CaterPro AI automates the heavy lifting of Portfolio of Evidence (PoE) formatting, menu costing, and mise en place lists. It ensures your logic follows international standards like City & Guilds, saving you 10+ hours of admin per assignment."
-  },
-  {
-    q: "Is it really built for ADHD/Dyslexia?",
-    a: "Yes. Our founder Tumi built this specifically to solve the 'blank page' anxiety and spelling hurdles that come with neurodiversity. The UI is clean, structured, and handles the spelling and formatting for you."
-  }
 ];
 
 const communityPosts = [
@@ -33,7 +22,7 @@ const communityPosts = [
 ];
 
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
-  const [activeTab, setActiveTab] = useState<'growth' | 'whop' | 'diagnostics'>('growth');
+  const [activeTab, setActiveTab] = useState<'growth' | 'whop' | 'payments'>('growth');
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['whop-post-1', 'whop-id-verify', 'whop-url-sync']));
 
   const toggleTask = (taskId: string) => {
@@ -69,8 +58,8 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
             <button onClick={() => setActiveTab('whop')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'whop' ? 'bg-indigo-500 text-white shadow-lg' : 'text-slate-400'}`}>
                 <ShoppingBag size={14} /> Whop Content
             </button>
-            <button onClick={() => setActiveTab('diagnostics')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'diagnostics' ? 'bg-rose-500 text-white shadow-lg' : 'text-slate-400'}`}>
-                <Activity size={14} /> Whop Link Doctor
+            <button onClick={() => setActiveTab('payments')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'payments' ? 'bg-amber-500 text-white shadow-lg' : 'text-slate-400'}`}>
+                <Wallet size={14} /> PayPal Setup
             </button>
           </div>
         </div>
@@ -97,7 +86,7 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                 <div className="bg-primary-50/30 dark:bg-primary-900/10 p-6 rounded-3xl border-2 border-primary-100 dark:border-primary-800">
                     <h3 className="text-sm font-black uppercase tracking-widest text-primary-600 mb-4 flex items-center gap-2"><Award size={16} /> Strategy Note</h3>
                     <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">
-                        "Tumi, I saw your live Whop link is 'melotwo2' - I have synced the entire app to that link now! Everything is functional. Your ID verification is also a massive win for trust! 🪪🤙🏿"
+                        "Great job on the ID verification! Whop is perfect because it handles the login friction for you. If you connect your PayPal, your customers get the 'one-click' experience they love."
                     </p>
                 </div>
             </div>
@@ -126,45 +115,53 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
           </div>
         )}
 
-        {activeTab === 'diagnostics' && (
+        {activeTab === 'payments' && (
            <div className="animate-fade-in space-y-8 max-w-2xl mx-auto py-6">
-              <div className="p-6 bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-800 rounded-3xl">
+              <div className="p-6 bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-3xl">
                  <div className="flex items-center gap-4 mb-6">
-                    <div className="p-3 bg-emerald-600 rounded-2xl text-white">
-                        <CheckCircle2 size={24} />
+                    <div className="p-3 bg-amber-500 rounded-2xl text-white">
+                        <DollarSign size={24} />
                     </div>
                     <div>
-                        <h4 className="font-black text-emerald-900 dark:text-emerald-100 uppercase tracking-tight">System Status: Synced</h4>
-                        <p className="text-xs text-emerald-700 dark:text-emerald-400">App synced with melotwo2</p>
+                        <h4 className="font-black text-amber-900 dark:text-amber-100 uppercase tracking-tight">Enabling PayPal for Users</h4>
+                        <p className="text-xs text-amber-700 dark:text-amber-400">Step-by-step for a "One-Click" checkout</p>
                     </div>
                  </div>
 
                  <div className="space-y-6">
-                    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-emerald-100 dark:border-emerald-800">
-                        <p className="text-xs font-black text-slate-400 uppercase mb-4 tracking-widest">Current Active Link</p>
-                        <div className="flex items-center justify-between gap-4">
-                            <code className="text-xs font-bold text-emerald-600 break-all">{whopUrl}</code>
-                            <button 
-                                onClick={() => window.open(whopUrl, '_blank')}
-                                className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 text-slate-600 transition-all flex-shrink-0"
-                            >
-                                <ExternalLink size={16} />
-                            </button>
+                    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-amber-100 dark:border-amber-800">
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-4">
+                                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-black text-xs text-amber-500">1</div>
+                                <p className="text-xs font-bold">In the Whop Sidebar, click <strong>Settings</strong> (at the bottom).</p>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-black text-xs text-amber-500">2</div>
+                                <p className="text-xs font-bold">Click on <strong>Payments</strong> in the settings menu.</p>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-black text-xs text-amber-500">3</div>
+                                <p className="text-xs font-bold">Look for the <strong>PayPal</strong> section and click "Connect".</p>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-black text-xs text-white">4</div>
+                                <p className="text-xs font-bold">Log in to your PayPal. That's it! Your users can now pay via PayPal.</p>
+                            </div>
                         </div>
                     </div>
 
                     <div className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-                        <h5 className="text-xs font-black uppercase text-slate-400 mb-2">Note on Professionalism</h5>
+                        <h5 className="text-xs font-black uppercase text-slate-400 mb-2">Why this is best:</h5>
                         <p className="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed">
-                            While your username "melotwo2" works perfectly now, if you want it to say "CaterProAi" in the future, you can find the **Whop URL** box in **Settings &gt; General**. If you change it there, come back here and ask me to update the link in the code to match!
+                            When users pay via the Whop checkout, Whop automatically unlocks their "Pro" features inside this app. If you use a separate PayPal button, you would have to manually unlock them yourself. Whop does it for you while you sleep!
                         </p>
                     </div>
 
                     <button 
-                        onClick={() => window.open('https://whop.com/dash/settings/general', '_blank')}
-                        className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-sm shadow-lg hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
+                        onClick={() => window.open('https://whop.com/dash/settings/payments', '_blank')}
+                        className="w-full py-4 bg-amber-600 text-white rounded-2xl font-black text-sm shadow-lg hover:bg-amber-700 transition-all flex items-center justify-center gap-2"
                     >
-                        Go to Whop Admin <ExternalLink size={18} />
+                        Go to Whop Payment Settings <ExternalLink size={18} />
                     </button>
                  </div>
               </div>
