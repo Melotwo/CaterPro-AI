@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Calendar, CheckCircle2, Zap, Trophy, Shield, Globe, CreditCard, Mail, Users, DollarSign, Smartphone, Target, BookCheck, ChevronRight, Copy, Award, ShieldCheck, ShoppingBag, Terminal, HelpCircle, MessageSquareQuote } from 'lucide-react';
+import { Calendar, CheckCircle2, Zap, Trophy, Shield, Globe, CreditCard, Mail, Users, DollarSign, Smartphone, Target, BookCheck, ChevronRight, Copy, Award, ShieldCheck, ShoppingBag, Terminal, HelpCircle, MessageSquareQuote, MessageSquareText } from 'lucide-react';
 
 const dailyTasks = [
   { id: 'whop-delete-old', label: 'Delete "Melotwo Bliss" from Whop Products', highPriority: true },
@@ -30,6 +30,17 @@ const whopFaqs = [
   {
       q: "Can I cancel my subscription anytime?",
       a: "Yes! There are no long-term contracts. You can manage and cancel your subscription instantly through your Whop account dashboard."
+  }
+];
+
+const communityPosts = [
+  {
+    title: "Welcome New Chefs! 👨‍🍳",
+    content: "Welcome to the CaterPro AI family! I'm Tumi, the founder. I built this tool to help you stop spending your Sundays on paperwork and start focusing on your food. Check out the 'Community' tab to share your first generated menu with the group!"
+  },
+  {
+    title: "Refer & Earn 💰",
+    content: "Did you know you can earn 30% of every sale you refer? Go to your Whop 'Affiliates' tab, grab your unique link, and share it with your fellow culinary students or chef colleagues. Let's grow the kitchen of the future together!"
   }
 ];
 
@@ -63,6 +74,11 @@ const FounderRoadmap: React.FC = () => {
     if (newTasks.has(taskId)) newTasks.delete(taskId);
     else newTasks.add(taskId);
     setCompletedTasks(newTasks);
+  };
+
+  const copyToClipboard = (text: string, label: string) => {
+      navigator.clipboard.writeText(text);
+      alert(`${label} copied! Now paste it into Whop.`);
   };
 
   return (
@@ -114,7 +130,7 @@ const FounderRoadmap: React.FC = () => {
                 <div className="bg-primary-50/30 dark:bg-primary-900/10 p-6 rounded-3xl border-2 border-primary-100 dark:border-primary-800">
                     <h3 className="text-sm font-black uppercase tracking-widest text-primary-600 mb-4 flex items-center gap-2"><Award size={16} /> Strategy Note</h3>
                     <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">
-                        "Tumi, you should use the same set of FAQs for all 3 products. It makes your brand look consistent and professional. I've updated the 'Whop Cheat Sheet' with a master list of 5 questions you can copy-paste into those boxes!"
+                        "Tumi, the low prices are perfect for a **Founder's Launch**. Use the 'Early Bird' labels I added to the Whop descriptions. It tells global users: 'This is usually $50, but it's $19 for now because you are early.' It increases sales dramatically."
                     </p>
                 </div>
             </div>
@@ -123,11 +139,35 @@ const FounderRoadmap: React.FC = () => {
 
         {activeTab === 'whop' && (
           <div className="animate-fade-in space-y-12 pb-12">
-            {/* Products Section */}
+            {/* Social Feed Section */}
             <div className="space-y-8">
                 <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 border-2 border-indigo-200 dark:border-indigo-800 rounded-2xl flex items-center gap-4">
-                    <Terminal className="text-indigo-600" />
-                    <p className="text-sm font-bold text-indigo-900 dark:text-indigo-100 uppercase tracking-tight">Whop Product Content</p>
+                    <MessageSquareText className="text-indigo-600" />
+                    <p className="text-sm font-bold text-indigo-900 dark:text-indigo-100 uppercase tracking-tight">Whop Feed Posts (Post these today!)</p>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {communityPosts.map((post, i) => (
+                        <div key={i} className="p-6 bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-100 dark:border-slate-700 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <h5 className="text-sm font-black uppercase text-indigo-500 mb-3">{post.title}</h5>
+                                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed italic mb-6">"{post.content}"</p>
+                            </div>
+                            <button 
+                                onClick={() => copyToClipboard(post.content, `Feed Post ${i+1}`)}
+                                className="w-full py-2 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 rounded-lg text-[10px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 transition-colors"
+                            >
+                                Copy Post Body
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Products Section */}
+            <div className="space-y-8">
+                <div className="p-4 bg-slate-50 dark:bg-slate-900/20 border-2 border-slate-200 dark:border-slate-800 rounded-2xl flex items-center gap-4">
+                    <Terminal className="text-slate-600" />
+                    <p className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">Product Page Content</p>
                 </div>
                 <div className="grid grid-cols-1 gap-8">
                     {whopProducts.map((p) => (
@@ -142,14 +182,14 @@ const FounderRoadmap: React.FC = () => {
                                         <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Headline</p>
                                         <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
                                             <code className="text-[10px] font-bold text-indigo-500">{p.headline}</code>
-                                            <button onClick={() => { navigator.clipboard.writeText(p.headline); }} className="p-1.5 hover:bg-white rounded-lg transition-colors"><Copy size={14}/></button>
+                                            <button onClick={() => copyToClipboard(p.headline, 'Headline')} className="p-1.5 hover:bg-white rounded-lg transition-colors"><Copy size={14}/></button>
                                         </div>
                                     </div>
                                     <div>
                                         <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Description</p>
                                         <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 relative group">
                                             <p className="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed pr-8">{p.desc}</p>
-                                            <button onClick={() => { navigator.clipboard.writeText(p.desc); }} className="absolute top-3 right-3 p-1.5 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors shadow-sm"><Copy size={14}/></button>
+                                            <button onClick={() => copyToClipboard(p.desc, 'Description')} className="absolute top-3 right-3 p-1.5 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors shadow-sm"><Copy size={14}/></button>
                                         </div>
                                     </div>
                                 </div>
@@ -163,19 +203,19 @@ const FounderRoadmap: React.FC = () => {
             <div className="space-y-8">
                 <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-2xl flex items-center gap-4">
                     <HelpCircle className="text-amber-600" />
-                    <p className="text-sm font-bold text-amber-900 dark:text-amber-100 uppercase tracking-tight">Whop FAQ Section (Copy These to all 3 products)</p>
+                    <p className="text-sm font-bold text-amber-900 dark:text-amber-100 uppercase tracking-tight">Whop FAQ Section (Copy These to all products)</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {whopFaqs.map((faq, i) => (
                         <div key={i} className="p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-slate-100 dark:border-slate-700">
                             <div className="flex justify-between items-start mb-2">
                                 <h5 className="text-xs font-black uppercase text-slate-400 tracking-widest">Question {i+1}</h5>
-                                <button onClick={() => { navigator.clipboard.writeText(faq.q); }} className="text-amber-600 hover:text-amber-700"><Copy size={14}/></button>
+                                <button onClick={() => copyToClipboard(faq.q, 'Question')} className="text-amber-600 hover:text-amber-700"><Copy size={14}/></button>
                             </div>
                             <p className="text-sm font-bold text-slate-900 dark:text-white mb-4">{faq.q}</p>
                             <div className="flex justify-between items-start mb-2 pt-4 border-t border-slate-200 dark:border-slate-700">
                                 <h5 className="text-xs font-black uppercase text-slate-400 tracking-widest">Answer</h5>
-                                <button onClick={() => { navigator.clipboard.writeText(faq.a); }} className="text-amber-600 hover:text-amber-700"><Copy size={14}/></button>
+                                <button onClick={() => copyToClipboard(faq.a, 'Answer')} className="text-amber-600 hover:text-amber-700"><Copy size={14}/></button>
                             </div>
                             <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">{faq.a}</p>
                         </div>
