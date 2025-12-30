@@ -63,60 +63,61 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
       <div className="relative overflow-hidden pt-16 pb-12 lg:pt-24 lg:pb-24">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center">
           <div className="lg:w-1/2 text-center lg:text-left z-10">
-            <div className="flex flex-wrap justify-center lg:justify-start gap-2 mb-6">
+            <div className="flex flex-wrap justify-center lg:justify-start gap-3 mb-8">
                 <button 
                   onClick={handleScrollToPricing}
-                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 text-sm font-semibold animate-fade-in border border-primary-200 dark:border-primary-700 hover:scale-105 transition-transform"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 text-xs font-black animate-fade-in border-2 border-primary-200 dark:border-primary-700 hover:scale-105 transition-transform shadow-lg shadow-primary-500/10 cursor-pointer"
                 >
-                  <Globe size={14} />
+                  <Globe size={14} className="animate-spin-slow" />
                   <span>Global AI Assistant</span>
                 </button>
                 <button 
                   onClick={handleScrollToPricing}
-                  className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300 text-sm font-bold animate-bounce border border-indigo-200 dark:border-indigo-700 hover:scale-105 transition-transform"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-600 text-white text-xs font-black border-2 border-indigo-400 hover:scale-105 transition-transform shadow-lg shadow-indigo-500/20 cursor-pointer"
                 >
                   <Rocket size={14} />
                   <span>Founder's Launch Live 🚀</span>
                 </button>
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-6 leading-tight">
+            <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black text-slate-900 dark:text-white tracking-tighter mb-6 leading-[0.9]">
               You are a Chef. <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-500 to-emerald-400">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-indigo-500">
                 Not a Typist.
               </span>
             </h1>
-            <p className="text-xl text-slate-600 dark:text-slate-300 mb-8 max-w-2xl mx-auto lg:mx-0 leading-relaxed">
+            <p className="text-xl text-slate-600 dark:text-slate-300 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
               Stop spending your Sundays on paperwork. Generate menus, shopping lists, and professional proposals in seconds.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <button 
                 onClick={onGetStarted}
-                className="inline-flex items-center justify-center px-10 py-5 text-lg font-black text-white bg-primary-600 rounded-2xl shadow-xl shadow-primary-500/20 hover:bg-primary-700 hover:scale-105 transition-all"
+                className="inline-flex items-center justify-center px-12 py-5 text-lg font-black text-white bg-primary-600 rounded-2xl shadow-2xl shadow-primary-500/30 hover:bg-primary-700 hover:scale-105 transition-all"
               >
                 Start Your First Proposal
-                <ArrowRight className="ml-2 w-5 h-5" />
+                <ArrowRight className="ml-2 w-6 h-6" />
               </button>
             </div>
           </div>
           
-          <div className="lg:w-1/2 mt-12 lg:mt-0 relative">
-             <div className="relative bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden transform rotate-1 transition-transform hover:rotate-0 duration-500">
-                <div className="bg-slate-50 dark:bg-slate-800 p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+          <div className="lg:w-1/2 mt-16 lg:mt-0 relative px-4">
+             <div className="relative bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border-4 border-slate-100 dark:border-slate-800 overflow-hidden transform lg:rotate-2 transition-transform hover:rotate-0 duration-700">
+                <div className="bg-slate-50 dark:bg-slate-800 p-5 border-b-2 border-slate-100 dark:border-slate-700 flex items-center justify-between">
                     <div className="flex gap-2">
-                        <div className="w-2.5 h-2.5 rounded-full bg-red-400"></div>
-                        <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
-                        <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
+                        <div className="w-3 h-3 rounded-full bg-red-400"></div>
+                        <div className="w-3 h-3 rounded-full bg-yellow-400"></div>
+                        <div className="w-3 h-3 rounded-full bg-green-400"></div>
                     </div>
                 </div>
-                <div className="p-10">
-                    <div className="space-y-6">
-                        <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-3/4 animate-pulse"></div>
-                        <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-full animate-pulse delay-75"></div>
-                        <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/2 animate-pulse delay-150"></div>
-                        <div className="pt-8">
-                             <div className="p-6 bg-green-50 dark:bg-green-900/20 border-2 border-green-500/20 rounded-2xl text-center">
-                                 <Check className="w-10 h-10 text-green-500 mx-auto mb-3" />
-                                 <p className="font-black text-slate-900 dark:text-white uppercase tracking-widest text-xs">Proposal Validated</p>
+                <div className="p-12">
+                    <div className="space-y-8">
+                        <div className="h-5 bg-slate-100 dark:bg-slate-800 rounded-full w-3/4 animate-pulse"></div>
+                        <div className="h-5 bg-slate-100 dark:bg-slate-800 rounded-full w-full animate-pulse delay-75"></div>
+                        <div className="h-5 bg-slate-100 dark:bg-slate-800 rounded-full w-2/3 animate-pulse delay-150"></div>
+                        <div className="pt-12">
+                             <div className="p-10 bg-emerald-50 dark:bg-emerald-900/20 border-4 border-dashed border-emerald-500/30 rounded-[2rem] text-center">
+                                 <Check className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
+                                 <p className="font-black text-slate-900 dark:text-white uppercase tracking-widest text-sm">Proposal Validated</p>
+                                 <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-2 font-bold">Local Currency Costing Sync: OK</p>
                              </div>
                         </div>
                     </div>
@@ -127,29 +128,29 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
       </div>
 
       {/* --- FOUNDER STORY --- */}
-      <div className="bg-slate-950 text-white py-20 sm:py-32 relative overflow-hidden">
+      <div className="bg-slate-950 text-white py-24 sm:py-40 relative overflow-hidden">
         <div className="max-w-6xl mx-auto px-6 relative z-10">
-            <div className="flex flex-col md:flex-row gap-12 items-center lg:items-start">
+            <div className="flex flex-col md:flex-row gap-16 items-center lg:items-start">
                 <div className="w-full md:w-2/5 order-first md:order-last">
                     <div className="relative group">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-primary-500 to-blue-500 rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                        <div className="absolute -inset-2 bg-gradient-to-r from-primary-500 to-indigo-600 rounded-[2rem] blur-xl opacity-20 group-hover:opacity-40 transition duration-1000"></div>
                         <img 
                             src={imageSrc} 
-                            alt="Founder" 
-                            className="relative rounded-2xl shadow-2xl w-full object-cover aspect-square md:aspect-[3/4]" 
+                            alt="Founder Tumi" 
+                            className="relative rounded-[2rem] shadow-2xl w-full object-cover aspect-square md:aspect-[4/5] border-2 border-white/10" 
                             onError={handleImageError}
                         />
                     </div>
                 </div>
                 
-                <div className="w-full md:w-3/5 space-y-8">
-                    <div className="inline-block p-3 bg-primary-500/10 rounded-2xl">
-                        <Brain className="w-8 h-8 text-primary-500" />
+                <div className="w-full md:w-3/5 space-y-10">
+                    <div className="inline-block p-4 bg-primary-500/10 rounded-2xl">
+                        <Brain className="w-10 h-10 text-primary-500" />
                     </div>
-                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black leading-tight italic">
+                    <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-[0.9] italic tracking-tight">
                         "I built this because paperwork shouldn't be a chef's barrier."
                     </h2>
-                    <div className="space-y-6 text-slate-400 text-lg leading-relaxed font-medium">
+                    <div className="space-y-8 text-slate-400 text-xl leading-relaxed font-medium">
                         <p>
                             Growing up with <strong>ADHD and Dyslexia</strong>, the "admin" side of catering was my biggest nightmare. I'd spend hours stressing over spelling and organization instead of focusing on the flavor.
                         </p>
@@ -157,12 +158,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                             I built <strong>CaterPro AI</strong> for every chef who is tired of the grind behind the computer. It handles the spelling, the pricing, and the lists so you can get back to what you love.
                         </p>
                     </div>
-                    <div className="pt-10 border-t border-slate-800 flex flex-wrap gap-3">
-                        <button onClick={() => handleShare('linkedin')} className="flex items-center gap-2 px-6 py-3 bg-[#0077b5] text-white rounded-xl hover:bg-[#006097] text-sm font-black transition-all active:scale-95 shadow-lg shadow-blue-500/10">
-                            <Linkedin size={18} /> Share My Story
+                    <div className="pt-12 border-t border-slate-800 flex flex-wrap gap-4">
+                        <button onClick={() => handleShare('linkedin')} className="flex items-center gap-3 px-8 py-4 bg-[#0077b5] text-white rounded-2xl hover:bg-[#006097] text-sm font-black transition-all active:scale-95 shadow-xl shadow-blue-500/20">
+                            <Linkedin size={20} /> Share My Story
                         </button>
-                        <button onClick={() => handleShare('twitter')} className="flex items-center gap-2 px-6 py-3 bg-white text-black rounded-xl hover:bg-slate-100 text-sm font-black transition-all active:scale-95 shadow-lg shadow-white/10">
-                            <Twitter size={18} /> Post on X
+                        <button onClick={() => handleShare('twitter')} className="flex items-center gap-3 px-8 py-4 bg-white text-black rounded-2xl hover:bg-slate-100 text-sm font-black transition-all active:scale-95 shadow-xl shadow-white/10">
+                            <Twitter size={20} /> Post on X
                         </button>
                     </div>
                 </div>
@@ -171,21 +172,21 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
       </div>
 
       {/* --- FAQ --- */}
-      <div className="bg-white dark:bg-slate-900 py-24" id="faq">
+      <div className="bg-white dark:bg-slate-900 py-32" id="faq">
          <div className="max-w-4xl mx-auto px-6">
-            <div className="text-center mb-16">
-                <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white">Common Questions</h2>
-                <p className="text-slate-500 mt-2 font-medium">Everything you need to know about the chef's secret weapon.</p>
+            <div className="text-center mb-20">
+                <h2 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight">Common Questions</h2>
+                <p className="text-slate-500 mt-4 text-lg font-medium">Everything you need to know about the chef's secret weapon.</p>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-6">
                 {faqs.map((faq, index) => (
-                    <div key={index} className="border-2 border-slate-100 dark:border-slate-800 rounded-3xl overflow-hidden transition-all hover:border-primary-500/30">
-                        <button onClick={() => toggleFaq(index)} className="w-full flex justify-between items-center p-6 text-left font-black text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                            <span className="pr-4">{faq.question}</span>
-                            {openFaq === index ? <ChevronUp className="text-primary-500" /> : <ChevronDown className="text-slate-400" />}
+                    <div key={index} className="border-4 border-slate-50 dark:border-slate-800 rounded-[2rem] overflow-hidden transition-all hover:border-primary-500/20 shadow-sm">
+                        <button onClick={() => toggleFaq(index)} className="w-full flex justify-between items-center p-8 text-left font-black text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                            <span className="pr-4 text-lg">{faq.question}</span>
+                            {openFaq === index ? <ChevronUp className="text-primary-500 w-6 h-6" /> : <ChevronDown className="text-slate-400 w-6 h-6" />}
                         </button>
                         {openFaq === index && (
-                            <div className="p-6 text-slate-600 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 animate-slide-in">
+                            <div className="p-8 text-slate-600 dark:text-slate-400 border-t-2 border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 animate-slide-in text-lg font-medium leading-relaxed">
                                 {faq.answer}
                             </div>
                         )}
@@ -196,7 +197,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
       </div>
       
       {/* Target for scrolling to pricing */}
-      <div id="pricing-plans"></div>
+      <div id="pricing-plans" className="pb-20"></div>
     </div>
   );
 };
