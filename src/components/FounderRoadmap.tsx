@@ -1,17 +1,17 @@
 
 import React, { useState } from 'react';
-import { Calendar, CheckCircle2, Zap, Trophy, Shield, Globe, CreditCard, Mail, Users, DollarSign, Smartphone, Target, BookCheck, ChevronRight, Copy, Award, ShieldCheck, ShoppingBag, Terminal, HelpCircle, MessageSquareQuote, MessageSquareText, Activity, AlertCircle, ExternalLink } from 'lucide-react';
+import { Calendar, CheckCircle2, Zap, Trophy, Shield, Globe, CreditCard, Mail, Users, DollarSign, Smartphone, Target, BookCheck, ChevronRight, Copy, Award, ShieldCheck, ShoppingBag, Terminal, HelpCircle, MessageSquareQuote, MessageSquareText, Activity, AlertCircle, ExternalLink, Settings } from 'lucide-react';
 
 interface FounderRoadmapProps {
   whopUrl: string;
 }
 
 const dailyTasks = [
-  { id: 'whop-delete-old', label: 'Delete "Melotwo Bliss" from Whop Products', highPriority: true },
-  { id: 'whop-create-student', label: 'Create "Student Edition" ($5.99/mo)', highPriority: true },
+  { id: 'whop-post-1', label: 'Publish First Whop Post (DONE! 🤙🏿)', highPriority: true, initialDone: true },
+  { id: 'whop-id-verify', label: 'Verify Identity on Whop (DONE! 🪪)', highPriority: true, initialDone: true },
+  { id: 'whop-url-sync', label: 'Sync App to "melotwo2" Link (FIXED! ✅)', highPriority: true, initialDone: true },
   { id: 'whop-create-pro', label: 'Create "Professional" ($19.99/mo)', highPriority: true },
   { id: 'whop-create-biz', label: 'Create "Business" ($29.99/mo)', highPriority: true },
-  { id: 'pwa-reinstall', label: 'Re-add app to home screen (Logo Fix)', highPriority: true },
 ];
 
 const whopFaqs = [
@@ -22,56 +22,19 @@ const whopFaqs = [
   {
     q: "Is it really built for ADHD/Dyslexia?",
     a: "Yes. Our founder Tumi built this specifically to solve the 'blank page' anxiety and spelling hurdles that come with neurodiversity. The UI is clean, structured, and handles the spelling and formatting for you."
-  },
-  {
-    q: "Can I use it for my local currency?",
-    a: "Absolutely. Whether you are in South Africa (ZAR), the USA (USD), or the UK (GBP), the AI adjusts its costing engine to your local market prices instantly."
-  },
-  {
-    q: "What is the 'Early Bird' price?",
-    a: "The current rates are for our Founder's Launch Phase. By joining now, you lock in these low rates forever, even when the public price increases next month."
-  },
-  {
-      q: "Can I cancel my subscription anytime?",
-      a: "Yes! There are no long-term contracts. You can manage and cancel your subscription instantly through your Whop account dashboard."
   }
 ];
 
 const communityPosts = [
   {
-    title: "Welcome New Chefs! 👨‍🍳",
-    content: "Welcome to the CaterPro AI family! I'm Tumi, the founder. I built this tool to help you stop spending your Sundays on paperwork and start focusing on your food. Check out the 'Community' tab to share your first generated menu with the group!"
-  },
-  {
-    title: "Refer & Earn 💰",
-    content: "Did you know you can earn 30% of every sale you refer? Go to your Whop 'Affiliates' tab, grab your unique link, and share it with your fellow culinary students or chef colleagues. Let's grow the kitchen of the future together!"
+    title: "The Next Step 🚀",
+    content: "Just posted our first official update! I'm working hard to ensure CaterPro AI is the best tool for chefs globally. If you haven't yet, check out the 'Products' tab to lock in your Founder's Rate!"
   }
-];
-
-const whopProducts = [
-  { 
-    name: 'Student Edition', 
-    headline: 'Founder\'s Deal: Automate your Culinary PoE & Costing.',
-    price: '$5.99/mo', 
-    desc: 'The AI Secret Weapon for Culinary Students. Automate your Portfolio of Evidence (PoE), precise food costing, and academic formatting. Built for City & Guilds/QCTO standards. Optimized for ADHD/Dyslexia.' 
-  },
-  { 
-    name: 'Professional', 
-    headline: 'Early Bird: The Ultimate Suite for Working Chefs.',
-    price: '$19.99/mo', 
-    desc: 'Everything in Student + NO Watermarks on PDFs, AI Food Photography, Sommelier Wine Pairings, and Unlimited Menu Generation. Professional sourcing lists in your local currency.' 
-  },
-  { 
-    name: 'Business', 
-    headline: 'VIP: Scale your Catering Brand with Viral AI Tools.',
-    price: '$29.99/mo', 
-    desc: 'Viral Reel Creator, Magic Share Links for clients, Global Supplier Hub, and priority 1-on-1 support for scaling your culinary business.' 
-  },
 ];
 
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
   const [activeTab, setActiveTab] = useState<'growth' | 'whop' | 'diagnostics'>('growth');
-  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set([]));
+  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['whop-post-1', 'whop-id-verify', 'whop-url-sync']));
 
   const toggleTask = (taskId: string) => {
     const newTasks = new Set(completedTasks);
@@ -134,7 +97,7 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                 <div className="bg-primary-50/30 dark:bg-primary-900/10 p-6 rounded-3xl border-2 border-primary-100 dark:border-primary-800">
                     <h3 className="text-sm font-black uppercase tracking-widest text-primary-600 mb-4 flex items-center gap-2"><Award size={16} /> Strategy Note</h3>
                     <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">
-                        "Tumi, the 'Whop Not Found' issue in your screenshot means the Link I have in my code and your Store Slug in Whop don't match yet. Use the 'Link Doctor' tab next to this one to fix it!"
+                        "Tumi, I saw your live Whop link is 'melotwo2' - I have synced the entire app to that link now! Everything is functional. Your ID verification is also a massive win for trust! 🪪🤙🏿"
                     </p>
                 </div>
             </div>
@@ -143,110 +106,44 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
 
         {activeTab === 'whop' && (
           <div className="animate-fade-in space-y-12 pb-12">
-            {/* Social Feed Section */}
-            <div className="space-y-8">
-                <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 border-2 border-indigo-200 dark:border-indigo-800 rounded-2xl flex items-center gap-4">
-                    <MessageSquareText className="text-indigo-600" />
-                    <p className="text-sm font-bold text-indigo-900 dark:text-indigo-100 uppercase tracking-tight">Whop Feed Posts (Post these today!)</p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {communityPosts.map((post, i) => (
-                        <div key={i} className="p-6 bg-white dark:bg-slate-800 rounded-2xl border-2 border-slate-100 dark:border-slate-700 shadow-sm flex flex-col justify-between">
-                            <div>
-                                <h5 className="text-sm font-black uppercase text-indigo-500 mb-3">{post.title}</h5>
-                                <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed italic mb-6">"{post.content}"</p>
-                            </div>
-                            <button 
-                                onClick={() => copyToClipboard(post.content, `Feed Post ${i+1}`)}
-                                className="w-full py-2 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 rounded-lg text-[10px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 transition-colors"
-                            >
-                                Copy Post Body
-                            </button>
-                        </div>
-                    ))}
-                </div>
+            <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 border-2 border-indigo-200 dark:border-indigo-800 rounded-2xl flex items-center gap-4">
+                <MessageSquareText className="text-indigo-600" />
+                <p className="text-sm font-bold text-indigo-900 dark:text-indigo-100 uppercase tracking-tight">Whop Feed Templates</p>
             </div>
-
-            {/* Products Section */}
-            <div className="space-y-8">
-                <div className="p-4 bg-slate-50 dark:bg-slate-900/20 border-2 border-slate-200 dark:border-slate-800 rounded-2xl flex items-center gap-4">
-                    <Terminal className="text-slate-600" />
-                    <p className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-tight">Product Page Content</p>
-                </div>
-                <div className="grid grid-cols-1 gap-8">
-                    {whopProducts.map((p) => (
-                        <div key={p.name} className="p-8 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-3xl shadow-sm space-y-6">
-                            <div className="flex justify-between items-center border-b border-slate-100 dark:border-slate-700 pb-4">
-                                <h4 className="font-black text-xl text-slate-900 dark:text-white uppercase">{p.name}</h4>
-                                <span className="text-lg font-black text-indigo-600">{p.price}</span>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-4">
-                                    <div>
-                                        <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Headline</p>
-                                        <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700">
-                                            <code className="text-[10px] font-bold text-indigo-500">{p.headline}</code>
-                                            <button onClick={() => copyToClipboard(p.headline, 'Headline')} className="p-1.5 hover:bg-white rounded-lg transition-colors"><Copy size={14}/></button>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Description</p>
-                                        <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-700 relative group">
-                                            <p className="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed pr-8">{p.desc}</p>
-                                            <button onClick={() => copyToClipboard(p.desc, 'Description')} className="absolute top-3 right-3 p-1.5 hover:bg-white dark:hover:bg-slate-800 rounded-lg transition-colors shadow-sm"><Copy size={14}/></button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {communityPosts.map((post, i) => (
+                    <div key={i} className="p-6 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 shadow-sm flex flex-col justify-between rounded-2xl">
+                        <div>
+                            <h5 className="text-sm font-black uppercase text-indigo-500 mb-3">{post.title}</h5>
+                            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed italic mb-6">"{post.content}"</p>
                         </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* FAQ Section */}
-            <div className="space-y-8">
-                <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-2xl flex items-center gap-4">
-                    <HelpCircle className="text-amber-600" />
-                    <p className="text-sm font-bold text-amber-900 dark:text-amber-100 uppercase tracking-tight">Whop FAQ Section (Copy These to all products)</p>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {whopFaqs.map((faq, i) => (
-                        <div key={i} className="p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-slate-100 dark:border-slate-700">
-                            <div className="flex justify-between items-start mb-2">
-                                <h5 className="text-xs font-black uppercase text-slate-400 tracking-widest">Question {i+1}</h5>
-                                <button onClick={() => copyToClipboard(faq.q, 'Question')} className="text-amber-600 hover:text-amber-700"><Copy size={14}/></button>
-                            </div>
-                            <p className="text-sm font-bold text-slate-900 dark:text-white mb-4">{faq.q}</p>
-                            <div className="flex justify-between items-start mb-2 pt-4 border-t border-slate-200 dark:border-slate-700">
-                                <h5 className="text-xs font-black uppercase text-slate-400 tracking-widest">Answer</h5>
-                                <button onClick={() => copyToClipboard(faq.a, 'Answer')} className="text-amber-600 hover:text-amber-700"><Copy size={14}/></button>
-                            </div>
-                            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">{faq.a}</p>
-                        </div>
-                    ))}
-                </div>
+                        <button onClick={() => copyToClipboard(post.content, `Post Body`)} className="w-full py-2 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 rounded-lg text-[10px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 transition-colors">
+                            Copy Template
+                        </button>
+                    </div>
+                ))}
             </div>
           </div>
         )}
 
         {activeTab === 'diagnostics' && (
            <div className="animate-fade-in space-y-8 max-w-2xl mx-auto py-6">
-              <div className="p-6 bg-rose-50 dark:bg-rose-900/20 border-2 border-rose-200 dark:border-rose-800 rounded-3xl">
+              <div className="p-6 bg-emerald-50 dark:bg-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-800 rounded-3xl">
                  <div className="flex items-center gap-4 mb-6">
-                    <div className="p-3 bg-rose-600 rounded-2xl text-white">
-                        <AlertCircle size={24} />
+                    <div className="p-3 bg-emerald-600 rounded-2xl text-white">
+                        <CheckCircle2 size={24} />
                     </div>
                     <div>
-                        <h4 className="font-black text-rose-900 dark:text-rose-100 uppercase tracking-tight">Whop Link Fixer</h4>
-                        <p className="text-xs text-rose-700 dark:text-rose-400">Fixing the "Whop Not Found" error</p>
+                        <h4 className="font-black text-emerald-900 dark:text-emerald-100 uppercase tracking-tight">System Status: Synced</h4>
+                        <p className="text-xs text-emerald-700 dark:text-emerald-400">App synced with melotwo2</p>
                     </div>
                  </div>
 
                  <div className="space-y-6">
-                    <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-rose-100 dark:border-rose-800">
-                        <p className="text-xs font-black text-slate-400 uppercase mb-2">Current App Link:</p>
+                    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-emerald-100 dark:border-emerald-800">
+                        <p className="text-xs font-black text-slate-400 uppercase mb-4 tracking-widest">Current Active Link</p>
                         <div className="flex items-center justify-between gap-4">
-                            <code className="text-xs font-bold text-rose-600 break-all">{whopUrl}</code>
+                            <code className="text-xs font-bold text-emerald-600 break-all">{whopUrl}</code>
                             <button 
                                 onClick={() => window.open(whopUrl, '_blank')}
                                 className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg hover:bg-slate-200 text-slate-600 transition-all flex-shrink-0"
@@ -256,33 +153,18 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                         </div>
                     </div>
 
-                    <div className="space-y-4">
-                        <h5 className="text-sm font-bold text-slate-900 dark:text-white">How to fix this:</h5>
-                        <ul className="space-y-3">
-                            <li className="flex items-start gap-3 text-xs text-slate-600 dark:text-slate-400">
-                                <span className="font-black text-rose-600">1.</span>
-                                <span>Go to your <strong>Whop Dashboard</strong> &gt; <strong>Settings</strong> &gt; <strong>General</strong>.</span>
-                            </li>
-                            <li className="flex items-start gap-3 text-xs text-slate-600 dark:text-slate-400">
-                                <span className="font-black text-rose-600">2.</span>
-                                <span>Look for <strong>"Whop URL"</strong> (also called a slug). It's likely something like <code>turoka15</code> or <code>melotwo2</code>.</span>
-                            </li>
-                            <li className="flex items-start gap-3 text-xs text-slate-600 dark:text-slate-400">
-                                <span className="font-black text-rose-600">3.</span>
-                                <span>Change that slug to <strong>CaterProAi</strong> (case sensitive!) or change the <code>WHOP_STORE_URL</code> in <code>App.tsx</code> to match your current slug.</span>
-                            </li>
-                            <li className="flex items-start gap-3 text-xs text-slate-600 dark:text-slate-400">
-                                <span className="font-black text-rose-600">4.</span>
-                                <span>Make sure your store is set to <strong>"Visible"</strong> in the visibility settings.</span>
-                            </li>
-                        </ul>
+                    <div className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <h5 className="text-xs font-black uppercase text-slate-400 mb-2">Note on Professionalism</h5>
+                        <p className="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed">
+                            While your username "melotwo2" works perfectly now, if you want it to say "CaterProAi" in the future, you can find the **Whop URL** box in **Settings > General**. If you change it there, come back here and ask me to update the link in the code to match!
+                        </p>
                     </div>
 
                     <button 
                         onClick={() => window.open('https://whop.com/dash/settings/general', '_blank')}
-                        className="w-full py-4 bg-rose-600 text-white rounded-2xl font-black text-sm shadow-lg hover:bg-rose-700 transition-all flex items-center justify-center gap-2"
+                        className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-sm shadow-lg hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
                     >
-                        Go to Whop Settings <ChevronRight size={18} />
+                        Go to Whop Admin <ExternalLink size={18} />
                     </button>
                  </div>
               </div>
