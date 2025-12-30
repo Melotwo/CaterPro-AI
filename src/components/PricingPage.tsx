@@ -8,6 +8,7 @@ import PaymentModal from './PaymentModal';
 interface PricingPageProps {
   onSelectPlan: (plan: SubscriptionPlan) => void;
   currency?: string;
+  whopUrl: string;
 }
 
 const TIER_STYLES = {
@@ -45,9 +46,7 @@ const TIER_STYLES = {
   },
 };
 
-const WHOP_PROFILE_URL = "https://whop.com/CaterProAi";
-
-const getTiers = (currency: string = 'ZAR') => {
+const getTiers = (currency: string = 'ZAR', whopUrl: string) => {
   const isZar = currency === 'ZAR';
   const symbol = isZar ? 'R' : (currency === 'EUR' ? '€' : (currency === 'GBP' ? '£' : '$'));
   
@@ -83,7 +82,7 @@ const getTiers = (currency: string = 'ZAR') => {
       cta: 'Lock in Founder Price',
       badge: 'Launch Deal',
       colorKey: 'blue' as keyof typeof TIER_STYLES,
-      whopLink: WHOP_PROFILE_URL,
+      whopLink: whopUrl,
     },
     {
       name: 'Professional',
@@ -103,7 +102,7 @@ const getTiers = (currency: string = 'ZAR') => {
       highlight: true,
       badge: 'Limited: Founder Rate',
       colorKey: 'amber' as keyof typeof TIER_STYLES,
-      whopLink: WHOP_PROFILE_URL,
+      whopLink: whopUrl,
     },
     {
       name: 'Business',
@@ -121,12 +120,12 @@ const getTiers = (currency: string = 'ZAR') => {
       ],
       cta: 'Lock in Founder Price',
       colorKey: 'royal' as keyof typeof TIER_STYLES,
-      whopLink: WHOP_PROFILE_URL,
+      whopLink: whopUrl,
     },
   ];
 };
 
-const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR' }) => {
+const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR', whopUrl }) => {
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState<SubscriptionPlan | null>(null);
   const [selectedPrice, setSelectedPrice] = useState('');
 
@@ -137,7 +136,9 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
     }
     
     if (tier.whopLink) {
-        window.open(tier.whopLink, '_blank');
+        // Robust opening for iPads
+        const win = window.open(tier.whopLink, '_blank');
+        if (win) win.focus();
         onSelectPlan(tier.id as SubscriptionPlan);
         return;
     }
@@ -153,7 +154,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
     }
   };
 
-  const tiers = getTiers(currency);
+  const tiers = getTiers(currency, whopUrl);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans">
