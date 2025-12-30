@@ -30,6 +30,10 @@ import { SavedMenu, ErrorState, ValidationErrors, Menu, MenuSection } from './ty
 import { getApiErrorState } from './services/apiErrorHandler';
 import { generateMenuFromApi, generateMenuImageFromApi } from './services/geminiService';
 
+// --- MASTER CONFIGURATION ---
+// Tumi: Change this to match your Whop Store URL (e.g., https://whop.com/caterproai)
+const WHOP_STORE_URL = "https://whop.com/CaterProAi"; 
+
 type AppView = 'landing' | 'generator' | 'pricing';
 
 const App: React.FC = () => {
@@ -156,6 +160,7 @@ const App: React.FC = () => {
       <SEOHead menu={menu} title={viewMode === 'landing' ? "The Chef's Secret Weapon" : "Generate Menu"} />
       
       <Navbar 
+        whopUrl={WHOP_STORE_URL}
         onThemeToggle={() => setIsDarkMode(!isDarkMode)} isDarkMode={isDarkMode} 
         onOpenSaved={() => attemptAccess('saveMenus') && setIsSavedModalOpen(true)} 
         savedCount={savedMenus.length} 
@@ -168,7 +173,7 @@ const App: React.FC = () => {
       
       {viewMode === 'landing' && <LandingPage onGetStarted={handleStartFromLanding} />}
 
-      {viewMode === 'pricing' && <PricingPage onSelectPlan={(p) => { selectPlan(p); setViewMode('generator'); }} currency={currency} />}
+      {viewMode === 'pricing' && <PricingPage whopUrl={WHOP_STORE_URL} onSelectPlan={(p) => { selectPlan(p); setViewMode('generator'); }} currency={currency} />}
 
       {viewMode === 'generator' && (
         <main className="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
@@ -248,7 +253,7 @@ const App: React.FC = () => {
                   </button>
                 </div>
               </div>
-              <FounderRoadmap />
+              <FounderRoadmap whopUrl={WHOP_STORE_URL} />
               <ResearchHub onShowToast={setToastMessage} />
             </div>
           )}
@@ -285,7 +290,7 @@ const App: React.FC = () => {
                 }} isEditable={canAccessFeature('reelsMode')} onEditItem={() => {}} showToast={setToastMessage} isGeneratingImage={isGeneratingImage} onUpdateShoppingItemQuantity={() => {}} bulkSelectedItems={new Set()} onToggleBulkSelect={() => {}} onBulkCheck={() => {}} onBulkUpdateQuantity={() => {}} onClearBulkSelection={() => {}} onSelectAllShoppingListItems={() => {}} proposalTheme={proposalTheme} canAccessFeature={canAccessFeature} onAttemptAccess={attemptAccess} deliveryRadius="10" onDeliveryRadiusChange={() => {}} onCalculateFee={() => {}} calculatedFee={null} preferredCurrency={currency} />
                 
                 <MarketingRoadmap />
-                <FounderRoadmap />
+                <FounderRoadmap whopUrl={WHOP_STORE_URL} />
                 <ResearchHub onShowToast={setToastMessage} />
             </div>
           )}
