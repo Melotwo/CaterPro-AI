@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail, Search, Globe } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail, Search, Globe, Facebook } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -31,8 +31,9 @@ import { getApiErrorState } from './services/apiErrorHandler';
 import { generateMenuFromApi, generateMenuImageFromApi } from './services/geminiService';
 
 // --- MASTER CONFIGURATION ---
-// Tumi: Change this to match your Whop Store URL (e.g., https://whop.com/caterproai)
-const WHOP_STORE_URL = "https://whop.com/CaterProAi"; 
+// Tumi: Synced to your actual Whop URL from the screenshot!
+const WHOP_STORE_URL = "https://whop.com/melotwo2"; 
+const FACEBOOK_PAGE_URL = "https://facebook.com/CaterProAi"; // Replace with your actual FB link
 
 type AppView = 'landing' | 'generator' | 'pricing';
 
@@ -161,6 +162,7 @@ const App: React.FC = () => {
       
       <Navbar 
         whopUrl={WHOP_STORE_URL}
+        facebookUrl={FACEBOOK_PAGE_URL}
         onThemeToggle={() => setIsDarkMode(!isDarkMode)} isDarkMode={isDarkMode} 
         onOpenSaved={() => attemptAccess('saveMenus') && setIsSavedModalOpen(true)} 
         savedCount={savedMenus.length} 
@@ -306,7 +308,7 @@ const App: React.FC = () => {
       <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
       
       {/* Footer rendered once for all views except pricing which has its own */}
-      {viewMode !== 'pricing' && <Footer />}
+      {viewMode !== 'pricing' && <Footer facebookUrl={FACEBOOK_PAGE_URL} />}
     </div>
   );
 };
