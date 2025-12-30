@@ -26,6 +26,10 @@ const whopFaqs = [
   {
     q: "What is the 'Early Bird' price?",
     a: "The current rates are for our Founder's Launch Phase. By joining now, you lock in these low rates forever, even when the public price increases next month."
+  },
+  {
+      q: "Can I cancel my subscription anytime?",
+      a: "Yes! There are no long-term contracts. You can manage and cancel your subscription instantly through your Whop account dashboard."
   }
 ];
 
@@ -110,7 +114,7 @@ const FounderRoadmap: React.FC = () => {
                 <div className="bg-primary-50/30 dark:bg-primary-900/10 p-6 rounded-3xl border-2 border-primary-100 dark:border-primary-800">
                     <h3 className="text-sm font-black uppercase tracking-widest text-primary-600 mb-4 flex items-center gap-2"><Award size={16} /> Strategy Note</h3>
                     <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">
-                        "Tumi, the low prices are perfect for a **Founder's Launch**. Use the 'Early Bird' labels I added to the Whop descriptions. It tells global users: 'This is usually $50, but it's $19 for now because you are early.' It increases sales dramatically."
+                        "Tumi, you should use the same set of FAQs for all 3 products. It makes your brand look consistent and professional. I've updated the 'Whop Cheat Sheet' with a master list of 5 questions you can copy-paste into those boxes!"
                     </p>
                 </div>
             </div>
@@ -159,7 +163,7 @@ const FounderRoadmap: React.FC = () => {
             <div className="space-y-8">
                 <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-2xl flex items-center gap-4">
                     <HelpCircle className="text-amber-600" />
-                    <p className="text-sm font-bold text-amber-900 dark:text-amber-100 uppercase tracking-tight">Whop FAQ Section (Copy These)</p>
+                    <p className="text-sm font-bold text-amber-900 dark:text-amber-100 uppercase tracking-tight">Whop FAQ Section (Copy These to all 3 products)</p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {whopFaqs.map((faq, i) => (
