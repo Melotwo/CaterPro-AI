@@ -37,7 +37,7 @@ const App: React.FC = () => {
   const [eventType, setEventType] = useState('');
   const [guestCount, setGuestCount] = useState('');
   const [budget, setBudget] = useState('$$');
-  const [currency, setCurrency] = useState('ZAR'); // Defaults to ZAR but adaptable
+  const [currency, setCurrency] = useState('ZAR'); 
   const [serviceStyle, setServiceStyle] = useState('Standard Catering');
   const [cuisine, setCuisine] = useState('');
   const [cuisineSearch, setCuisineSearch] = useState('');
@@ -166,12 +166,7 @@ const App: React.FC = () => {
         onViewPricing={() => setViewMode('pricing')}
       />
       
-      {viewMode === 'landing' && (
-        <>
-            <LandingPage onGetStarted={handleStartFromLanding} />
-            <Footer />
-        </>
-      )}
+      {viewMode === 'landing' && <LandingPage onGetStarted={handleStartFromLanding} />}
 
       {viewMode === 'pricing' && <PricingPage onSelectPlan={(p) => { selectPlan(p); setViewMode('generator'); }} currency={currency} />}
 
@@ -304,7 +299,9 @@ const App: React.FC = () => {
       <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={(p) => { selectPlan(p); setViewMode('generator'); setShowUpgradeModal(false); }} onViewPricing={() => setViewMode('pricing')} />
       <SocialMediaModal isOpen={isSocialModalOpen} onClose={() => setIsSocialModalOpen(false)} image={menu?.image} menuTitle={menu?.menuTitle || ''} menuDescription={menu?.description || ''} initialMode={socialModalMode} onImageGenerated={(b) => setMenu(p => p ? { ...p, image: b } : null)} />
       <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
-      <Footer />
+      
+      {/* Footer rendered once for all views except pricing which has its own */}
+      {viewMode !== 'pricing' && <Footer />}
     </div>
   );
 };
