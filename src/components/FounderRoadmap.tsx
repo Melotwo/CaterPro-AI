@@ -156,7 +156,7 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                     <div className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                         <h5 className="text-xs font-black uppercase text-slate-400 mb-2">Note on Professionalism</h5>
                         <p className="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed">
-                            While your username "melotwo2" works perfectly now, if you want it to say "CaterProAi" in the future, you can find the **Whop URL** box in **Settings > General**. If you change it there, come back here and ask me to update the link in the code to match!
+                            While your username "melotwo2" works perfectly now, if you want it to say "CaterProAi" in the future, you can find the **Whop URL** box in **Settings &gt; General**. If you change it there, come back here and ask me to update the link in the code to match!
                         </p>
                     </div>
 
