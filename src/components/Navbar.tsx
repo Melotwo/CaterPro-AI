@@ -1,9 +1,10 @@
 
 import React from 'react';
-import { ChefHat, Sun, Moon, Bookmark, Share2, Download, LogOut, Globe, Zap, ExternalLink, Users } from 'lucide-react';
+import { ChefHat, Sun, Moon, Bookmark, Share2, Download, LogOut, Globe, Zap, ExternalLink, Users, Facebook } from 'lucide-react';
 
 const Navbar: React.FC<{
   whopUrl: string;
+  facebookUrl?: string;
   onThemeToggle: () => void;
   isDarkMode: boolean;
   onOpenSaved: () => void;
@@ -13,7 +14,7 @@ const Navbar: React.FC<{
   onReset?: () => void;
   onViewLanding?: () => void;
   onViewPricing?: () => void;
-}> = ({ whopUrl, onThemeToggle, isDarkMode, onOpenSaved, savedCount, onOpenQrCode, onOpenInstall, onReset, onViewLanding, onViewPricing }) => (
+}> = ({ whopUrl, facebookUrl, onThemeToggle, isDarkMode, onOpenSaved, savedCount, onOpenQrCode, onOpenInstall, onReset, onViewLanding, onViewPricing }) => (
   <nav role="navigation" aria-label="Main navigation" className="no-print bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200 dark:border-slate-800 pt-[env(safe-area-inset-top)]">
     <div className="max-w-4xl mx-auto px-4">
       <div className="flex justify-between items-center h-16">
@@ -34,6 +35,18 @@ const Navbar: React.FC<{
         </div>
 
         <div className="flex items-center space-x-2 sm:space-x-4">
+          {facebookUrl && (
+             <a 
+              href={facebookUrl} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="p-2 rounded-full text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
+              title="Facebook Community"
+            >
+              <Facebook size={20} />
+            </a>
+          )}
+
           <a 
             href={whopUrl} 
             target="_blank" 
