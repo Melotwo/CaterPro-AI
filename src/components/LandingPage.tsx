@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ChefHat, Check, ArrowRight, Star, Zap, Quote, ChevronDown, ChevronUp, HelpCircle, AlignLeft, Linkedin, Twitter, Brain, Heart, Gift, Globe, Rocket } from 'lucide-react';
+import { ChefHat, Check, ArrowRight, Star, Zap, Quote, ChevronDown, ChevronUp, HelpCircle, AlignLeft, Linkedin, Twitter, Brain, Heart, Gift, Globe, Rocket, Sparkle } from 'lucide-react';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -19,7 +19,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
     if (pricingSection) {
       pricingSection.scrollIntoView({ behavior: 'smooth' });
     } else {
-      onGetStarted(); // Fallback to generator view
+      onGetStarted(); 
     }
   };
 
@@ -35,17 +35,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
       const target = e.currentTarget;
-      if (target.src.includes('unsplash')) {
-          target.style.display = 'none';
-      } else {
-          target.src = "https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=800&q=80";
-      }
+      target.src = "https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=800&q=80";
   };
 
   const faqs = [
     {
       question: "Is this for a specific country?",
-      answer: "No. CaterPro AI is global. It generates menus based on any cuisine (from Balkan to South African) and calculates logistics for any region with local currency support."
+      answer: "No. CaterPro AI is global. It generates menus based on any cuisine and calculates logistics for any region with local currency support."
     },
     {
       question: "Is CaterPro AI really free to try?",
@@ -59,6 +55,21 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans">
+      
+      {/* --- NEW YEAR 2025 FESTIVE BANNER --- */}
+      <div className="bg-indigo-600 text-white py-3 px-4 relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 animate-pulse"></div>
+          <div className="max-w-7xl mx-auto flex items-center justify-center gap-3 relative z-10 text-center">
+              <Sparkle size={18} className="text-amber-400 animate-bounce" />
+              <p className="text-xs sm:text-sm font-black uppercase tracking-widest">
+                  Welcome to 2025! Lock in the "Founder Lifetime" Rate today 🥂
+              </p>
+              <button onClick={handleScrollToPricing} className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-white text-indigo-700 rounded-full text-[10px] font-black hover:scale-105 transition-transform">
+                  Claim Deal <ArrowRight size={12} />
+              </button>
+          </div>
+      </div>
+
       {/* --- HERO SECTION --- */}
       <div className="relative overflow-hidden pt-16 pb-12 lg:pt-24 lg:pb-24">
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col lg:flex-row items-center">
@@ -68,7 +79,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                   onClick={handleScrollToPricing}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 text-xs font-black animate-fade-in border-2 border-primary-200 dark:border-primary-700 hover:scale-105 transition-transform shadow-lg shadow-primary-500/10 cursor-pointer"
                 >
-                  <Globe size={14} className="animate-spin-slow" />
+                  <Globe size={14} />
                   <span>Global AI Assistant</span>
                 </button>
                 <button 
@@ -76,24 +87,24 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-600 text-white text-xs font-black border-2 border-indigo-400 hover:scale-105 transition-transform shadow-lg shadow-indigo-500/20 cursor-pointer"
                 >
                   <Rocket size={14} />
-                  <span>Founder's Launch Live 🚀</span>
+                  <span>2025 Launch Live 🚀</span>
                 </button>
             </div>
             <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black text-slate-900 dark:text-white tracking-tighter mb-6 leading-[0.9]">
-              You are a Chef. <br />
+              Chef in the Kitchen. <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-indigo-500">
-                Not a Typist.
+                AI in the Office.
               </span>
             </h1>
             <p className="text-xl text-slate-600 dark:text-slate-300 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
-              Stop spending your Sundays on paperwork. Generate menus, shopping lists, and professional proposals in seconds.
+              Start 2025 with a system, not chaos. Generate professional menus and costing in 30 seconds.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <button 
                 onClick={onGetStarted}
                 className="inline-flex items-center justify-center px-12 py-5 text-lg font-black text-white bg-primary-600 rounded-2xl shadow-2xl shadow-primary-500/30 hover:bg-primary-700 hover:scale-105 transition-all"
               >
-                Start Your First Proposal
+                Start Free Proposal
                 <ArrowRight className="ml-2 w-6 h-6" />
               </button>
             </div>
@@ -112,12 +123,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                     <div className="space-y-8">
                         <div className="h-5 bg-slate-100 dark:bg-slate-800 rounded-full w-3/4 animate-pulse"></div>
                         <div className="h-5 bg-slate-100 dark:bg-slate-800 rounded-full w-full animate-pulse delay-75"></div>
-                        <div className="h-5 bg-slate-100 dark:bg-slate-800 rounded-full w-2/3 animate-pulse delay-150"></div>
                         <div className="pt-12">
                              <div className="p-10 bg-emerald-50 dark:bg-emerald-900/20 border-4 border-dashed border-emerald-500/30 rounded-[2rem] text-center">
                                  <Check className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
-                                 <p className="font-black text-slate-900 dark:text-white uppercase tracking-widest text-sm">Proposal Validated</p>
-                                 <p className="text-xs text-emerald-700 dark:text-emerald-400 mt-2 font-bold">Local Currency Costing Sync: OK</p>
+                                 <p className="font-black text-slate-900 dark:text-white uppercase tracking-widest text-sm">System Ready for 2025</p>
                              </div>
                         </div>
                     </div>
@@ -148,22 +157,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                         <Brain className="w-10 h-10 text-primary-500" />
                     </div>
                     <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-[0.9] italic tracking-tight">
-                        "I built this because paperwork shouldn't be a chef's barrier."
+                        "Organizing the kitchen chaos for every chef."
                     </h2>
                     <div className="space-y-8 text-slate-400 text-xl leading-relaxed font-medium">
                         <p>
-                            Growing up with <strong>ADHD and Dyslexia</strong>, the "admin" side of catering was my biggest nightmare. I'd spend hours stressing over spelling and organization instead of focusing on the flavor.
-                        </p>
-                        <p>
-                            I built <strong>CaterPro AI</strong> for every chef who is tired of the grind behind the computer. It handles the spelling, the pricing, and the lists so you can get back to what you love.
+                            I built CaterPro AI to solve the #1 barrier to professional success: The admin grind. Whether you're a student or a pro, you deserve a system that works as hard as you do.
                         </p>
                     </div>
                     <div className="pt-12 border-t border-slate-800 flex flex-wrap gap-4">
                         <button onClick={() => handleShare('linkedin')} className="flex items-center gap-3 px-8 py-4 bg-[#0077b5] text-white rounded-2xl hover:bg-[#006097] text-sm font-black transition-all active:scale-95 shadow-xl shadow-blue-500/20">
                             <Linkedin size={20} /> Share My Story
-                        </button>
-                        <button onClick={() => handleShare('twitter')} className="flex items-center gap-3 px-8 py-4 bg-white text-black rounded-2xl hover:bg-slate-100 text-sm font-black transition-all active:scale-95 shadow-xl shadow-white/10">
-                            <Twitter size={20} /> Post on X
                         </button>
                     </div>
                 </div>
@@ -176,7 +179,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
          <div className="max-w-4xl mx-auto px-6">
             <div className="text-center mb-20">
                 <h2 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight">Common Questions</h2>
-                <p className="text-slate-500 mt-4 text-lg font-medium">Everything you need to know about the chef's secret weapon.</p>
             </div>
             <div className="space-y-6">
                 {faqs.map((faq, index) => (
@@ -196,7 +198,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
          </div>
       </div>
       
-      {/* Target for scrolling to pricing */}
       <div id="pricing-plans" className="pb-20"></div>
     </div>
   );
