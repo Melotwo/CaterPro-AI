@@ -56,13 +56,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans">
       
-      {/* --- NEW YEAR 2025 FESTIVE BANNER --- */}
+      {/* --- NEW YEAR 2026 FESTIVE BANNER --- */}
       <div className="bg-indigo-600 text-white py-3 px-4 relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 animate-pulse"></div>
           <div className="max-w-7xl mx-auto flex items-center justify-center gap-3 relative z-10 text-center">
               <Sparkle size={18} className="text-amber-400 animate-bounce" />
               <p className="text-xs sm:text-sm font-black uppercase tracking-widest">
-                  Welcome to 2025! Lock in the "Founder Lifetime" Rate today 🥂
+                  Welcome to 2026! Lock in the "Founder Lifetime" Rate today 🥂
               </p>
               <button onClick={handleScrollToPricing} className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-white text-indigo-700 rounded-full text-[10px] font-black hover:scale-105 transition-transform">
                   Claim Deal <ArrowRight size={12} />
@@ -87,7 +87,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-600 text-white text-xs font-black border-2 border-indigo-400 hover:scale-105 transition-transform shadow-lg shadow-indigo-500/20 cursor-pointer"
                 >
                   <Rocket size={14} />
-                  <span>2025 Launch Live 🚀</span>
+                  <span>2026 Launch Live 🚀</span>
                 </button>
             </div>
             <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black text-slate-900 dark:text-white tracking-tighter mb-6 leading-[0.9]">
@@ -97,7 +97,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               </span>
             </h1>
             <p className="text-xl text-slate-600 dark:text-slate-300 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
-              Start 2025 with a system, not chaos. Generate professional menus and costing in 30 seconds.
+              Start 2026 with a system, not chaos. Generate professional menus and costing in 30 seconds.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <button 
@@ -126,7 +126,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                         <div className="pt-12">
                              <div className="p-10 bg-emerald-50 dark:bg-emerald-900/20 border-4 border-dashed border-emerald-500/30 rounded-[2rem] text-center">
                                  <Check className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
-                                 <p className="font-black text-slate-900 dark:text-white uppercase tracking-widest text-sm">System Ready for 2025</p>
+                                 <p className="font-black text-slate-900 dark:text-white uppercase tracking-widest text-sm">System Ready for 2026</p>
                              </div>
                         </div>
                     </div>
