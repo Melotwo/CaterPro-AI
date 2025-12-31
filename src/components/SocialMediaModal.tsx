@@ -109,7 +109,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
 
         <div className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 p-3 flex gap-2 overflow-x-auto no-scrollbar">
             <button onClick={() => setActiveMode('newyear')} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'newyear' ? 'bg-amber-500 text-white shadow-md' : 'text-slate-500'}`}>
-                <Sparkle size={16} /> New Year 2025
+                <Sparkle size={16} /> New Year 2026
             </button>
             <button onClick={() => setActiveMode('create')} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'create' ? 'bg-white dark:bg-slate-700 shadow-md text-primary-600' : 'text-slate-500'}`}>
                 <ImageIcon size={16} /> Social Post
@@ -132,9 +132,9 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                       <div className="bg-gradient-to-br from-slate-900 to-indigo-900 text-white p-8 rounded-3xl border-4 border-indigo-500/30 flex flex-col items-center text-center shadow-2xl relative overflow-hidden">
                           <div className="absolute -top-10 -right-10 w-40 h-40 bg-amber-400/10 rounded-full blur-3xl"></div>
                           <Sparkle size={56} className="text-amber-400 mb-6 animate-pulse" />
-                          <h3 className="text-2xl font-black uppercase tracking-tighter">New Year Launch Script</h3>
+                          <h3 className="text-2xl font-black uppercase tracking-tighter">New Year 2026 Script</h3>
                           <p className="text-xs text-slate-300 mt-4 leading-relaxed">
-                              Position CaterPro AI as the #1 resolution for chefs in 2025. This script follows the Neil Patel "Direct & High Energy" framework.
+                              Position CaterPro AI as the #1 resolution for chefs in 2026. This script targets the motivation of a new year.
                           </p>
                       </div>
                       <button 
@@ -143,7 +143,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                           className="w-full py-5 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl font-black shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 transition-all active:scale-95"
                       >
                           {isGenerating ? <Loader2 className="animate-spin" size={20} /> : <Zap size={20} className="fill-white" />}
-                          {isGenerating ? 'Writing Resolution...' : 'Build 2025 Launch Script'}
+                          {isGenerating ? 'Writing Resolution...' : 'Build 2026 Launch Script'}
                       </button>
                    </div>
                 ) : activeMode === 'create' ? (
