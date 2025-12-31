@@ -189,13 +189,13 @@ export const generateSocialCaption = async (menuTitle: string, description: stri
 export const generateNewYearLaunchScript = async (menuTitle: string, description: string): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
   const prompt = `
-    Write a 60-second high-energy "New Year 2025" Launch VSL script for: "${menuTitle}".
+    Write a 60-second high-energy "New Year 2026" Launch VSL script for: "${menuTitle}".
     Target: Chefs and Catering students.
-    Theme: "Resolution for Organization. Leave the Chaos in 2024."
+    Theme: "Dominate 2026. Resolution for Operational Systems. Leave the 2025 Chaos Behind."
     
-    Hook: "2025 is the year you stop being a typist and start being a Chef again."
-    Body: Mention that CaterPro AI automates the paperwork that usually kills Sunday prep.
-    Offer: "Lock in the Founder's Rate before the clock strikes midnight."
+    Hook: "2026 is the year you stop being a typist and start being a CEO Chef."
+    Body: Mention that CaterPro AI automates the paperwork that usually kills Sunday prep. Leave the outdated 2025 workflows in the past.
+    Offer: "Lock in the Founder's Rate before the clock strikes midnight on 2026."
     
     Tone: Motivating, fast, professional.
   `;
@@ -208,7 +208,7 @@ export const generateNewYearLaunchScript = async (menuTitle: string, description
 
 export const generateProvanceVSLScript = async (menuTitle: string, description: string): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `Write a 60-90 second VSL following Greg Provance's framework for: "${menuTitle}". Focus on 'Systems vs Chaos'.`;
+  const prompt = `Write a 60-90 second VSL following Greg Provance's framework for: "${menuTitle}". Focus on 'Systems vs Chaos' and building a legacy in 2026.`;
   const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: prompt
@@ -228,7 +228,7 @@ export const generatePodcastStoryboard = async (menuTitle: string, description: 
 
 export const generateExplainerScript = async (menuTitle: string, description: string): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `Write a 60s explainer script for CaterPro AI focusing on React Logic and Food Safety.`;
+  const prompt = `Write a 60s explainer script for CaterPro AI focusing on React Logic and Food Safety standards for 2026.`;
   const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: prompt
@@ -250,7 +250,7 @@ export const generateSocialVideoFromApi = async (menuTitle: string, description:
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
     let operation = await ai.models.generateVideos({
         model: 'veo-3.1-fast-generate-preview',
-        prompt: `Vertical cinematic commercial for a catering event titled "${menuTitle}".`,
+        prompt: `Vertical cinematic commercial for a catering event titled "${menuTitle}". High-end 2026 aesthetic.`,
         config: { numberOfVideos: 1, resolution: '720p', aspectRatio: '9:16' }
     });
     while (!operation.done) {
@@ -262,7 +262,6 @@ export const generateSocialVideoFromApi = async (menuTitle: string, description:
     return `${videoUri}&key=${getApiKey()}`;
 };
 
-// Fixed: Added missing regenerateMenuItemFromApi export
 export const regenerateMenuItemFromApi = async (originalText: string, instruction: string): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
   const prompt = `Original menu item: "${originalText}". Instruction: "${instruction}". Rewrite the menu item professionally according to the instruction. Return only the revised text without any additional commentary.`;
@@ -273,7 +272,6 @@ export const regenerateMenuItemFromApi = async (originalText: string, instructio
   return response.text?.trim() || originalText;
 };
 
-// Fixed: Added missing generateStudyGuideFromApi export
 export const generateStudyGuideFromApi = async (topic: string, curriculum: string, level: string, type: 'guide' | 'curriculum'): Promise<EducationContent> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
   const prompt = `Create a professional ${type === 'guide' ? 'study guide' : 'curriculum syllabus'} for the topic: "${topic}". 
@@ -317,7 +315,6 @@ export const generateStudyGuideFromApi = async (topic: string, curriculum: strin
   return JSON.parse(text);
 };
 
-// Fixed: Added missing analyzeReceiptFromApi export
 export const analyzeReceiptFromApi = async (base64: string): Promise<any> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
   const imagePart = {
@@ -351,7 +348,6 @@ export const analyzeReceiptFromApi = async (base64: string): Promise<any> => {
   return JSON.parse(text);
 };
 
-// Fixed: Added missing analyzeLabelFromApi export
 export const analyzeLabelFromApi = async (base64: string, dietaryRestrictions: string[]): Promise<any> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
   const imagePart = {
