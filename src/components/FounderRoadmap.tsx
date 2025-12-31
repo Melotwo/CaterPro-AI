@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Calendar, CheckCircle2, Zap, Trophy, Shield, Globe, CreditCard, Mail, Users, DollarSign, Smartphone, Target, BookCheck, ChevronRight, Copy, Award, ShieldCheck, ShoppingBag, Terminal, HelpCircle, MessageSquareQuote, MessageSquareText, Activity, AlertCircle, ExternalLink, Settings, Wallet } from 'lucide-react';
+import { Calendar, CheckCircle2, Zap, Trophy, Shield, Globe, CreditCard, Mail, Users, DollarSign, Smartphone, Target, BookCheck, ChevronRight, Copy, Award, ShieldCheck, ShoppingBag, Terminal, HelpCircle, MessageSquareQuote, MessageSquareText, Activity, AlertCircle, ExternalLink, Settings, Wallet, Video, Linkedin, MessageSquarePlus, Sparkle } from 'lucide-react';
 
 interface FounderRoadmapProps {
   whopUrl: string;
@@ -9,20 +9,25 @@ interface FounderRoadmapProps {
 const dailyTasks = [
   { id: 'whop-post-1', label: 'Publish First Whop Post (DONE! 🤙🏿)', highPriority: true, initialDone: true },
   { id: 'whop-id-verify', label: 'Verify Identity on Whop (DONE! 🪪)', highPriority: true, initialDone: true },
-  { id: 'whop-paypal', label: 'Connect PayPal to Whop Dashboard', highPriority: true },
-  { id: 'whop-create-pro', label: 'Create "Professional" ($19.99/mo)', highPriority: true },
-  { id: 'whop-create-biz', label: 'Create "Business" ($29.99/mo)', highPriority: true },
+  { id: 'whop-newyear-vsl', label: 'Record New Year Screen Demo (VSL)', highPriority: true },
+  { id: 'whop-post-launch', label: 'Post 2025 Reel (All Platforms)', highPriority: true },
+  { id: 'whop-linkedin-greg', label: 'Reply to Greg Provance on LinkedIn', highPriority: true },
+  { id: 'whop-paypal', label: 'Connect PayPal for Payouts', highPriority: true },
 ];
 
-const communityPosts = [
+const linkedinTemplates = [
   {
-    title: "The Next Step 🚀",
-    content: "Just posted our first official update! I'm working hard to ensure CaterPro AI is the best tool for chefs globally. If you haven't yet, check out the 'Products' tab to lock in your Founder's Rate!"
+    title: "New Year 'Resolution' Hook",
+    text: "Resolution for 2025: Less chaos, more systems. I’m helping chefs automate their paperwork hurdles with CaterPro AI so they can focus on leadership, not spreadsheets."
+  },
+  {
+    title: "The 'Provance' System Reply",
+    text: "Spot on! Greg, as you always say, a restaurant without a system is just an expensive hobby. I’m building CaterPro AI to be the 'System' that handles the chaos."
   }
 ];
 
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
-  const [activeTab, setActiveTab] = useState<'growth' | 'whop' | 'payments'>('growth');
+  const [activeTab, setActiveTab] = useState<'growth' | 'whop' | 'marketing'>('growth');
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['whop-post-1', 'whop-id-verify', 'whop-url-sync']));
 
   const toggleTask = (taskId: string) => {
@@ -34,7 +39,7 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
 
   const copyToClipboard = (text: string, label: string) => {
       navigator.clipboard.writeText(text);
-      alert(`${label} copied! Now paste it into Whop.`);
+      alert(`${label} copied!`);
   };
 
   return (
@@ -43,8 +48,8 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
-                <div className="px-2 py-0.5 rounded bg-emerald-500 text-[10px] font-black uppercase tracking-widest animate-pulse">Live Dashboard</div>
-                <div className="flex items-center gap-1 text-slate-400 text-xs"><ShieldCheck size={12} className="text-amber-400" /> System Sync</div>
+                <div className="px-2 py-0.5 rounded bg-emerald-500 text-[10px] font-black uppercase tracking-widest animate-pulse">2025 Launch Mode</div>
+                <div className="flex items-center gap-1 text-slate-400 text-xs"><ShieldCheck size={12} className="text-amber-400" /> System Active</div>
             </div>
             <h2 className="text-3xl font-black flex items-center gap-3">
               <Zap className="text-amber-400 fill-amber-400" /> Tumi's Command Center
@@ -58,8 +63,8 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
             <button onClick={() => setActiveTab('whop')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'whop' ? 'bg-indigo-500 text-white shadow-lg' : 'text-slate-400'}`}>
                 <ShoppingBag size={14} /> Whop Content
             </button>
-            <button onClick={() => setActiveTab('payments')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'payments' ? 'bg-amber-500 text-white shadow-lg' : 'text-slate-400'}`}>
-                <Wallet size={14} /> PayPal Setup
+            <button onClick={() => setActiveTab('marketing')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'marketing' ? 'bg-amber-500 text-white shadow-lg' : 'text-slate-400'}`}>
+                <Sparkle size={14} /> 2025 Marketing
             </button>
           </div>
         </div>
@@ -86,84 +91,68 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                 <div className="bg-primary-50/30 dark:bg-primary-900/10 p-6 rounded-3xl border-2 border-primary-100 dark:border-primary-800">
                     <h3 className="text-sm font-black uppercase tracking-widest text-primary-600 mb-4 flex items-center gap-2"><Award size={16} /> Strategy Note</h3>
                     <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">
-                        "Great job on the ID verification! Whop is perfect because it handles the login friction for you. If you connect your PayPal, your customers get the 'one-click' experience they love."
+                        "Tumi, the New Year launch is perfect. Use the 'New Year 2025' script in the Marketing Lab. It’s designed to push people into action right now while they are motivated. Record your screen while the AI is generating a menu—it’s magic to watch!"
                     </p>
                 </div>
             </div>
           </div>
         )}
 
-        {activeTab === 'whop' && (
-          <div className="animate-fade-in space-y-12 pb-12">
-            <div className="p-4 bg-indigo-50 dark:bg-indigo-900/20 border-2 border-indigo-200 dark:border-indigo-800 rounded-2xl flex items-center gap-4">
-                <MessageSquareText className="text-indigo-600" />
-                <p className="text-sm font-bold text-indigo-900 dark:text-indigo-100 uppercase tracking-tight">Whop Feed Templates</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {communityPosts.map((post, i) => (
-                    <div key={i} className="p-6 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 shadow-sm flex flex-col justify-between rounded-2xl">
-                        <div>
-                            <h5 className="text-sm font-black uppercase text-indigo-500 mb-3">{post.title}</h5>
-                            <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed italic mb-6">"{post.content}"</p>
+        {activeTab === 'marketing' && (
+           <div className="animate-fade-in space-y-8 max-w-4xl mx-auto py-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="p-6 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-3xl">
+                   <div className="flex items-center gap-4 mb-6">
+                      <div className="p-3 bg-blue-600 rounded-2xl text-white">
+                          <Linkedin size={24} />
+                      </div>
+                      <div>
+                          <h4 className="font-black text-blue-900 dark:text-blue-100 uppercase tracking-tight text-sm">Provance Authority Lab</h4>
+                          <p className="text-[10px] text-blue-700 dark:text-blue-400">Authority Templates</p>
+                      </div>
+                   </div>
+                   
+                   <div className="space-y-3">
+                      {linkedinTemplates.map((template, i) => (
+                        <div key={i} className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-blue-100 dark:border-blue-800">
+                           <h5 className="text-[10px] font-black uppercase text-blue-500 mb-2">{template.title}</h5>
+                           <p className="text-[11px] text-slate-600 dark:text-slate-400 mb-3 italic">"{template.text}"</p>
+                           <button 
+                             onClick={() => copyToClipboard(template.text, template.title)}
+                             className="w-full py-2 bg-blue-50 dark:bg-blue-800/40 text-blue-600 dark:text-blue-300 rounded-lg font-black text-[9px] uppercase tracking-widest"
+                           >
+                             Copy Template
+                           </button>
                         </div>
-                        <button onClick={() => copyToClipboard(post.content, `Post Body`)} className="w-full py-2 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-600 dark:text-indigo-300 rounded-lg text-[10px] font-black uppercase tracking-widest border border-indigo-100 dark:border-indigo-800 hover:bg-indigo-100 transition-colors">
-                            Copy Template
+                      ))}
+                   </div>
+                </div>
+
+                <div className="p-6 bg-slate-900 text-white border-2 border-slate-800 rounded-3xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                        <Sparkle size={80} className="text-amber-400" />
+                    </div>
+                    <div className="flex items-center gap-4 mb-6">
+                        <div className="p-3 bg-amber-500 rounded-2xl text-white">
+                            <Video size={24} />
+                        </div>
+                        <div>
+                            <h4 className="font-black text-white uppercase tracking-tight text-sm">2025 Launch Hook</h4>
+                            <p className="text-[10px] text-slate-400">Neil Patel Style Energy</p>
+                        </div>
+                    </div>
+                    <div className="space-y-4">
+                        <p className="text-[11px] text-slate-300 italic leading-relaxed">
+                            "Start 2025 with a system, not chaos. Most chefs fail because they drown in admin. I built CaterPro AI to take that weight off your shoulders."
+                        </p>
+                        <button 
+                            onClick={() => copyToClipboard("Stop being a typist. Start being a Chef again in 2025. Lock in your Founder's rate today.", "2025 Launch Hook")}
+                            className="w-full py-3 bg-amber-500 text-white rounded-xl font-black text-xs uppercase shadow-lg flex items-center justify-center gap-2"
+                        >
+                            Copy 2025 Launch Hook <Copy size={14} />
                         </button>
                     </div>
-                ))}
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'payments' && (
-           <div className="animate-fade-in space-y-8 max-w-2xl mx-auto py-6">
-              <div className="p-6 bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-3xl">
-                 <div className="flex items-center gap-4 mb-6">
-                    <div className="p-3 bg-amber-500 rounded-2xl text-white">
-                        <DollarSign size={24} />
-                    </div>
-                    <div>
-                        <h4 className="font-black text-amber-900 dark:text-amber-100 uppercase tracking-tight">Enabling PayPal for Users</h4>
-                        <p className="text-xs text-amber-700 dark:text-amber-400">Step-by-step for a "One-Click" checkout</p>
-                    </div>
-                 </div>
-
-                 <div className="space-y-6">
-                    <div className="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-amber-100 dark:border-amber-800">
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-4">
-                                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-black text-xs text-amber-500">1</div>
-                                <p className="text-xs font-bold">In the Whop Sidebar, click <strong>Settings</strong> (at the bottom).</p>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-black text-xs text-amber-500">2</div>
-                                <p className="text-xs font-bold">Click on <strong>Payments</strong> in the settings menu.</p>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center font-black text-xs text-amber-500">3</div>
-                                <p className="text-xs font-bold">Look for the <strong>PayPal</strong> section and click "Connect".</p>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-black text-xs text-white">4</div>
-                                <p className="text-xs font-bold">Log in to your PayPal. That's it! Your users can now pay via PayPal.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="p-4 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-                        <h5 className="text-xs font-black uppercase text-slate-400 mb-2">Why this is best:</h5>
-                        <p className="text-[10px] text-slate-600 dark:text-slate-400 leading-relaxed">
-                            When users pay via the Whop checkout, Whop automatically unlocks their "Pro" features inside this app. If you use a separate PayPal button, you would have to manually unlock them yourself. Whop does it for you while you sleep!
-                        </p>
-                    </div>
-
-                    <button 
-                        onClick={() => window.open('https://whop.com/dash/settings/payments', '_blank')}
-                        className="w-full py-4 bg-amber-600 text-white rounded-2xl font-black text-sm shadow-lg hover:bg-amber-700 transition-all flex items-center justify-center gap-2"
-                    >
-                        Go to Whop Payment Settings <ExternalLink size={18} />
-                    </button>
-                 </div>
+                </div>
               </div>
            </div>
         )}
