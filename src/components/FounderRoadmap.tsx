@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Calendar, CheckCircle2, Zap, Trophy, Shield, Globe, CreditCard, Mail, Users, DollarSign, Smartphone, Target, BookCheck, ChevronRight, Copy, Award, ShieldCheck, ShoppingBag, Terminal, HelpCircle, MessageSquareQuote, MessageSquareText, Activity, AlertCircle, ExternalLink, Settings, Wallet, Video, Linkedin, MessageSquarePlus, Sparkle } from 'lucide-react';
+import { Calendar, CheckCircle2, Zap, Trophy, Shield, Globe, CreditCard, Mail, Users, DollarSign, Smartphone, Target, BookCheck, ChevronRight, Copy, Award, ShieldCheck, ShoppingBag, Terminal, HelpCircle, MessageSquareQuote, MessageSquareText, Activity, AlertCircle, ExternalLink, Settings, Wallet, Video, Linkedin, MessageSquarePlus, Sparkle, Facebook } from 'lucide-react';
 
 interface FounderRoadmapProps {
   whopUrl: string;
@@ -8,27 +8,26 @@ interface FounderRoadmapProps {
 
 const dailyTasks = [
   { id: 'whop-post-1', label: 'Publish First Whop Post (DONE! 🤙🏿)', highPriority: true, initialDone: true },
-  { id: 'whop-id-verify', label: 'Verify Identity on Whop (DONE! 🪪)', highPriority: true, initialDone: true },
-  { id: 'whop-newyear-vsl', label: 'Record New Year 2026 Screen Demo', highPriority: true },
-  { id: 'whop-post-launch', label: 'Post 2026 Reel (Countdown Live)', highPriority: true },
-  { id: 'whop-linkedin-greg', label: 'Reply to Greg Provance on LinkedIn', highPriority: true },
-  { id: 'whop-paypal', label: 'Connect PayPal for Payouts', highPriority: true },
+  { id: 'fb-launch-demo', label: 'Post FB Screen Demo (Neil Patel Style)', highPriority: true },
+  { id: 'fb-provance-post', label: 'Post "Systems vs Chaos" to FB Group', highPriority: true },
+  { id: 'whop-linkedin-greg', label: 'Tag Greg Provance on LinkedIn', highPriority: true },
+  { id: 'whop-paypal', label: 'Verify PayPal Payouts', highPriority: true },
 ];
 
-const linkedinTemplates = [
+const fbTemplates = [
   {
-    title: "2026 'Resolution' Hook",
-    text: "Resolution for 2026: Total operational freedom. I’m helping chefs automate their paperwork hurdles with CaterPro AI. Let's leave the 2025 manual grind behind."
+    title: "The 'New Year' System Hook",
+    text: "Resolution for 2026: Less chaos, more systems. 🥂 I'm helping chefs automate the admin grind with CaterPro AI so you can finally focus on leadership. Join the Founder's circle today at https://caterpro-ai.web.app/"
   },
   {
-    title: "The 'Provance' System Reply",
-    text: "Spot on! Greg, as we head into 2026, a restaurant without a system is just an expensive hobby. I’m building CaterPro AI to be the 'System' that dominates the chaos."
+    title: "The 'Operational Rigor' Post",
+    text: "Most caterers fail because they have chaos, not a system. I built CaterPro AI based on international cruise line standards to give you that system instantly. Let's make 2026 your most profitable year yet."
   }
 ];
 
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
   const [activeTab, setActiveTab] = useState<'growth' | 'whop' | 'marketing'>('growth');
-  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['whop-post-1', 'whop-id-verify', 'whop-url-sync']));
+  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['whop-post-1']));
 
   const toggleTask = (taskId: string) => {
     const newTasks = new Set(completedTasks);
@@ -48,11 +47,10 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
-                <div className="px-2 py-0.5 rounded bg-emerald-500 text-[10px] font-black uppercase tracking-widest animate-pulse">2026 Launch Mode</div>
-                <div className="flex items-center gap-1 text-slate-400 text-xs"><ShieldCheck size={12} className="text-amber-400" /> System Active</div>
+                <div className="px-2 py-0.5 rounded bg-blue-500 text-[10px] font-black uppercase tracking-widest animate-pulse">2026 Facebook Launch Mode</div>
             </div>
             <h2 className="text-3xl font-black flex items-center gap-3">
-              <Zap className="text-amber-400 fill-amber-400" /> Tumi's Command Center
+              <Zap className="text-amber-400 fill-amber-400" /> Tumi's Dashboard
             </h2>
           </div>
           
@@ -60,11 +58,8 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
             <button onClick={() => setActiveTab('growth')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'growth' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>
                 <Trophy size={14} /> Mission
             </button>
-            <button onClick={() => setActiveTab('whop')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'whop' ? 'bg-indigo-500 text-white shadow-lg' : 'text-slate-400'}`}>
-                <ShoppingBag size={14} /> Whop Content
-            </button>
-            <button onClick={() => setActiveTab('marketing')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'marketing' ? 'bg-amber-500 text-white shadow-lg' : 'text-slate-400'}`}>
-                <Sparkle size={14} /> 2026 Marketing
+            <button onClick={() => setActiveTab('marketing')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'marketing' ? 'bg-blue-500 text-white shadow-lg' : 'text-slate-400'}`}>
+                <Facebook size={14} /> FB Launch
             </button>
           </div>
         </div>
@@ -75,7 +70,7 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
           <div className="space-y-10 animate-fade-in max-w-4xl mx-auto py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-4">
-                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Launch Checklist</h3>
+                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Launch Tasks</h3>
                     <div className="bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl overflow-hidden">
                         {dailyTasks.map((task) => (
                         <button key={task.id} onClick={() => toggleTask(task.id)} className={`w-full flex items-center gap-3 p-4 border-b border-slate-100 dark:border-slate-700 text-left ${completedTasks.has(task.id) ? 'bg-slate-50' : ''}`}>
@@ -88,10 +83,10 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                     </div>
                 </div>
 
-                <div className="bg-primary-50/30 dark:bg-primary-900/10 p-6 rounded-3xl border-2 border-primary-100 dark:border-primary-800">
-                    <h3 className="text-sm font-black uppercase tracking-widest text-primary-600 mb-4 flex items-center gap-2"><Award size={16} /> Strategy Note</h3>
+                <div className="bg-blue-50/30 dark:bg-blue-900/10 p-6 rounded-3xl border-2 border-blue-100 dark:border-blue-800">
+                    <h3 className="text-sm font-black uppercase tracking-widest text-blue-600 mb-4 flex items-center gap-2"><Award size={16} /> Founder Tip</h3>
                     <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">
-                        "Tumi, the countdown to 2026 is on! Use the 'New Year 2026' script. It’s built to capture the 'Fresh Start' psychology. Record your iPad screen today showing how CaterPro AI creates a full 2026 proposal in seconds."
+                        "Tumi, Neil Patel always says 'Be the first and be the loudest'. Launching on Facebook today is perfect. Everyone is making resolutions—you are providing the solution to their resolution."
                     </p>
                 </div>
             </div>
@@ -104,52 +99,37 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                 <div className="p-6 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-3xl">
                    <div className="flex items-center gap-4 mb-6">
                       <div className="p-3 bg-blue-600 rounded-2xl text-white">
-                          <Linkedin size={24} />
+                          <Facebook size={24} />
                       </div>
-                      <div>
-                          <h4 className="font-black text-blue-900 dark:text-blue-100 uppercase tracking-tight text-sm">Authority Lab</h4>
-                          <p className="text-[10px] text-blue-700 dark:text-blue-400">2026 Strategy</p>
-                      </div>
+                      <h4 className="font-black text-blue-900 dark:text-blue-100 uppercase tracking-tight text-sm">FB Feed Templates</h4>
                    </div>
-                   
                    <div className="space-y-3">
-                      {linkedinTemplates.map((template, i) => (
+                      {fbTemplates.map((template, i) => (
                         <div key={i} className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-blue-100 dark:border-blue-800">
                            <h5 className="text-[10px] font-black uppercase text-blue-500 mb-2">{template.title}</h5>
                            <p className="text-[11px] text-slate-600 dark:text-slate-400 mb-3 italic">"{template.text}"</p>
-                           <button 
-                             onClick={() => copyToClipboard(template.text, template.title)}
-                             className="w-full py-2 bg-blue-50 dark:bg-blue-800/40 text-blue-600 dark:text-blue-300 rounded-lg font-black text-[9px] uppercase tracking-widest"
-                           >
-                             Copy Template
-                           </button>
+                           <button onClick={() => copyToClipboard(template.text, template.title)} className="w-full py-2 bg-blue-50 text-blue-600 rounded-lg font-black text-[9px] uppercase">Copy Post</button>
                         </div>
                       ))}
                    </div>
                 </div>
 
                 <div className="p-6 bg-slate-900 text-white border-2 border-slate-800 rounded-3xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-4 opacity-10">
-                        <Sparkle size={80} className="text-amber-400" />
-                    </div>
                     <div className="flex items-center gap-4 mb-6">
                         <div className="p-3 bg-amber-500 rounded-2xl text-white">
-                            <Video size={24} />
+                            <Sparkle size={24} />
                         </div>
-                        <div>
-                            <h4 className="font-black text-white uppercase tracking-tight text-sm">2026 Launch Hook</h4>
-                            <p className="text-[10px] text-slate-400">Countdown Energy</p>
-                        </div>
+                        <h4 className="font-black text-white uppercase tracking-tight text-sm">2026 FB Group Strategy</h4>
                     </div>
                     <div className="space-y-4">
-                        <p className="text-[11px] text-slate-300 italic leading-relaxed">
-                            "Start 2026 with a system, not chaos. Most chefs fail because they drown in admin. I built CaterPro AI to take that weight off your shoulders."
+                        <p className="text-[11px] text-slate-300 italic">
+                            "Post in South African Chef Groups: 'I just built an AI tool that does my costing and PoE menus in 30 seconds. Who wants to try it before I launch the paid version?'"
                         </p>
                         <button 
-                            onClick={() => copyToClipboard("Stop being a typist. Dominate 2026. Lock in your Founder's rate before midnight.", "2026 Launch Hook")}
+                            onClick={() => copyToClipboard("I just built an AI tool that does my costing and PoE menus in 30 seconds. Who wants to try it before I launch the paid version?", "Group Strategy Hook")}
                             className="w-full py-3 bg-amber-500 text-white rounded-xl font-black text-xs uppercase shadow-lg flex items-center justify-center gap-2"
                         >
-                            Copy 2026 Launch Hook <Copy size={14} />
+                            Copy Group Hook <Copy size={14} />
                         </button>
                     </div>
                 </div>
