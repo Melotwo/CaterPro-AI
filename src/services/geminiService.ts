@@ -81,14 +81,13 @@ export const generateMenuImageFromApi = async (title: string, description: strin
     throw new Error("No image data.");
 };
 
-export const generateSocialCaption = async (menuTitle: string, description: string, platform: string = 'instagram'): Promise<string> => {
+export const generateSocialCaption = async (menuTitle: string, description: string, platform: string = 'facebook'): Promise<string> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const prompt = `Write a viral ${platform} post for: "${menuTitle}". Tone: Authoritative (Greg Provance) and High Energy (Neil Patel). 
+    const prompt = `Write a viral ${platform} post for: "${menuTitle}". 
     INSTRUCTIONS:
-    1. Start with a hook about leaving the "Manual Chaos" in 2025.
-    2. Explain how this "System" (CaterPro AI) works.
-    3. End with a CTA to lock in the Founder's Rate.
-    4. Link: https://caterpro-ai.web.app/`;
+    - This is for a FB Group. DO NOT include a link.
+    - End with a question: "Who wants to try this before I launch the paid version?"
+    - Tone: Helpful, humble, and professional.`;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: prompt
@@ -148,10 +147,6 @@ export const generateExplainerScript = async (menuTitle: string, description: st
   return response.text?.trim() || "";
 };
 
-// Fix: Added missing regenerateMenuItemFromApi function
-/**
- * Regenerates a specific menu item based on user instructions.
- */
 export const regenerateMenuItemFromApi = async (originalText: string, instruction: string): Promise<string> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
     const prompt = `Original menu item: "${originalText}". User instruction: "${instruction}". Rewrite the menu item to incorporate the instruction while maintaining a professional michelin-star catering tone. Return only the updated text.`;
@@ -162,10 +157,6 @@ export const regenerateMenuItemFromApi = async (originalText: string, instructio
     return response.text?.trim() || originalText;
 };
 
-// Fix: Added missing generateStudyGuideFromApi function
-/**
- * Generates an educational study guide or curriculum document.
- */
 export const generateStudyGuideFromApi = async (topic: string, curriculum: string, level: string, type: 'guide' | 'curriculum'): Promise<EducationContent> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
     const prompt = `Create a comprehensive ${type} for: "${topic}". Curriculum: "${curriculum}". Level: "${level}". Return as JSON.`;
@@ -202,10 +193,6 @@ export const generateStudyGuideFromApi = async (topic: string, curriculum: strin
     return JSON.parse(response.text || '{}');
 };
 
-// Fix: Added missing generateSocialVideoFromApi function
-/**
- * Generates a high-energy video script for social media reels/TikTok.
- */
 export const generateSocialVideoFromApi = async (menuTitle: string, description: string): Promise<string> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
     const prompt = `Write a short, engaging video script (TikTok/Reel style) for: "${menuTitle}". ${description}. Include visual cues and high-energy narration.`;
@@ -216,10 +203,6 @@ export const generateSocialVideoFromApi = async (menuTitle: string, description:
     return response.text?.trim() || "";
 };
 
-// Fix: Added missing generateAssignmentEmail function
-/**
- * Generates a formal assignment email for culinary students.
- */
 export const generateAssignmentEmail = async (menuTitle: string, description: string): Promise<string> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
     const prompt = `Write a formal assignment email for a culinary student regarding: "${menuTitle}". ${description}. Clearly outline expectations for their Portfolio of Evidence (PoE).`;
@@ -230,10 +213,6 @@ export const generateAssignmentEmail = async (menuTitle: string, description: st
     return response.text?.trim() || "";
 };
 
-// Fix: Added missing analyzeReceiptFromApi function
-/**
- * Uses Multimodal AI to extract data from a photographed receipt.
- */
 export const analyzeReceiptFromApi = async (base64Image: string): Promise<any> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
     const response = await ai.models.generateContent({
@@ -260,10 +239,6 @@ export const analyzeReceiptFromApi = async (base64Image: string): Promise<any> =
     return JSON.parse(response.text || '{}');
 };
 
-// Fix: Added missing analyzeLabelFromApi function
-/**
- * Uses Multimodal AI to scan ingredient labels for dietary restrictions.
- */
 export const analyzeLabelFromApi = async (base64Image: string, dietaryRestrictions: string[]): Promise<any> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
     const response = await ai.models.generateContent({
