@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Image as ImageIcon, Check, RefreshCw, Linkedin, Twitter, MessageCircle, Send, Film, Play, Zap, GraduationCap, ArrowRight, Loader2, Mail, Pin, Sparkles, Mic2, Layout, Video, ShieldCheck, Sparkle } from 'lucide-react';
+import { X, Copy, Image as ImageIcon, Check, RefreshCw, Linkedin, Twitter, MessageCircle, Send, Film, Play, Zap, GraduationCap, ArrowRight, Loader2, Mail, Pin, Sparkles, Mic2, Layout, Video, ShieldCheck, Sparkle, Volume2, Facebook } from 'lucide-react';
 import { generateSocialCaption, generateSocialVideoFromApi, generateAssignmentEmail, generateMenuImageFromApi, generatePodcastStoryboard, generateExplainerScript, generateProvanceVSLScript, generateNewYearLaunchScript } from '../services/geminiService';
 
-export type Mode = 'create' | 'pitch' | 'video' | 'podcast' | 'explainer' | 'provance' | 'newyear';
+export type Mode = 'create' | 'pitch' | 'video' | 'podcast' | 'explainer' | 'provance' | 'newyear' | 'bait';
 
 interface SocialMediaModalProps {
   isOpen: boolean;
@@ -15,13 +15,13 @@ interface SocialMediaModalProps {
   onImageGenerated?: (base64: string) => void;
 }
 
-type Platform = 'instagram' | 'linkedin' | 'twitter' | 'pinterest';
+type Platform = 'instagram' | 'linkedin' | 'twitter' | 'facebook';
 
 const SocialMediaModal: React.FC<SocialMediaModalProps> = ({ 
   isOpen, onClose, image, menuTitle, menuDescription, initialMode = 'create', onImageGenerated
 }) => {
   const [activeMode, setActiveMode] = useState<Mode>(initialMode);
-  const [activePlatform, setActivePlatform] = useState<Platform>('instagram');
+  const [activePlatform, setActivePlatform] = useState<Platform>('facebook');
   const [editedContent, setEditedContent] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
@@ -36,7 +36,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
       setVideoUrl(null);
       setCurrentImage(image);
       
-      if (initialMode !== 'video' && initialMode !== 'podcast' && initialMode !== 'explainer' && initialMode !== 'provance' && initialMode !== 'newyear') {
+      if (initialMode !== 'video' && initialMode !== 'podcast' && initialMode !== 'explainer' && initialMode !== 'provance' && initialMode !== 'newyear' && initialMode !== 'bait') {
         handleGenerate(activePlatform);
       }
     }
@@ -59,30 +59,21 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
     const platform = platformOverride || activePlatform;
     setIsGenerating(true);
     try {
-      if (activeMode === 'pitch') {
-        const email = await generateAssignmentEmail(menuTitle, menuDescription);
-        setEditedContent(email);
-      } else if (activeMode === 'create') {
+      if (activeMode === 'create') {
         const caption = await generateSocialCaption(menuTitle, menuDescription, platform);
         setEditedContent(caption);
-      } else if (activeMode === 'video') {
-        const url = await generateSocialVideoFromApi(menuTitle, menuDescription);
-        setVideoUrl(url);
-      } else if (activeMode === 'podcast') {
-        const storyboard = await generatePodcastStoryboard(menuTitle, menuDescription);
-        setEditedContent(storyboard);
-      } else if (activeMode === 'explainer') {
-        const script = await generateExplainerScript(menuTitle, menuDescription);
+      } else if (activeMode === 'newyear') {
+        const script = await generateNewYearLaunchScript(menuTitle, menuDescription);
         setEditedContent(script);
       } else if (activeMode === 'provance') {
         const script = await generateProvanceVSLScript(menuTitle, menuDescription);
         setEditedContent(script);
-      } else if (activeMode === 'newyear') {
-        const script = await generateNewYearLaunchScript(menuTitle, menuDescription);
+      } else if (activeMode === 'bait') {
+        const script = await generateSocialCaption(menuTitle, menuDescription, 'facebook');
         setEditedContent(script);
       }
     } catch (e) {
-      setEditedContent("AI is busy in the kitchen. Please try again in a moment.");
+      setEditedContent("AI is busy. Please try again.");
     } finally {
       setIsGenerating(false);
     }
@@ -108,75 +99,41 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
         </button>
 
         <div className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 p-3 flex gap-2 overflow-x-auto no-scrollbar">
-            <button onClick={() => setActiveMode('newyear')} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'newyear' ? 'bg-amber-500 text-white shadow-md' : 'text-slate-500'}`}>
-                <Sparkle size={16} /> New Year 2026
+            <button onClick={() => setActiveMode('bait')} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'bait' ? 'bg-amber-500 text-white shadow-md' : 'text-slate-500'}`}>
+                <MessageCircle size={16} /> FB Group Hook
             </button>
-            <button onClick={() => setActiveMode('create')} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'create' ? 'bg-white dark:bg-slate-700 shadow-md text-primary-600' : 'text-slate-500'}`}>
-                <ImageIcon size={16} /> Social Post
+            <button onClick={() => setActiveMode('newyear')} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'newyear' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-500'}`}>
+                <Sparkle size={16} /> 2026 Launch
             </button>
             <button onClick={() => setActiveMode('provance')} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'provance' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500'}`}>
-                <ShieldCheck size={16} /> Provance VSL
-            </button>
-            <button onClick={() => setActiveMode('explainer')} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'explainer' ? 'bg-white dark:bg-slate-700 shadow-md text-emerald-600' : 'text-slate-500'}`}>
-                <Video size={16} /> Explainer
-            </button>
-            <button onClick={() => setActiveMode('podcast')} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'podcast' ? 'bg-white dark:bg-slate-700 shadow-md text-amber-600' : 'text-slate-500'}`}>
-                <Mic2 size={16} /> Podcast Lab
+                <ShieldCheck size={16} /> Provance Framework
             </button>
         </div>
 
         <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
             <div className="md:w-1/2 bg-slate-50 dark:bg-slate-950 flex flex-col p-8 border-r border-slate-200 dark:border-slate-800 overflow-y-auto">
-                {activeMode === 'newyear' ? (
+                {activeMode === 'bait' ? (
                    <div className="space-y-6">
-                      <div className="bg-gradient-to-br from-slate-900 to-indigo-900 text-white p-8 rounded-3xl border-4 border-indigo-500/30 flex flex-col items-center text-center shadow-2xl relative overflow-hidden">
-                          <div className="absolute -top-10 -right-10 w-40 h-40 bg-amber-400/10 rounded-full blur-3xl"></div>
-                          <Sparkle size={56} className="text-amber-400 mb-6 animate-pulse" />
-                          <h3 className="text-2xl font-black uppercase tracking-tighter">New Year 2026 Script</h3>
-                          <p className="text-xs text-slate-300 mt-4 leading-relaxed">
-                              Position CaterPro AI as the #1 resolution for chefs in 2026. This script targets the motivation of a new year.
+                      <div className="bg-amber-500 text-white p-8 rounded-3xl border-4 border-amber-600/30 flex flex-col items-center text-center shadow-2xl">
+                          <MessageCircle size={56} className="text-white mb-6 animate-bounce" />
+                          <h3 className="text-2xl font-black uppercase tracking-tighter">Engagement Bait Lab</h3>
+                          <p className="text-xs text-amber-900 mt-4 leading-relaxed font-bold">
+                              This mode generates posts WITHOUT links. Why? Because links get blocked in groups. Use this to get 100+ comments, then reply with your link!
                           </p>
                       </div>
                       <button 
                           onClick={() => handleGenerate()} 
                           disabled={isGenerating} 
-                          className="w-full py-5 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl font-black shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 transition-all active:scale-95"
+                          className="w-full py-5 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl font-black shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95"
                       >
-                          {isGenerating ? <Loader2 className="animate-spin" size={20} /> : <Zap size={20} className="fill-white" />}
-                          {isGenerating ? 'Writing Resolution...' : 'Build 2026 Launch Script'}
+                          {isGenerating ? <Loader2 className="animate-spin" size={20} /> : <Zap size={20} />}
+                          {isGenerating ? 'Drafting Hook...' : 'Build FB Group Hook'}
                       </button>
                    </div>
-                ) : activeMode === 'create' ? (
-                    <div className="space-y-6">
-                        <div className="max-w-md mx-auto relative group">
-                            {isGeneratingImage ? (
-                                <div className="aspect-square bg-slate-200 dark:bg-slate-800 rounded-2xl flex flex-col items-center justify-center border-2 border-dashed border-primary-300 animate-pulse">
-                                    <Loader2 className="w-10 h-10 text-primary-500 animate-spin mb-3" />
-                                    <p className="text-xs font-bold text-slate-500">AI is styling your dish...</p>
-                                </div>
-                            ) : currentImage ? (
-                                <img src={`data:image/png;base64,${currentImage}`} className="w-full rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-800" alt="Preview" />
-                            ) : (
-                                <div className="aspect-square bg-slate-200 dark:bg-slate-800 rounded-2xl flex flex-col items-center justify-center border-2 border-dashed border-slate-300 dark:border-slate-700 p-8 text-center">
-                                    <ImageIcon size={48} className="text-slate-400 mb-4" />
-                                    <button onClick={handleGenerateImage} className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-xl text-xs font-bold shadow-lg hover:bg-primary-700 transition-all">
-                                        <Sparkles size={14} /> Generate AI Photo
-                                    </button>
-                                </div>
-                            )}
-                        </div>
-                        <div className="grid grid-cols-4 gap-2">
-                            {(['instagram', 'linkedin', 'twitter', 'pinterest'] as Platform[]).map(p => (
-                                <button key={p} onClick={() => { setActivePlatform(p); handleGenerate(p); }} className={`py-3 rounded-xl border-2 flex flex-col items-center gap-1 transition-all ${activePlatform === p ? 'bg-primary-50 border-primary-500 text-primary-700' : 'bg-white dark:bg-slate-800 border-transparent text-slate-500'}`}>
-                                    <span className="text-[10px] font-bold uppercase">{p}</span>
-                                </button>
-                            ))}
-                        </div>
-                    </div>
                 ) : (
                     <div className="flex flex-col items-center justify-center space-y-6">
                         <button onClick={() => handleGenerate()} disabled={isGenerating} className="w-full max-w-sm py-4 bg-slate-900 text-white rounded-2xl font-black shadow-xl">
-                            {isGenerating ? 'Drafting...' : 'Build Script'}
+                            {isGenerating ? 'Thinking...' : 'Generate Content'}
                         </button>
                     </div>
                 )}
@@ -184,25 +141,24 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
 
             <div className="md:w-1/2 flex flex-col bg-white dark:bg-slate-900">
                 <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                    <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">AI Script Architect</h4>
-                    {isGenerating && <Loader2 size={16} className="text-primary-500 animate-spin" />}
+                    <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">Launch Architect Output</h4>
                 </div>
                 <div className="flex-grow p-6 overflow-y-auto">
                     <textarea 
-                        className="w-full h-full min-h-[300px] resize-none border-none focus:ring-0 bg-transparent text-slate-700 dark:text-slate-300 text-sm leading-relaxed font-medium" 
+                        className="w-full h-full min-h-[300px] resize-none border-none focus:ring-0 bg-transparent text-slate-700 dark:text-slate-300 text-sm leading-relaxed font-bold" 
                         value={editedContent} 
                         onChange={(e) => setEditedContent(e.target.value)} 
-                        placeholder={isGenerating ? "Drafting strategy..." : "Generate content to start editing..."}
+                        placeholder="Your viral post will appear here..."
                     />
                 </div>
                 <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
                     <button 
                         onClick={handleCopyText} 
                         disabled={!editedContent}
-                        className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                        className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
                     >
                         {copiedText ? <Check size={20} /> : <Copy size={20} />} 
-                        {copiedText ? 'Copied!' : 'Copy Script'}
+                        {copiedText ? 'Copied!' : 'Copy to Facebook'}
                     </button>
                 </div>
             </div>
