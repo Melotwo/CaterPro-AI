@@ -8,16 +8,21 @@ interface FounderRoadmapProps {
 
 const dailyTasks = [
   { id: 'whop-post-1', label: 'Publish First Whop Post (DONE! 🤙🏿)', highPriority: true, initialDone: true },
+  { id: 'fb-bait-post', label: 'Post "No-Link" Hook to Groups', highPriority: true },
+  { id: 'fb-reply-link', label: 'Reply with Link to 10+ Comments', highPriority: true },
   { id: 'fb-launch-demo', label: 'Post FB Screen Demo (Neil Patel Style)', highPriority: true },
-  { id: 'fb-provance-post', label: 'Post "Systems vs Chaos" to FB Group', highPriority: true },
   { id: 'whop-linkedin-greg', label: 'Tag Greg Provance on LinkedIn', highPriority: true },
   { id: 'whop-paypal', label: 'Verify PayPal Payouts', highPriority: true },
 ];
 
 const fbTemplates = [
   {
+    title: "The 'Link Reply' (Use for comments)",
+    text: "Thanks for the interest! I'm still finalizing the student pricing, but you can try the beta for free right here: https://caterpro-ai.web.app/ - would love to hear your thoughts on the costing engine!"
+  },
+  {
     title: "The 'New Year' System Hook",
-    text: "Resolution for 2026: Less chaos, more systems. 🥂 I'm helping chefs automate the admin grind with CaterPro AI so you can finally focus on leadership. Join the Founder's circle today at https://caterpro-ai.web.app/"
+    text: "Resolution for 2026: Less chaos, more systems. 🥂 I'm helping chefs automate the admin grind with CaterPro AI so you can finally focus on leadership. Join the Founder's circle today!"
   },
   {
     title: "The 'Operational Rigor' Post",
@@ -86,7 +91,7 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                 <div className="bg-blue-50/30 dark:bg-blue-900/10 p-6 rounded-3xl border-2 border-blue-100 dark:border-blue-800">
                     <h3 className="text-sm font-black uppercase tracking-widest text-blue-600 mb-4 flex items-center gap-2"><Award size={16} /> Founder Tip</h3>
                     <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">
-                        "Tumi, Neil Patel always says 'Be the first and be the loudest'. Launching on Facebook today is perfect. Everyone is making resolutions—you are providing the solution to their resolution."
+                        "Tumi, the post in your screenshot is GOLD. Do not add the link yet! Post it as is. When people comment 'Me' or 'How do I try it?', you reply with the link. This keeps the post at the top of the group feed for days!"
                     </p>
                 </div>
             </div>
@@ -101,14 +106,14 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                       <div className="p-3 bg-blue-600 rounded-2xl text-white">
                           <Facebook size={24} />
                       </div>
-                      <h4 className="font-black text-blue-900 dark:text-blue-100 uppercase tracking-tight text-sm">FB Feed Templates</h4>
+                      <h4 className="font-black text-blue-900 dark:text-blue-100 uppercase tracking-tight text-sm">The Reply Strategy</h4>
                    </div>
                    <div className="space-y-3">
                       {fbTemplates.map((template, i) => (
                         <div key={i} className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-blue-100 dark:border-blue-800">
                            <h5 className="text-[10px] font-black uppercase text-blue-500 mb-2">{template.title}</h5>
                            <p className="text-[11px] text-slate-600 dark:text-slate-400 mb-3 italic">"{template.text}"</p>
-                           <button onClick={() => copyToClipboard(template.text, template.title)} className="w-full py-2 bg-blue-50 text-blue-600 rounded-lg font-black text-[9px] uppercase">Copy Post</button>
+                           <button onClick={() => copyToClipboard(template.text, template.title)} className="w-full py-2 bg-blue-50 text-blue-600 rounded-lg font-black text-[9px] uppercase">Copy Reply</button>
                         </div>
                       ))}
                    </div>
@@ -119,17 +124,17 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                         <div className="p-3 bg-amber-500 rounded-2xl text-white">
                             <Sparkle size={24} />
                         </div>
-                        <h4 className="font-black text-white uppercase tracking-tight text-sm">2026 FB Group Strategy</h4>
+                        <h4 className="font-black text-white uppercase tracking-tight text-sm">Neil Patel's Secret</h4>
                     </div>
                     <div className="space-y-4">
-                        <p className="text-[11px] text-slate-300 italic">
-                            "Post in South African Chef Groups: 'I just built an AI tool that does my costing and PoE menus in 30 seconds. Who wants to try it before I launch the paid version?'"
+                        <p className="text-[11px] text-slate-300 italic leading-relaxed">
+                            "Post the video without the link. In the first comment, say: 'I'll be giving out 50 free beta access spots. Comment YOUR GOAL for 2026 below and I'll send you the invite!' This forces engagement."
                         </p>
                         <button 
-                            onClick={() => copyToClipboard("I just built an AI tool that does my costing and PoE menus in 30 seconds. Who wants to try it before I launch the paid version?", "Group Strategy Hook")}
+                            onClick={() => copyToClipboard("I'll be giving out 50 free beta access spots. Comment YOUR GOAL for 2026 below and I'll send you the invite!", "First Comment Hook")}
                             className="w-full py-3 bg-amber-500 text-white rounded-xl font-black text-xs uppercase shadow-lg flex items-center justify-center gap-2"
                         >
-                            Copy Group Hook <Copy size={14} />
+                            Copy Comment Hook <Copy size={14} />
                         </button>
                     </div>
                 </div>
