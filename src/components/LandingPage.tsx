@@ -8,19 +8,16 @@ interface LandingPageProps {
 
 const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  const imageSrc = `/founder.jpg?v=${new Date().getTime()}`;
+  // Added a specific version string to force image refresh across devices
+  const imageSrc = `/founder.jpg?v=2026_PRO_BUILD_${new Date().getHours()}`;
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
   };
 
-  const handleScrollToPricing = () => {
-    const pricingSection = document.getElementById('pricing-plans');
-    if (pricingSection) {
-      pricingSection.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      onGetStarted(); 
-    }
+  const handleAction = () => {
+    // Navigate to the conversion view (Pricing/Generator)
+    onGetStarted();
   };
 
   const handleShare = (platform: 'linkedin' | 'twitter') => {
@@ -35,6 +32,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
       const target = e.currentTarget;
+      // High-quality chef fallback if founder image is missing
       target.src = "https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=800&q=80";
   };
 
@@ -64,7 +62,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
               <p className="text-xs sm:text-sm font-black uppercase tracking-widest">
                   Welcome to 2026! Lock in the "Founder Lifetime" Rate today 🥂
               </p>
-              <button onClick={handleScrollToPricing} className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-white text-indigo-700 rounded-full text-[10px] font-black hover:scale-105 transition-transform">
+              <button onClick={handleAction} className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-white text-indigo-700 rounded-full text-[10px] font-black hover:scale-105 transition-transform">
                   Claim Deal <ArrowRight size={12} />
               </button>
           </div>
@@ -76,14 +74,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           <div className="lg:w-1/2 text-center lg:text-left z-10">
             <div className="flex flex-wrap justify-center lg:justify-start gap-3 mb-8">
                 <button 
-                  onClick={handleScrollToPricing}
+                  onClick={handleAction}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 text-xs font-black animate-fade-in border-2 border-primary-200 dark:border-primary-700 hover:scale-105 transition-transform shadow-lg shadow-primary-500/10 cursor-pointer"
                 >
                   <Globe size={14} />
                   <span>Global AI Assistant</span>
                 </button>
                 <button 
-                  onClick={handleScrollToPricing}
+                  onClick={handleAction}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-600 text-white text-xs font-black border-2 border-indigo-400 hover:scale-105 transition-transform shadow-lg shadow-indigo-500/20 cursor-pointer"
                 >
                   <Rocket size={14} />
