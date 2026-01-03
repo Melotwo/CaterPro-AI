@@ -1,11 +1,6 @@
-
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { Menu, Supplier, EducationContent, ShoppingListItem, BeveragePairing } from "../types";
 
-/**
- * Utility to safely extract and parse JSON from an AI response string,
- * ensuring all collections are valid arrays to prevent UI rendering crashes.
- */
 const safeParseMenuJson = (text: string): Menu => {
     try {
         const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
@@ -67,99 +62,20 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
   return { menu: safeParseMenuJson(response.text), totalChecklistItems: 10 };
 };
 
-export const generateMenuImageFromApi = async (title: string, description: string): Promise<string> => {
-    const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: {
-            parts: [{ text: `High-end cinematic culinary photograph of: "${title}". ${description}. Professional food styling.` }],
-        }
-    });
-    for (const part of response.candidates[0].content.parts) {
-        if (part.inlineData) return part.inlineData.data;
-    }
-    throw new Error("No image data.");
-};
-
-export const generateSocialCaption = async (menuTitle: string, description: string, platform: string = 'facebook'): Promise<string> => {
-    const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const prompt = `Write a viral ${platform} post for: "${menuTitle}". 
-    INSTRUCTIONS:
-    - This is for a FB Group. DO NOT include a link.
-    - End with a question: "Who wants to try this before I launch the paid version?"
-    - Tone: Helpful, humble, and professional.`;
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt
-    });
-    return response.text?.trim() || "";
-};
-
-export const generateNewYearLaunchScript = async (menuTitle: string, description: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `
-    Write a Facebook Post and an 11 Labs Voiceover Script for Tumi's 2026 Launch.
-    Topic: "${menuTitle}"
-    
-    FACEBOOK POST STRUCTURE:
-    - [Hook] Stop being a typist. Start being a CEO Chef in 2026. 🚀
-    - [The Problem] Mention the Sunday night paperwork grind.
-    - [The Solution] CaterPro AI - The operational system for caterers.
-    - [CTA] Join the Founder's Circle.
-    
-    VOICEOVER (11 LABS):
-    - Fast-paced, high energy. Focus on "Precision & Speed".
-  `;
-  const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: prompt
-  });
-  return response.text?.trim() || "";
-};
-
-export const generateProvanceVSLScript = async (menuTitle: string, description: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `Write a Greg Provance style VSL script for: "${menuTitle}". Focus on "Systems over Chaos".`;
-  const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: prompt
-  });
-  return response.text?.trim() || "";
-};
-
-export const generatePodcastStoryboard = async (menuTitle: string, description: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `Create a 60s storyboard for: "${menuTitle}".`;
-  const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: prompt
-  });
-  return response.text?.trim() || "";
-};
-
-export const generateExplainerScript = async (menuTitle: string, description: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `Write a script for CaterPro AI focusing on React Logic and Food Safety.`;
-  const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: prompt
-  });
-  return response.text?.trim() || "";
-};
-
 export const regenerateMenuItemFromApi = async (originalText: string, instruction: string): Promise<string> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const prompt = `Original menu item: "${originalText}". User instruction: "${instruction}". Rewrite the menu item to incorporate the instruction while maintaining a professional michelin-star catering tone. Return only the updated text.`;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: prompt
+        contents: `Original menu item text: "${originalText}". Instruction: "${instruction}". Rewrite the text following the instruction. Return only the revised text.`,
     });
     return response.text?.trim() || originalText;
 };
 
 export const generateStudyGuideFromApi = async (topic: string, curriculum: string, level: string, type: 'guide' | 'curriculum'): Promise<EducationContent> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const prompt = `Create a comprehensive ${type} for: "${topic}". Curriculum: "${curriculum}". Level: "${level}". Return as JSON.`;
+    const prompt = `Generate a ${type} for the topic "${topic}" following the ${curriculum} standards at ${level} level. 
+    Ensure the content is detailed and formatted as a JSON object matching the EducationContent interface.`;
+    
     const response = await ai.models.generateContent({
         model: 'gemini-3-pro-preview',
         contents: prompt,
@@ -179,50 +95,30 @@ export const generateStudyGuideFromApi = async (topic: string, curriculum: strin
                             properties: {
                                 title: { type: Type.STRING },
                                 content: { type: Type.ARRAY, items: { type: Type.STRING } }
-                            }
+                            },
+                            required: ["title", "content"]
                         }
                     },
                     keyVocabulary: { type: Type.ARRAY, items: { type: Type.STRING } },
                     assessmentCriteria: { type: Type.ARRAY, items: { type: Type.STRING } },
                     practicalExercises: { type: Type.ARRAY, items: { type: Type.STRING } }
-                }
+                },
+                required: ["title", "curriculum", "level", "overview", "modules", "keyVocabulary", "assessmentCriteria", "practicalExercises"]
             }
         }
     });
     
-    return JSON.parse(response.text || '{}');
+    return JSON.parse(response.text);
 };
 
-export const generateSocialVideoFromApi = async (menuTitle: string, description: string): Promise<string> => {
-    const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const prompt = `Write a short, engaging video script (TikTok/Reel style) for: "${menuTitle}". ${description}. Include visual cues and high-energy narration.`;
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt
-    });
-    return response.text?.trim() || "";
-};
-
-export const generateAssignmentEmail = async (menuTitle: string, description: string): Promise<string> => {
-    const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const prompt = `Write a formal assignment email for a culinary student regarding: "${menuTitle}". ${description}. Clearly outline expectations for their Portfolio of Evidence (PoE).`;
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt
-    });
-    return response.text?.trim() || "";
-};
-
-export const analyzeReceiptFromApi = async (base64Image: string): Promise<any> => {
+export const analyzeReceiptFromApi = async (base64Data: string): Promise<any> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: {
-            parts: [
-                { inlineData: { mimeType: 'image/jpeg', data: base64Image } },
-                { text: 'Analyze this receipt image. Extract merchant name, date, total amount, and item categories. Return as JSON.' }
-            ]
-        },
+        contents: [
+            { inlineData: { data: base64Data, mimeType: 'image/jpeg' } },
+            { text: "Analyze this receipt image. Extract the merchant name, date, total amount, and categories as a JSON object." }
+        ],
         config: {
             responseMimeType: "application/json",
             responseSchema: {
@@ -236,19 +132,17 @@ export const analyzeReceiptFromApi = async (base64Image: string): Promise<any> =
             }
         }
     });
-    return JSON.parse(response.text || '{}');
+    return JSON.parse(response.text);
 };
 
-export const analyzeLabelFromApi = async (base64Image: string, dietaryRestrictions: string[]): Promise<any> => {
+export const analyzeLabelFromApi = async (base64Data: string, restrictions: string[]): Promise<any> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: {
-            parts: [
-                { inlineData: { mimeType: 'image/jpeg', data: base64Image } },
-                { text: `Scan this food label for the following dietary restrictions: ${dietaryRestrictions.join(', ')}. Return a JSON object with suitabilityScore (0-10), flaggedIngredients (array), and reasoning (string).` }
-            ]
-        },
+        contents: [
+            { inlineData: { data: base64Data, mimeType: 'image/jpeg' } },
+            { text: `Scan this food label for the following dietary restrictions: ${restrictions.join(', ')}. Return a suitability score (0-10), a list of flagged ingredients, and a reasoning explanation as JSON.` }
+        ],
         config: {
             responseMimeType: "application/json",
             responseSchema: {
@@ -261,5 +155,85 @@ export const analyzeLabelFromApi = async (base64Image: string, dietaryRestrictio
             }
         }
     });
-    return JSON.parse(response.text || '{}');
+    return JSON.parse(response.text);
+};
+
+export const generateSocialCaption = async (menuTitle: string, description: string, platform: string = 'facebook'): Promise<string> => {
+    const ai = new GoogleGenAI({ apiKey: getApiKey() });
+    const prompt = `Write a viral ${platform} post for: "${menuTitle}". Content: ${description}. Tone: Professional. Link: https://caterpro-ai.web.app/`;
+    const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: prompt
+    });
+    return response.text?.trim() || "";
+};
+
+export const generateTikTokBioFromApi = async (mission: string): Promise<string> => {
+    const ai = new GoogleGenAI({ apiKey: getApiKey() });
+    const prompt = `Write a TikTok bio for Tumi, Chef & Founder of CaterPro AI. Mission: ${mission}. Keep it under 80 characters. Use emojis.`;
+    const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: prompt
+    });
+    return response.text?.trim() || "";
+};
+
+export const generateWhatsAppStatus = async (menuTitle: string): Promise<string> => {
+  const ai = new GoogleGenAI({ apiKey: getApiKey() });
+  const prompt = `Write 3 different WhatsApp Status updates for Chef Tumi promoting "${menuTitle}". 
+  Style: Short, local (SA/Global), and high curiosity. 
+  Goal: Get friends and colleagues to ask "How did you make this?"`;
+  const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: prompt
+  });
+  return response.text?.trim() || "";
+};
+
+export const generateVideoReelScript = async (menuTitle: string, description: string): Promise<string> => {
+  const ai = new GoogleGenAI({ apiKey: getApiKey() });
+  const prompt = `Write a 30-second TikTok/Reels Script for "${menuTitle}". 
+  Include: 
+  1. Hook: "POV: You're a chef who stopped spending Sundays on paperwork."
+  2. The Process: Fast cut shots of the AI generating this menu.
+  3. CTA: "Link in bio to lock in your Founder's rate."`;
+  const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: prompt
+  });
+  return response.text?.trim() || "";
+};
+
+export const generateNewYearLaunchScript = async (menuTitle: string, description: string): Promise<string> => {
+  const ai = new GoogleGenAI({ apiKey: getApiKey() });
+  const prompt = `Write a Facebook Post and an 11 Labs Voiceover Script for Tumi's 2026 Launch. Topic: "${menuTitle}"`;
+  const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: prompt
+  });
+  return response.text?.trim() || "";
+};
+
+export const generateProvanceVSLScript = async (menuTitle: string, description: string): Promise<string> => {
+  const ai = new GoogleGenAI({ apiKey: getApiKey() });
+  const prompt = `Write a Greg Provance style VSL script for: "${menuTitle}". Focus on "Systems over Chaos".`;
+  const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: prompt
+  });
+  return response.text?.trim() || "";
+};
+
+export const generateMenuImageFromApi = async (title: string, description: string): Promise<string> => {
+    const ai = new GoogleGenAI({ apiKey: getApiKey() });
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash-image',
+        contents: {
+            parts: [{ text: `Culinary photograph of: "${title}".` }],
+        }
+    });
+    for (const part of response.candidates[0].content.parts) {
+        if (part.inlineData) return part.inlineData.data;
+    }
+    throw new Error("No image.");
 };
