@@ -1,10 +1,11 @@
+
 import React from 'react';
 import { BookOpen, Copy, Zap, CheckCircle2, Sparkles, Award, GraduationCap, Share2, Scale, MessageSquare, Phone, ShieldCheck, Info, Anchor, CreditCard, Mail, User, Globe, Users, Briefcase, Send, Camera } from 'lucide-react';
 
 const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowToast }) => {
   
   const handleCopyTikTokBio = () => {
-    const text = `Chef Tumi | AI for Chefs 🔪\nHelping Culinary Students crush their PoE paperwork.\nStop typing. Start cooking. 2025 is here.\nFree Menu Generator below 👇`;
+    const text = `Chef Tumi | AI for Chefs 🔪\nHelping Culinary Students crush their PoE paperwork.\nStop typing. Start cooking. 2026 is here.\nFree Menu Generator below 👇`;
     navigator.clipboard.writeText(text);
     onShowToast("TikTok Bio Copied!");
   };
@@ -32,7 +33,7 @@ const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowT
                 <h3 className="font-black text-white uppercase tracking-tight text-sm">Growth & Bio Hub</h3>
             </div>
             <div className="px-3 py-1 bg-amber-500 rounded-full text-[10px] font-black text-white animate-pulse">
-                GO LIVE: 2025
+                GO LIVE: 2026
             </div>
         </div>
 
