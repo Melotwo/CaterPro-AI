@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types';
 import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet } from 'lucide-react';
@@ -103,7 +102,8 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
     workspaceText += `\nDESSERT:\n${dessertArr.map(d => `• ${d}`).join('\n')}\n\n`;
 
     workspaceText += `LOGISTICS & PREP:\n`;
-    const dietaryNotesArr = Array.isArray(menu.dietaryNotes) ? menu.dietaryNotes : [];
+    // Fixed: Cast dietaryNotesArr to string[] to satisfy TS
+    const dietaryNotesArr = (Array.isArray(menu.dietaryNotes) ? menu.dietaryNotes : []) as string[];
     workspaceText += `\nDIETARY NOTES: ${dietaryNotesArr.join(', ') || 'None'}\n`;
     workspaceText += `\nMISE EN PLACE:\n${miseEnPlaceArr.map(m => `• ${m}`).join('\n')}\n\n`;
     
