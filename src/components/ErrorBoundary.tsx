@@ -1,4 +1,4 @@
-import React, { ErrorInfo, ReactNode } from 'react';
+import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 
 interface Props {
@@ -9,10 +9,12 @@ interface State {
   hasError: boolean;
 }
 
-export default class ErrorBoundary extends React.Component<Props, State> {
+// Fixed: Explicitly using Component from react and ensuring generic types are correctly applied
+export default class ErrorBoundary extends Component<Props, State> {
+  public state: State = { hasError: false };
+
   constructor(props: Props) {
     super(props);
-    this.state = { hasError: false };
   }
 
   public static getDerivedStateFromError(_: Error): State {
@@ -28,6 +30,7 @@ export default class ErrorBoundary extends React.Component<Props, State> {
   };
 
   public render() {
+    // Fixed: this.state is now correctly typed
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-4 font-sans text-center">
@@ -51,6 +54,7 @@ export default class ErrorBoundary extends React.Component<Props, State> {
       );
     }
 
+    // Fixed: this.props is now correctly typed
     return this.props.children;
   }
 }
