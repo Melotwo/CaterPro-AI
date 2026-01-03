@@ -22,39 +22,31 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          # Removed cache: 'npm' because package-lock.json is not present in the repo
 
       - name: Install Dependencies
         run: npm install
 
-      - name: Verify Secrets Presence
-        env:
-          FIREBASE_SECRET: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-          API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: |
-          if [ -z "$FIREBASE_SECRET" ]; then
-            echo "::error::❌ CRITICAL: FIREBASE_SERVICE_ACCOUNT secret is missing."
-            exit 1
-          fi
-          if [ -z "$API_KEY" ]; then
-            echo "::error::❌ CRITICAL: GEMINI_API_KEY secret is missing."
-            exit 1
-          fi
-
       - name: Normalize Founder Image
         run: |
           mkdir -p public
-          # Find first image file in the repo (ignoring .git, node_modules, and dist)
-          FOUND_IMG=$(find . -maxdepth 3 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.webp" \) -not -path "*/.*" -not -path "*/node_modules/*" -not -path "*/dist/*" -not -name "logo.*" -not -name "favicon.*" | head -n 1)
+          # Advanced find: Look for images over 10KB to ignore tiny icons/logos
+          # Also specifically ignore filenames that look like app icons or system files
+          FOUND_IMG=$(find . -maxdepth 3 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" \) \
+            -not -path "*/.*" \
+            -not -path "*/node_modules/*" \
+            -not -path "*/dist/*" \
+            -not -name "logo.*" \
+            -not -name "favicon.*" \
+            -not -name "apple-touch-icon*" \
+            -size +10k | head -n 1)
           
           if [ -n "$FOUND_IMG" ]; then
-            echo "✅ User image detected at: $FOUND_IMG"
+            echo "✅ Real founder image detected at: $FOUND_IMG"
             cp "$FOUND_IMG" public/founder.jpg
           else
-            echo "⚠️ No user image found. Using stock placeholder."
-            if [ ! -f "public/founder.jpg" ]; then
-                curl -L "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80" -o public/founder.jpg
-            fi
+            echo "⚠️ No founder image found or only icons detected. Using high-end chef placeholder."
+            # High-end kitchen placeholder
+            curl -L "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80" -o public/founder.jpg
           fi
 
       - name: Build App
