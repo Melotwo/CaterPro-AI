@@ -115,6 +115,13 @@ const App: React.FC = () => {
     setToastMessage("Marketing Strategy Applied!");
   };
 
+  const handleOpenSocial = (mode: SocialMode) => {
+    if (attemptAccess('socialMediaTools')) {
+        setSocialModalMode(mode);
+        setIsSocialModalOpen(true);
+    }
+  };
+
   const generateMenu = async () => {
     if (!recordGeneration()) return;
     
@@ -366,6 +373,7 @@ const App: React.FC = () => {
                   onCalculateFee={() => {}} 
                   calculatedFee={null} 
                   preferredCurrency={currency} 
+                  onOpenSocialModal={handleOpenSocial}
                 />
                 
                 <MarketingRoadmap />
