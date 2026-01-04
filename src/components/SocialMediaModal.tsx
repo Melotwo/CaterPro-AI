@@ -18,11 +18,10 @@ interface SocialMediaModalProps {
 type Platform = 'instagram' | 'linkedin' | 'twitter' | 'facebook' | 'tiktok';
 
 const LOADING_MESSAGES = [
-  "Analyzing menu profile...",
+  "Analyzing culinary profile...",
   "Visualizing cinematic plating...",
-  "Orchestrating high-energy transitions...",
+  "Orchestrating transitions...",
   "Applying 2026 aesthetic filters...",
-  "Finalizing viral hook placement...",
   "Polishing gourmet visual effects...",
   "Readying your high-intent reel..."
 ];
@@ -33,7 +32,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
   const [activeMode, setActiveMode] = useState<Mode>(initialMode);
   const [activePlatform, setActivePlatform] = useState<Platform>('tiktok');
   const [editedContent, setEditedContent] = useState('');
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [videoBlobUrl, setVideoBlobUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const [copiedText, setCopiedText] = useState(false);
@@ -43,10 +42,10 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
     if (isOpen) {
       setActiveMode(initialMode);
       setEditedContent('');
-      setVideoUrl(null);
+      if (videoBlobUrl) URL.revokeObjectURL(videoBlobUrl);
+      setVideoBlobUrl(null);
       setNeedsApiKey(false);
       
-      // Auto-trigger generation for text modes
       if (initialMode !== 'reel') {
         handleGenerate(initialMode === 'create' ? 'facebook' : undefined);
       }
@@ -58,7 +57,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
     if (isGenerating && activeMode === 'reel') {
       interval = setInterval(() => {
         setLoadingStep(prev => (prev + 1) % LOADING_MESSAGES.length);
-      }, 3500);
+      }, 4000);
     }
     return () => clearInterval(interval);
   }, [isGenerating, activeMode]);
@@ -74,7 +73,6 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
   const handleGenerate = async (platformOverride?: Platform) => {
     const platform = platformOverride || activePlatform;
     
-    // Check API Key for Video Models
     if (activeMode === 'reel') {
         const hasKey = await window.aistudio?.hasSelectedApiKey?.();
         if (!hasKey) {
@@ -94,7 +92,11 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
         setEditedContent(status);
       } else if (activeMode === 'reel') {
         const url = await generateVideoFromApi(menuTitle, menuDescription, image);
-        setVideoUrl(url);
+        // Robust fetch to ensure CORS and authentication work inside <video>
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const blobUrl = URL.createObjectURL(blob);
+        setVideoBlobUrl(blobUrl);
       } else if (activeMode === 'provance') {
         const script = await generateProvanceVSLScript(menuTitle, menuDescription);
         setEditedContent(script);
@@ -106,7 +108,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
       if (e.message?.includes("Requested entity was not found")) {
           setNeedsApiKey(true);
       } else {
-          setEditedContent("AI is busy refining your strategy. Please try again in 5 seconds.");
+          setEditedContent("AI is busy refining your strategy. Please try again in a few seconds.");
       }
     } finally {
       setIsGenerating(false);
@@ -125,51 +127,48 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <div onClick={onClose} className="fixed inset-0 bg-slate-900/80 backdrop-blur-md animate-[fade-in_0.2s_ease-out]"></div>
-      <div className="relative w-full max-w-5xl bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-[scale-up_0.2s_ease-out] flex flex-col h-[90dvh]">
+      <div className="relative w-full max-w-5xl bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-[scale-up_0.2s_ease-out] flex flex-col h-[90dvh]">
         
         <button onClick={onClose} className="absolute top-5 right-5 p-2 z-20 bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-700 rounded-full transition-colors shadow-sm">
           <X size={20} />
         </button>
 
         <div className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 p-3 flex gap-2 overflow-x-auto no-scrollbar">
-            <button onClick={() => {setActiveMode('reel'); setVideoUrl(null); setNeedsApiKey(false);}} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'reel' ? 'bg-primary-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
+            <button onClick={() => {setActiveMode('reel'); setVideoBlobUrl(null); setNeedsApiKey(false);}} className={`px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'reel' ? 'bg-primary-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
                 <Video size={16} /> Viral Video Reel
             </button>
-            <button onClick={() => {setActiveMode('create'); handleGenerate('facebook');}} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'create' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
-                <MessageSquareQuote size={16} /> FB/Insta Captions
+            <button onClick={() => {setActiveMode('create'); handleGenerate('facebook');}} className={`px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'create' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
+                <MessageSquareQuote size={16} /> Marketing Captions
             </button>
-            <button onClick={() => {setActiveMode('status'); handleGenerate();}} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'status' ? 'bg-green-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
+            <button onClick={() => {setActiveMode('status'); handleGenerate();}} className={`px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'status' ? 'bg-green-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
                 <Smartphone size={16} /> WhatsApp Status
-            </button>
-            <button onClick={() => {setActiveMode('provance'); handleGenerate();}} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'provance' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
-                <ShieldCheck size={16} /> Sales Strategy
             </button>
         </div>
 
         <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
             <div className="md:w-2/5 bg-slate-50 dark:bg-slate-950 flex flex-col p-8 border-r border-slate-200 dark:border-slate-800 overflow-y-auto">
                 <div className="space-y-6">
-                    <div className="bg-slate-900 text-white p-8 rounded-3xl border-4 border-primary-500/30 flex flex-col items-center text-center shadow-2xl relative overflow-hidden">
+                    <div className="bg-slate-900 text-white p-8 rounded-[2rem] border-4 border-primary-500/30 flex flex-col items-center text-center shadow-2xl relative overflow-hidden">
                         <div className="absolute top-0 right-0 p-4 opacity-10">
                             <Sparkle size={40} className="animate-spin-slow" />
                         </div>
                         <Play size={56} className="text-primary-500 mb-6 animate-pulse" />
-                        <h3 className="text-2xl font-black uppercase tracking-tighter">Content Studio</h3>
-                        <p className="text-[10px] text-slate-400 mt-4 leading-relaxed font-bold uppercase tracking-widest">
-                            Optimized for the {menuTitle} Proposal
+                        <h3 className="text-2xl font-black uppercase tracking-tighter">Content Lab</h3>
+                        <p className="text-[10px] text-slate-400 mt-4 leading-relaxed font-black uppercase tracking-widest">
+                            2026 Strategy Optimized
                         </p>
                     </div>
 
-                    <div className="p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
-                        <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Platform Check</h4>
+                    <div className="p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
+                        <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Quality Check</h4>
                         <div className="flex items-center gap-3 text-xs font-bold text-slate-600 dark:text-slate-400">
-                           <Target size={14} className="text-primary-500" /> High Intent Audience
+                           <ShieldCheck size={14} className="text-emerald-500" /> Professional Grade
                         </div>
                         <div className="flex items-center gap-3 text-xs font-bold text-slate-600 dark:text-slate-400">
-                           <Video size={14} className="text-indigo-500" /> Veo 3.1 Fast Render
+                           <Video size={14} className="text-primary-500" /> Google Veo Render
                         </div>
                         <div className="flex items-center gap-3 text-xs font-bold text-slate-600 dark:text-slate-400">
-                           <Facebook size={14} className="text-blue-500" /> FB Reels Optimized
+                           <Facebook size={14} className="text-blue-500" /> Social Optimized
                         </div>
                     </div>
 
@@ -179,7 +178,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                         className="w-full py-5 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-black shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
                     >
                         {isGenerating ? <Loader2 className="animate-spin" size={20} /> : <RefreshCw size={20} />}
-                        {isGenerating ? 'Architecting Media...' : (videoUrl ? 'Re-Generate Video' : 'Generate Viral Content')}
+                        {isGenerating ? 'Rendering Media...' : (videoBlobUrl ? 'Re-Generate' : 'Render Viral Reel')}
                     </button>
                 </div>
             </div>
@@ -187,46 +186,41 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
             <div className="md:w-3/5 flex flex-col bg-white dark:bg-slate-900 relative">
                 {needsApiKey && (
                     <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 dark:bg-slate-900/95 p-8 text-center animate-fade-in">
-                        <div className="p-4 bg-amber-100 dark:bg-amber-900/30 rounded-3xl text-amber-600 mb-6">
+                        <div className="p-6 bg-amber-100 dark:bg-amber-900/30 rounded-full text-amber-600 mb-6">
                             <Key size={48} />
                         </div>
-                        <h4 className="text-2xl font-black text-slate-900 dark:text-white mb-4">API Key Required for Video</h4>
-                        <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-sm">
-                            High-quality video generation requires a paid API key from a GCP project. Please select your key to continue.
-                            <br/><br/>
-                            <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" className="text-primary-500 font-bold hover:underline">Billing Documentation</a>
+                        <h4 className="text-2xl font-black text-slate-900 dark:text-white mb-4">Paid API Key Required</h4>
+                        <p className="text-slate-600 dark:text-slate-400 mb-8 max-w-sm font-medium">
+                            Video rendering requires a valid paid API key from Google AI Studio. Please select your key to begin.
                         </p>
                         <button 
                             onClick={handleSelectKey}
-                            className="px-10 py-4 bg-slate-900 text-white dark:bg-white dark:text-slate-900 rounded-2xl font-black uppercase tracking-widest shadow-xl hover:scale-105 transition-all"
+                            className="px-12 py-5 bg-slate-950 text-white dark:bg-white dark:text-slate-900 rounded-2xl font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-all"
                         >
-                            Select API Key
+                            Select Your Key
                         </button>
                     </div>
                 )}
 
                 <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                    <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">
-                        {activeMode === 'reel' ? 'Viral Media Preview' : 'Viral Draft Editor'}
+                    <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
+                        {activeMode === 'reel' ? 'Studio Preview' : 'Draft Editor'}
                     </h4>
-                    <div className="flex gap-2">
-                        {[1,2,3].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div>)}
-                    </div>
                 </div>
 
                 <div className="flex-grow p-8 overflow-y-auto flex flex-col items-center justify-center">
                     {activeMode === 'reel' ? (
-                        videoUrl ? (
-                            <div className="w-full h-full max-w-[400px] aspect-[9/16] bg-black rounded-3xl overflow-hidden shadow-2xl border-8 border-slate-100 dark:border-slate-800 group relative">
+                        videoBlobUrl ? (
+                            <div className="w-full h-full max-w-[360px] aspect-[9/16] bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border-[12px] border-slate-100 dark:border-slate-800 group relative">
                                 <video 
-                                    src={videoUrl} 
+                                    src={videoBlobUrl} 
                                     controls 
                                     autoPlay 
                                     loop 
                                     className="w-full h-full object-cover"
                                 />
                                 <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <a href={videoUrl} download className="p-3 bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/40 transition-all">
+                                    <a href={videoBlobUrl} download={`${menuTitle}_Reel.mp4`} className="p-3 bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/40 transition-all">
                                         <Download size={20} />
                                     </a>
                                 </div>
@@ -239,12 +233,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                                 </div>
                                 <div>
                                     <h5 className="text-xl font-black text-slate-900 dark:text-white mb-2">{LOADING_MESSAGES[loadingStep]}</h5>
-                                    <p className="text-sm text-slate-500 font-medium">Veo 3.1 is crafting your 2026 digital asset.</p>
-                                </div>
-                                <div className="flex gap-1 justify-center">
-                                    {LOADING_MESSAGES.map((_, i) => (
-                                        <div key={i} className={`h-1 w-8 rounded-full transition-colors ${i === loadingStep ? 'bg-primary-500' : 'bg-slate-100 dark:bg-slate-800'}`}></div>
-                                    ))}
+                                    <p className="text-sm text-slate-500 font-medium">Veo 3.1 Fast is building your assets.</p>
                                 </div>
                             </div>
                         ) : (
@@ -253,15 +242,15 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                                     <Video size={40} />
                                 </div>
                                 <h5 className="text-lg font-black text-slate-400 uppercase tracking-widest">Ready to Render</h5>
-                                <p className="text-sm text-slate-500 mt-2 max-w-xs mx-auto">Generate a high-end cinematic video for this menu using Google Veo AI.</p>
+                                <p className="text-sm text-slate-500 mt-2 max-w-xs mx-auto font-medium">Transform this menu into a cinematic 9:16 vertical reel automatically.</p>
                             </div>
                         )
                     ) : (
                         <textarea 
-                            className="w-full h-full min-h-[300px] resize-none border-none focus:ring-0 bg-transparent text-slate-800 dark:text-slate-200 text-base leading-relaxed font-medium" 
+                            className="w-full h-full min-h-[300px] resize-none border-none focus:ring-0 bg-transparent text-slate-800 dark:text-slate-200 text-lg leading-relaxed font-medium" 
                             value={editedContent} 
                             onChange={(e) => setEditedContent(e.target.value)} 
-                            placeholder={isGenerating ? "AI is generating your viral content..." : "Select a strategy above to start."}
+                            placeholder={isGenerating ? "AI is architecting content..." : "Click generate to see your viral captions."}
                         />
                     )}
                 </div>
@@ -269,7 +258,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                 <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
                     {activeMode === 'reel' ? (
                         <button 
-                            disabled={!videoUrl || isGenerating}
+                            disabled={!videoBlobUrl || isGenerating}
                             className="w-full py-5 bg-primary-600 text-white rounded-2xl font-black shadow-xl hover:bg-primary-700 transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
                         >
                             <Download size={20} /> Save Reel to Device
@@ -281,7 +270,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                             className="w-full py-5 bg-slate-950 text-white rounded-2xl font-black shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
                         >
                             {copiedText ? <Check size={20} className="text-green-400" /> : <Copy size={20} />} 
-                            {copiedText ? 'Copied to Clipboard!' : 'Copy to Social Media'}
+                            {copiedText ? 'Copied Successfully!' : 'Copy to Social Media'}
                         </button>
                     )}
                 </div>
