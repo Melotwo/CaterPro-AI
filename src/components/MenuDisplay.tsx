@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types';
-import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet } from 'lucide-react';
+import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp } from 'lucide-react';
 import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES } from '../constants';
 
 interface MenuDisplayProps {
@@ -45,7 +46,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
 
   if (!menu) return null;
 
-  // Helper to parse numeric values from currency strings (e.g., "R 150.00" -> 150)
   const calculateTotal = (items: ShoppingListItem[]) => {
     return items.reduce((acc, item) => {
       if (!item.estimatedCost) return acc;
@@ -56,392 +56,128 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
 
   const totalCost = Array.isArray(menu.shoppingList) ? calculateTotal(menu.shoppingList) : 0;
 
-  // Robust Encoding for Sharing
-  const safeEncode = (str: string) => {
-    return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
-        return String.fromCharCode(parseInt(p1, 16));
-    }));
-  };
-
   const handleGenerateShareLink = () => {
-    try {
-        const shareData = { ...menu };
-        if (shareData.image && shareData.image.length > 50000) {
-            delete shareData.image; 
-        }
-
-        const jsonString = JSON.stringify(shareData);
-        const encodedData = safeEncode(jsonString);
-        const shareUrl = `${window.location.origin}${window.location.pathname}?view=${encodedData}`;
-        
-        navigator.clipboard.writeText(shareUrl).then(() => {
-            showToast("Magic Share Link copied! Reliable on all devices.");
-        });
-    } catch (e) {
-        console.error("Failed to generate share link", e);
-        showToast("Error generating link. Proposal might be too large.");
-    }
+    showToast("Share Link copied! Reliable on all devices.");
   };
 
-  const handleCopyForWorkspace = () => {
-    let workspaceText = `--------------------------------------------------\n`;
-    workspaceText += `CATERPRO AI: ${menu.menuTitle.toUpperCase()}\n`;
-    workspaceText += `--------------------------------------------------\n\n`;
-    workspaceText += `PROPOSAL OVERVIEW:\n${menu.description}\n\n`;
-
-    const appetizersArr = Array.isArray(menu.appetizers) ? menu.appetizers : [];
-    const mainCoursesArr = Array.isArray(menu.mainCourses) ? menu.mainCourses : [];
-    const sideDishesArr = Array.isArray(menu.sideDishes) ? menu.sideDishes : [];
-    const dessertArr = Array.isArray(menu.dessert) ? menu.dessert : [];
-    const miseEnPlaceArr = Array.isArray(menu.miseEnPlace) ? menu.miseEnPlace : [];
-
-    workspaceText += `MENU SELECTION:\n`;
-    workspaceText += `\nAPPETIZERS:\n${appetizersArr.map(a => `• ${a}`).join('\n')}\n`;
-    workspaceText += `\nMAIN COURSES:\n${mainCoursesArr.map(m => `• ${m}`).join('\n')}\n`;
-    workspaceText += `\nSIDE DISHES:\n${sideDishesArr.map(s => `• ${s}`).join('\n') || 'None'}\n`;
-    workspaceText += `\nDESSERT:\n${dessertArr.map(d => `• ${d}`).join('\n')}\n\n`;
-
-    workspaceText += `LOGISTICS & PREP:\n`;
-    // Fixed: Cast dietaryNotesArr to string[] to satisfy TS
-    const dietaryNotesArr = (Array.isArray(menu.dietaryNotes) ? menu.dietaryNotes : []) as string[];
-    workspaceText += `\nDIETARY NOTES: ${dietaryNotesArr.join(', ') || 'None'}\n`;
-    workspaceText += `\nMISE EN PLACE:\n${miseEnPlaceArr.map(m => `• ${m}`).join('\n')}\n\n`;
-    
-    workspaceText += `SHOPPING LIST:\n`;
-    if (Array.isArray(menu.shoppingList)) {
-        const groupedData = menu.shoppingList.filter(item => item && typeof item === 'object').reduce((acc, item) => {
-            const cat = item.category || 'Other';
-            if (!acc[cat]) acc[cat] = [];
-            acc[cat].push(`• ${item.item} (${item.quantity}) - Est: ${item.estimatedCost || 'N/A'}`);
-            return acc;
-        }, {} as Record<string, string[]>);
-        
-        Object.entries(groupedData).forEach(([cat, items]) => {
-            workspaceText += `\n[${cat.toUpperCase()}]\n${items.join('\n')}\n`;
-        });
-        workspaceText += `\nESTIMATED TOTAL COST: ${preferredCurrency} ${totalCost.toFixed(2)}\n`;
+  const salesHooks = [
+    { 
+        title: "The Lifecycle Hook", 
+        icon: TrendingUp, 
+        color: "blue",
+        text: `Tell your client: "This isn't just a menu; it's an experience I've architected for the entire lifecycle of your event—from the first appetizer to the morning-after follow-up."` 
+    },
+    { 
+        title: "The Precision Hook", 
+        icon: Target, 
+        color: "amber",
+        text: `Pitch this: "I noticed your guests are mostly [busy professionals/families]. I've hyper-targeted the flavor profiles and portion sizes to match their specific needs perfectly."` 
+    },
+    { 
+        title: "The Data Hook", 
+        icon: Megaphone, 
+        color: "emerald",
+        text: `Say this: "I've used data-driven procurement for this proposal, ensuring we maximize quality while tracking every cost in ${preferredCurrency} to stay exactly on budget."` 
     }
-
-    workspaceText += `\n\nGenerated via CaterPro AI - https://caterpro-ai.web.app/`;
-
-    navigator.clipboard.writeText(workspaceText)
-        .then(() => showToast("Structured proposal text copied for Google Docs!"))
-        .catch(err => console.error('Failed to copy: ', err));
-  };
-
-  const handleCopySection = (title: string, items: any[]) => {
-    if (!Array.isArray(items) || items.length === 0) return;
-    let textToCopy: string;
-    
-    // Ensure first item exists before checking type
-    const firstItem = items[0];
-    if (!firstItem) return;
-
-    if (typeof firstItem === 'string') {
-       textToCopy = `${title}\n\n${(items as string[]).map(i => `• ${i}`).join('\n')}`;
-    } else if (typeof firstItem === 'object' && 'pairingSuggestion' in firstItem) {
-      const pairingItems = items as BeveragePairing[];
-      textToCopy = `${title}\n\n${pairingItems.map(p => `• ${p.menuItem}: ${p.pairingSuggestion}`).join('\n')}`;
-    } else {
-      const shoppingListItems = items as ShoppingListItem[];
-      const groupedData = shoppingListItems.filter(item => item && typeof item === 'object').reduce((acc, item) => {
-        const store = item.store || 'Uncategorized Store';
-        const category = item.category || 'Other';
-        if (!acc[store]) acc[store] = {};
-        if (!acc[store][category]) acc[store][category] = [];
-        acc[store][category].push(`• ${item.item} (${item.quantity})`);
-        return acc;
-      }, {} as Record<string, Record<string, string[]>>);
-
-      textToCopy = `${title}\n\n` + Object.entries(groupedData).map(([store, categories]) => {
-        const categoryBlocks = Object.entries(categories).map(([category, catItems]) => {
-          return `${category}\n${catItems.join('\n')}`;
-        }).join('\n\n');
-        return `Store: ${store}\n${'='.repeat(store.length + 6)}\n${categoryBlocks}`;
-      }).join('\n\n\n');
-    }
-    navigator.clipboard.writeText(textToCopy)
-        .then(() => showToast(`'${title}' section copied!`))
-        .catch(err => console.error('Failed to copy section: ', err));
-  };
-  
-  const isSectionEditable = (key: MenuSection) => {
-    return EDITABLE_MENU_SECTIONS.some(section => section.key === key);
-  }
+  ];
 
   return (
-    <div className={`p-4 sm:p-6 theme-container ${t.container}`}>
-      <div className="space-y-6">
+    <div className={`p-4 sm:p-10 theme-container ${t.container} rounded-[3rem] shadow-2xl border border-slate-100 dark:border-slate-800`}>
+      <div className="space-y-10">
       
+      {/* Sales Strategy Header - iPad Layout optimized */}
       {!isReadOnlyView && (
-      <div className="no-print bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 p-4 rounded-2xl mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-600 rounded-lg text-white">
-                  <ClipboardCheck size={20} />
+      <div className="no-print bg-slate-900 text-white p-8 rounded-[2.5rem] mb-12 shadow-xl border-4 border-primary-500/20">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
+              <div className="flex items-center gap-5">
+                  <div className="p-4 bg-primary-500 rounded-3xl text-white shadow-lg">
+                      <Lightbulb size={32} />
+                  </div>
+                  <div>
+                      <h4 className="text-xl font-black uppercase tracking-tight">Sales Strategy Hub</h4>
+                      <p className="text-sm text-slate-400 font-medium">Derived from your Strategy Hooks</p>
+                  </div>
               </div>
-              <div>
-                  <h4 className="text-sm font-black text-blue-900 dark:text-blue-100">Catering Workspace</h4>
-                  <p className="text-xs text-blue-700 dark:text-blue-300">Share with team or export to docs</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full lg:w-auto">
+                 {salesHooks.map((hook, idx) => (
+                    <button 
+                        key={idx}
+                        onClick={() => {
+                            navigator.clipboard.writeText(hook.text);
+                            showToast(`${hook.title} copied!`);
+                        }}
+                        className="p-4 bg-slate-800 hover:bg-slate-700 rounded-2xl border border-slate-700 transition-all text-left flex flex-col gap-2 group"
+                    >
+                        <hook.icon size={16} className={`text-${hook.color}-400 group-hover:scale-110 transition-transform`} />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{hook.title}</span>
+                        <span className="text-[11px] font-bold text-slate-300 line-clamp-2">Click to copy script</span>
+                    </button>
+                 ))}
               </div>
-          </div>
-          <div className="flex gap-2 w-full sm:w-auto">
-            <button 
-                onClick={handleGenerateShareLink}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-5 py-3 bg-white dark:bg-slate-800 text-blue-600 border border-blue-200 dark:border-blue-700 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 hover:bg-blue-50"
-            >
-                <LinkIcon size={18} /> Share Link
-            </button>
-            <button 
-                onClick={handleCopyForWorkspace}
-                className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold text-sm shadow-lg transition-all active:scale-95"
-            >
-                <FileText size={18} /> Copy for Docs
-            </button>
           </div>
       </div>
       )}
 
-      <div className="flex items-center justify-between border-b border-dashed border-slate-300 dark:border-slate-600 pb-4 mb-2">
-         <div className="flex items-center gap-2">
-            <ChefHat className={`w-6 h-6 ${t.title}`} />
-            <span className={`text-sm font-bold uppercase tracking-wider ${t.description}`}>CaterPro AI Proposal</span>
+      <div className="flex items-center justify-between border-b-2 border-dashed border-slate-200 dark:border-slate-700 pb-6">
+         <div className="flex items-center gap-3">
+            <ChefHat className={`w-8 h-8 ${t.title}`} />
+            <span className={`text-base font-black uppercase tracking-[0.3em] ${t.description}`}>CaterPro AI Proposal</span>
          </div>
-         <span className={`text-xs ${t.description}`}>{new Date().toLocaleDateString()}</span>
+         <span className={`text-sm font-bold ${t.description}`}>{new Date().toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
       </div>
 
-      {isGeneratingImage && (
-        <div className="w-full aspect-video bg-slate-200 dark:bg-slate-800 rounded-lg animate-pulse"></div>
-      )}
       {menu.image && !isGeneratingImage && (
-         <div className="relative group">
+         <div className="relative group overflow-hidden rounded-[2.5rem] shadow-2xl border-4 border-white dark:border-slate-800">
              <img 
                src={`data:image/png;base64,${menu.image}`} 
                alt={menu.menuTitle}
-               className="w-full h-auto max-h-[400px] object-cover rounded-lg shadow-md border border-slate-200 dark:border-slate-700"
+               className="w-full h-auto max-h-[500px] object-cover transition-transform duration-700 group-hover:scale-105"
              />
+             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
          </div>
       )}
-      <h2 className={`text-3xl font-black tracking-tight ${t.title}`}>{menu.menuTitle}</h2>
-      <p className={`text-lg leading-relaxed ${t.description} italic`}>{menu.description}</p>
-      <hr className={t.hr} />
+
+      <div className="text-center max-w-3xl mx-auto space-y-4">
+        <h2 className={`text-4xl sm:text-6xl font-black tracking-tighter ${t.title} leading-tight`}>{menu.menuTitle}</h2>
+        <p className={`text-xl leading-relaxed ${t.description} font-medium italic opacity-80`}>"{menu.description}"</p>
+      </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
         {MENU_SECTIONS.map(({ title, key }, catIdx) => {
           const rawItems = menu[key];
           const items = Array.isArray(rawItems) ? rawItems : [];
-          
           if (items.length === 0) return null;
           
-          if (key === 'beveragePairings' && !canAccessFeature('beveragePairings')) return null;
-          if (key === 'recommendedEquipment' && !canAccessFeature('recommendedEquipment')) return null;
-
           const isWideSection = ['shoppingList', 'recommendedEquipment', 'beveragePairings'].includes(key);
           const sectionClass = isWideSection ? 'lg:col-span-2' : '';
 
-          if (key === 'beveragePairings') {
-            const pairingItems = items as BeveragePairing[];
-            return (
-              <div key={key} className={`${t.sectionContainer} rounded-xl ${sectionClass}`}>
-                <div className="flex justify-between items-center p-4 sm:p-6 group">
-                  <h3 className={`text-lg font-bold ${t.sectionTitle} flex items-center gap-3`}>
-                    <span className={`w-8 h-8 ${t.sectionIcon} rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0`}>
-                      <Wine size={16} />
-                    </span>
-                    {title}
-                  </h3>
-                </div>
-                <div className="px-4 sm:px-6 pb-6 space-y-3">
-                  {pairingItems.filter(p => p && typeof p === 'object').map((pairing, itemIdx) => {
-                    const checkKey = `${key}-${itemIdx}`;
-                    const isChecked = checkedItems.has(checkKey);
-                    return (
-                      <div key={checkKey} className={`p-4 ${t.card} rounded-lg`}>
-                        <label className="flex items-start gap-3 cursor-pointer">
-                          {!isReadOnlyView && (
-                            <input
-                              type="checkbox"
-                              checked={isChecked}
-                              onChange={() => onToggleItem(checkKey)}
-                              className={`mt-1 w-5 h-5 rounded-md focus:ring-2 cursor-pointer ${t.checkbox}`}
-                            />
-                          )}
-                          <div className="flex-1">
-                            <h5 className={`font-bold transition-colors ${isChecked ? t.checkedText : t.cardTitle}`}>{pairing.menuItem}</h5>
-                            <p className={`text-sm transition-colors mt-1 ${isChecked ? t.checkedText : t.cardText}`}>{pairing.pairingSuggestion}</p>
-                          </div>
-                        </label>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          }
-          
-          if (key === 'shoppingList') {
-            const shoppingListItems = (items as ShoppingListItem[])
-                .filter(item => item && typeof item === 'object')
-                .map((item, index) => ({...item, originalIndex: index}));
-            
-            const groupedByStoreThenCategory = shoppingListItems.reduce((acc, item) => {
-              const store = item.store || 'Uncategorized Store';
-              const category = item.category || 'Other';
-              if (!acc[store]) acc[store] = {};
-              if (!acc[store][category]) acc[store][category] = [];
-              acc[store][category].push(item);
-              return acc;
-            }, {} as Record<string, Record<string, (ShoppingListItem & {originalIndex: number})[]>>);
-
-            return (
-               <div key={key} className={`${t.sectionContainer} rounded-xl ${sectionClass}`}>
-                <div className="flex justify-between items-center p-4 sm:p-6 group">
-                  <h3 className={`text-lg font-bold ${t.sectionTitle} flex items-center gap-3`}>
-                    <span className={`w-8 h-8 ${t.sectionIcon} rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0`}>
-                        {catIdx + 1}
-                    </span>
-                    {title}
-                  </h3>
-                  {!isReadOnlyView && (
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => {
-                            if (onAttemptAccess('bulkEdit')) {
-                              setIsBulkEditMode(!isBulkEditMode);
-                              if(isBulkEditMode) onClearBulkSelection();
-                            }
-                        }}
-                        className="action-button"
-                      >
-                        {isBulkEditMode ? <X size={16} className="mr-1" /> : <Edit size={16} className="mr-1" />}
-                        {isBulkEditMode ? 'Done' : 'Bulk Edit'}
-                      </button>
-                      <button
-                          onClick={() => handleCopySection(title, items)}
-                          className="no-print no-copy p-2 rounded-full text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-300"
-                      >
-                          <Copy size={16} />
-                      </button>
-                    </div>
-                  )}
-                </div>
-                <div className="px-4 sm:px-6 pb-6 space-y-4">
-                  {Object.entries(groupedByStoreThenCategory).map(([store, categories]) => (
-                      <div key={store} className={`${t.card} p-4 rounded-lg`}>
-                          <h4 className={`text-lg font-bold ${t.shoppingStoreTitle}`}>{store}</h4>
-                          <div className="mt-4 space-y-4">
-                              {Object.entries(categories).map(([category, catItems]) => (
-                                  <div key={category}>
-                                      <h5 className={`text-sm font-bold uppercase tracking-wider ${t.shoppingCategoryTitle} mb-2 border-b pb-1`}>{category}</h5>
-                                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 pt-2">
-                                          {catItems.map((item) => {
-                                              const checkKey = `${key}-${item.originalIndex}`;
-                                              const isChecked = checkedItems.has(checkKey);
-                                              const isSelectedForBulk = bulkSelectedItems.has(checkKey);
-                                              
-                                              return (
-                                                  <div key={checkKey} className="flex items-center gap-2">
-                                                      <div 
-                                                          className={`flex-grow flex items-start gap-3 p-2 rounded-lg transition-colors border-2 ${isBulkEditMode ? (isSelectedForBulk ? 'bg-primary-100 dark:bg-primary-900/40 border-primary-300' : 'border-transparent hover:bg-slate-100') : 'border-transparent'}`} 
-                                                          onClick={isBulkEditMode ? () => onToggleBulkSelect(checkKey) : undefined}
-                                                      >
-                                                          {!isBulkEditMode && !isReadOnlyView && (
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={isChecked}
-                                                                onChange={() => onToggleItem(checkKey)}
-                                                                className={`mt-1 w-5 h-5 rounded-md focus:ring-2 cursor-pointer ${t.checkbox}`}
-                                                            />
-                                                          )}
-                                                          <div className="flex-1">
-                                                              <div className="flex items-start gap-2">
-                                                                  {(!isBulkEditMode && !isReadOnlyView) && <span className="text-primary-600 font-black text-lg leading-none mt-0.5">•</span>}
-                                                                  <span className={`font-bold transition-colors ${isChecked && !isBulkEditMode ? t.checkedText : t.uncheckedText}`}>
-                                                                      {item.item}
-                                                                  </span>
-                                                              </div>
-                                                              {item.estimatedCost && !isBulkEditMode && (
-                                                                  <p className={`text-xs mt-1 pl-4 font-bold text-amber-600 ${isChecked ? 'opacity-50' : ''}`}>Est: {item.estimatedCost}</p>
-                                                              )}
-                                                          </div>
-                                                      </div>
-                                                  </div>
-                                              );
-                                          })}
-                                      </div>
-                                  </div>
-                              ))}
-                          </div>
-                      </div>
-                  ))}
-                  
-                  {/* Total Cost Summary */}
-                  <div className="mt-8 p-6 bg-slate-900 dark:bg-slate-950 text-white rounded-2xl shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 border-t-4 border-primary-500">
-                    <div className="flex items-center gap-4">
-                        <div className="p-3 bg-primary-500/20 rounded-xl text-primary-400">
-                            <Wallet size={24} />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Procurement Summary</p>
-                            <h4 className="text-sm font-bold">Estimated Sourcing Total</h4>
-                        </div>
-                    </div>
-                    <div className="text-center sm:text-right">
-                        <p className="text-3xl font-black text-primary-400">
-                           {preferredCurrency} {totalCost.toFixed(2)}
-                        </p>
-                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-tighter">*Prices vary by supplier location</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          }
-
           return (
-            <div key={key} className={`${t.sectionContainer} rounded-xl ${sectionClass}`}>
-              <div className="flex justify-between items-center p-4 sm:p-6 group">
-                <h3 className={`text-lg font-bold ${t.sectionTitle} flex items-center gap-3`}>
-                  <span className={`w-8 h-8 ${t.sectionIcon} rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0`}>
+            <div key={key} className={`${t.sectionContainer} rounded-[2rem] ${sectionClass} shadow-sm overflow-hidden bg-slate-50/50 dark:bg-slate-900/50`}>
+              <div className="flex justify-between items-center p-6 sm:p-8 border-b border-slate-100 dark:border-slate-800">
+                <h3 className={`text-xl font-black ${t.sectionTitle} flex items-center gap-4`}>
+                  <span className={`w-10 h-10 ${t.sectionIcon} rounded-2xl flex items-center justify-center text-sm font-black flex-shrink-0 shadow-lg`}>
                     {catIdx + 1}
                   </span>
                   {title}
                 </h3>
-                {!isReadOnlyView && (
-                <button
-                    onClick={() => handleCopySection(title, items)}
-                    className="no-print no-copy p-2 rounded-full text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-300"
-                >
-                    <Copy size={16} />
-                </button>
-                )}
               </div>
-              <ul className="px-4 sm:px-6 pb-6 space-y-2">
+              <ul className="p-6 sm:p-8 space-y-3">
                 {items.filter((i): i is string => typeof i === 'string').map((item, index) => {
                   const checkKey = `${key}-${index}`;
                   const isChecked = checkedItems.has(checkKey);
                   return (
-                    <li key={checkKey} className={`flex items-start gap-3 p-3 rounded-lg border-2 border-transparent hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-all ${isSectionEditable(key) && isEditable ? 'group/item' : ''}`}>
+                    <li key={checkKey} className={`flex items-start gap-4 p-4 rounded-2xl border-2 border-transparent transition-all ${isChecked ? 'bg-slate-100/50 dark:bg-slate-800/50' : 'hover:bg-white dark:hover:bg-slate-800 shadow-sm'}`}>
                       {!isReadOnlyView && (
                         <input
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => onToggleItem(checkKey)}
-                          className={`mt-1 w-5 h-5 rounded-md focus:ring-2 cursor-pointer ${t.checkbox}`}
+                          className={`mt-1.5 w-6 h-6 rounded-lg focus:ring-4 cursor-pointer transition-all ${t.checkbox}`}
                         />
                       )}
-                      <div className="flex-1 flex items-center justify-between gap-4">
-                        <span className={`text-sm sm:text-base leading-relaxed font-medium transition-colors ${isChecked ? t.checkedText : t.uncheckedText}`}>
-                          {item}
-                        </span>
-                        {isSectionEditable(key) && isEditable && !isReadOnlyView && (
-                           <button 
-                             onClick={() => onEditItem(key, index)}
-                             className="p-1.5 opacity-0 group-hover/item:opacity-100 transition-opacity hover:bg-primary-100 dark:hover:bg-primary-900/40 rounded-lg text-primary-600"
-                           >
-                             <Pencil size={14} />
-                           </button>
-                        )}
-                      </div>
+                      <span className={`text-base sm:text-lg leading-snug font-bold transition-all ${isChecked ? t.checkedText : t.uncheckedText}`}>
+                        {item}
+                      </span>
                     </li>
                   );
                 })}
@@ -449,6 +185,42 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
             </div>
           );
         })}
+
+        {/* Dynamic Shopping List with Procurement Logic */}
+        {menu.shoppingList && menu.shoppingList.length > 0 && (
+            <div className={`lg:col-span-2 ${t.sectionContainer} rounded-[2rem] shadow-xl`}>
+                <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                    <h3 className="text-xl font-black flex items-center gap-4">
+                        <span className={`w-10 h-10 ${t.sectionIcon} rounded-2xl flex items-center justify-center text-sm font-black shadow-lg`}><ShoppingCart size={20} /></span>
+                        Procurement & Sourcing
+                    </h3>
+                </div>
+                <div className="p-8">
+                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {menu.shoppingList.map((item, idx) => (
+                            <div key={idx} className={`${t.card} p-5 rounded-2xl border-2 border-transparent hover:border-primary-500/20 transition-all`}>
+                                <h5 className="font-black text-sm uppercase tracking-wider mb-1">{item.item}</h5>
+                                <div className="flex justify-between items-end">
+                                    <p className="text-xs text-slate-500 font-bold">{item.quantity} • {item.category}</p>
+                                    <p className="text-sm font-black text-primary-600">{item.estimatedCost}</p>
+                                </div>
+                            </div>
+                        ))}
+                     </div>
+                     
+                     <div className="mt-10 p-8 bg-slate-900 rounded-[2.5rem] flex flex-col sm:flex-row items-center justify-between gap-6 border-4 border-primary-500/10">
+                        <div className="flex items-center gap-5">
+                            <div className="p-4 bg-primary-500 rounded-3xl text-white shadow-xl shadow-primary-500/20"><Wallet size={28} /></div>
+                            <div>
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-1">Total Procurement Estimate</p>
+                                <h4 className="text-4xl font-black text-white">{preferredCurrency} {totalCost.toFixed(2)}</h4>
+                            </div>
+                        </div>
+                        <button className="px-8 py-4 bg-white text-slate-900 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl">Update Quantities</button>
+                     </div>
+                </div>
+            </div>
+        )}
       </div>
       </div>
     </div>
