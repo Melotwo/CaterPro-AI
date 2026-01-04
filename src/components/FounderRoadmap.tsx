@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Calendar, CheckCircle2, Zap, Trophy, Shield, Globe, CreditCard, Mail, Users, DollarSign, Smartphone, Target, BookCheck, ChevronRight, Copy, Award, ShieldCheck, ShoppingBag, Terminal, HelpCircle, MessageSquareQuote, MessageSquareText, Activity, AlertCircle, ExternalLink, Settings, Wallet, Video, Linkedin, MessageSquarePlus, Sparkle, Facebook, ExternalLink as LinkIcon } from 'lucide-react';
+import { CheckCircle2, Zap, Trophy, Smartphone, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search } from 'lucide-react';
 
 interface FounderRoadmapProps {
   whopUrl: string;
@@ -15,15 +15,19 @@ const dailyTasks = [
   { id: 'whop-paypal', label: 'Verify PayPal Payouts', highPriority: true },
 ];
 
-const fbTemplates = [
+const jobSniperTemplates = [
   {
-    title: "The 'College Dean' Intro",
-    text: "I'm Tumi, I'm here to speak with the Dean regarding automating the Portfolio of Evidence paperwork for your culinary students."
+    title: "Resume Application Sniper",
+    text: "Act as an expert recruiter. Compare my resume with this Job Description. Identify the top 3 high-impact keywords I am missing and rewrite my summary to perfectly align with their 'Business Intelligence' and 'Automation' requirements in a professional tone. Job Description starts now: "
+  },
+  {
+    title: "Cover Letter 'Hook' Generator",
+    text: "Write a short, punchy 3-sentence intro for a remote job application. Mention that I built an AI-automated catering platform for 100+ users. Make me sound efficient and data-driven."
   }
 ];
 
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
-  const [activeTab, setActiveTab] = useState<'growth' | 'whop' | 'marketing'>('growth');
+  const [activeTab, setActiveTab] = useState<'growth' | 'sniper' | 'marketing'>('growth');
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['whop-post-1']));
 
   const toggleTask = (taskId: string) => {
@@ -35,28 +39,31 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
 
   const copyToClipboard = (text: string, label: string) => {
       navigator.clipboard.writeText(text);
-      alert(`${label} copied!`);
+      alert(`${label} copied! Paste this into Gemini to finish the job.`);
   };
 
   return (
-    <section className="mt-16 animate-slide-in border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden">
-      <div className="p-8 bg-gradient-to-r from-slate-900 to-slate-800 text-white">
+    <section className="mt-16 animate-slide-in border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl overflow-hidden">
+      <div className="p-8 bg-slate-950 text-white">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
-                <div className="px-2 py-0.5 rounded bg-amber-500 text-[10px] font-black uppercase tracking-widest animate-pulse text-slate-900">2026 Mission Active</div>
+                <div className="px-2 py-0.5 rounded bg-amber-500 text-[10px] font-black uppercase tracking-widest text-slate-900">Mission Active</div>
             </div>
             <h2 className="text-3xl font-black flex items-center gap-3">
               <Zap className="text-amber-400 fill-amber-400" /> Tumi's Dashboard
             </h2>
           </div>
           
-          <div className="flex bg-slate-800 p-1 rounded-xl border border-slate-700 overflow-x-auto no-scrollbar">
-            <button onClick={() => setActiveTab('growth')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'growth' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-400'}`}>
+          <div className="flex bg-slate-900 p-1.5 rounded-2xl border border-slate-800">
+            <button onClick={() => setActiveTab('growth')} className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'growth' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-500'}`}>
                 <Trophy size={14} /> Mission
             </button>
-            <button onClick={() => setActiveTab('marketing')} className={`px-5 py-2 rounded-lg text-xs font-bold transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'marketing' ? 'bg-blue-500 text-white shadow-lg' : 'text-slate-400'}`}>
-                <Smartphone size={14} /> Monday Prep
+            <button onClick={() => setActiveTab('sniper')} className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'sniper' ? 'bg-primary-600 text-white shadow-lg' : 'text-slate-500'}`}>
+                <Crosshair size={14} /> Job Sniper
+            </button>
+            <button onClick={() => setActiveTab('marketing')} className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${activeTab === 'marketing' ? 'bg-blue-500 text-white shadow-lg' : 'text-slate-500'}`}>
+                <Users size={14} /> CRM Tools
             </button>
           </div>
         </div>
@@ -64,56 +71,58 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
 
       <div className="p-8">
         {activeTab === 'growth' && (
-          <div className="space-y-10 animate-fade-in max-w-4xl mx-auto py-4">
+          <div className="animate-fade-in py-4 max-w-3xl">
+            <h3 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-6">Monday Priority List</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                    <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Launch Prep 2026</h3>
-                    <div className="bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl overflow-hidden">
-                        {dailyTasks.map((task) => (
-                        <div key={task.id} className={`w-full flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-700 text-left ${completedTasks.has(task.id) ? 'bg-slate-50' : ''}`}>
-                            <button onClick={() => toggleTask(task.id)} className="flex items-center gap-3">
-                                <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${completedTasks.has(task.id) ? 'bg-emerald-500 border-emerald-500' : 'border-slate-300'}`}>
-                                    {completedTasks.has(task.id) && <CheckCircle2 size={12} className="text-white" />}
-                                </div>
-                                <span className={`text-sm font-medium ${completedTasks.has(task.id) ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-200'}`}>{task.label}</span>
-                            </button>
+                <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-3xl overflow-hidden shadow-sm">
+                    {dailyTasks.map((task) => (
+                    <button key={task.id} onClick={() => toggleTask(task.id)} className={`w-full flex items-center gap-4 p-5 border-b border-slate-200 dark:border-slate-700 last:border-0 hover:bg-white dark:hover:bg-slate-800 transition-colors ${completedTasks.has(task.id) ? 'bg-green-50/50' : ''}`}>
+                        <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${completedTasks.has(task.id) ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300'}`}>
+                            {completedTasks.has(task.id) && <CheckCircle2 size={14} />}
                         </div>
-                        ))}
-                    </div>
+                        <span className={`text-sm font-bold text-left ${completedTasks.has(task.id) ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-200'}`}>{task.label}</span>
+                    </button>
+                    ))}
                 </div>
-
-                <div className="bg-amber-50/30 dark:bg-amber-900/10 p-6 rounded-3xl border-2 border-amber-100 dark:border-amber-800">
-                    <h3 className="text-sm font-black uppercase tracking-widest text-amber-600 mb-4 flex items-center gap-2"><Target size={16} /> Strategy Note</h3>
-                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed italic">
-                        "Tumi, ignore the YouTube analytics noise. Monday is your day of power. Getting those college emails is direct sales. One 'Yes' from a Dean changes everything. Keep your eyes on the prize. 🤙🏿"
+                <div className="bg-amber-50/50 dark:bg-amber-900/10 p-8 rounded-[2rem] border-2 border-dashed border-amber-200 dark:border-amber-800">
+                    <Target className="text-amber-600 mb-4" />
+                    <p className="text-sm text-slate-600 dark:text-slate-300 font-medium leading-relaxed italic">
+                        "Tumi, direct sales at the colleges is the only mission. One Dean saying 'Yes' is worth 100 Facebook likes. Focus there first. 🤙🏿"
                     </p>
                 </div>
             </div>
           </div>
         )}
 
-        {activeTab === 'marketing' && (
-           <div className="animate-fade-in space-y-8 max-w-4xl mx-auto py-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="p-6 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-800 rounded-3xl">
-                   <div className="flex items-center gap-4 mb-6">
-                      <div className="p-3 bg-blue-600 rounded-2xl text-white">
-                          <Users size={24} />
-                      </div>
-                      <h4 className="font-black text-blue-900 dark:text-blue-100 uppercase tracking-tight text-sm">Monday Visit Script</h4>
-                   </div>
-                   <div className="space-y-3">
-                      {fbTemplates.map((template, i) => (
-                        <div key={i} className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-blue-100 dark:border-blue-800">
-                           <h5 className="text-[10px] font-black uppercase text-blue-500 mb-2">{template.title}</h5>
-                           <p className="text-[11px] text-slate-600 dark:text-slate-400 mb-3 italic">"{template.text}"</p>
-                           <button onClick={() => copyToClipboard(template.text, template.title)} className="w-full py-2 bg-blue-50 text-blue-600 rounded-lg font-black text-[9px] uppercase">Copy Pitch</button>
-                        </div>
-                      ))}
-                   </div>
-                </div>
+        {activeTab === 'sniper' && (
+           <div className="animate-fade-in space-y-8 max-w-3xl">
+              <div className="flex items-center gap-4">
+                  <div className="p-4 bg-primary-600 rounded-3xl text-white shadow-xl shadow-primary-500/20"><BrainCircuit size={32} /></div>
+                  <div>
+                      <h4 className="text-xl font-black uppercase">Outcome-Focused Sniper</h4>
+                      <p className="text-sm text-slate-500">Fast AI prompts to secure remote jobs while you build CaterPro.</p>
+                  </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-6">
+                  {jobSniperTemplates.map((template, i) => (
+                    <div key={i} className="p-6 bg-slate-50 dark:bg-slate-800 rounded-3xl border border-slate-200 dark:border-slate-700 hover:border-primary-500/50 transition-all">
+                       <h5 className="text-xs font-black uppercase text-primary-500 tracking-widest mb-2">{template.title}</h5>
+                       <p className="text-xs text-slate-600 dark:text-slate-400 mb-6 leading-relaxed">"{template.text}"</p>
+                       <button onClick={() => copyToClipboard(template.text, template.title)} className="flex items-center justify-center gap-2 w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all">
+                           <Copy size={14} /> Copy AI Prompt
+                       </button>
+                    </div>
+                  ))}
               </div>
            </div>
+        )}
+
+        {activeTab === 'marketing' && (
+            <div className="animate-fade-in py-10 text-center">
+                <Search size={40} className="mx-auto text-slate-300 mb-4" />
+                <p className="text-sm text-slate-500 font-bold uppercase tracking-widest">Connect CRM to Unlock</p>
+            </div>
         )}
       </div>
     </section>
