@@ -5,7 +5,6 @@
 
 :root { 
   font-family: 'Inter', sans-serif; 
-  /* Royal Green Primary */
   --primary-500: #10b981; 
   --slate-950: #020617;
   --slate-50: #f8fafc;
@@ -18,75 +17,54 @@
 html {
   scrollbar-width: thin;
   scrollbar-color: rgba(156, 163, 175, 0.5) var(--slate-50);
-  /* Handle iPad scroll physics */
   -webkit-overflow-scrolling: touch;
-}
-
-.dark html {
-  scrollbar-color: rgba(100, 116, 139, 0.5) var(--slate-950);
-}
-
-html, body {
-  min-height: 100dvh;
-  text-size-adjust: 100%;
-  /* Support for iPad Notch/Home Bar */
-  padding-bottom: env(safe-area-inset-bottom);
+  height: 100%;
 }
 
 body {
   @apply bg-slate-50;
-  background-image: radial-gradient(rgba(4, 120, 87, 0.05) 1px, transparent 0);
-  background-size: 30px 30px;
-  background-position: -15px -15px;
+  background-image: radial-gradient(rgba(4, 120, 87, 0.03) 1px, transparent 0);
+  background-size: 24px 24px;
+  min-height: 100%;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .dark body {
   @apply bg-slate-950;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 0);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0);
 }
 
-/* Custom scrollbar for Webkit browsers */
-::-webkit-scrollbar {
-  width: 8px;
-}
-::-webkit-scrollbar-track {
-  @apply bg-slate-50 dark:bg-slate-950;
-}
-::-webkit-scrollbar-thumb {
-  background-color: rgba(167, 243, 208, 0.5);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background-color: rgba(5, 150, 105, 0.5);
+/* NotebookLM-style Premium Cards */
+.strategy-card {
+  @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] shadow-xl transition-all duration-300;
 }
 
-/* Global focus styles */
-*:focus-visible {
-  outline: 2px solid var(--primary-500) !important;
-  outline-offset: 2px !important;
-  border-radius: 4px;
+.strategy-card:hover {
+  @apply border-primary-500/30 shadow-primary-500/5;
+}
+
+/* iPad Responsive Grid Fix */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .main-grid {
+    @apply grid-cols-2 gap-6;
+  }
+  .full-width-tablet {
+    @apply col-span-2;
+  }
 }
 
 .action-button {
     @apply inline-flex items-center justify-center px-4 py-2.5 text-sm font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm transition-all active:scale-95;
 }
 
-/* iPad Safe Area Overrides */
 .safe-p-top { padding-top: env(safe-area-inset-top); }
 .safe-p-bottom { padding-bottom: env(safe-area-inset-bottom); }
 
-@media print {
-  body {
-    background-image: none !important;
-    background-color: white !important;
-  }
-  .no-print {
-    display: none !important;
-  }
-  .print-area {
-    box-shadow: none !important;
-    border: none !important;
-    margin-top: 0 !important;
-    padding: 0 !important;
-  }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
