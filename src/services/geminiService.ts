@@ -43,7 +43,6 @@ const getApiKey = () => {
 export const generateMenuFromApi = async (params: any): Promise<any> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
   
-  // Explicitly instructing the AI to apply the NotebookLM-derived strategies
   const strategyContext = params.strategyHook 
     ? `CRITICAL MARKETING STRATEGY CONTEXT: ${params.strategyHook}. 
        Ensure the menu descriptions use persuasive language aligned with these hooks. 
@@ -156,7 +155,37 @@ export const generateVideoReelScript = async (menuTitle: string, description: st
   return response.text?.trim() || "";
 };
 
-export const generateVideoReelScriptFromApi = generateVideoReelScript;
+export const generateVideoFromApi = async (menuTitle: string, description: string, base64Image?: string): Promise<string> => {
+  const ai = new GoogleGenAI({ apiKey: getApiKey() });
+  const prompt = `A high-energy, cinematic professional food catering reel showcasing "${menuTitle}". 
+  The menu is described as: "${description}". 
+  Vibe: Modern, luxurious, fast-paced transitions, gourmet styling, 2026 viral aesthetic. 
+  Resolution: 1080p. Aspect Ratio: 9:16.`;
+
+  let operation = await ai.models.generateVideos({
+    model: 'veo-3.1-fast-generate-preview',
+    prompt: prompt,
+    image: base64Image ? {
+      imageBytes: base64Image,
+      mimeType: 'image/png',
+    } : undefined,
+    config: {
+      numberOfVideos: 1,
+      resolution: '1080p',
+      aspectRatio: '9:16'
+    }
+  });
+
+  while (!operation.done) {
+    await new Promise(resolve => setTimeout(resolve, 8000));
+    operation = await ai.operations.getVideosOperation({operation: operation});
+  }
+
+  const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
+  if (!downloadLink) throw new Error("Video generation failed.");
+  
+  return `${downloadLink}&key=${getApiKey()}`;
+};
 
 export const generateProvanceVSLScript = async (menuTitle: string, description: string): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
@@ -192,7 +221,6 @@ export const generateMenuImageFromApi = async (title: string, description: strin
     throw new Error("No image.");
 };
 
-// Fix: Implement missing generateStudyGuideFromApi function
 export const generateStudyGuideFromApi = async (topic: string, curriculum: string, level: string, type: 'guide' | 'curriculum'): Promise<EducationContent> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
   const prompt = `Generate a professional ${type === 'guide' ? 'study guide' : 'curriculum syllabus'} for the topic: "${topic}".
@@ -234,7 +262,6 @@ export const generateStudyGuideFromApi = async (topic: string, curriculum: strin
   return JSON.parse(response.text);
 };
 
-// Fix: Implement missing analyzeReceiptFromApi function
 export const analyzeReceiptFromApi = async (base64: string): Promise<any> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
   const response = await ai.models.generateContent({
@@ -262,7 +289,6 @@ export const analyzeReceiptFromApi = async (base64: string): Promise<any> => {
   return JSON.parse(response.text);
 };
 
-// Fix: Implement missing analyzeLabelFromApi function
 export const analyzeLabelFromApi = async (base64: string, dietaryRestrictions: string[]): Promise<any> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
   const prompt = `Scan this food label for these dietary restrictions: ${dietaryRestrictions.join(', ')}. 
