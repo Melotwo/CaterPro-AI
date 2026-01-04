@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types';
-import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock, Sparkle } from 'lucide-react';
+import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock, Sparkle, EyeOff, Eye } from 'lucide-react';
 import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES } from '../constants';
 
 interface MenuDisplayProps {
@@ -42,6 +42,8 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
 }) => {
   const theme = PROPOSAL_THEMES[proposalTheme as keyof typeof PROPOSAL_THEMES] || PROPOSAL_THEMES.classic;
   const t = theme.classes;
+  
+  const [hideWatermark, setHideWatermark] = useState(false);
 
   if (!menu) return null;
 
@@ -81,6 +83,8 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
         onOpenSocialModal?.(mode);
     }
   };
+
+  const isProUser = canAccessFeature('noWatermark');
 
   return (
     <div className={`p-4 sm:p-10 theme-container ${t.container} rounded-[3rem] shadow-2xl border border-slate-100 dark:border-slate-800 animate-fade-in`}>
@@ -192,10 +196,26 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                className="w-full h-auto max-h-[600px] object-cover"
              />
              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
-             <div className="absolute bottom-8 left-8 right-8 text-white">
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] mb-2 opacity-80">AI Visual Concept</p>
+             
+             {/* Logo Watermark System */}
+             <div className={`absolute bottom-8 left-8 right-8 text-white transition-opacity duration-500 ${hideWatermark ? 'opacity-0' : 'opacity-100'}`}>
+                <div className="flex items-center gap-2 mb-2">
+                    <img src="/logo.svg" alt="Logo" className="w-8 h-8 rounded-lg shadow-xl" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-80">CaterPro AI Certified</span>
+                </div>
                 <h3 className="text-3xl font-black tracking-tight">{menu.menuTitle}</h3>
              </div>
+
+             {/* Watermark Toggle Overlay (Paid Only) */}
+             {isProUser && !isReadOnlyView && (
+                 <button 
+                    onClick={() => { setHideWatermark(!hideWatermark); showToast(hideWatermark ? "Watermark Restored" : "Watermark Hidden"); }}
+                    className="no-print absolute top-6 left-6 p-3 bg-black/30 backdrop-blur-md rounded-full text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-black/50"
+                    title={hideWatermark ? "Show Watermark" : "Hide Watermark (Pro Feature)"}
+                 >
+                    {hideWatermark ? <Eye size={18} /> : <EyeOff size={18} />}
+                 </button>
+             )}
          </div>
       )}
 
