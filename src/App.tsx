@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail, Search, Globe, Facebook, Lightbulb, Target, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail, Search, Globe, Facebook, Lightbulb, Target, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -38,6 +38,8 @@ type AppView = 'landing' | 'generator' | 'pricing';
 const App: React.FC = () => {
   const [viewMode, setViewMode] = useState<AppView>('landing');
   const [eventType, setEventType] = useState('');
+  const [eventTypeSearch, setEventTypeSearch] = useState('');
+  const [showEventResults, setShowEventResults] = useState(false);
   const [guestCount, setGuestCount] = useState('');
   const [budget, setBudget] = useState('$$');
   const [currency, setCurrency] = useState('ZAR'); 
@@ -79,15 +81,23 @@ const App: React.FC = () => {
   const [socialModalMode, setSocialModalMode] = useState<SocialMode>('create');
 
   const cuisineRef = useRef<HTMLDivElement>(null);
+  const eventRef = useRef<HTMLDivElement>(null);
 
   const filteredCuisines = CUISINES.filter(c => 
     c.toLowerCase().includes((cuisineSearch || '').toLowerCase())
+  );
+
+  const filteredEvents = EVENT_TYPES.filter(e => 
+    e.toLowerCase().includes((eventTypeSearch || '').toLowerCase())
   );
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (cuisineRef.current && !cuisineRef.current.contains(event.target as Node)) {
         setShowCuisineResults(false);
+      }
+      if (eventRef.current && !eventRef.current.contains(event.target as Node)) {
+        setShowEventResults(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -201,12 +211,29 @@ const App: React.FC = () => {
 
               <div className="bg-white dark:bg-slate-900 p-6 sm:p-12 rounded-[3rem] shadow-2xl border border-slate-200 dark:border-slate-800 relative overflow-hidden">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 main-grid">
-                  <div className="space-y-1">
+                  
+                  <div className="space-y-1 relative" ref={eventRef}>
                     <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Event Selection</label>
-                    <select value={eventType} onChange={(e) => setEventType(e.target.value)} className="w-full p-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm shadow-sm">
-                      <option value="">Select Event Type...</option>
-                      {EVENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                    </select>
+                    <div className="relative">
+                      <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input 
+                        type="text" 
+                        placeholder="Type or select event (e.g. Wedding, Braai...)" 
+                        value={eventTypeSearch || eventType}
+                        onFocus={() => setShowEventResults(true)}
+                        onChange={(e) => { setEventTypeSearch(e.target.value); setEventType(e.target.value); }}
+                        className="w-full pl-12 pr-5 py-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm shadow-sm"
+                      />
+                    </div>
+                    {showEventResults && filteredEvents.length > 0 && (
+                      <div className="absolute z-50 left-0 right-0 mt-2 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-3xl shadow-2xl max-h-64 overflow-y-auto">
+                          {filteredEvents.map(e => (
+                              <button key={e} onClick={() => { setEventType(e); setEventTypeSearch(e); setShowEventResults(false); }} className="w-full text-left px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-bold flex items-center gap-3 border-b border-slate-100 dark:border-slate-700 last:border-0 dark:text-white">
+                                  <Sparkles size={16} className="text-indigo-500" /> {e}
+                              </button>
+                          ))}
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-1">
