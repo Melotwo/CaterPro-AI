@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Image as ImageIcon, Check, RefreshCw, Linkedin, Twitter, MessageCircle, Send, Film, Play, Zap, GraduationCap, ArrowRight, Loader2, Mail, Pin, Sparkles, Mic2, Layout, Video, ShieldCheck, Sparkle, Target, MessageSquareQuote, Smartphone, Camera } from 'lucide-react';
+import { X, Copy, Image as ImageIcon, Check, RefreshCw, Linkedin, Twitter, MessageCircle, Send, Film, Play, Zap, GraduationCap, ArrowRight, Loader2, Mail, Pin, Sparkles, Mic2, Layout, Video, ShieldCheck, Sparkle, Target, MessageSquareQuote, Smartphone, Camera, Facebook } from 'lucide-react';
 import { generateSocialCaption, generateMenuImageFromApi, generateVideoReelScript, generateWhatsAppStatus, generateProvanceVSLScript, generateNewYearLaunchScript } from '../services/geminiService';
 
 export type Mode = 'create' | 'pitch' | 'video' | 'podcast' | 'explainer' | 'provance' | 'newyear' | 'bait' | 'sniper' | 'status' | 'reel';
@@ -30,7 +30,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
     if (isOpen) {
       setActiveMode(initialMode);
       setEditedContent('');
-      if (initialMode === 'create') handleGenerate('tiktok');
+      if (initialMode === 'create') handleGenerate('facebook');
       else handleGenerate();
     }
   }, [isOpen, initialMode]);
@@ -56,7 +56,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
         setEditedContent(script);
       }
     } catch (e) {
-      setEditedContent("AI is busy. Please try again.");
+      setEditedContent("AI is busy refining your strategy. Please try again in 5 seconds.");
     } finally {
       setIsGenerating(false);
     }
@@ -81,57 +81,81 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
         </button>
 
         <div className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 p-3 flex gap-2 overflow-x-auto no-scrollbar">
-            <button onClick={() => {setActiveMode('reel'); handleGenerate();}} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'reel' ? 'bg-primary-600 text-white shadow-md' : 'text-slate-500'}`}>
-                <Camera size={16} /> TikTok/Reel Script
+            <button onClick={() => {setActiveMode('reel'); handleGenerate();}} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'reel' ? 'bg-primary-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
+                <Video size={16} /> Viral Reel Script
             </button>
-            <button onClick={() => {setActiveMode('status'); handleGenerate();}} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'status' ? 'bg-green-600 text-white shadow-md' : 'text-slate-500'}`}>
+            <button onClick={() => {setActiveMode('create'); handleGenerate('facebook');}} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'create' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
+                <MessageSquareQuote size={16} /> FB/Insta Captions
+            </button>
+            <button onClick={() => {setActiveMode('status'); handleGenerate();}} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'status' ? 'bg-green-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
                 <Smartphone size={16} /> WhatsApp Status
             </button>
-            <button onClick={() => {setActiveMode('provance'); handleGenerate();}} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'provance' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500'}`}>
-                <ShieldCheck size={16} /> Provance Framework
+            <button onClick={() => {setActiveMode('provance'); handleGenerate();}} className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'provance' ? 'bg-slate-900 text-white shadow-md' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
+                <ShieldCheck size={16} /> Sales Strategy
             </button>
         </div>
 
         <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
-            <div className="md:w-1/2 bg-slate-50 dark:bg-slate-950 flex flex-col p-8 border-r border-slate-200 dark:border-slate-800 overflow-y-auto">
+            <div className="md:w-2/5 bg-slate-50 dark:bg-slate-950 flex flex-col p-8 border-r border-slate-200 dark:border-slate-800 overflow-y-auto">
                 <div className="space-y-6">
-                    <div className="bg-slate-900 text-white p-8 rounded-3xl border-4 border-primary-500/30 flex flex-col items-center text-center shadow-2xl">
+                    <div className="bg-slate-900 text-white p-8 rounded-3xl border-4 border-primary-500/30 flex flex-col items-center text-center shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-4 opacity-10">
+                            <Sparkle size={40} className="animate-spin-slow" />
+                        </div>
                         <Play size={56} className="text-primary-500 mb-6 animate-pulse" />
-                        <h3 className="text-2xl font-black uppercase tracking-tighter">Social Video Lab</h3>
-                        <p className="text-xs text-slate-400 mt-4 leading-relaxed font-medium">
-                            Generate short-form content that converts. POV shots, fast editing cues, and psychological hooks for Chefs.
+                        <h3 className="text-2xl font-black uppercase tracking-tighter">Content Studio</h3>
+                        <p className="text-[10px] text-slate-400 mt-4 leading-relaxed font-bold uppercase tracking-widest">
+                            Optimized for the {menuTitle} Proposal
                         </p>
                     </div>
+
+                    <div className="p-5 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
+                        <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Strategy Check</h4>
+                        <div className="flex items-center gap-3 text-xs font-bold text-slate-600 dark:text-slate-400">
+                           <Target size={14} className="text-primary-500" /> Viral Hooks Included
+                        </div>
+                        <div className="flex items-center gap-3 text-xs font-bold text-slate-600 dark:text-slate-400">
+                           <Play size={14} className="text-indigo-500" /> Fast-Cut Cues
+                        </div>
+                        <div className="flex items-center gap-3 text-xs font-bold text-slate-600 dark:text-slate-400">
+                           <Facebook size={14} className="text-blue-500" /> Platform Optimized
+                        </div>
+                    </div>
+
                     <button 
                         onClick={() => handleGenerate()} 
                         disabled={isGenerating} 
                         className="w-full py-5 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-black shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
                     >
-                        {isGenerating ? <Loader2 className="animate-spin" size={20} /> : <Sparkles size={20} />}
-                        {isGenerating ? 'Thinking...' : 'Regenerate Content'}
+                        {isGenerating ? <Loader2 className="animate-spin" size={20} /> : <RefreshCw size={20} />}
+                        {isGenerating ? 'Architecting Content...' : 'Regenerate Content'}
                     </button>
                 </div>
             </div>
 
-            <div className="md:w-1/2 flex flex-col bg-white dark:bg-slate-900">
-                <div className="p-6 border-b border-slate-100 dark:border-slate-800">
-                    <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">Content Draft</h4>
+            <div className="md:w-3/5 flex flex-col bg-white dark:bg-slate-900">
+                <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                    <h4 className="text-sm font-black uppercase tracking-widest text-slate-400">Viral Draft Editor</h4>
+                    <div className="flex gap-2">
+                        {[1,2,3].map(i => <div key={i} className="w-1.5 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700"></div>)}
+                    </div>
                 </div>
-                <div className="flex-grow p-6 overflow-y-auto">
+                <div className="flex-grow p-8 overflow-y-auto">
                     <textarea 
-                        className="w-full h-full min-h-[300px] resize-none border-none focus:ring-0 bg-transparent text-slate-700 dark:text-slate-300 text-sm leading-relaxed font-bold" 
+                        className="w-full h-full min-h-[300px] resize-none border-none focus:ring-0 bg-transparent text-slate-800 dark:text-slate-200 text-base leading-relaxed font-medium" 
                         value={editedContent} 
                         onChange={(e) => setEditedContent(e.target.value)} 
+                        placeholder="AI is generating your viral content..."
                     />
                 </div>
                 <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
                     <button 
                         onClick={handleCopyText} 
-                        disabled={!editedContent}
-                        className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2"
+                        disabled={!editedContent || isGenerating}
+                        className="w-full py-5 bg-slate-950 text-white rounded-2xl font-black shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
                     >
-                        {copiedText ? <Check size={20} /> : <Copy size={20} />} 
-                        {copiedText ? 'Copied!' : 'Copy to Clipboard'}
+                        {copiedText ? <Check size={20} className="text-green-400" /> : <Copy size={20} />} 
+                        {copiedText ? 'Copied to Clipboard!' : 'Copy to Social Media'}
                     </button>
                 </div>
             </div>
