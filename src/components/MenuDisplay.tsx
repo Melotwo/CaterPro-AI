@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types';
-import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock } from 'lucide-react';
+import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock, Sparkle } from 'lucide-react';
 import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES } from '../constants';
 
 interface MenuDisplayProps {
@@ -86,9 +86,9 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
     <div className={`p-4 sm:p-10 theme-container ${t.container} rounded-[3rem] shadow-2xl border border-slate-100 dark:border-slate-800 animate-fade-in`}>
       <div className="space-y-10">
       
-      {/* Sales Accelerator Hub - RESTRICTED TO PAID CUSTOMERS */}
+      {/* Sales Accelerator Hub - Gated to Paid Customers */}
       {!isReadOnlyView && (
-      <div className="no-print bg-slate-950 text-white p-8 sm:p-12 rounded-[2.5rem] mb-12 relative overflow-hidden group border border-white/10">
+      <div className="no-print bg-slate-950 text-white p-8 sm:p-12 rounded-[2.5rem] mb-12 relative overflow-hidden group border border-white/10 shadow-indigo-500/10 shadow-2xl">
           <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:opacity-10 transition-opacity">
               <Sparkles size={120} />
           </div>
@@ -99,27 +99,27 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                       <div className="p-3 bg-primary-500 rounded-2xl shadow-lg shadow-primary-500/20">
                           <Megaphone size={24} className="text-white" />
                       </div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary-400">Paid Strategy Tools</span>
+                      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary-400">Social Studio (Paid)</span>
                   </div>
-                  <h4 className="text-3xl font-black tracking-tight leading-none mb-2">Social Media Studio</h4>
-                  <p className="text-slate-400 text-sm font-medium">Turn this menu into a viral Facebook Reel or high-engagement status.</p>
+                  <h4 className="text-3xl font-black tracking-tight leading-none mb-2">Viral Growth Hub</h4>
+                  <p className="text-slate-400 text-sm font-medium">Generate Reel scripts and AI captions that are currently trending on Facebook.</p>
                   
                   <div className="mt-8 flex flex-wrap gap-3">
                       <button 
                         onClick={() => handleSocialAction('reel')}
-                        className="flex items-center gap-2 px-5 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-xl active:scale-95 group/reel"
+                        className="flex items-center gap-2 px-6 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-xl active:scale-95 group/reel"
                       >
                         {!canAccessFeature('socialMediaTools') && <Lock size={12} className="opacity-60" />}
-                        <Video size={16} /> 
-                        Generate Viral Reel 
-                        <span className="px-1.5 py-0.5 rounded bg-amber-400 text-[8px] text-slate-900 ml-1">Paid</span>
+                        <Video size={18} className="group-hover/reel:animate-bounce" /> 
+                        Create Viral Reel 
+                        <span className="px-1.5 py-0.5 rounded bg-amber-400 text-[8px] text-slate-900 ml-1">HOT</span>
                       </button>
                       <button 
-                        onClick={() => handleSocialAction('status')}
-                        className="flex items-center gap-2 px-5 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-xs font-black uppercase tracking-widest border border-white/10 transition-all active:scale-95"
+                        onClick={() => handleSocialAction('create')}
+                        className="flex items-center gap-2 px-6 py-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-xs font-black uppercase tracking-widest border border-white/10 transition-all active:scale-95"
                       >
                         {!canAccessFeature('socialMediaTools') && <Lock size={12} className="opacity-60" />}
-                        <MessageSquareQuote size={16} /> Caption Sniper
+                        <MessageSquareQuote size={18} /> Caption Sniper
                       </button>
                   </div>
               </div>
@@ -139,7 +139,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                         </div>
                         <div>
                             <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 block mb-1">{hook.title}</span>
-                            <span className="text-[11px] font-bold text-slate-300 line-clamp-2 leading-relaxed">Copy Sales Pitch</span>
+                            <span className="text-[11px] font-bold text-slate-300 line-clamp-2 leading-relaxed">Copy Sales Script</span>
                         </div>
                     </button>
                  ))}
@@ -148,7 +148,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
       </div>
       )}
 
-      {/* Proposal Header */}
+      {/* Proposal Header with Quick Action Buttons */}
       <div className="flex flex-col sm:flex-row items-center justify-between border-b-2 border-dashed border-slate-200 dark:border-slate-700 pb-8 gap-4">
          <div className="flex items-center gap-4">
             <ChefHat className={`w-10 h-10 ${t.title}`} />
@@ -162,7 +162,19 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                 </div>
             </div>
          </div>
-         <div className="flex gap-2 no-print">
+         
+         <div className="flex items-center gap-2 no-print">
+            {/* New Quick Reel Shortcut */}
+            {!isReadOnlyView && (
+                <button 
+                    onClick={() => handleSocialAction('reel')}
+                    className="p-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl hover:bg-indigo-100 transition-all active:scale-95 shadow-sm flex items-center gap-2"
+                    title="Quick Reel"
+                >
+                    <Video size={20} />
+                    <span className="text-[10px] font-black uppercase">Viral Reel</span>
+                </button>
+            )}
             <button onClick={() => window.print()} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:bg-slate-200 transition-colors" title="Print/Export">
                 <FileDown size={20} className={t.description} />
             </button>
@@ -197,7 +209,8 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
       
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
         {MENU_SECTIONS.map(({ title, key }, catIdx) => {
-          const items = Array.isArray(menu[key]) ? menu[key] : [];
+          const rawItems = menu[key];
+          const items = Array.isArray(rawItems) ? rawItems : [];
           if (items.length === 0) return null;
           
           const isWideSection = ['shoppingList', 'recommendedEquipment', 'beveragePairings'].includes(key);
@@ -238,7 +251,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
           );
         })}
 
-        {/* Dynamic Shopping List */}
+        {/* Dynamic Shopping List with Procurement Logic */}
         {menu.shoppingList && menu.shoppingList.length > 0 && (
             <div className={`lg:col-span-2 ${t.sectionContainer} rounded-[3rem] shadow-2xl bg-white dark:bg-slate-900 overflow-hidden border-2 border-slate-100 dark:border-slate-800`}>
                 <div className="p-10 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
@@ -276,6 +289,10 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                                     <h4 className="text-5xl font-black text-white tracking-tighter">{totalCost.toFixed(2)}</h4>
                                 </div>
                             </div>
+                        </div>
+                        <div className="flex flex-col gap-3 w-full sm:w-auto">
+                            <button className="px-10 py-5 bg-white text-slate-950 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl">Export List</button>
+                            <p className="text-[9px] text-center text-slate-500 font-bold uppercase tracking-widest italic">Updated Real-Time via AI</p>
                         </div>
                      </div>
                 </div>
