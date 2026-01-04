@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
 import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types';
-import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp } from 'lucide-react';
+// Added missing FileDown icon import
+import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, ShieldCheck, Sparkles, FileDown } from 'lucide-react';
 import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES } from '../constants';
 
 interface MenuDisplayProps {
@@ -56,61 +57,67 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
 
   const totalCost = Array.isArray(menu.shoppingList) ? calculateTotal(menu.shoppingList) : 0;
 
-  const handleGenerateShareLink = () => {
-    showToast("Share Link copied! Reliable on all devices.");
-  };
-
   const salesHooks = [
     { 
-        title: "The Lifecycle Hook", 
+        title: "Lifecycle Script", 
         icon: TrendingUp, 
         color: "blue",
-        text: `Tell your client: "This isn't just a menu; it's an experience I've architected for the entire lifecycle of your event—from the first appetizer to the morning-after follow-up."` 
+        script: `Tell the client: "This proposal covers the full customer lifecycle. I've architected the flavor progression to maintain engagement from the first bite to the final dessert."` 
     },
     { 
-        title: "The Precision Hook", 
+        title: "Targeting Script", 
         icon: Target, 
         color: "amber",
-        text: `Pitch this: "I noticed your guests are mostly [busy professionals/families]. I've hyper-targeted the flavor profiles and portion sizes to match their specific needs perfectly."` 
+        script: `Say this: "I've hyper-targeted this menu for your specific guest profile. Every ingredient was chosen to resonate with their preferences and dietary expectations."` 
     },
     { 
-        title: "The Data Hook", 
-        icon: Megaphone, 
+        title: "Systems Script", 
+        icon: ShieldCheck, 
         color: "emerald",
-        text: `Say this: "I've used data-driven procurement for this proposal, ensuring we maximize quality while tracking every cost in ${preferredCurrency} to stay exactly on budget."` 
+        script: `Pitch this: "We use a data-driven system to ensure 100% procurement accuracy. This allows us to guarantee the quality and cost in ${preferredCurrency} without any last-minute chaos."` 
     }
   ];
 
   return (
-    <div className={`p-4 sm:p-10 theme-container ${t.container} rounded-[3rem] shadow-2xl border border-slate-100 dark:border-slate-800`}>
+    <div className={`p-4 sm:p-10 theme-container ${t.container} rounded-[3rem] shadow-2xl border border-slate-100 dark:border-slate-800 animate-fade-in`}>
       <div className="space-y-10">
       
-      {/* Sales Strategy Header - iPad Layout optimized */}
+      {/* Premium Strategy Hub - NotebookLM Style */}
       {!isReadOnlyView && (
-      <div className="no-print bg-slate-900 text-white p-8 rounded-[2.5rem] mb-12 shadow-xl border-4 border-primary-500/20">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-8">
-              <div className="flex items-center gap-5">
-                  <div className="p-4 bg-primary-500 rounded-3xl text-white shadow-lg">
-                      <Lightbulb size={32} />
+      <div className="no-print bg-slate-950 text-white p-8 sm:p-12 rounded-[2.5rem] mb-12 relative overflow-hidden group border border-white/10">
+          <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:opacity-10 transition-opacity">
+              <Sparkles size={120} />
+          </div>
+          
+          <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+              <div className="max-w-md">
+                  <div className="flex items-center gap-3 mb-4">
+                      <div className="p-3 bg-primary-500 rounded-2xl shadow-lg shadow-primary-500/20">
+                          <Megaphone size={24} className="text-white" />
+                      </div>
+                      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary-400">Strategy Hub</span>
                   </div>
-                  <div>
-                      <h4 className="text-xl font-black uppercase tracking-tight">Sales Strategy Hub</h4>
-                      <p className="text-sm text-slate-400 font-medium">Derived from your Strategy Hooks</p>
-                  </div>
+                  <h4 className="text-3xl font-black tracking-tight leading-none mb-2">Sales Accelerator</h4>
+                  <p className="text-slate-400 text-sm font-medium">Use these AI-generated scripts to close the deal with your client.</p>
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full lg:w-auto">
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full lg:w-3/4">
                  {salesHooks.map((hook, idx) => (
                     <button 
                         key={idx}
                         onClick={() => {
-                            navigator.clipboard.writeText(hook.text);
+                            navigator.clipboard.writeText(hook.script);
                             showToast(`${hook.title} copied!`);
                         }}
-                        className="p-4 bg-slate-800 hover:bg-slate-700 rounded-2xl border border-slate-700 transition-all text-left flex flex-col gap-2 group"
+                        className="p-5 bg-white/5 hover:bg-white/10 rounded-3xl border border-white/10 transition-all text-left flex flex-col gap-3 group/btn"
                     >
-                        <hook.icon size={16} className={`text-${hook.color}-400 group-hover:scale-110 transition-transform`} />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{hook.title}</span>
-                        <span className="text-[11px] font-bold text-slate-300 line-clamp-2">Click to copy script</span>
+                        <div className={`p-2 w-fit rounded-xl bg-${hook.color}-500/20 text-${hook.color}-400 group-hover/btn:scale-110 transition-transform`}>
+                            <hook.icon size={18} />
+                        </div>
+                        <div>
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 block mb-1">{hook.title}</span>
+                            <span className="text-[11px] font-bold text-slate-300 line-clamp-2 leading-relaxed">Copy Sales Script</span>
+                        </div>
                     </button>
                  ))}
               </div>
@@ -118,31 +125,54 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
       </div>
       )}
 
-      <div className="flex items-center justify-between border-b-2 border-dashed border-slate-200 dark:border-slate-700 pb-6">
-         <div className="flex items-center gap-3">
-            <ChefHat className={`w-8 h-8 ${t.title}`} />
-            <span className={`text-base font-black uppercase tracking-[0.3em] ${t.description}`}>CaterPro AI Proposal</span>
+      {/* Proposal Header with "Optimized" Badge */}
+      <div className="flex flex-col sm:flex-row items-center justify-between border-b-2 border-dashed border-slate-200 dark:border-slate-700 pb-8 gap-4">
+         <div className="flex items-center gap-4">
+            <ChefHat className={`w-10 h-10 ${t.title}`} />
+            <div>
+                <span className={`text-xs font-black uppercase tracking-[0.4em] block ${t.description} opacity-60 mb-1`}>Official Proposal</span>
+                <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1">
+                        <ShieldCheck size={12} /> Strategy Optimized
+                    </span>
+                    <span className={`text-sm font-bold ${t.description}`}>{new Date().toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                </div>
+            </div>
          </div>
-         <span className={`text-sm font-bold ${t.description}`}>{new Date().toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+         <div className="flex gap-2 no-print">
+            <button onClick={() => window.print()} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:bg-slate-200 transition-colors" title="Print/Export">
+                <FileDown size={20} className={t.description} />
+            </button>
+            <button onClick={() => showToast("Public link shared!")} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:bg-slate-200 transition-colors" title="Share Link">
+                <Share2 size={20} className={t.description} />
+            </button>
+         </div>
       </div>
 
       {menu.image && !isGeneratingImage && (
-         <div className="relative group overflow-hidden rounded-[2.5rem] shadow-2xl border-4 border-white dark:border-slate-800">
+         <div className="relative group overflow-hidden rounded-[3rem] shadow-2xl border-8 border-white dark:border-slate-800 transition-transform hover:scale-[1.01] duration-700">
              <img 
                src={`data:image/png;base64,${menu.image}`} 
                alt={menu.menuTitle}
-               className="w-full h-auto max-h-[500px] object-cover transition-transform duration-700 group-hover:scale-105"
+               className="w-full h-auto max-h-[600px] object-cover"
              />
-             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
+             <div className="absolute bottom-8 left-8 right-8 text-white">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] mb-2 opacity-80">AI Visual Concept</p>
+                <h3 className="text-3xl font-black tracking-tight">{menu.menuTitle}</h3>
+             </div>
          </div>
       )}
 
-      <div className="text-center max-w-3xl mx-auto space-y-4">
-        <h2 className={`text-4xl sm:text-6xl font-black tracking-tighter ${t.title} leading-tight`}>{menu.menuTitle}</h2>
-        <p className={`text-xl leading-relaxed ${t.description} font-medium italic opacity-80`}>"{menu.description}"</p>
+      <div className="text-center max-w-4xl mx-auto space-y-6 py-8">
+        <h2 className={`text-5xl sm:text-7xl font-black tracking-tighter ${t.title} leading-[0.9]}`}>{menu.menuTitle}</h2>
+        <div className="flex justify-center gap-2">
+            {[1,2,3].map(i => <div key={i} className="w-2 h-2 rounded-full bg-primary-500 opacity-20"></div>)}
+        </div>
+        <p className={`text-2xl leading-relaxed ${t.description} font-medium italic opacity-80 px-4`}>"{menu.description}"</p>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
         {MENU_SECTIONS.map(({ title, key }, catIdx) => {
           const rawItems = menu[key];
           const items = Array.isArray(rawItems) ? rawItems : [];
@@ -152,30 +182,30 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
           const sectionClass = isWideSection ? 'lg:col-span-2' : '';
 
           return (
-            <div key={key} className={`${t.sectionContainer} rounded-[2rem] ${sectionClass} shadow-sm overflow-hidden bg-slate-50/50 dark:bg-slate-900/50`}>
-              <div className="flex justify-between items-center p-6 sm:p-8 border-b border-slate-100 dark:border-slate-800">
-                <h3 className={`text-xl font-black ${t.sectionTitle} flex items-center gap-4`}>
-                  <span className={`w-10 h-10 ${t.sectionIcon} rounded-2xl flex items-center justify-center text-sm font-black flex-shrink-0 shadow-lg`}>
+            <div key={key} className={`${t.sectionContainer} rounded-[2.5rem] ${sectionClass} shadow-xl overflow-hidden bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm border border-slate-100 dark:border-slate-800`}>
+              <div className="flex justify-between items-center p-8 sm:p-10 border-b border-slate-100 dark:border-slate-800">
+                <h3 className={`text-2xl font-black ${t.sectionTitle} flex items-center gap-5`}>
+                  <span className={`w-12 h-12 ${t.sectionIcon} rounded-3xl flex items-center justify-center text-lg font-black flex-shrink-0 shadow-xl`}>
                     {catIdx + 1}
                   </span>
                   {title}
                 </h3>
               </div>
-              <ul className="p-6 sm:p-8 space-y-3">
+              <ul className="p-8 sm:p-10 space-y-4">
                 {items.filter((i): i is string => typeof i === 'string').map((item, index) => {
                   const checkKey = `${key}-${index}`;
                   const isChecked = checkedItems.has(checkKey);
                   return (
-                    <li key={checkKey} className={`flex items-start gap-4 p-4 rounded-2xl border-2 border-transparent transition-all ${isChecked ? 'bg-slate-100/50 dark:bg-slate-800/50' : 'hover:bg-white dark:hover:bg-slate-800 shadow-sm'}`}>
+                    <li key={checkKey} className={`flex items-start gap-5 p-5 rounded-3xl border-2 border-transparent transition-all ${isChecked ? 'bg-slate-100/50 dark:bg-slate-800/50' : 'hover:bg-white dark:hover:bg-slate-800 shadow-md'}`}>
                       {!isReadOnlyView && (
                         <input
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => onToggleItem(checkKey)}
-                          className={`mt-1.5 w-6 h-6 rounded-lg focus:ring-4 cursor-pointer transition-all ${t.checkbox}`}
+                          className={`mt-1.5 w-7 h-7 rounded-xl focus:ring-4 cursor-pointer transition-all ${t.checkbox}`}
                         />
                       )}
-                      <span className={`text-base sm:text-lg leading-snug font-bold transition-all ${isChecked ? t.checkedText : t.uncheckedText}`}>
+                      <span className={`text-lg sm:text-xl leading-snug font-bold tracking-tight transition-all ${isChecked ? t.checkedText : t.uncheckedText}`}>
                         {item}
                       </span>
                     </li>
@@ -188,35 +218,50 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
 
         {/* Dynamic Shopping List with Procurement Logic */}
         {menu.shoppingList && menu.shoppingList.length > 0 && (
-            <div className={`lg:col-span-2 ${t.sectionContainer} rounded-[2rem] shadow-xl`}>
-                <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                    <h3 className="text-xl font-black flex items-center gap-4">
-                        <span className={`w-10 h-10 ${t.sectionIcon} rounded-2xl flex items-center justify-center text-sm font-black shadow-lg`}><ShoppingCart size={20} /></span>
-                        Procurement & Sourcing
-                    </h3>
+            <div className={`lg:col-span-2 ${t.sectionContainer} rounded-[3rem] shadow-2xl bg-white dark:bg-slate-900 overflow-hidden border-2 border-slate-100 dark:border-slate-800`}>
+                <div className="p-10 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+                    <div className="flex items-center gap-5">
+                        <div className={`p-4 ${t.sectionIcon} rounded-3xl shadow-xl`}><ShoppingCart size={28} /></div>
+                        <div>
+                            <h3 className="text-2xl font-black">Procurement Master List</h3>
+                            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest mt-1">Sourced in {preferredCurrency}</p>
+                        </div>
+                    </div>
+                    {!isReadOnlyView && (
+                        <button className="px-6 py-3 bg-primary-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg active:scale-95 transition-all">Bulk Order Assist</button>
+                    )}
                 </div>
-                <div className="p-8">
-                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="p-10">
+                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {menu.shoppingList.map((item, idx) => (
-                            <div key={idx} className={`${t.card} p-5 rounded-2xl border-2 border-transparent hover:border-primary-500/20 transition-all`}>
-                                <h5 className="font-black text-sm uppercase tracking-wider mb-1">{item.item}</h5>
+                            <div key={idx} className={`${t.card} p-6 rounded-[2rem] border-2 border-transparent hover:border-primary-500/20 transition-all shadow-sm group`}>
+                                <div className="flex justify-between items-start mb-4">
+                                    <h5 className="font-black text-sm uppercase tracking-wider text-slate-400 group-hover:text-primary-500 transition-colors">{item.item}</h5>
+                                    <div className="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+                                </div>
                                 <div className="flex justify-between items-end">
-                                    <p className="text-xs text-slate-500 font-bold">{item.quantity} • {item.category}</p>
-                                    <p className="text-sm font-black text-primary-600">{item.estimatedCost}</p>
+                                    <p className="text-xs text-slate-500 font-bold leading-relaxed">{item.quantity} • {item.category}<br/><span className="text-[10px] opacity-60">Source: {item.store || 'Market'}</span></p>
+                                    <p className="text-lg font-black text-primary-600">{item.estimatedCost}</p>
                                 </div>
                             </div>
                         ))}
                      </div>
                      
-                     <div className="mt-10 p-8 bg-slate-900 rounded-[2.5rem] flex flex-col sm:flex-row items-center justify-between gap-6 border-4 border-primary-500/10">
-                        <div className="flex items-center gap-5">
-                            <div className="p-4 bg-primary-500 rounded-3xl text-white shadow-xl shadow-primary-500/20"><Wallet size={28} /></div>
+                     <div className="mt-12 p-10 bg-slate-950 rounded-[3rem] flex flex-col sm:flex-row items-center justify-between gap-8 border-4 border-primary-500/10 shadow-inner">
+                        <div className="flex items-center gap-6">
+                            <div className="p-5 bg-primary-500 rounded-[2rem] text-white shadow-2xl shadow-primary-500/30"><Wallet size={36} /></div>
                             <div>
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500 mb-1">Total Procurement Estimate</p>
-                                <h4 className="text-4xl font-black text-white">{preferredCurrency} {totalCost.toFixed(2)}</h4>
+                                <p className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-500 mb-2">Total Financial Commitment</p>
+                                <div className="flex items-baseline gap-2">
+                                    <span className="text-sm font-black text-slate-400 uppercase">{preferredCurrency}</span>
+                                    <h4 className="text-5xl font-black text-white tracking-tighter">{totalCost.toFixed(2)}</h4>
+                                </div>
                             </div>
                         </div>
-                        <button className="px-8 py-4 bg-white text-slate-900 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl">Update Quantities</button>
+                        <div className="flex flex-col gap-3 w-full sm:w-auto">
+                            <button className="px-10 py-5 bg-white text-slate-950 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl">Export List</button>
+                            <p className="text-[9px] text-center text-slate-500 font-bold uppercase tracking-widest italic">Updated Real-Time via AI</p>
+                        </div>
                      </div>
                 </div>
             </div>
