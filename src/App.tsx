@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail, Search, Globe, Facebook } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail, Search, Globe, Facebook, Lightbulb, Target, TrendingUp, BarChart3 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -30,10 +30,8 @@ import { SavedMenu, ErrorState, ValidationErrors, Menu, MenuSection } from './ty
 import { getApiErrorState } from './services/apiErrorHandler';
 import { generateMenuFromApi, generateMenuImageFromApi } from './services/geminiService';
 
-// --- MASTER CONFIGURATION ---
-// Tumi: Synced to your actual Whop URL from the screenshot!
 const WHOP_STORE_URL = "https://whop.com/melotwo2"; 
-const FACEBOOK_PAGE_URL = "https://facebook.com/CaterProAi"; // Replace with your actual FB link
+const FACEBOOK_PAGE_URL = "https://facebook.com/CaterProAi"; 
 
 type AppView = 'landing' | 'generator' | 'pricing';
 
@@ -46,12 +44,12 @@ const App: React.FC = () => {
   const [serviceStyle, setServiceStyle] = useState('Standard Catering');
   const [cuisine, setCuisine] = useState('');
   const [cuisineSearch, setCuisineSearch] = useState('');
+  const [strategyHook, setStrategyHook] = useState(''); 
   const [showCuisineResults, setShowCuisineResults] = useState(false);
   const [dietaryRestrictions, setDietaryRestrictions] = useState<string[]>([]);
   const [proposalTheme, setProposalTheme] = useState('classic');
   
   const [isLoading, setIsLoading] = useState(false);
-  const [isExporting, setIsExporting] = useState(false);
   const [error, setError] = useState<ErrorState | null>(null);
   const [menu, setMenu] = useState<Menu | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
@@ -81,6 +79,11 @@ const App: React.FC = () => {
 
   const cuisineRef = useRef<HTMLDivElement>(null);
 
+  // Define filteredCuisines based on search input to fix the reference error
+  const filteredCuisines = CUISINES.filter(c => 
+    c.toLowerCase().includes((cuisineSearch || '').toLowerCase())
+  );
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (cuisineRef.current && !cuisineRef.current.contains(event.target as Node)) {
@@ -101,13 +104,15 @@ const App: React.FC = () => {
     }
   }, [isDarkMode]);
 
-  const filteredCuisines = CUISINES.filter(c => 
-    c.toLowerCase().includes(cuisineSearch.toLowerCase())
-  );
+  const STRATEGY_PRESETS = [
+    { id: 'lifecycle', label: 'Lifecycle Marketing', icon: TrendingUp, text: 'Apply Lifecycle Marketing Strategy: Guide the customer interactions strategically before, during, and after purchase to build trust.' },
+    { id: 'targeting', label: 'Hyper-Targeting', icon: Target, text: 'Apply Hyper-Targeted Content Strategy: Analyze specific segments (busy pros vs event hosts) and tailor the culinary hook to them.' },
+    { id: 'data', label: 'Data-Driven', icon: BarChart3, text: 'Apply Data-Driven Strategy: Focus on measurable metrics and systems that track conversion over simple posting.' }
+  ];
 
-  const handleStartFromLanding = () => {
-      if (!localStorage.getItem('caterpro-subscription')) selectPlan('free');
-      setViewMode('generator');
+  const handleApplyPreset = (text: string) => {
+    setStrategyHook(text);
+    setToastMessage("Marketing Strategy Applied!");
   };
 
   const generateMenu = async () => {
@@ -133,6 +138,7 @@ const App: React.FC = () => {
         cuisine,
         dietaryRestrictions,
         currency,
+        strategyHook,
       });
       
       const newMenu = { ...result.menu, theme: proposalTheme };
@@ -173,127 +179,165 @@ const App: React.FC = () => {
         onViewPricing={() => setViewMode('pricing')}
       />
       
-      {viewMode === 'landing' && <LandingPage onGetStarted={handleStartFromLanding} />}
+      {viewMode === 'landing' && <LandingPage onGetStarted={() => setViewMode('generator')} />}
 
       {viewMode === 'pricing' && <PricingPage whopUrl={WHOP_STORE_URL} onSelectPlan={(p) => { selectPlan(p); setViewMode('generator'); }} currency={currency} />}
 
       {viewMode === 'generator' && (
-        <main className="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
-          {error && (
-            <div className="mb-6 p-4 rounded-xl bg-red-50 dark:bg-red-900/30 border-2 border-red-200 dark:border-red-800 flex items-start gap-3">
-                <AlertTriangle className="h-6 w-6 text-red-500 flex-shrink-0" />
-                <div>
-                    <h3 className="text-lg font-bold text-red-800 dark:text-red-200">{error.title}</h3>
-                    <div className="text-sm text-red-700 dark:text-red-300 mt-1">{error.message}</div>
-                </div>
-            </div>
-          )}
-
+        <main className="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
           {!menu && !isLoading && (
-            <div className="space-y-8 animate-slide-in">
-              <div className="text-center">
-                <h1 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white">What are we cooking?</h1>
-                <p className="mt-2 text-slate-600 dark:text-slate-400">Search for any country or culinary style.</p>
+            <div className="space-y-10 animate-slide-in">
+              <div className="text-center max-w-2xl mx-auto">
+                <h1 className="text-4xl sm:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">Catering Command Center</h1>
+                <p className="mt-4 text-slate-600 dark:text-slate-400 font-medium text-lg">Define your culinary vision and strategy.</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white dark:bg-slate-900 p-6 sm:p-8 rounded-3xl shadow-xl border border-slate-200 dark:border-slate-800">
-                <div className="space-y-1">
-                  <label className="block text-xs font-black uppercase text-slate-400 tracking-widest">Event Type</label>
-                  <select value={eventType} onChange={(e) => setEventType(e.target.value)} className="w-full p-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm">
-                    <option value="">Select Event...</option>
-                    {EVENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-                  </select>
-                </div>
+              <div className="bg-white dark:bg-slate-900 p-6 sm:p-12 rounded-[3rem] shadow-2xl border border-slate-200 dark:border-slate-800 relative overflow-hidden">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 main-grid">
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Event Selection</label>
+                    <select value={eventType} onChange={(e) => setEventType(e.target.value)} className="w-full p-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm shadow-sm">
+                      <option value="">Select Event Type...</option>
+                      {EVENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+                    </select>
+                  </div>
 
-                <div className="space-y-1">
-                  <label className="block text-xs font-black uppercase text-slate-400 tracking-widest">Guest Count</label>
-                  <select value={guestCount} onChange={(e) => setGuestCount(e.target.value)} className="w-full p-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm">
-                    <option value="">Select Guests...</option>
-                    {GUEST_COUNT_OPTIONS.map(g => <option key={g} value={g}>{g}</option>)}
-                  </select>
-                </div>
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Guest Volume</label>
+                    <select value={guestCount} onChange={(e) => setGuestCount(e.target.value)} className="w-full p-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm shadow-sm">
+                      <option value="">Select Capacity...</option>
+                      {GUEST_COUNT_OPTIONS.map(g => <option key={g} value={g}>{g}</option>)}
+                    </select>
+                  </div>
 
-                <div className="space-y-1 relative" ref={cuisineRef}>
-                  <label className="block text-xs font-black uppercase text-slate-400 tracking-widest">Country or Cuisine</label>
-                  <div className="relative">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input 
-                      type="text" 
-                      placeholder="e.g. Italy, USA, South Africa..." 
-                      value={cuisineSearch || cuisine}
-                      onFocus={() => setShowCuisineResults(true)}
-                      onChange={(e) => { setCuisineSearch(e.target.value); setCuisine(e.target.value); }}
-                      className="w-full pl-11 pr-4 py-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm"
+                  <div className="space-y-1 relative full-width-tablet" ref={cuisineRef}>
+                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Culinary Style</label>
+                    <div className="relative">
+                      <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input 
+                        type="text" 
+                        placeholder="Search country or cuisine style..." 
+                        value={cuisineSearch || cuisine}
+                        onFocus={() => setShowCuisineResults(true)}
+                        onChange={(e) => { setCuisineSearch(e.target.value); setCuisine(e.target.value); }}
+                        className="w-full pl-12 pr-5 py-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm shadow-sm"
+                      />
+                    </div>
+                    {showCuisineResults && filteredCuisines.length > 0 && (
+                      <div className="absolute z-50 left-0 right-0 mt-2 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-3xl shadow-2xl max-h-64 overflow-y-auto">
+                          {filteredCuisines.map(c => (
+                              <button key={c} onClick={() => { setCuisine(c); setCuisineSearch(c); setShowCuisineResults(false); }} className="w-full text-left px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-bold flex items-center gap-3 border-b border-slate-100 dark:border-slate-700 last:border-0 dark:text-white">
+                                  <Globe size={16} className="text-primary-500" /> {c}
+                              </button>
+                          ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Financial Setup</label>
+                    <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full p-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm shadow-sm">
+                       <option value="ZAR">South African Rand (R)</option>
+                       <option value="USD">US Dollar ($)</option>
+                       <option value="EUR">Euro (€)</option>
+                    </select>
+                  </div>
+
+                  <div className="md:col-span-2 full-width-tablet space-y-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] flex items-center gap-2">
+                        <Lightbulb size={16} className="text-amber-500" /> 
+                        Marketing & Strategy Hook
+                      </label>
+                      <div className="flex flex-wrap gap-2">
+                         {STRATEGY_PRESETS.map(preset => (
+                           <button 
+                            key={preset.id}
+                            onClick={() => handleApplyPreset(preset.text)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-primary-500 hover:text-white transition-all text-[10px] font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                           >
+                             <preset.icon size={12} /> {preset.label}
+                           </button>
+                         ))}
+                      </div>
+                    </div>
+                    <textarea 
+                      value={strategyHook}
+                      onChange={(e) => setStrategyHook(e.target.value)}
+                      placeholder="Paste insights from NotebookLM or select a marketing strategy above..."
+                      className="w-full p-6 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm min-h-[140px] resize-none shadow-inner"
                     />
                   </div>
-                  {showCuisineResults && filteredCuisines.length > 0 && (
-                    <div className="absolute z-50 left-0 right-0 mt-2 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-2xl shadow-2xl max-h-60 overflow-y-auto">
-                        {filteredCuisines.map(c => (
-                            <button key={c} onClick={() => { setCuisine(c); setCuisineSearch(c); setShowCuisineResults(false); }} className="w-full text-left px-5 py-3 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-bold flex items-center gap-3 border-b border-slate-100 dark:border-slate-700 last:border-0 dark:text-white">
-                                <Globe size={14} className="text-primary-500" /> {c}
-                            </button>
-                        ))}
-                    </div>
-                  )}
-                  {validationErrors.cuisine && <p className="text-red-500 text-[10px] font-bold mt-1 uppercase">{validationErrors.cuisine}</p>}
-                </div>
 
-                <div className="space-y-1">
-                  <label className="block text-xs font-black uppercase text-slate-400 tracking-widest">Preferred Currency</label>
-                  <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full p-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm">
-                     <option value="ZAR">South African Rand (R)</option>
-                     <option value="USD">US Dollar ($)</option>
-                     <option value="GBP">British Pound (£)</option>
-                     <option value="EUR">Euro (€)</option>
-                     <option value="HUF">Hungarian Forint (Ft)</option>
-                  </select>
-                </div>
-
-                <div className="md:col-span-2 pt-4">
-                  <button onClick={generateMenu} className="w-full py-5 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-black text-lg shadow-xl shadow-primary-500/20 transition-all active:scale-95 flex items-center justify-center gap-2">
-                    <Sparkles className="w-6 h-6" /> Generate Professional Proposal
-                  </button>
+                  <div className="md:col-span-2 full-width-tablet pt-4">
+                    <button onClick={generateMenu} className="w-full py-6 bg-primary-600 hover:bg-primary-700 text-white rounded-[2rem] font-black text-xl shadow-2xl shadow-primary-500/30 transition-all active:scale-95 flex items-center justify-center gap-3">
+                      <Sparkles className="w-7 h-7" /> Launch AI Culinary Planner
+                    </button>
+                  </div>
                 </div>
               </div>
+              <MarketingRoadmap />
               <FounderRoadmap whopUrl={WHOP_STORE_URL} />
-              <ResearchHub onShowToast={setToastMessage} />
             </div>
           )}
 
           {isLoading && (
-            <div className="flex flex-col items-center justify-center py-24 animate-pulse">
-                <Loader2 className="w-16 h-16 text-primary-500 animate-spin mb-6" />
-                <h2 className="text-2xl font-black text-slate-900 dark:text-white">Curating your masterwork...</h2>
+            <div className="flex flex-col items-center justify-center py-32 animate-pulse text-center">
+                <Loader2 className="w-20 h-20 text-primary-500 animate-spin mb-8" />
+                <h2 className="text-3xl font-black text-slate-900 dark:text-white">Orchestrating the Digital Journey...</h2>
+                <p className="text-slate-500 mt-2 font-medium">Applying NotebookLM marketing hooks to your menu.</p>
             </div>
           )}
 
           {menu && !isLoading && (
-            <div className="space-y-8 animate-fade-in">
-                <div className="no-print bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
-                    <div className="flex items-center gap-4">
-                        <div className="p-3 bg-primary-100 dark:bg-primary-900/30 rounded-2xl"><Sparkles className="text-primary-600 w-6 h-6" /></div>
+            <div className="space-y-12 animate-fade-in">
+                <div className="no-print bg-white dark:bg-slate-900 p-8 rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-8">
+                    <div className="flex items-center gap-5">
+                        <div className="p-4 bg-primary-100 dark:bg-primary-900/30 rounded-3xl"><Sparkles className="text-primary-600 w-8 h-8" /></div>
                         <div>
-                            <h3 className="text-xl font-black text-slate-900 dark:text-white">Proposal Ready</h3>
-                            <p className="text-sm text-slate-500 font-medium">Ready for your client or Academy PoE.</p>
+                            <h3 className="text-2xl font-black text-slate-900 dark:text-white">Proposal Architected</h3>
+                            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest mt-1">Ready for 2026 Client Delivery</p>
                         </div>
                     </div>
-                    <div className="flex gap-2">
-                        <button onClick={() => setMenu(null)} className="px-4 py-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-black uppercase text-slate-600 dark:text-slate-300">← New</button>
-                        <button onClick={generateMenu} className="px-4 py-2.5 bg-primary-600 text-white rounded-xl text-xs font-black uppercase flex items-center gap-2 shadow-lg">
-                           <FileDown size={14} /> PDF Export
+                    <div className="flex gap-3">
+                        <button onClick={() => setMenu(null)} className="px-6 py-3.5 bg-slate-100 dark:bg-slate-800 rounded-2xl text-xs font-black uppercase text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors">← New Event</button>
+                        <button onClick={() => window.print()} className="px-8 py-3.5 bg-primary-600 text-white rounded-2xl text-xs font-black uppercase flex items-center gap-2 shadow-xl shadow-primary-500/20 active:scale-95 transition-all">
+                           <FileDown size={18} /> Export PDF
                         </button>
                     </div>
                 </div>
 
-                <MenuDisplay menu={menu} checkedItems={checkedItems} onToggleItem={(k) => {
-                    const next = new Set(checkedItems);
-                    if (next.has(k)) next.delete(k); else next.add(k);
-                    setCheckedItems(next);
-                }} isEditable={canAccessFeature('reelsMode')} onEditItem={() => {}} showToast={setToastMessage} isGeneratingImage={isGeneratingImage} onUpdateShoppingItemQuantity={() => {}} bulkSelectedItems={new Set()} onToggleBulkSelect={() => {}} onBulkCheck={() => {}} onBulkUpdateQuantity={() => {}} onClearBulkSelection={() => {}} onSelectAllShoppingListItems={() => {}} proposalTheme={proposalTheme} canAccessFeature={canAccessFeature} onAttemptAccess={attemptAccess} deliveryRadius="10" onDeliveryRadiusChange={() => {}} onCalculateFee={() => {}} calculatedFee={null} preferredCurrency={currency} />
+                <MenuDisplay 
+                  menu={menu} 
+                  checkedItems={checkedItems} 
+                  onToggleItem={(k) => {
+                      const next = new Set(checkedItems);
+                      if (next.has(k)) next.delete(k); else next.add(k);
+                      setCheckedItems(next);
+                  }} 
+                  isEditable={canAccessFeature('reelsMode')} 
+                  onEditItem={() => {}} 
+                  showToast={setToastMessage} 
+                  isGeneratingImage={isGeneratingImage} 
+                  onUpdateShoppingItemQuantity={() => {}} 
+                  bulkSelectedItems={new Set()} 
+                  onToggleBulkSelect={() => {}} 
+                  onBulkCheck={() => {}} 
+                  onBulkUpdateQuantity={() => {}} 
+                  onClearBulkSelection={() => {}} 
+                  onSelectAllShoppingListItems={() => {}} 
+                  proposalTheme={proposalTheme} 
+                  canAccessFeature={canAccessFeature} 
+                  onAttemptAccess={attemptAccess} 
+                  deliveryRadius="10" 
+                  onDeliveryRadiusChange={() => {}} 
+                  onCalculateFee={() => {}} 
+                  calculatedFee={null} 
+                  preferredCurrency={currency} 
+                />
                 
                 <MarketingRoadmap />
                 <FounderRoadmap whopUrl={WHOP_STORE_URL} />
-                <ResearchHub onShowToast={setToastMessage} />
             </div>
           )}
         </main>
@@ -307,7 +351,6 @@ const App: React.FC = () => {
       <SocialMediaModal isOpen={isSocialModalOpen} onClose={() => setIsSocialModalOpen(false)} image={menu?.image} menuTitle={menu?.menuTitle || ''} menuDescription={menu?.description || ''} initialMode={socialModalMode} onImageGenerated={(b) => setMenu(p => p ? { ...p, image: b } : null)} />
       <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
       
-      {/* Footer rendered once for all views except pricing which has its own */}
       {viewMode !== 'pricing' && <Footer facebookUrl={FACEBOOK_PAGE_URL} />}
     </div>
   );
