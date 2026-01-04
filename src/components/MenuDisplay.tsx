@@ -57,27 +57,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
 
   const totalCost = Array.isArray(menu.shoppingList) ? calculateTotal(menu.shoppingList) : 0;
 
-  const salesHooks = [
-    { 
-        title: "Lifecycle Script", 
-        icon: TrendingUp, 
-        color: "blue",
-        script: `Tell the client: "This proposal covers the full customer lifecycle. I've architected the flavor progression to maintain engagement from the first bite to the final dessert."` 
-    },
-    { 
-        title: "Targeting Script", 
-        icon: Target, 
-        color: "amber",
-        script: `Say this: "I've hyper-targeted this menu for your specific guest profile. Every ingredient was chosen to resonate with their preferences and dietary expectations."` 
-    },
-    { 
-        title: "Systems Script", 
-        icon: ShieldCheck, 
-        color: "emerald",
-        script: `Pitch this: "We use a data-driven system to ensure 100% procurement accuracy. This allows us to guarantee the quality and cost in ${preferredCurrency} without any last-minute chaos."` 
-    }
-  ];
-
   const handleSocialAction = (mode: 'reel' | 'status' | 'create') => {
     if (onAttemptAccess('socialMediaTools')) {
         onOpenSocialModal?.(mode);
@@ -90,7 +69,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
     <div className={`p-4 sm:p-10 theme-container ${t.container} rounded-[3rem] shadow-2xl border border-slate-100 dark:border-slate-800 animate-fade-in`}>
       <div className="space-y-10">
       
-      {/* Sales Accelerator Hub - Gated to Paid Customers */}
       {!isReadOnlyView && (
       <div className="no-print bg-slate-950 text-white p-8 sm:p-12 rounded-[2.5rem] mb-12 relative overflow-hidden group border border-white/10 shadow-indigo-500/10 shadow-2xl">
           <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:opacity-10 transition-opacity">
@@ -103,10 +81,10 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                       <div className="p-3 bg-primary-500 rounded-2xl shadow-lg shadow-primary-500/20">
                           <Megaphone size={24} className="text-white" />
                       </div>
-                      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary-400">Social Studio (Paid)</span>
+                      <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary-400">Growth Hub (Paid Only)</span>
                   </div>
-                  <h4 className="text-3xl font-black tracking-tight leading-none mb-2">Viral Growth Hub</h4>
-                  <p className="text-slate-400 text-sm font-medium">Generate Reel scripts and AI captions that are currently trending on Facebook.</p>
+                  <h4 className="text-3xl font-black tracking-tight leading-none mb-2">Viral Marketing Center</h4>
+                  <p className="text-slate-400 text-sm font-medium">Use AI to generate professional videos and captions optimized for 2026 reach.</p>
                   
                   <div className="mt-8 flex flex-wrap gap-3">
                       <button 
@@ -115,44 +93,37 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                       >
                         {!canAccessFeature('socialMediaTools') && <Lock size={12} className="opacity-60" />}
                         <Video size={18} className="group-hover/reel:animate-bounce" /> 
-                        Create Viral Reel 
-                        <span className="px-1.5 py-0.5 rounded bg-amber-400 text-[8px] text-slate-900 ml-1">HOT</span>
+                        Generate Viral Reel 
                       </button>
                       <button 
                         onClick={() => handleSocialAction('create')}
                         className="flex items-center gap-2 px-6 py-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-xs font-black uppercase tracking-widest border border-white/10 transition-all active:scale-95"
                       >
-                        {!canAccessFeature('socialMediaTools') && <Lock size={12} className="opacity-60" />}
-                        <MessageSquareQuote size={18} /> Caption Sniper
+                        <MessageSquareQuote size={18} /> Get Captions
                       </button>
                   </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full lg:w-3/4">
-                 {salesHooks.map((hook, idx) => (
-                    <button 
-                        key={idx}
-                        onClick={() => {
-                            navigator.clipboard.writeText(hook.script);
-                            showToast(`${hook.title} copied!`);
-                        }}
-                        className="p-5 bg-white/5 hover:bg-white/10 rounded-3xl border border-white/10 transition-all text-left flex flex-col gap-3 group/btn"
-                    >
-                        <div className={`p-2 w-fit rounded-xl bg-${hook.color}-500/20 text-${hook.color}-400 group-hover/btn:scale-110 transition-transform`}>
-                            <hook.icon size={18} />
-                        </div>
-                        <div>
-                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 block mb-1">{hook.title}</span>
-                            <span className="text-[11px] font-bold text-slate-300 line-clamp-2 leading-relaxed">Copy Sales Script</span>
-                        </div>
-                    </button>
-                 ))}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full lg:w-1/2">
+                <div className="p-6 bg-white/5 rounded-3xl border border-white/10">
+                   <div className="flex items-center gap-2 mb-2 text-indigo-400">
+                      <TrendingUp size={16} />
+                      <span className="text-[10px] font-black uppercase">Lifecycle ROI</span>
+                   </div>
+                   <p className="text-xs text-slate-400 leading-relaxed font-medium">Automated follow-ups and social proof generation built into every proposal.</p>
+                </div>
+                <div className="p-6 bg-white/5 rounded-3xl border border-white/10">
+                   <div className="flex items-center gap-2 mb-2 text-amber-400">
+                      <Target size={16} />
+                      <span className="text-[10px] font-black uppercase">Hyper-Targeted</span>
+                   </div>
+                   <p className="text-xs text-slate-400 leading-relaxed font-medium">AI identifies high-intent segments based on your menu cuisine automatically.</p>
+                </div>
               </div>
           </div>
       </div>
       )}
 
-      {/* Proposal Header with Quick Action Buttons */}
       <div className="flex flex-col sm:flex-row items-center justify-between border-b-2 border-dashed border-slate-200 dark:border-slate-700 pb-8 gap-4">
          <div className="flex items-center gap-4">
             <ChefHat className={`w-10 h-10 ${t.title}`} />
@@ -160,7 +131,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                 <span className={`text-xs font-black uppercase tracking-[0.4em] block ${t.description} opacity-60 mb-1`}>Official Proposal</span>
                 <div className="flex items-center gap-2">
                     <span className="px-3 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1">
-                        <ShieldCheck size={12} /> Strategy Optimized
+                        <ShieldCheck size={12} /> Certified Strategy
                     </span>
                     <span className={`text-sm font-bold ${t.description}`}>{new Date().toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                 </div>
@@ -168,12 +139,11 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
          </div>
          
          <div className="flex items-center gap-2 no-print">
-            {/* New Quick Reel Shortcut */}
             {!isReadOnlyView && (
                 <button 
                     onClick={() => handleSocialAction('reel')}
                     className="p-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl hover:bg-indigo-100 transition-all active:scale-95 shadow-sm flex items-center gap-2"
-                    title="Quick Reel"
+                    title="Render Reel"
                 >
                     <Video size={20} />
                     <span className="text-[10px] font-black uppercase">Viral Reel</span>
@@ -182,7 +152,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
             <button onClick={() => window.print()} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:bg-slate-200 transition-colors" title="Print/Export">
                 <FileDown size={20} className={t.description} />
             </button>
-            <button onClick={() => showToast("Public link shared!")} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:bg-slate-200 transition-colors" title="Share Link">
+            <button onClick={() => showToast("Link Copied!")} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:bg-slate-200 transition-colors" title="Share Link">
                 <Share2 size={20} className={t.description} />
             </button>
          </div>
@@ -197,21 +167,20 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
              />
              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
              
-             {/* Logo Watermark System */}
+             {/* Dynamic Watermark System */}
              <div className={`absolute bottom-8 left-8 right-8 text-white transition-opacity duration-500 ${hideWatermark ? 'opacity-0' : 'opacity-100'}`}>
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-3 mb-3 bg-black/20 backdrop-blur-md w-fit px-4 py-2 rounded-2xl border border-white/20">
                     <img src="/logo.svg" alt="Logo" className="w-8 h-8 rounded-lg shadow-xl" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-80">CaterPro AI Certified</span>
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-90">Sourced via CaterPro AI</span>
                 </div>
                 <h3 className="text-3xl font-black tracking-tight">{menu.menuTitle}</h3>
              </div>
 
-             {/* Watermark Toggle Overlay (Paid Only) */}
              {isProUser && !isReadOnlyView && (
                  <button 
-                    onClick={() => { setHideWatermark(!hideWatermark); showToast(hideWatermark ? "Watermark Restored" : "Watermark Hidden"); }}
-                    className="no-print absolute top-6 left-6 p-3 bg-black/30 backdrop-blur-md rounded-full text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-black/50"
-                    title={hideWatermark ? "Show Watermark" : "Hide Watermark (Pro Feature)"}
+                    onClick={() => { setHideWatermark(!hideWatermark); showToast(hideWatermark ? "Logo Restored" : "Logo Hidden (Pro Mode)"); }}
+                    className="no-print absolute top-6 left-6 p-3 bg-black/30 backdrop-blur-md rounded-full text-white opacity-0 group-hover:opacity-100 transition-all hover:bg-black/50 border border-white/10"
+                    title={hideWatermark ? "Show Branding" : "Hide Branding (Pro Feature)"}
                  >
                     {hideWatermark ? <Eye size={18} /> : <EyeOff size={18} />}
                  </button>
@@ -271,15 +240,14 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
           );
         })}
 
-        {/* Dynamic Shopping List with Procurement Logic */}
         {menu.shoppingList && menu.shoppingList.length > 0 && (
             <div className={`lg:col-span-2 ${t.sectionContainer} rounded-[3rem] shadow-2xl bg-white dark:bg-slate-900 overflow-hidden border-2 border-slate-100 dark:border-slate-800`}>
                 <div className="p-10 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
                     <div className="flex items-center gap-5">
                         <div className={`p-4 ${t.sectionIcon} rounded-3xl shadow-xl`}><ShoppingCart size={28} /></div>
                         <div>
-                            <h3 className="text-2xl font-black">Procurement Master List</h3>
-                            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest mt-1">Sourced in {preferredCurrency}</p>
+                            <h3 className="text-2xl font-black">Procurement & Sourcing</h3>
+                            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest mt-1">Calculated in {preferredCurrency}</p>
                         </div>
                     </div>
                 </div>
@@ -292,7 +260,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                                     <div className="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-700"></div>
                                 </div>
                                 <div className="flex justify-between items-end">
-                                    <p className="text-xs text-slate-500 font-bold leading-relaxed">{item.quantity} • {item.category}<br/><span className="text-[10px] opacity-60">Source: {item.store || 'Market'}</span></p>
+                                    <p className="text-xs text-slate-500 font-bold leading-relaxed">{item.quantity} • {item.category}<br/><span className="text-[10px] opacity-60">Source: {item.store || 'Local Market'}</span></p>
                                     <p className="text-lg font-black text-primary-600">{item.estimatedCost}</p>
                                 </div>
                             </div>
@@ -303,7 +271,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                         <div className="flex items-center gap-6">
                             <div className="p-5 bg-primary-500 rounded-[2rem] text-white shadow-2xl shadow-primary-500/30"><Wallet size={36} /></div>
                             <div>
-                                <p className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-500 mb-2">Total Financial Commitment</p>
+                                <p className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-500 mb-2">Procurement Budget (est.)</p>
                                 <div className="flex items-baseline gap-2">
                                     <span className="text-sm font-black text-slate-400 uppercase">{preferredCurrency}</span>
                                     <h4 className="text-5xl font-black text-white tracking-tighter">{totalCost.toFixed(2)}</h4>
@@ -312,7 +280,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                         </div>
                         <div className="flex flex-col gap-3 w-full sm:w-auto">
                             <button className="px-10 py-5 bg-white text-slate-950 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl">Export List</button>
-                            <p className="text-[9px] text-center text-slate-500 font-bold uppercase tracking-widest italic">Updated Real-Time via AI</p>
                         </div>
                      </div>
                 </div>
