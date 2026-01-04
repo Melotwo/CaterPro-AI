@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail, Search, Globe, Facebook, Lightbulb, Target, TrendingUp, BarChart3 } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail, Search, Globe, Facebook, Lightbulb, Target, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -46,6 +46,7 @@ const App: React.FC = () => {
   const [cuisineSearch, setCuisineSearch] = useState('');
   const [strategyHook, setStrategyHook] = useState(''); 
   const [showCuisineResults, setShowCuisineResults] = useState(false);
+  const [showStrategyGuide, setShowStrategyGuide] = useState(false);
   const [dietaryRestrictions, setDietaryRestrictions] = useState<string[]>([]);
   const [proposalTheme, setProposalTheme] = useState('classic');
   
@@ -79,7 +80,6 @@ const App: React.FC = () => {
 
   const cuisineRef = useRef<HTMLDivElement>(null);
 
-  // Define filteredCuisines based on search input to fix the reference error
   const filteredCuisines = CUISINES.filter(c => 
     c.toLowerCase().includes((cuisineSearch || '').toLowerCase())
   );
@@ -245,10 +245,19 @@ const App: React.FC = () => {
 
                   <div className="md:col-span-2 full-width-tablet space-y-4">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                      <label className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] flex items-center gap-2">
-                        <Lightbulb size={16} className="text-amber-500" /> 
-                        Marketing & Strategy Hook
-                      </label>
+                      <div className="flex items-center gap-2">
+                        <label className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] flex items-center gap-2">
+                            <Lightbulb size={16} className="text-amber-500" /> 
+                            Marketing Hook
+                        </label>
+                        <button 
+                            onClick={() => setShowStrategyGuide(!showStrategyGuide)}
+                            className="p-1 rounded-full text-slate-400 hover:text-primary-500 transition-colors"
+                            title="Strategy Help"
+                        >
+                            <HelpCircle size={14} />
+                        </button>
+                      </div>
                       <div className="flex flex-wrap gap-2">
                          {STRATEGY_PRESETS.map(preset => (
                            <button 
@@ -261,6 +270,29 @@ const App: React.FC = () => {
                          ))}
                       </div>
                     </div>
+                    
+                    {showStrategyGuide && (
+                        <div className="bg-primary-50 dark:bg-primary-900/10 border-2 border-primary-100 dark:border-primary-800 p-6 rounded-[2rem] animate-slide-in">
+                            <h4 className="text-sm font-black uppercase text-primary-700 dark:text-primary-400 mb-3 flex items-center gap-2">
+                                <Info size={16} /> 2026 Strategy Playbook
+                            </h4>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-[11px] leading-relaxed">
+                                <div>
+                                    <p className="font-black text-slate-800 dark:text-white uppercase tracking-widest mb-1">Lifecycle</p>
+                                    <p className="text-slate-500 dark:text-slate-400">Guiding the customer before, during, and after. Focus on relationship building.</p>
+                                </div>
+                                <div>
+                                    <p className="font-black text-slate-800 dark:text-white uppercase tracking-widest mb-1">Targeting</p>
+                                    <p className="text-slate-500 dark:text-slate-400">Laser-focus on specific needs (e.g., Busy Professionals vs Large Event Hosts).</p>
+                                </div>
+                                <div>
+                                    <p className="font-black text-slate-800 dark:text-white uppercase tracking-widest mb-1">Data-Driven</p>
+                                    <p className="text-slate-500 dark:text-slate-400">Emphasize systems, accuracy, and measurable metrics over generic "food pics."</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <textarea 
                       value={strategyHook}
                       onChange={(e) => setStrategyHook(e.target.value)}
