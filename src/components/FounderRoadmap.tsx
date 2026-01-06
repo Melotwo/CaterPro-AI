@@ -1,30 +1,48 @@
 
 import React, { useState } from 'react';
-import { CheckCircle2, Zap, Trophy, Smartphone, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink } from 'lucide-react';
+import { CheckCircle2, Zap, Trophy, Smartphone, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen } from 'lucide-react';
 
 interface FounderRoadmapProps {
   whopUrl: string;
 }
 
 const dailyTasks = [
+  { id: 'hotsourced-apply', label: 'Apply to Hotsourced (Founder Associate Role)', highPriority: true },
   { id: 'college-mission', label: 'Monday College Mission (2 Locations)', highPriority: true },
   { id: 'demo-video', label: 'Record Screen Demo + Background Music', highPriority: true },
   { id: 'whop-post-1', label: 'Publish First Whop Post (DONE! 🤙🏿)', initialDone: true },
-  { id: 'fb-sniper-mission', label: 'Comment Sniper Mission 🎯' },
-  { id: 'remote-job-sync', label: 'Apply for 1 AI Operations Remote Job' },
-  { id: 'whop-paypal', label: 'Verify PayPal Payouts', highPriority: true },
+  { id: 'remote-job-sync', label: 'Verify PayPal Payouts', highPriority: true },
 ];
 
 const jobSniperTemplates = [
   {
-    title: "The Resume Context Sniper",
-    description: "Matches your resume to a job description with high-impact keywords.",
-    text: "Act as an expert technical recruiter. Compare my current resume details with this specific Job Description. Identify the top 5 'High Intent' keywords I am missing and rewrite my professional summary to highlight my experience building AI catering automation (CaterPro AI) to match their requirements perfectly. Job Description: [PASTE HERE]"
+    id: 'hotsourced-cover',
+    title: "Hotsourced Cover Letter",
+    description: "Tailored for the Founder's Associate role (Systems over Chaos).",
+    text: `Dear [Hiring Manager/Founder Name],
+
+I am writing to apply for the Founder’s Commercial Associate role. I noticed your core objective is to "buy back" the CEO’s time—a mission that perfectly aligns with my recent work.
+
+As a founder myself, I recently achieved a 100% grade in the Google 'Maximize Productivity with AI' certification. I didn't just study the theory; I applied it to build CaterPro AI—a full-stack platform that automates the "chaos" of culinary administration into a structured system for over 100 chefs.
+
+I specialize in "Systems over Chaos." Whether it's managing complex stakeholder communications, optimizing operational deployment, or conducting international market research, my approach is always technologically proficient and solution-oriented. I don't just manage a calendar; I build the systems that ensure the calendar works for you.
+
+I am ready to bring this bias-toward-action and my background in AI-driven efficiency to help hotsourced scale internationally.
+
+Best regards,
+Tumi`
   },
   {
-    title: "Cover Letter 'Hook' Sniper",
-    description: "Creates a 3-sentence high-curiosity intro for LinkedIn DMs.",
-    text: "Write a punchy 3-sentence introduction to a hiring manager for an AI Operations role. Mention that I built a full-stack AI catering assistant that handles automated costing for 100+ chefs. Goal: Show that I don't just use AI, I build systems with it."
+    id: 'linkedin-hook',
+    title: "LinkedIn DM Hook",
+    description: "High-curiosity intro to send to the Founder directly.",
+    text: "Hi [Name], I just saw the Founder’s Commercial Associate role. I recently built an AI system (CaterPro AI) specifically to 'buy back time' for culinary professionals, achieving a 100% grade in Google’s AI Productivity course along the way. I’d love to show you how I can apply that same 'Systems over Chaos' mindset to help you scale hotsourced. Do you have 5 minutes for a quick sync?"
+  },
+  {
+    id: 'resume-booster',
+    title: "Resume 'AI' Booster",
+    description: "Add this bullet point to your experience section.",
+    text: "• Systems Architect & Founder (CaterPro AI): Engineered a full-stack AI catering assistant using Google Gemini API to automate food costing and marketing for culinary students. Reduced administrative 'chaos' by 80% through strategic workflow automation and achieved a 100% proficiency score in advanced AI operations."
   }
 ];
 
@@ -41,7 +59,7 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
 
   const copyToClipboard = (text: string, label: string) => {
       navigator.clipboard.writeText(text);
-      alert(`${label} copied! Now paste this into Gemini or ChatGPT to sniper the job.`);
+      alert(`${label} copied! Now paste this into your application or LinkedIn.`);
   };
 
   return (
@@ -92,11 +110,10 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                 <div className="bg-amber-50/50 dark:bg-amber-900/10 p-8 rounded-[2rem] border-2 border-dashed border-amber-200 dark:border-amber-800 relative">
                     <Target className="text-amber-600 mb-4" />
                     <p className="text-sm text-slate-700 dark:text-slate-300 font-medium leading-relaxed italic">
-                        "Tumi, the mission is high-level automation. Every LinkedIn job application should mention the systems you built here. It shows you're in the top 1% of AI operators. 🤙🏿"
+                        "Tumi, the Hotsourced role is a perfect match. I've added the 'Founder Associate' cover letter to the Sniper tab. Send it today! 🎯"
                     </p>
                     <div className="mt-8 flex gap-2">
-                        <button onClick={() => setActiveTab('sniper')} className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Sniper a Job</button>
-                        <a href="https://linkedin.com/jobs" target="_blank" rel="noopener" className="px-4 py-2 bg-white text-slate-900 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-1">LinkedIn <ExternalLink size={10} /></a>
+                        <button onClick={() => setActiveTab('sniper')} className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Sniper the Job</button>
                     </div>
                 </div>
             </div>
@@ -110,12 +127,12 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                       <div className="p-4 bg-primary-600 rounded-3xl text-white shadow-xl shadow-primary-500/20"><BrainCircuit size={32} /></div>
                       <div>
                           <h4 className="text-xl font-black uppercase tracking-tight">Outcome-Focused Sniper</h4>
-                          <p className="text-sm text-slate-500 font-medium">Fast AI prompts to secure remote jobs while you build CaterPro.</p>
+                          <p className="text-sm text-slate-500 font-medium">Tailored for the Hotsourced Founder's Associate role.</p>
                       </div>
                   </div>
                   <div className="px-4 py-2 bg-green-100 dark:bg-green-900/30 rounded-2xl flex items-center gap-2 border border-green-200 dark:border-green-800">
                       <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                      <span className="text-[10px] font-black text-green-700 uppercase tracking-widest">Remote Optimized</span>
+                      <span className="text-[10px] font-black text-green-700 uppercase tracking-widest">Job Ready</span>
                   </div>
               </div>
 
@@ -132,7 +149,7 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                            </div>
                        </div>
                        <button onClick={() => copyToClipboard(template.text, template.title)} className="flex items-center justify-center gap-2 w-full py-4 bg-slate-950 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-xl">
-                           <Copy size={14} /> Copy AI Prompt
+                           <Copy size={14} /> Copy Script
                        </button>
                     </div>
                   ))}
