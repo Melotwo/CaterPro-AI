@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { CheckCircle2, Zap, Trophy, Smartphone, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen } from 'lucide-react';
+import { CheckCircle2, Zap, Trophy, Smartphone, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText } from 'lucide-react';
 
 interface FounderRoadmapProps {
   whopUrl: string;
@@ -37,17 +37,65 @@ Tumi`
     title: "LinkedIn DM Hook",
     description: "High-curiosity intro to send to the Founder directly.",
     text: "Hi [Name], I just saw the Founder’s Commercial Associate role. I recently built an AI system (CaterPro AI) specifically to 'buy back time' for culinary professionals, achieving a 100% grade in Google’s AI Productivity course along the way. I’d love to show you how I can apply that same 'Systems over Chaos' mindset to help you scale hotsourced. Do you have 5 minutes for a quick sync?"
-  },
-  {
-    id: 'resume-booster',
-    title: "Resume 'AI' Booster",
-    description: "Add this bullet point to your experience section.",
-    text: "• Systems Architect & Founder (CaterPro AI): Engineered a full-stack AI catering assistant using Google Gemini API to automate food costing and marketing for culinary students. Reduced administrative 'chaos' by 80% through strategic workflow automation and achieved a 100% proficiency score in advanced AI operations."
   }
 ];
 
+const updatedCV = `TUMELO HANNES SEROKA
++27 679 461 487 | turoka15@gmail.com | melotwo1@icloud.com
+Mokopane, Limpopo, South Africa (Remote Ready)
+
+PROFESSIONAL SUMMARY
+Culinary Systems Architect & Founder with 15+ years of international operational expertise and a 100% proficiency rating in Advanced AI Productivity (Google Certified). Specialist in "Systems over Chaos"—leveraging LLMs and automation to buy back time for leadership and optimize commercial workflows. Proven track record in high-stakes environments (Disney Cruise Line) and as a tech-forward entrepreneur (CaterPro AI). Expert in international market research, cross-border logistics, and strategic stakeholder management.
+
+CORE COMPETENCIES
+• Strategic AI Automation (Gemini/GPT-4o)
+• Founder Mindset & Commercial Strategy
+• International Operational Logistics
+• "Systems over Chaos" Workflow Design
+• Executive Support & Time Management
+• High-Intent Market Research
+
+PROFESSIONAL EXPERIENCE
+
+FOUNDER & SYSTEMS ARCHITECT | CaterPro AI
+South Africa | Dec 2024 – Present
+• Engineered a full-stack AI catering assistant using Google Gemini API to automate food costing, menu architecture, and marketing for culinary professionals.
+• Successfully built a "buy back time" system that reduces administrative overhead by 80% for users.
+• Managed the entire commercial lifecycle: product development, GitHub/Netlify deployment, and community growth via Whop and Facebook.
+
+PRIVATE CHEF & OPERATIONS LEAD | Thabo Mashishi
+South Africa | June 2024 – Present
+• Orchestrate high-end culinary experiences while managing full-cycle procurement and vendor relations.
+• Developed custom digital systems for inventory tracking and client communication to ensure 0% operational friction.
+
+CHEF / OPERATIONS | Disney Cruise Line
+International | Feb 2011 – July 2015
+• Operated within high-volume, international culinary environments requiring extreme attention to detail and adherence to global safety/health standards.
+• Thrived in a fast-paced, 24/7 setting, managing multi-cultural stakeholder expectations and executing complex logistics.
+• Selected for cross-functional training in front-of-house service, demonstrating versatile commercial English and professional communication skills.
+
+CHEF | Capricorn High School
+South Africa | July 2016 – Dec 2021
+• Managed kitchen inventory and staff for a high-volume student body.
+• Streamlined procurement processes and food cost controls to improve institutional operational efficiency.
+
+EDUCATION & CERTIFICATIONS
+
+• CERTIFICATE: Maximize Productivity with AI Tools (100% Final Grade) | Google | 2024
+• DIPLOMA: Culinary Arts | Prue Leith College of Food and Wine | 2007
+• GRADE 12 (Matric): Hospitality Specialization | Transvalia Skool | 2005
+
+TECHNICAL SKILLS
+• AI/Tech: LLM Prompt Engineering, Gemini API Integration, GitHub/Deployment, UI/UX Design (React/Tailwind).
+• Commercial: Market Research, Budgeting, Logistics, CRM Management (Klaviyo), Multi-currency Costing.
+• Languages: English (Fluent), Sepedi (Native), Afrikaans (Fluent), Spanish (Basic).
+
+ADDITIONAL INFORMATION
+• Driver’s License: Code 10 | Willing to Travel | Tech-Equipped Remote Workspace.
+• Declaration: I, Tumelo Hannes Seroka, declare that the above information is correct. I am a solution-oriented professional with a strong bias toward action.`;
+
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
-  const [activeTab, setActiveTab] = useState<'growth' | 'sniper' | 'marketing'>('growth');
+  const [activeTab, setActiveTab] = useState<'growth' | 'sniper' | 'cv' | 'marketing'>('growth');
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['whop-post-1']));
 
   const toggleTask = (taskId: string) => {
@@ -59,7 +107,7 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
 
   const copyToClipboard = (text: string, label: string) => {
       navigator.clipboard.writeText(text);
-      alert(`${label} copied! Now paste this into your application or LinkedIn.`);
+      alert(`${label} copied! Now paste this into your application or document.`);
   };
 
   return (
@@ -68,10 +116,10 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <div className="flex items-center gap-2 mb-2">
-                <div className="px-2 py-0.5 rounded bg-amber-500 text-[10px] font-black uppercase tracking-widest text-slate-900">Mission Active</div>
+                <div className="px-2 py-0.5 rounded bg-emerald-500 text-[10px] font-black uppercase tracking-widest text-white animate-pulse">2026 Ready</div>
             </div>
             <h2 className="text-3xl font-black flex items-center gap-3">
-              <Zap className="text-amber-400 fill-amber-400" /> Tumi's Dashboard
+              <Zap className="text-amber-400 fill-amber-400" /> Founder Control
             </h2>
           </div>
           
@@ -79,11 +127,11 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
             <button onClick={() => setActiveTab('growth')} className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'growth' ? 'bg-white text-slate-900 shadow-lg' : 'text-slate-500'}`}>
                 <Trophy size={14} /> Mission
             </button>
+            <button onClick={() => setActiveTab('cv')} className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'cv' ? 'bg-amber-500 text-white shadow-lg' : 'text-slate-500'}`}>
+                <FileUser size={14} /> CV Architect
+            </button>
             <button onClick={() => setActiveTab('sniper')} className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'sniper' ? 'bg-primary-600 text-white shadow-lg' : 'text-slate-500'}`}>
                 <Crosshair size={14} /> Job Sniper
-            </button>
-            <button onClick={() => setActiveTab('marketing')} className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'marketing' ? 'bg-blue-500 text-white shadow-lg' : 'text-slate-500'}`}>
-                <Users size={14} /> CRM Tools
             </button>
           </div>
         </div>
@@ -93,8 +141,8 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
         {activeTab === 'growth' && (
           <div className="animate-fade-in py-4">
             <div className="flex items-center justify-between mb-6">
-                <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Launch Priority List</h3>
-                <span className="text-[10px] font-bold text-slate-400 italic">Updated Jan 2026</span>
+                <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Strategic Priority List</h3>
+                <span className="text-[10px] font-bold text-slate-400 italic">Target: Hotsourced Expansion</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-3xl overflow-hidden shadow-sm">
@@ -107,17 +155,47 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                     </button>
                     ))}
                 </div>
-                <div className="bg-amber-50/50 dark:bg-amber-900/10 p-8 rounded-[2rem] border-2 border-dashed border-amber-200 dark:border-amber-800 relative">
-                    <Target className="text-amber-600 mb-4" />
+                <div className="bg-primary-50/50 dark:bg-primary-900/10 p-8 rounded-[2rem] border-2 border-dashed border-primary-200 dark:border-primary-800 relative">
+                    <Target className="text-primary-600 mb-4" />
                     <p className="text-sm text-slate-700 dark:text-slate-300 font-medium leading-relaxed italic">
-                        "Tumi, the Hotsourced role is a perfect match. I've added the 'Founder Associate' cover letter to the Sniper tab. Send it today! 🎯"
+                        "Tumi, the Hotsourced role is waiting. Your CV is ready in the next tab. Copy it and land that interview. You're the perfect fit. 🎯"
                     </p>
                     <div className="mt-8 flex gap-2">
-                        <button onClick={() => setActiveTab('sniper')} className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Sniper the Job</button>
+                        <button onClick={() => setActiveTab('cv')} className="px-4 py-2 bg-slate-900 text-white rounded-xl text-[10px] font-black uppercase tracking-widest">Open CV Architect</button>
                     </div>
                 </div>
             </div>
           </div>
+        )}
+
+        {activeTab === 'cv' && (
+            <div className="animate-fade-in space-y-8">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                        <div className="p-4 bg-amber-500 rounded-3xl text-white shadow-xl shadow-amber-500/20"><FileUser size={32} /></div>
+                        <div>
+                            <h4 className="text-xl font-black uppercase tracking-tight">Founder's Commercial CV</h4>
+                            <p className="text-sm text-slate-500 font-medium">Optimized for Remote Associate Roles & Founders.</p>
+                        </div>
+                    </div>
+                    <button onClick={() => copyToClipboard(updatedCV, "CV Content")} className="px-8 py-4 bg-slate-950 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl flex items-center gap-2">
+                        <Copy size={16} /> Copy Full CV Text
+                    </button>
+                </div>
+
+                <div className="p-8 bg-slate-50 dark:bg-slate-800 rounded-[2.5rem] border-2 border-slate-200 dark:border-slate-700 max-h-[500px] overflow-y-auto custom-scrollbar">
+                    <pre className="whitespace-pre-wrap font-mono text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+                        {updatedCV}
+                    </pre>
+                </div>
+                
+                <div className="flex items-center gap-3 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800">
+                    <BrainCircuit size={18} className="text-blue-500" />
+                    <p className="text-[10px] font-bold text-blue-700 dark:text-blue-400 uppercase tracking-widest">
+                        Strategy: We positioned your Disney experience as "High-Volume International Operations" to match their global expansion goal.
+                    </p>
+                </div>
+            </div>
         )}
 
         {activeTab === 'sniper' && (
@@ -129,10 +207,6 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                           <h4 className="text-xl font-black uppercase tracking-tight">Outcome-Focused Sniper</h4>
                           <p className="text-sm text-slate-500 font-medium">Tailored for the Hotsourced Founder's Associate role.</p>
                       </div>
-                  </div>
-                  <div className="px-4 py-2 bg-green-100 dark:bg-green-900/30 rounded-2xl flex items-center gap-2 border border-green-200 dark:border-green-800">
-                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                      <span className="text-[10px] font-black text-green-700 uppercase tracking-widest">Job Ready</span>
                   </div>
               </div>
 
