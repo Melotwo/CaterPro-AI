@@ -25,6 +25,8 @@ const safeParseMenuJson = (text: string): Menu => {
             deliveryLogistics: ensureArray(parsed.deliveryLogistics),
             shoppingList: ensureObjectArray(parsed.shoppingList),
             recommendedEquipment: ensureObjectArray(parsed.recommendedEquipment),
+            salesScripts: ensureObjectArray(parsed.salesScripts),
+            aiKeywords: ensureArray(parsed.aiKeywords)
         };
     } catch (e) {
         console.error("JSON Parse Error. Raw text:", text);
@@ -44,23 +46,20 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
   
   const strategyContext = params.strategyHook 
-    ? `CRITICAL MARKETING STRATEGY CONTEXT: ${params.strategyHook}. 
-       Ensure the menu descriptions use persuasive language aligned with these hooks. 
-       If Lifecycle Marketing is mentioned, emphasize the journey. 
-       If Hyper-targeting is mentioned, emphasize personalization for the specific audience.`
+    ? `CRITICAL MARKETING STRATEGY: ${params.strategyHook}. 
+       Implement a 'Before, During, After' customer lifecycle strategy in the sales scripts.`
     : '';
 
-  const prompt = `You are a Michelin-star catering and digital marketing strategist. 
-  Create a professional menu proposal for ${params.eventType}. 
-  Guest Count: ${params.guestCount}.
-  Budget: ${params.budget}. 
-  Cuisine: ${params.cuisine}. 
-  Currency: ${params.currency}. 
+  const prompt = `You are a Michelin-star catering strategist. 
+  Create a menu proposal for ${params.eventType}. 
+  Guest Count: ${params.guestCount}. Budget: ${params.budget}. Cuisine: ${params.cuisine}. 
   
   ${strategyContext}
   
-  Return as JSON. Include categorized Shopping List with estimated costs in ${params.currency}. 
-  Ensure menu item names are sophisticated and enticing.`;
+  Return JSON. 
+  Include 'salesScripts' for the user (3 scripts: before, during, after purchase).
+  Include 'aiKeywords' (5 keywords that will help this menu rank in ChatGPT/Perplexity AI search).
+  Categorized Shopping List in ${params.currency}.`;
   
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
@@ -76,6 +75,18 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
           mainCourses: { type: Type.ARRAY, items: { type: Type.STRING } },
           sideDishes: { type: Type.ARRAY, items: { type: Type.STRING } },
           dessert: { type: Type.ARRAY, items: { type: Type.STRING } },
+          salesScripts: {
+              type: Type.ARRAY,
+              items: {
+                  type: Type.OBJECT,
+                  properties: {
+                      phase: { type: Type.STRING },
+                      hook: { type: Type.STRING },
+                      script: { type: Type.STRING }
+                  }
+              }
+          },
+          aiKeywords: { type: Type.ARRAY, items: { type: Type.STRING } },
           shoppingList: { 
             type: Type.ARRAY, 
             items: { 
@@ -103,25 +114,25 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
             } 
           }
         },
-        required: ["menuTitle", "description", "appetizers", "mainCourses", "shoppingList"]
+        required: ["menuTitle", "description", "appetizers", "mainCourses", "salesScripts"]
       }
     }
   });
-  return { menu: safeParseMenuJson(response.text), totalChecklistItems: 10 };
+  return { menu: safeParseMenuJson(response.text) };
 };
 
 export const regenerateMenuItemFromApi = async (originalText: string, instruction: string): Promise<string> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: `Original menu item text: "${originalText}". Instruction: "${instruction}". Rewrite the text following the instruction. Return only the revised text.`,
+        contents: `Original text: "${originalText}". Instruction: "${instruction}". Revised text only.`,
     });
     return response.text?.trim() || originalText;
 };
 
 export const generateSocialCaption = async (menuTitle: string, description: string, platform: string = 'facebook'): Promise<string> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const prompt = `Write a viral ${platform} post for: "${menuTitle}". Content: ${description}. Tone: Professional. Link: https://caterpro-ai.web.app/`;
+    const prompt = `Write a viral ${platform} post for: "${menuTitle}". Content: ${description}. Link: https://caterpro-ai.web.app/`;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: prompt
@@ -131,23 +142,7 @@ export const generateSocialCaption = async (menuTitle: string, description: stri
 
 export const generateWhatsAppStatus = async (menuTitle: string): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `Write 3 different WhatsApp Status updates for Chef Tumi promoting "${menuTitle}". 
-  Style: Short, local (SA/Global), and high curiosity. 
-  Goal: Get friends and colleagues to ask "How did you make this?"`;
-  const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: prompt
-  });
-  return response.text?.trim() || "";
-};
-
-export const generateVideoReelScript = async (menuTitle: string, description: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `Write a 30-second TikTok/Reels Script for "${menuTitle}". 
-  Include: 
-  1. Hook: "POV: You're a chef who stopped spending Sundays on paperwork."
-  2. The Process: Fast cut shots of the AI generating this menu.
-  3. CTA: "Link in bio to lock in your Founder's rate."`;
+  const prompt = `Write 3 curiosity-driven WhatsApp Status updates for "${menuTitle}".`;
   const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: prompt
@@ -157,10 +152,7 @@ export const generateVideoReelScript = async (menuTitle: string, description: st
 
 export const generateVideoFromApi = async (menuTitle: string, description: string, base64Image?: string): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `A high-energy, cinematic professional food catering reel showcasing "${menuTitle}". 
-  The menu is described as: "${description}". 
-  Vibe: Modern, luxurious, fast-paced transitions, gourmet styling, 2026 viral aesthetic. 
-  Resolution: 1080p. Aspect Ratio: 9:16.`;
+  const prompt = `Cinematic professional food catering reel for "${menuTitle}". High-energy, gourmet transitions, 9:16 aspect ratio.`;
 
   let operation = await ai.models.generateVideos({
     model: 'veo-3.1-fast-generate-preview',
@@ -182,14 +174,14 @@ export const generateVideoFromApi = async (menuTitle: string, description: strin
   }
 
   const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
-  if (!downloadLink) throw new Error("Video generation failed.");
+  if (!downloadLink) throw new Error("Video failed.");
   
   return `${downloadLink}&key=${getApiKey()}`;
 };
 
 export const generateProvanceVSLScript = async (menuTitle: string, description: string): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `Write a Greg Provance style VSL script for: "${menuTitle}". Focus on "Systems over Chaos".`;
+  const prompt = `Write a VSL script for: "${menuTitle}". Focus on "Systems over Chaos".`;
   const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: prompt
@@ -199,7 +191,7 @@ export const generateProvanceVSLScript = async (menuTitle: string, description: 
 
 export const generateNewYearLaunchScript = async (menuTitle: string, description: string): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `Write a Facebook Post and an 11 Labs Voiceover Script for Tumi's 2026 Launch. Topic: "${menuTitle}"`;
+  const prompt = `Write a 2026 launch script for Tumi. Topic: "${menuTitle}"`;
   const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: prompt
@@ -212,7 +204,7 @@ export const generateMenuImageFromApi = async (title: string, description: strin
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
         contents: {
-            parts: [{ text: `High-end professional culinary food photography of: "${title}". 4k, gourmet styling.` }],
+            parts: [{ text: `Professional gourmet culinary photography of: "${title}". 4k.` }],
         }
     });
     for (const part of response.candidates[0].content.parts) {
@@ -223,10 +215,7 @@ export const generateMenuImageFromApi = async (title: string, description: strin
 
 export const generateStudyGuideFromApi = async (topic: string, curriculum: string, level: string, type: 'guide' | 'curriculum'): Promise<EducationContent> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `Generate a professional ${type === 'guide' ? 'study guide' : 'curriculum syllabus'} for the topic: "${topic}".
-  Standard: ${curriculum}. Level: ${level}.
-  Include a title, overview, modules, key vocabulary, assessment criteria, and practical exercises. 
-  Return as structured JSON.`;
+  const prompt = `Generate a ${type} for topic: "${topic}". Standard: ${curriculum}. Level: ${level}. Return structured JSON.`;
   
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
@@ -269,7 +258,7 @@ export const analyzeReceiptFromApi = async (base64: string): Promise<any> => {
     contents: {
       parts: [
         { inlineData: { data: base64, mimeType: "image/jpeg" } },
-        { text: "Analyze this receipt. Extract merchant name, date, total amount, and item categories. Return as JSON." }
+        { text: "Analyze this receipt. Extract merchant, date, total. Return JSON." }
       ]
     },
     config: {
@@ -291,8 +280,7 @@ export const analyzeReceiptFromApi = async (base64: string): Promise<any> => {
 
 export const analyzeLabelFromApi = async (base64: string, dietaryRestrictions: string[]): Promise<any> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `Scan this food label for these dietary restrictions: ${dietaryRestrictions.join(', ')}. 
-  Provide a suitability score (1-10), flagged ingredients, and reasoning. Return as JSON.`;
+  const prompt = `Scan this label for: ${dietaryRestrictions.join(', ')}. Return JSON with suitabilityScore (1-10), flaggedIngredients, and reasoning.`;
   
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
