@@ -1,9 +1,10 @@
 
 import React, { useState } from 'react';
-import { BookOpen, Copy, Zap, CheckCircle2, Sparkles, Award, GraduationCap, Share2, Scale, MessageSquare, Phone, ShieldCheck, Info, Anchor, CreditCard, Mail, User, Globe, Users, Briefcase, Send, Camera, Building2, BellRing } from 'lucide-react';
+import { BookOpen, Copy, Zap, CheckCircle2, Sparkles, Award, GraduationCap, Share2, Scale, MessageSquare, Phone, ShieldCheck, Info, Anchor, CreditCard, Mail, User, Globe, Users, Briefcase, Send, Camera, Building2, BellRing, RefreshCw } from 'lucide-react';
 
 const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowToast }) => {
   const [notified, setNotified] = useState(false);
+  const [reminded, setReminded] = useState(false);
   
   const handleCopyTikTokBio = () => {
     const text = `Chef Tumi | AI for Chefs 🔪\nHelping Culinary Students crush their PoE paperwork.\nStop typing. Start cooking. 2026 is here.\nFree Menu Generator below 👇`;
@@ -17,6 +18,12 @@ const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowT
     onShowToast("Academy Pitch Copied!");
   };
 
+  const handleCopyMigrationEmail = () => {
+    const text = `Subject: IMPORTANT: CaterPro AI is Moving to a New Home 🏠\n\nHi there,\n\nWe are upgrading our infrastructure to serve you better. CaterPro AI is moving to our new professional domain this week.\n\nUpdate your bookmarks to: [NEW_DOMAIN_HERE]\n\nAll your saved menus and history will remain safe. See you in the kitchen!\n\nTumi | Founder`;
+    navigator.clipboard.writeText(text);
+    onShowToast("Migration Email Copied!");
+  };
+
   const handleCopyWhopDescription = () => {
     const text = `The AI Secret Weapon for Chefs & Culinary Students. We automate professional menu planning and precise local currency food costing. Built by an international chef. Join the kitchen of the future.`;
     navigator.clipboard.writeText(text);
@@ -26,6 +33,11 @@ const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowT
   const handleNotifyMe = () => {
       setNotified(true);
       onShowToast("Tracking Francois Ferreira Outreach...");
+  };
+
+  const handleSetReminder = () => {
+      setReminded(true);
+      onShowToast("Reminder set for 48-hour follow-up.");
   };
 
   return (
@@ -57,25 +69,51 @@ const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowT
                         <GraduationCap size={24} />
                         <h4 className="text-lg font-black uppercase tracking-tight">Academy Outreach</h4>
                     </div>
-                    <p className="text-xs text-slate-500 font-bold leading-relaxed">Tailored pitch for Francois Ferreira Academy 2026 Class.</p>
+                    <p className="text-xs text-slate-500 font-bold leading-relaxed">Target: Francois Ferreira Academy. Focused on PoE automation.</p>
                     <div className="flex flex-col gap-2 pt-2">
                         <button 
                             onClick={handleCopyAcademyPitch}
                             className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all"
                         >
-                            <Mail size={16} /> Copy Academy Pitch
+                            <Mail size={16} /> Send Pitch Email
                         </button>
+                        <div className="flex gap-2">
+                            <button 
+                                onClick={handleNotifyMe}
+                                className={`flex-1 py-3 rounded-2xl border-2 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${notified ? 'bg-green-100 border-green-200 text-green-700' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-50'}`}
+                            >
+                                {notified ? <CheckCircle2 size={14} /> : <BellRing size={14} />}
+                                Track
+                            </button>
+                            <button 
+                                onClick={handleSetReminder}
+                                className={`flex-1 py-3 rounded-2xl border-2 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${reminded ? 'bg-blue-100 border-blue-200 text-blue-700' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-50'}`}
+                            >
+                                <RefreshCw size={14} className={reminded ? 'animate-spin' : ''} />
+                                Remind
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Domain Migration Tool */}
+                <div className="space-y-4 p-8 bg-slate-100 dark:bg-slate-800 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 relative overflow-hidden group">
+                    <div className="flex items-center gap-3 text-slate-600 dark:text-slate-300">
+                        <RefreshCw size={24} />
+                        <h4 className="text-lg font-black uppercase tracking-tight">Domain Shift</h4>
+                    </div>
+                    <p className="text-xs text-slate-500 font-bold leading-relaxed">Moving the app this week? Notify your leads so they don't get 404 errors.</p>
+                    <div className="pt-2">
                         <button 
-                            onClick={handleNotifyMe}
-                            className={`w-full py-3 rounded-2xl border-2 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${notified ? 'bg-green-100 border-green-200 text-green-700' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500'}`}
+                            onClick={handleCopyMigrationEmail}
+                            className="w-full py-4 bg-slate-950 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all"
                         >
-                            {notified ? <CheckCircle2 size={14} /> : <BellRing size={14} />}
-                            {notified ? 'Outreach Tracked' : 'Notify Me of Replies'}
+                            <Mail size={16} /> Migration Notice
                         </button>
                     </div>
                 </div>
 
-                {/* TikTok Bio Vault */}
+                {/* Social Bio Vault */}
                 <div className="space-y-4 p-8 bg-slate-950 text-white rounded-[2rem] border-2 border-slate-800 shadow-2xl relative overflow-hidden group">
                     <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
                         <Camera size={60} />
@@ -84,30 +122,13 @@ const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowT
                         <Sparkles size={24} />
                         <h4 className="text-lg font-black uppercase tracking-tight">Social Bio Lab</h4>
                     </div>
-                    <p className="text-xs text-slate-400 font-bold leading-relaxed">Viral conversion bios for TikTok and LinkedIn stories.</p>
+                    <p className="text-xs text-slate-400 font-bold leading-relaxed">Viral conversion bios optimized for 2026 reach.</p>
                     <div className="pt-2">
                         <button 
                             onClick={handleCopyTikTokBio}
                             className="w-full py-4 bg-amber-500 hover:bg-amber-600 text-slate-900 rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all"
                         >
                             <Copy size={16} /> Copy TikTok Bio
-                        </button>
-                    </div>
-                </div>
-
-                {/* Whop Global Bio */}
-                <div className="space-y-4 p-8 bg-white dark:bg-slate-900 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800 shadow-sm group">
-                    <div className="flex items-center gap-3 text-emerald-600">
-                        <Briefcase size={24} />
-                        <h4 className="text-lg font-black uppercase tracking-tight">Storefront SEO</h4>
-                    </div>
-                    <p className="text-xs text-slate-500 font-bold leading-relaxed">High-converting description for your Whop marketplace.</p>
-                    <div className="pt-2">
-                        <button 
-                            onClick={handleCopyWhopDescription}
-                            className="w-full py-4 bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 dark:hover:bg-emerald-700 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all"
-                        >
-                            <Copy size={16} /> Copy Whop Bio
                         </button>
                     </div>
                 </div>
