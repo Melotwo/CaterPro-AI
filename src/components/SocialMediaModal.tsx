@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Image as ImageIcon, Check, RefreshCw, Linkedin, Twitter, MessageCircle, Send, Film, Play, Zap, GraduationCap, ArrowRight, Loader2, Mail, Pin, Sparkles, Mic2, Layout, Video, ShieldCheck, Sparkle, Target, MessageSquareQuote, Smartphone, Camera, Facebook, Download, AlertTriangle, Key, Info } from 'lucide-react';
+import { X, Copy, Image as ImageIcon, Check, RefreshCw, Linkedin, Twitter, MessageCircle, Send, Film, Play, Zap, GraduationCap, ArrowRight, Loader2, Mail, Pin, Sparkles, Mic2, Layout, Video, ShieldCheck, Sparkle, Target, MessageSquareQuote, Smartphone, Camera, Facebook, Download, AlertTriangle, Key, Info, Activity } from 'lucide-react';
 import { generateSocialCaption, generateVideoFromApi, generateWhatsAppStatus, generateProvanceVSLScript, generateNewYearLaunchScript } from '../services/geminiService';
 
-export type Mode = 'create' | 'pitch' | 'video' | 'podcast' | 'explainer' | 'provance' | 'newyear' | 'bait' | 'sniper' | 'status' | 'reel';
+export type Mode = 'create' | 'pitch' | 'video' | 'podcast' | 'explainer' | 'provance' | 'newyear' | 'bait' | 'sniper' | 'status' | 'reel' | 'formula';
 
 interface SocialMediaModalProps {
   isOpen: boolean;
@@ -66,7 +66,6 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
     if (window.aistudio?.openSelectKey) {
         await window.aistudio.openSelectKey();
         setNeedsApiKey(false);
-        // We assume success after the dialog opens per requirements
         handleGenerate();
     }
   };
@@ -103,6 +102,10 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
       } else if (activeMode === 'newyear') {
         const script = await generateNewYearLaunchScript(menuTitle, menuDescription);
         setEditedContent(script);
+      } else if (activeMode === 'formula') {
+        // Simple formula prompt based on the 4-step video strategy
+        const formulaScript = `[HOOK]\n"Stop wasting time on ${menuTitle} admin. I'll show you why."\n\n[VALUE]\n"I built an AI that generates full catering proposals like this in 30 seconds." (Show screen)\n\n[PROOF]\n"It's saved me 15 hours of typing this week. 100% accurate, professional results."\n\n[OFFER]\n"Comment 'CHEF' below and I'll send you the link to use it for free. 2026 is here."`;
+        setEditedContent(formulaScript);
       }
     } catch (e: any) {
       if (e.message?.includes("Requested entity was not found") || e.message?.includes("API key")) {
@@ -136,6 +139,9 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
         <div className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 p-3 flex gap-2 overflow-x-auto no-scrollbar">
             <button onClick={() => {setActiveMode('reel'); setVideoBlobUrl(null); setNeedsApiKey(false);}} className={`px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'reel' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
                 <Video size={16} /> Viral Video Reel
+            </button>
+            <button onClick={() => {setActiveMode('formula'); handleGenerate();}} className={`px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'formula' ? 'bg-red-600 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
+                <Activity size={16} /> 4-Step Formula
             </button>
             <button onClick={() => {setActiveMode('create'); handleGenerate('facebook');}} className={`px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'create' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
                 <MessageSquareQuote size={16} /> Marketing Captions
@@ -175,7 +181,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                         className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
                     >
                         {isGenerating ? <Loader2 className="animate-spin" size={20} /> : <RefreshCw size={20} />}
-                        {isGenerating ? 'Architecting Media...' : (videoBlobUrl ? 'Re-Generate' : 'Render Viral Reel')}
+                        {isGenerating ? 'Architecting Media...' : (videoBlobUrl || editedContent ? 'Re-Generate' : 'Render Viral Asset')}
                     </button>
                 </div>
             </div>
@@ -198,15 +204,12 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                         >
                             Select Your Key <ArrowRight size={18} />
                         </button>
-                        <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" className="mt-8 text-xs text-slate-400 hover:text-indigo-500 font-bold underline flex items-center gap-1.5">
-                            <Info size={14} /> Billing Documentation
-                        </a>
                     </div>
                 )}
 
                 <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
                     <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
-                        {activeMode === 'reel' ? 'Studio Preview' : 'Draft Editor'}
+                        {activeMode === 'reel' ? 'Studio Preview' : 'Strategy Editor'}
                     </h4>
                 </div>
 
@@ -272,7 +275,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                             className="w-full py-5 bg-slate-950 text-white rounded-2xl font-black shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
                         >
                             {copiedText ? <Check size={20} className="text-green-400" /> : <Copy size={20} />} 
-                            {copiedText ? 'Copied Successfully!' : 'Copy to Social Media'}
+                            {copiedText ? 'Copied Successfully!' : 'Copy Strategy Script'}
                         </button>
                     )}
                 </div>
