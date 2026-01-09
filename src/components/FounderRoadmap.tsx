@@ -1,94 +1,84 @@
 
 import React, { useState } from 'react';
-import { CheckCircle2, Zap, Trophy, Smartphone, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket } from 'lucide-react';
+import { CheckCircle2, Zap, Trophy, Smartphone, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp } from 'lucide-react';
 
 interface FounderRoadmapProps {
   whopUrl: string;
 }
 
 const dailyTasks = [
-  { id: 'quickstart-apply', label: 'Win the Game: Apply to QuickStart PM', highPriority: true },
-  { id: 'hotsourced-apply', label: 'Apply to hotsourced (Founder Associate)', highPriority: false },
+  { id: 'gattaca-apply', label: 'Close the Deal: Apply to Gattaca Holdings', highPriority: true },
+  { id: 'quickstart-apply', label: 'Apply to QuickStart PM', highPriority: false },
+  { id: 'video-strategy', label: 'Film Step 1-4 Content Sequence', highPriority: true },
   { id: 'domain-setup', label: 'Secure Business Domain (Neo.space)', highPriority: true },
-  { id: 'demo-video', label: 'Record 60s Demo showing "Product Roadmap"', highPriority: true },
   { id: 'whop-post-1', label: 'Publish First Whop Post (DONE! 🤙🏿)', initialDone: true },
 ];
 
 const jobSniperTemplates = [
   {
-    id: 'quickstart-pitch',
-    title: "QuickStart PM Pitch",
-    description: "Tailored with PRAISE values & 'Win the Game' philosophy.",
-    text: `Dear QuickStart Hiring Team,
+    id: 'real-estate-closer',
+    title: "Gattaca Real Estate Pitch",
+    description: "Tailored with your property conversion story.",
+    text: `Dear Gattaca Holdings Hiring Team,
 
-I am applying for the Product Manager role. My philosophy aligns perfectly with yours: I don't just want to 'Stay in the game'—I have spent my career building systems to 'Win' and 'Change' the game.
+I am applying for the Real Estate Sales Closer role because I don't just talk about real estate—I live it.
 
-I am a Product Leader with 15 years of operational experience and a Google-certified 100% proficiency in AI Productivity. I recently architected and launched CaterPro AI—a workforce readiness platform for culinary professionals that automates the 'chaos' of admin into a high-margin product system.
+While working internationally with Disney Cruise Line, I took over a distressed family property in a South African township. It was a 2-room home burdened with debt. Through discipline and strategic planning, I didn't just pay off the debt—I architected and built an additional 10 rooms to create a 12-unit rental system for students and contractors.
 
-At QuickStart, you value PRAISE (Passion, Respect, Accountability, Innovation, Speed, Execution). My build of CaterPro AI from scratch (Roadmap -> Tech Integration -> Whop Deployment) is a direct demonstration of 'Innovation, Speed, and Execution.' I understand how to manage a product lifecycle because I am currently living it as a founder.
+I taught myself how to manage tenants, handle commercial logistics, and maximize asset yield. This experience, combined with my high-pressure international operations background, makes me uniquely qualified to handle acquisition conversations with US homeowners. I understand that real estate is about more than just houses; it's about solving problems and securing futures.
 
-I am ready to bring this 'Systems over Chaos' mindset to help QuickStart redefine the future of IT workforce development.
+I am ready to bring my 'Systems over Chaos' mindset and my proven negotiation skills to your US-aligned shift (3 PM - 2 AM SAST).
 
 Best regards,
 Tumi Seroka`
   },
   {
-    id: 'hotsourced-cover',
-    title: "hotsourced Cover Letter",
-    description: "Tailored for the Founder Associate role.",
-    text: `Dear hotsourced Team,
-
-I am applying for the Founder’s Commercial Associate role because I have spent my career solving exactly what your CEO needs: replacing "chaos with systems."
-
-As an operations specialist with 15 years of international experience (including 4 years scaling high-volume operations with Disney Cruise Line), I thrive in high-stakes environments. Recently, I achieved a 100% grade in Google’s 'Advanced AI Productivity' certification and applied those skills to build CaterPro AI—a full-stack system designed to buy back time for catering professionals.
-
-I don’t just manage tasks; I build the systems that ensure the tasks never become chaos again. I am technologically proficient, bias-toward-action, and ready to help hotsourced scale its international operational footprint.
-
-Best regards,
-Tumelo (Tumi) Seroka`
+    id: 'quickstart-pitch',
+    title: "QuickStart PM Pitch",
+    description: "Tailored with PRAISE values.",
+    text: `Dear QuickStart Hiring Team... [See CV Tab for Full Profile]`
   }
 ];
 
-const commercialCV = `TUMELO HANNES SEROKA
+const realEstateCV = `TUMELO HANNES SEROKA
 +27 679 461 487 | turoka15@gmail.com
 Mokopane, South Africa (Remote Ready)
 
-PRODUCT LEADER & SYSTEMS ARCHITECT
-Specializing in AI Product Roadmaps | Google Certified AI Productivity (100% Grade)
+REAL ESTATE SALES CLOSER & ASSET OPERATOR
+Specializing in Distressed Asset Pivot | International Client Communications
 
 PROFESSIONAL SUMMARY
-Entrepreneurial Product Manager with 15+ years of international operational experience. Expert at taking products from "Chaos to Systems." Founder of CaterPro AI, where I personally managed the full product lifecycle: from AI strategy (Gemini API) and roadmap development to commercial deployment and revenue growth. Proven track record in high-volume, high-stakes environments (Disney Cruise Line) where speed and execution are critical.
+Results-driven Sales and Operations professional with 15+ years of international experience. Proven track record in "Closing" complex situations: notably pivoting a 2-room high-debt residential property into a 12-unit income-generating student housing system. Expert in high-stakes communication (Disney Cruise Line) and AI-driven workflow optimization. Committed to the 3PM-2AM SAST shift for US market alignment.
 
 CORE COMPETENCIES
-• Product Strategy: Roadmap Design, Feature Prioritization, Lifecycle Management.
-• AI Integration: Advanced LLM Prompt Engineering, Gemini/GPT-4o Deployment.
-• Commercial: Margin Optimization, B2B/B2C Sales Funnels, Market Research.
-• Leadership: PRAISE-aligned Execution (Passion, Accountability, Innovation, Speed).
+• Real Estate: Asset Management, Property Scaling, Yield Optimization.
+• Sales: Closing, Negotiation, Conflict Resolution, High-Intent Scripting.
+• Communication: International Stakeholder Management, US-aligned English Proficiency.
+• Tech: AI Productivity (100% Google Certified), CRM Management.
 
 KEY EXPERIENCE
 
-FOUNDER & PRODUCT OWNER | CaterPro AI 
-South Africa | Dec 2024 – Present
-• Visionary/Leader for an AI-powered workforce readiness platform for culinary professionals.
-• Executed full product roadmap: integrated Gemini 2.5 API for automated culinary costing and marketing.
-• Managed eCommerce deployment via Whop and PayPal, focusing on B2B revenue growth and margin protection.
-• Built "Systems over Chaos" workflows that reduced user administrative overhead by 80%.
+ASSET MANAGER | Residential Rental Portfolio
+South Africa | 2015 – Present
+• Orchestrated the commercial expansion of a township property from 2 rooms to 12 rooms.
+• Managed the total liquidation of utility debt through strategic financial planning.
+• Successfully marketed and closed monthly rental agreements with contractors and students, maintaining 90%+ occupancy.
+• Developed local sourcing systems for maintenance and construction, reducing overhead by 30%.
 
-PRODUCT OPERATIONS | Disney Cruise Line
+COMMERCIAL OPERATIONS | Disney Cruise Line
 International | Feb 2011 – July 2015
-• Directed high-volume international operations, ensuring product quality and service execution in a 24/7 environment.
-• Optimized operational "margins" by managing complex logistics and supply chain workflows across global regions.
-• Collaborated across cross-functional teams (hospitality, logistics, safety) to deliver 5-star product experiences.
+• Managed high-volume client relations in a 5-star international environment.
+• Navigated complex, fast-paced commercial scenarios where clear communication was vital for safety and satisfaction.
+• Represented a global brand with strict adherence to quality and performance metrics.
 
 EDUCATION & CERTIFICATIONS
 • CERTIFICATE: Maximize Productivity with AI Tools (100% Final Grade) | Google | 2024
 • DIPLOMA: Culinary Arts | Prue Leith College of Food and Wine | 2007
 
 TECHNICAL SKILLS
-• Product Management: Agile Roadmapping, KPI Tracking, CRM (Klaviyo).
-• AI/Tech: LLM Architecture, GitHub Deployment, React/Tailwind UI.
+• Advanced Prompt Engineering, Real Estate CRM Workflows, Remote Sales Tooling.
 
-Available for immediate remote placement as a Product/Systems Leader.`;
+Available for immediate placement in the US-Hours Shift.`;
 
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
   const [activeTab, setActiveTab] = useState<'growth' | 'sniper' | 'cv'>('growth');
@@ -112,9 +102,9 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h2 className="text-3xl font-black flex items-center gap-3">
-              <Zap className="text-amber-400 fill-amber-400" /> Founder Control
+              <Home className="text-primary-500" /> Closing Control
             </h2>
-            <p className="text-slate-400 text-xs mt-2 font-bold uppercase tracking-widest">Target: Financial Independence</p>
+            <p className="text-slate-400 text-xs mt-2 font-bold uppercase tracking-widest">Active Target: Real Estate Acquisitions</p>
           </div>
           
           <div className="flex bg-slate-900 p-1.5 rounded-2xl border border-slate-800 overflow-x-auto no-scrollbar">
@@ -122,7 +112,7 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                 <Trophy size={14} /> Mission
             </button>
             <button onClick={() => setActiveTab('cv')} className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'cv' ? 'bg-amber-500 text-white shadow-lg' : 'text-slate-500'}`}>
-                <FileUser size={14} /> Product CV
+                <FileUser size={14} /> Closer CV
             </button>
             <button onClick={() => setActiveTab('sniper')} className={`px-5 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center gap-2 whitespace-nowrap ${activeTab === 'sniper' ? 'bg-primary-600 text-white shadow-lg' : 'text-slate-500'}`}>
                 <Crosshair size={14} /> Job Sniper
@@ -152,10 +142,10 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                 <div className="bg-primary-50/50 dark:bg-primary-900/10 p-8 rounded-[2rem] border-2 border-dashed border-primary-200 dark:border-primary-800 flex flex-col justify-center items-center text-center">
                     <Quote className="text-primary-600 mb-4 opacity-30" />
                     <p className="text-lg font-black text-slate-800 dark:text-white leading-tight mb-4">
-                        "I don't just 'Stay in the game.' I build systems to 'Win' and 'Change' the game."
+                        "Real Estate isn't about property. It's about solving the debt and chaos for the homeowner."
                     </p>
                     <button onClick={() => setActiveTab('sniper')} className="px-6 py-3 bg-slate-950 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                        Win the Game <Rocket size={14} />
+                        Get the Script <ArrowRight size={14} />
                     </button>
                 </div>
             </div>
@@ -165,13 +155,13 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
         {activeTab === 'cv' && (
             <div className="animate-fade-in space-y-6">
                 <div className="flex justify-between items-center">
-                    <h4 className="text-xl font-black uppercase">Product Manager CV</h4>
-                    <button onClick={() => copyToClipboard(commercialCV, "CV")} className="px-4 py-2 bg-slate-950 text-white rounded-xl text-xs font-black uppercase flex items-center gap-2">
-                        <Copy size={14} /> Copy Full CV
+                    <h4 className="text-xl font-black uppercase">Real Estate Sales CV</h4>
+                    <button onClick={() => copyToClipboard(realEstateCV, "CV")} className="px-4 py-2 bg-slate-950 text-white rounded-xl text-xs font-black uppercase flex items-center gap-2">
+                        <Copy size={14} /> Copy CV
                     </button>
                 </div>
                 <div className="p-8 bg-slate-50 dark:bg-slate-800 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 max-h-[500px] overflow-y-auto font-mono text-xs leading-relaxed">
-                    {commercialCV}
+                    {realEstateCV}
                 </div>
             </div>
         )}
