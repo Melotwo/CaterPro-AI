@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { BookOpen, Copy, Zap, CheckCircle2, Sparkles, Award, GraduationCap, Share2, Scale, MessageSquare, Phone, ShieldCheck, Info, Anchor, CreditCard, Mail, User, Globe, Users, Briefcase, Send, Camera, Building2, BellRing, RefreshCw } from 'lucide-react';
+import { BookOpen, Copy, Zap, CheckCircle2, Sparkles, Award, GraduationCap, Share2, Scale, MessageSquare, Phone, ShieldCheck, Info, Anchor, CreditCard, Mail, User, Globe, Users, Briefcase, Send, Camera, Building2, BellRing, RefreshCw, Play, PlayCircle, Layers, MousePointer2 } from 'lucide-react';
 
 const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowToast }) => {
   const [notified, setNotified] = useState(false);
@@ -18,16 +18,16 @@ const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowT
     onShowToast("Academy Pitch Copied!");
   };
 
+  const handleCopyLeadMagnetHook = () => {
+    const text = `I just used AI to write a 5-course Wedding Proposal in 30 seconds (with a full shopping list). 🤯\n\nIf you want the exact system I used to save 4 hours of admin today, comment "CHEF" below and I'll send you the link for free.`;
+    navigator.clipboard.writeText(text);
+    onShowToast("Lead Magnet Hook Copied!");
+  };
+
   const handleCopyMigrationEmail = () => {
     const text = `Subject: IMPORTANT: CaterPro AI is Moving to a New Home 🏠\n\nHi there,\n\nWe are upgrading our infrastructure to serve you better. CaterPro AI is moving to our new professional domain this week.\n\nUpdate your bookmarks to: [NEW_DOMAIN_HERE]\n\nAll your saved menus and history will remain safe. See you in the kitchen!\n\nTumi | Founder`;
     navigator.clipboard.writeText(text);
     onShowToast("Migration Email Copied!");
-  };
-
-  const handleCopyWhopDescription = () => {
-    const text = `The AI Secret Weapon for Chefs & Culinary Students. We automate professional menu planning and precise local currency food costing. Built by an international chef. Join the kitchen of the future.`;
-    navigator.clipboard.writeText(text);
-    onShowToast("Whop Bio Copied!");
   };
 
   const handleNotifyMe = () => {
@@ -58,6 +58,32 @@ const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowT
             </div>
         </div>
 
+        {/* New 4-Step Strategy Breakdown from YouTube Link */}
+        <div className="p-8 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
+            <div className="flex items-center gap-3 mb-6">
+                <PlayCircle className="text-red-500" />
+                <h4 className="text-sm font-black uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">The 4-Step Viral Formula (Implementation)</h4>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <span className="text-[10px] font-black text-red-500 uppercase">Step 1: The Hook</span>
+                    <p className="text-xs font-bold text-slate-700 dark:text-slate-200 mt-2">"Stop typing catering proposals. It's 2026."</p>
+                </div>
+                <div className="p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <span className="text-[10px] font-black text-blue-500 uppercase">Step 2: The Value</span>
+                    <p className="text-xs font-bold text-slate-700 dark:text-slate-200 mt-2">Show the screen generating a 100-guest menu instantly.</p>
+                </div>
+                <div className="p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <span className="text-[10px] font-black text-emerald-500 uppercase">Step 3: The Proof</span>
+                    <p className="text-xs font-bold text-slate-700 dark:text-slate-200 mt-2">"I saved 15 hours this week using CaterPro AI."</p>
+                </div>
+                <div className="p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                    <span className="text-[10px] font-black text-amber-500 uppercase">Step 4: The Ask</span>
+                    <p className="text-xs font-bold text-slate-700 dark:text-slate-200 mt-2">"Comment 'CHEF' for the free tool link."</p>
+                </div>
+            </div>
+        </div>
+
         <div className="p-8">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {/* Specific Academy Outreach */}
@@ -80,14 +106,14 @@ const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowT
                         <div className="flex gap-2">
                             <button 
                                 onClick={handleNotifyMe}
-                                className={`flex-1 py-3 rounded-2xl border-2 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${notified ? 'bg-green-100 border-green-200 text-green-700' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-50'}`}
+                                className={`flex-1 py-3 rounded-2xl border-2 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${notified ? 'bg-green-100 border-green-200 text-green-700' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500'}`}
                             >
                                 {notified ? <CheckCircle2 size={14} /> : <BellRing size={14} />}
                                 Track
                             </button>
                             <button 
                                 onClick={handleSetReminder}
-                                className={`flex-1 py-3 rounded-2xl border-2 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${reminded ? 'bg-blue-100 border-blue-200 text-blue-700' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-50'}`}
+                                className={`flex-1 py-3 rounded-2xl border-2 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${reminded ? 'bg-blue-100 border-blue-200 text-blue-700' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500'}`}
                             >
                                 <RefreshCw size={14} className={reminded ? 'animate-spin' : ''} />
                                 Remind
@@ -96,19 +122,19 @@ const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowT
                     </div>
                 </div>
 
-                {/* Domain Migration Tool */}
+                {/* Lead Magnet Tool (Video Implementation) */}
                 <div className="space-y-4 p-8 bg-slate-100 dark:bg-slate-800 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 relative overflow-hidden group">
-                    <div className="flex items-center gap-3 text-slate-600 dark:text-slate-300">
-                        <RefreshCw size={24} />
-                        <h4 className="text-lg font-black uppercase tracking-tight">Domain Shift</h4>
+                    <div className="flex items-center gap-3 text-red-600 dark:text-red-400">
+                        <MousePointer2 size={24} />
+                        <h4 className="text-lg font-black uppercase tracking-tight">Lead Magnet Bait</h4>
                     </div>
-                    <p className="text-xs text-slate-500 font-bold leading-relaxed">Moving the app this week? Notify your leads so they don't get 404 errors.</p>
+                    <p className="text-xs text-slate-500 font-bold leading-relaxed">The "Comment CHEF" bait from the 4-step strategy. Use this as your video caption.</p>
                     <div className="pt-2">
                         <button 
-                            onClick={handleCopyMigrationEmail}
-                            className="w-full py-4 bg-slate-950 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all"
+                            onClick={handleCopyLeadMagnetHook}
+                            className="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all"
                         >
-                            <Mail size={16} /> Migration Notice
+                            <Copy size={16} /> Copy Video Hook
                         </button>
                     </div>
                 </div>
