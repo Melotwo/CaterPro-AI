@@ -19,13 +19,17 @@ html {
   scrollbar-color: rgba(156, 163, 175, 0.5) var(--slate-50);
   -webkit-overflow-scrolling: touch;
   height: 100%;
+  height: -webkit-fill-available;
 }
 
 body {
   @apply bg-slate-50;
   background-image: radial-gradient(rgba(4, 120, 87, 0.03) 1px, transparent 0);
   background-size: 24px 24px;
-  min-height: 100%;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
   padding-bottom: env(safe-area-inset-bottom);
 }
 
@@ -34,31 +38,41 @@ body {
   background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0);
 }
 
-/* NotebookLM-style Premium Cards */
+@layer base {
+  h1 { @apply text-balance; }
+  p { @apply text-pretty; }
+}
+
+/* Premium Component Styling */
 .strategy-card {
   @apply bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-[2rem] shadow-xl transition-all duration-300;
 }
 
-.strategy-card:hover {
-  @apply border-primary-500/30 shadow-primary-500/5;
-}
-
-/* iPad Responsive Grid Fix */
-@media (min-width: 768px) and (max-width: 1024px) {
+/* iPad/Tablet Specific Polish - IMPORTANT FOR THE USER */
+@media (min-width: 768px) {
   .main-grid {
-    @apply grid-cols-2 gap-6;
+    @apply grid-cols-2 gap-8;
   }
   .full-width-tablet {
     @apply col-span-2;
   }
+  .container-padding {
+    @apply px-8;
+  }
+}
+
+@media (max-width: 1024px) {
+    .hide-tablet {
+        display: none;
+    }
+    .text-7xl {
+        @apply text-5xl;
+    }
 }
 
 .action-button {
     @apply inline-flex items-center justify-center px-4 py-2.5 text-sm font-bold text-slate-700 dark:text-slate-300 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm transition-all active:scale-95;
 }
-
-.safe-p-top { padding-top: env(safe-area-inset-top); }
-.safe-p-bottom { padding-bottom: env(safe-area-inset-bottom); }
 
 @keyframes slideIn {
   from { opacity: 0; transform: translateY(10px); }
@@ -67,4 +81,14 @@ body {
 
 .animate-slide-in {
   animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 dark:bg-slate-700 rounded-full;
 }
