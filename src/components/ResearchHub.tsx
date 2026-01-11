@@ -1,15 +1,33 @@
 
 import React, { useState } from 'react';
-import { BookOpen, Copy, Zap, CheckCircle2, Sparkles, Award, GraduationCap, Share2, Scale, MessageSquare, Phone, ShieldCheck, Info, Anchor, CreditCard, Mail, User, Globe, Users, Briefcase, Send, Camera, Building2, BellRing, RefreshCw, Play, PlayCircle, Layers, MousePointer2 } from 'lucide-react';
+import { BookOpen, Copy, Zap, CheckCircle2, Sparkles, Award, GraduationCap, Share2, Scale, MessageSquare, Phone, ShieldCheck, Info, Anchor, CreditCard, Mail, User, Globe, Users, Briefcase, Send, Camera, Building2, BellRing, RefreshCw, Play, PlayCircle, Layers, MousePointer2, Image as ImageIcon, Download, Loader2 } from 'lucide-react';
+import { generateCulinaryInfographic } from '../services/geminiService';
 
 const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowToast }) => {
   const [notified, setNotified] = useState(false);
   const [reminded, setReminded] = useState(false);
+  const [isGeneratingSheet, setIsGeneratingSheet] = useState(false);
+  const [generatedSheet, setGeneratedSheet] = useState<string | null>(null);
   
   const handleCopyTikTokBio = () => {
     const text = `Chef Tumi | AI for Chefs 🔪\nHelping Culinary Students crush their PoE paperwork.\nStop typing. Start cooking. 2026 is here.\nFree Menu Generator below 👇`;
     navigator.clipboard.writeText(text);
     onShowToast("TikTok Bio Copied!");
+  };
+
+  const handleGenerateInfographic = async (type: 'comparison' | 'meat_chart') => {
+      setIsGeneratingSheet(true);
+      setGeneratedSheet(null);
+      try {
+          const base64 = await generateCulinaryInfographic(type);
+          setGeneratedSheet(base64);
+          onShowToast("Cheat Sheet Rendered!");
+      } catch (err) {
+          console.error(err);
+          onShowToast("Render failed. Try again.");
+      } finally {
+          setIsGeneratingSheet(false);
+      }
   };
 
   const handleCopyAcademyPitch = () => {
@@ -24,20 +42,9 @@ const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowT
     onShowToast("Lead Magnet Hook Copied!");
   };
 
-  const handleCopyMigrationEmail = () => {
-    const text = `Subject: IMPORTANT: CaterPro AI is Moving to a New Home 🏠\n\nHi there,\n\nWe are upgrading our infrastructure to serve you better. CaterPro AI is moving to our new professional domain this week.\n\nUpdate your bookmarks to: [NEW_DOMAIN_HERE]\n\nAll your saved menus and history will remain safe. See you in the kitchen!\n\nTumi | Founder`;
-    navigator.clipboard.writeText(text);
-    onShowToast("Migration Email Copied!");
-  };
-
   const handleNotifyMe = () => {
       setNotified(true);
-      onShowToast("Tracking Francois Ferreira Outreach...");
-  };
-
-  const handleSetReminder = () => {
-      setReminded(true);
-      onShowToast("Reminder set for 48-hour follow-up.");
+      onShowToast("Tracking outreach...");
   };
 
   return (
@@ -58,11 +65,11 @@ const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowT
             </div>
         </div>
 
-        {/* New 4-Step Strategy Breakdown from YouTube Link */}
+        {/* 4-Step Strategy Breakdown */}
         <div className="p-8 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
             <div className="flex items-center gap-3 mb-6">
                 <PlayCircle className="text-red-500" />
-                <h4 className="text-sm font-black uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">The 4-Step Viral Formula (Implementation)</h4>
+                <h4 className="text-sm font-black uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">The 4-Step Viral Formula</h4>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
@@ -84,13 +91,75 @@ const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowT
             </div>
         </div>
 
+        {/* --- NEW: SOCIAL CHEAT SHEET STUDIO --- */}
+        <div className="p-8 border-b border-slate-100 dark:border-slate-800">
+            <div className="flex items-center gap-3 mb-6">
+                <Camera className="text-indigo-500" />
+                <h4 className="text-sm font-black uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">Social Cheat Sheet Studio</h4>
+            </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                    <p className="text-xs text-slate-500 font-bold leading-relaxed">
+                        Generate educational charts for TikTok and Instagram to build authority. Based on your references.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-3">
+                        <button 
+                            onClick={() => handleGenerateInfographic('comparison')}
+                            disabled={isGeneratingSheet}
+                            className="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all disabled:opacity-50"
+                        >
+                            {isGeneratingSheet ? <Loader2 size={16} className="animate-spin" /> : <Layers size={16} />}
+                            Chef vs Cook Card
+                        </button>
+                        <button 
+                            onClick={() => handleGenerateInfographic('meat_chart')}
+                            disabled={isGeneratingSheet}
+                            className="flex-1 py-4 bg-primary-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all disabled:opacity-50"
+                        >
+                            {isGeneratingSheet ? <Loader2 size={16} className="animate-spin" /> : <ImageIcon size={16} />}
+                            Animal Meat Chart
+                        </button>
+                    </div>
+                </div>
+
+                <div className="relative aspect-[4/3] bg-slate-100 dark:bg-slate-800 rounded-[2rem] overflow-hidden border-4 border-dashed border-slate-200 dark:border-slate-700 flex items-center justify-center">
+                    {generatedSheet ? (
+                        <>
+                            <img src={`data:image/png;base64,${generatedSheet}`} alt="Generated Content" className="w-full h-full object-contain" />
+                            <div className="absolute bottom-4 right-4">
+                                <a 
+                                    href={`data:image/png;base64,${generatedSheet}`} 
+                                    download="CaterPro_CheatSheet.png"
+                                    className="p-3 bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/40 transition-all border border-white/20"
+                                >
+                                    <Download size={20} />
+                                </a>
+                            </div>
+                        </>
+                    ) : (
+                        <div className="text-center p-6">
+                            {isGeneratingSheet ? (
+                                <div className="space-y-3">
+                                    <Loader2 size={32} className="animate-spin text-indigo-500 mx-auto" />
+                                    <p className="text-[10px] font-black uppercase text-indigo-500 tracking-widest">Rendering Cinematic Visual...</p>
+                                </div>
+                            ) : (
+                                <>
+                                    <ImageIcon size={48} className="text-slate-300 mx-auto mb-4" />
+                                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest">Preview Your Social Asset</p>
+                                </>
+                            )}
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+
         <div className="p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
                 {/* Specific Academy Outreach */}
                 <div className="space-y-4 p-8 bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
-                        <Building2 size={60} />
-                    </div>
                     <div className="flex items-center gap-3 text-indigo-600 dark:text-indigo-400">
                         <GraduationCap size={24} />
                         <h4 className="text-lg font-black uppercase tracking-tight">Academy Outreach</h4>
@@ -103,58 +172,22 @@ const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowT
                         >
                             <Mail size={16} /> Send Pitch Email
                         </button>
-                        <div className="flex gap-2">
-                            <button 
-                                onClick={handleNotifyMe}
-                                className={`flex-1 py-3 rounded-2xl border-2 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${notified ? 'bg-green-100 border-green-200 text-green-700' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500'}`}
-                            >
-                                {notified ? <CheckCircle2 size={14} /> : <BellRing size={14} />}
-                                Track
-                            </button>
-                            <button 
-                                onClick={handleSetReminder}
-                                className={`flex-1 py-3 rounded-2xl border-2 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${reminded ? 'bg-blue-100 border-blue-200 text-blue-700' : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-500'}`}
-                            >
-                                <RefreshCw size={14} className={reminded ? 'animate-spin' : ''} />
-                                Remind
-                            </button>
-                        </div>
                     </div>
                 </div>
 
-                {/* Lead Magnet Tool (Video Implementation) */}
+                {/* Lead Magnet Tool */}
                 <div className="space-y-4 p-8 bg-slate-100 dark:bg-slate-800 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 relative overflow-hidden group">
                     <div className="flex items-center gap-3 text-red-600 dark:text-red-400">
                         <MousePointer2 size={24} />
                         <h4 className="text-lg font-black uppercase tracking-tight">Lead Magnet Bait</h4>
                     </div>
-                    <p className="text-xs text-slate-500 font-bold leading-relaxed">The "Comment CHEF" bait from the 4-step strategy. Use this as your video caption.</p>
+                    <p className="text-xs text-slate-500 font-bold leading-relaxed">The "Comment CHEF" bait. Use this as your video caption.</p>
                     <div className="pt-2">
                         <button 
                             onClick={handleCopyLeadMagnetHook}
                             className="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all"
                         >
                             <Copy size={16} /> Copy Video Hook
-                        </button>
-                    </div>
-                </div>
-
-                {/* Social Bio Vault */}
-                <div className="space-y-4 p-8 bg-slate-950 text-white rounded-[2rem] border-2 border-slate-800 shadow-2xl relative overflow-hidden group">
-                    <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                        <Camera size={60} />
-                    </div>
-                    <div className="flex items-center gap-3 text-amber-400">
-                        <Sparkles size={24} />
-                        <h4 className="text-lg font-black uppercase tracking-tight">Social Bio Lab</h4>
-                    </div>
-                    <p className="text-xs text-slate-400 font-bold leading-relaxed">Viral conversion bios optimized for 2026 reach.</p>
-                    <div className="pt-2">
-                        <button 
-                            onClick={handleCopyTikTokBio}
-                            className="w-full py-4 bg-amber-500 hover:bg-amber-600 text-slate-900 rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all"
-                        >
-                            <Copy size={16} /> Copy TikTok Bio
                         </button>
                     </div>
                 </div>
