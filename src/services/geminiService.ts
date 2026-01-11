@@ -213,6 +213,37 @@ export const generateMenuImageFromApi = async (title: string, description: strin
     throw new Error("No image.");
 };
 
+/**
+ * Specifically generates high-quality educational culinary infographics.
+ */
+export const generateCulinaryInfographic = async (type: 'comparison' | 'meat_chart'): Promise<string> => {
+    const ai = new GoogleGenAI({ apiKey: getApiKey() });
+    
+    let prompt = "";
+    if (type === 'comparison') {
+        prompt = "A high-quality educational vertical infographic poster titled 'CHEF vs COOK'. Vintage parchment texture. The left side shows a professional chef in a white toque and jacket with text bullets about 'Professional Training' and 'Kitchen Operations'. The right side shows a home cook in a simple apron with 'Practical Skills' and 'Recipe Execution'. Cinematic lighting, 4k detail, professional graphic design layout.";
+    } else {
+        prompt = "A high-resolution professional educational chart titled 'ANIMALS AND THEIR MEAT'. A clean grid-based infographic. Shows high-quality realistic animal photos (Cow, Pig, Sheep, Deer) on the left mapping to their corresponding raw meat cuts (Beef, Pork, Mutton, Venison) on the right. Professional studio food photography style, white background, scientific labels, ultra-detailed textures.";
+    }
+
+    const response = await ai.models.generateContent({
+        model: 'gemini-2.5-flash-image',
+        contents: {
+            parts: [{ text: prompt }],
+        },
+        config: {
+            imageConfig: {
+                aspectRatio: "3:4"
+            }
+        }
+    });
+    
+    for (const part of response.candidates[0].content.parts) {
+        if (part.inlineData) return part.inlineData.data;
+    }
+    throw new Error("Infographic generation failed.");
+};
+
 export const generateStudyGuideFromApi = async (topic: string, curriculum: string, level: string, type: 'guide' | 'curriculum'): Promise<EducationContent> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
   const prompt = `Generate a ${type} for topic: "${topic}". Standard: ${curriculum}. Level: ${level}. Return structured JSON.`;
