@@ -4,7 +4,8 @@ import { BookOpen, Copy, Zap, CheckCircle2, Sparkles, Award, GraduationCap, Shar
 import { generateCulinaryInfographic } from '../services/geminiService';
 
 const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowToast }) => {
-  const [activeTab, setActiveTab] = useState<'growth' | 'lifecycle'>('growth');
+  // Set 'lifecycle' as the default tab so the script is visible immediately
+  const [activeTab, setActiveTab] = useState<'growth' | 'lifecycle'>('lifecycle');
   const [isGeneratingSheet, setIsGeneratingSheet] = useState(false);
   const [generatedSheet, setGeneratedSheet] = useState<string | null>(null);
   const [isScriptModalOpen, setIsScriptModalOpen] = useState(false);
@@ -163,40 +164,40 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
                   <div className="max-w-md">
                       <div className="flex items-center gap-2 mb-2">
                           <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
-                          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500">Video Asset Strategy</span>
+                          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500">Active Campaign Script</span>
                       </div>
                       <h4 className="text-2xl font-black tracking-tight leading-none mb-2">Lifecycle Architect</h4>
-                      <p className="text-sm text-slate-500 font-medium leading-relaxed">Shift from "Service-Only" to "Lifecycle Mastery" using the Club Founder Analogy. Read your script below.</p>
+                      <p className="text-sm text-slate-500 font-medium leading-relaxed">Your "Club Founder" pitch script is ready for recording below.</p>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                     <button 
                         onClick={handleCopyLoomScript}
                         className="px-6 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all hover:bg-slate-200"
                     >
-                        <Copy size={14} /> Copy to Notes
+                        <Copy size={14} /> Copy Script
                     </button>
                     <button 
                         onClick={handleOpenScript}
                         className="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 transition-all active:scale-95"
                     >
-                        <Video size={18} /> Launch Teleprompter
+                        <Video size={18} /> Launch Full-Screen
                     </button>
                   </div>
               </div>
 
-              {/* NEW: INLINE SCRIPT PREVIEW - This is what the user asked for */}
-              <div className="p-8 bg-slate-50 dark:bg-slate-950/50 rounded-[2.5rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
-                  <div className="flex items-center gap-3 mb-6">
-                      <Book className="text-indigo-500" size={20} />
-                      <h5 className="text-sm font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">Storyboard Preview</h5>
+              {/* STORYBOARD PREVIEW - Simplified and expanded for iPad reading */}
+              <div className="p-8 bg-indigo-600 dark:bg-indigo-900 rounded-[2.5rem] shadow-2xl border-4 border-indigo-400/30">
+                  <div className="flex items-center gap-3 mb-8">
+                      <Book className="text-white" size={24} />
+                      <h5 className="text-lg font-black uppercase tracking-widest text-white">Loom Pitch Storyboard</h5>
                   </div>
-                  <div className="p-6 sm:p-10 bg-white dark:bg-slate-900 rounded-[2rem] shadow-inner border border-slate-100 dark:border-slate-800 max-h-[400px] overflow-y-auto custom-scrollbar">
-                      <p className="text-lg sm:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-200 italic whitespace-pre-wrap">
+                  <div className="p-8 sm:p-12 bg-white dark:bg-slate-900 rounded-[2rem] shadow-inner border border-white/20">
+                      <p className="text-xl sm:text-3xl font-bold leading-relaxed text-slate-800 dark:text-slate-100 italic whitespace-pre-wrap">
                           {loomScript}
                       </p>
                   </div>
-                  <div className="mt-6 flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                      <Sparkles size={12} className="text-indigo-400" /> Use this preview to practice your delivery
+                  <div className="mt-8 flex items-center justify-center gap-3 text-[11px] font-black text-indigo-100 uppercase tracking-[0.2em]">
+                      <Sparkles size={14} className="text-amber-400" /> Practice this delivery before hitting record
                   </div>
               </div>
 
@@ -242,32 +243,6 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
                               </li>
                           ))}
                       </ul>
-                  </div>
-              </div>
-
-              {/* Data-Driven Section */}
-              <div className="p-10 bg-slate-950 rounded-[3rem] border border-white/10 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none text-white"><Activity size={160} /></div>
-                  <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                      <div>
-                          <h5 className="text-2xl font-black text-white mb-4">Measure What Matters</h5>
-                          <p className="text-slate-400 text-sm leading-relaxed mb-8">Move beyond "hoping for the best." Use real-time data to refine your targeting and increase your club's yield.</p>
-                          <div className="grid grid-cols-2 gap-4">
-                              <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
-                                  <p className="text-[10px] font-black text-indigo-400 uppercase mb-1">Traffic Monitor</p>
-                                  <p className="text-lg font-black text-white">+124% Inquiries</p>
-                              </div>
-                              <div className="p-4 bg-white/5 rounded-2xl border border-white/10">
-                                  <p className="text-[10px] font-black text-emerald-400 uppercase mb-1">Engagement</p>
-                                  <p className="text-lg font-black text-white">4.2m Avg View</p>
-                              </div>
-                          </div>
-                      </div>
-                      <div className="p-8 bg-white/5 rounded-[2.5rem] border-2 border-dashed border-white/10 flex flex-col items-center justify-center text-center">
-                          <Zap size={48} className="text-amber-500 mb-4 animate-pulse" />
-                          <h6 className="text-white font-black uppercase tracking-widest text-sm mb-2">Systems Over Chaos</h6>
-                          <p className="text-slate-500 text-xs">Automate your Lifecycle to grow while you cook.</p>
-                      </div>
                   </div>
               </div>
           </div>
