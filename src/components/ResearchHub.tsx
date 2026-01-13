@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { BookOpen, Copy, Zap, CheckCircle2, Sparkles, Award, GraduationCap, Share2, Scale, MessageSquare, Phone, ShieldCheck, Info, Anchor, CreditCard, Mail, User, Globe, Users, Briefcase, Send, Camera, Building2, BellRing, RefreshCw, Play, PlayCircle, Layers, MousePointer2, Image as ImageIcon, Download, Loader2, ListTree, Activity, MessageSquareQuote, ChevronRight, Video, Search, TrendingUp, X, Mic2, ArrowRight } from 'lucide-react';
+import { BookOpen, Copy, Zap, CheckCircle2, Sparkles, Award, GraduationCap, Share2, Scale, MessageSquare, Phone, ShieldCheck, Info, Anchor, CreditCard, Mail, User, Globe, Users, Briefcase, Send, Camera, Building2, BellRing, RefreshCw, Play, PlayCircle, Layers, MousePointer2, Image as ImageIcon, Download, Loader2, ListTree, Activity, MessageSquareQuote, ChevronRight, Video, Search, TrendingUp, X, Mic2, ArrowRight, Book } from 'lucide-react';
 import { generateCulinaryInfographic } from '../services/geminiService';
 
 const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowToast }) => {
@@ -159,17 +159,45 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
         ) : (
           <div className="p-8 animate-fade-in space-y-8">
               {/* Lifecycle Architect Header */}
-              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+              <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 border-b border-slate-100 dark:border-slate-800 pb-8">
                   <div className="max-w-md">
+                      <div className="flex items-center gap-2 mb-2">
+                          <div className="w-2 h-2 rounded-full bg-indigo-500"></div>
+                          <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500">Video Asset Strategy</span>
+                      </div>
                       <h4 className="text-2xl font-black tracking-tight leading-none mb-2">Lifecycle Architect</h4>
-                      <p className="text-sm text-slate-500 font-medium">Shift from "Service-Only" to "Lifecycle Mastery" using the Club Founder Analogy.</p>
+                      <p className="text-sm text-slate-500 font-medium leading-relaxed">Shift from "Service-Only" to "Lifecycle Mastery" using the Club Founder Analogy. Read your script below.</p>
                   </div>
-                  <button 
-                    onClick={handleOpenScript}
-                    className="px-8 py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center gap-3 transition-all active:scale-95"
-                  >
-                      <Video size={18} /> Launch Teleprompter
-                  </button>
+                  <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                    <button 
+                        onClick={handleCopyLoomScript}
+                        className="px-6 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all hover:bg-slate-200"
+                    >
+                        <Copy size={14} /> Copy to Notes
+                    </button>
+                    <button 
+                        onClick={handleOpenScript}
+                        className="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 transition-all active:scale-95"
+                    >
+                        <Video size={18} /> Launch Teleprompter
+                    </button>
+                  </div>
+              </div>
+
+              {/* NEW: INLINE SCRIPT PREVIEW - This is what the user asked for */}
+              <div className="p-8 bg-slate-50 dark:bg-slate-950/50 rounded-[2.5rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
+                  <div className="flex items-center gap-3 mb-6">
+                      <Book className="text-indigo-500" size={20} />
+                      <h5 className="text-sm font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">Storyboard Preview</h5>
+                  </div>
+                  <div className="p-6 sm:p-10 bg-white dark:bg-slate-900 rounded-[2rem] shadow-inner border border-slate-100 dark:border-slate-800 max-h-[400px] overflow-y-auto custom-scrollbar">
+                      <p className="text-lg sm:text-2xl font-medium leading-relaxed text-slate-800 dark:text-slate-200 italic whitespace-pre-wrap">
+                          {loomScript}
+                      </p>
+                  </div>
+                  <div className="mt-6 flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                      <Sparkles size={12} className="text-indigo-400" /> Use this preview to practice your delivery
+                  </div>
               </div>
 
               {/* Lifecycle Visualization */}
@@ -246,40 +274,45 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
         )}
       </div>
 
-      {/* Teleprompter Modal */}
+      {/* Teleprompter Modal - Focused for Recording */}
       {isScriptModalOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div onClick={() => setIsScriptModalOpen(false)} className="fixed inset-0 bg-slate-900/90 backdrop-blur-xl animate-fade-in"></div>
-          <div className="relative w-full max-w-4xl bg-white dark:bg-slate-950 rounded-[3rem] shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-scale-up">
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex justify-between items-center">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          <div onClick={() => setIsScriptModalOpen(false)} className="fixed inset-0 bg-slate-900/95 backdrop-blur-2xl animate-fade-in"></div>
+          <div className="relative w-full max-w-5xl bg-white dark:bg-slate-950 rounded-[3rem] shadow-2xl border-4 border-indigo-500/20 overflow-hidden animate-scale-up h-[85vh] flex flex-col">
+            <div className="p-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 flex justify-between items-center flex-shrink-0">
                 <div className="flex items-center gap-3">
-                    <div className="w-4 h-4 rounded-full bg-red-500 animate-pulse"></div>
-                    <h3 className="text-lg font-black uppercase tracking-widest text-slate-800 dark:text-white">Recording Studio</h3>
+                    <div className="w-4 h-4 rounded-full bg-red-500 animate-pulse shadow-lg shadow-red-500/50"></div>
+                    <h3 className="text-lg font-black uppercase tracking-widest text-slate-800 dark:text-white">Loom Teleprompter</h3>
                 </div>
                 <div className="flex items-center gap-2">
                     <button onClick={handleCopyLoomScript} className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-all text-slate-500" title="Copy to Clipboard">
                         <Copy size={20} />
                     </button>
                     <button onClick={() => setIsScriptModalOpen(false)} className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-red-50 hover:text-red-500 transition-all text-slate-500">
-                        <X size={20} />
+                        <X size={24} />
                     </button>
                 </div>
             </div>
-            <div className="p-12 sm:p-20 max-h-[70vh] overflow-y-auto custom-scrollbar">
-                <p className="text-2xl sm:text-4xl font-medium leading-relaxed text-slate-800 dark:text-slate-200 italic text-center whitespace-pre-wrap">
+            <div className="flex-grow p-12 sm:p-24 overflow-y-auto custom-scrollbar flex flex-col items-center">
+                <p className="text-3xl sm:text-5xl font-bold leading-relaxed text-slate-800 dark:text-slate-200 italic text-center whitespace-pre-wrap max-w-4xl tracking-tight">
                     {loomScript}
                 </p>
             </div>
-            <div className="p-8 bg-slate-900 dark:bg-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                    <Mic2 className="text-indigo-400" />
-                    <p className="text-[10px] font-black uppercase text-indigo-300 tracking-widest">Target: High-Intent Partners</p>
+            <div className="p-8 bg-slate-950 flex flex-col sm:flex-row items-center justify-between gap-4 flex-shrink-0">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-indigo-500/20 rounded-xl">
+                        <Mic2 className="text-indigo-400" />
+                    </div>
+                    <div>
+                        <p className="text-[10px] font-black uppercase text-indigo-400 tracking-widest">Active Script</p>
+                        <p className="text-xs font-bold text-white">"Club Founder" Transition Pitch</p>
+                    </div>
                 </div>
                 <button 
                   onClick={() => setIsScriptModalOpen(false)}
-                  className="px-10 py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-xl hover:scale-105 transition-all"
+                  className="px-12 py-5 bg-indigo-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest flex items-center gap-3 shadow-2xl hover:scale-105 transition-all"
                 >
-                    Done Recording <ArrowRight size={16} />
+                    Finish Recording <ArrowRight size={18} />
                 </button>
             </div>
           </div>
