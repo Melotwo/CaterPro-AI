@@ -130,6 +130,32 @@ export const regenerateMenuItemFromApi = async (originalText: string, instructio
     return response.text?.trim() || originalText;
 };
 
+export const generateWhopSEO = async (niche: string): Promise<any> => {
+    const ai = new GoogleGenAI({ apiKey: getApiKey() });
+    const prompt = `You are a Whop Discovery SEO Expert. Generate an optimized store title, description, and 5 search tags for a product in the "${niche}" niche. 
+    The goal is to rank #1 when users search for "Hospitality", "Chef", or "Automation".
+    Return JSON with fields: optimizedTitle, optimizedDescription, searchTags (array), and thumbnailIdea.`;
+    
+    const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: prompt,
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                    optimizedTitle: { type: Type.STRING },
+                    optimizedDescription: { type: Type.STRING },
+                    searchTags: { type: Type.ARRAY, items: { type: Type.STRING } },
+                    thumbnailIdea: { type: Type.STRING }
+                },
+                required: ["optimizedTitle", "optimizedDescription", "searchTags"]
+            }
+        }
+    });
+    return JSON.parse(response.text);
+};
+
 export const generateSocialCaption = async (menuTitle: string, description: string, platform: string = 'facebook'): Promise<string> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
     const prompt = `Write a viral ${platform} post for: "${menuTitle}". Content: ${description}. Link: https://caterpro-ai.web.app/`;
@@ -213,9 +239,6 @@ export const generateMenuImageFromApi = async (title: string, description: strin
     throw new Error("No image.");
 };
 
-/**
- * Specifically generates high-quality educational culinary infographics.
- */
 export const generateCulinaryInfographic = async (type: 'comparison' | 'meat_chart'): Promise<string> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
     
