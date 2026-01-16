@@ -1,92 +1,80 @@
 
 import React, { useState } from 'react';
-import { CheckCircle2, Zap, Trophy, Smartphone, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen } from 'lucide-react';
+import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation } from 'lucide-react';
 
 interface FounderRoadmapProps {
   whopUrl: string;
 }
 
 const dailyTasks = [
-  { id: 'video-record-price', label: 'Record Loom: Price Real Estate (Acquisitions)', highPriority: true },
-  { id: 'video-record-gattaca', label: 'Record Loom: Gattaca (Sales Closer)', highPriority: true },
-  { id: 'cv-update', label: 'Send AI-Optimized CV to Gattaca', highPriority: true },
-  { id: 'whop-post-1', label: 'Publish First Whop Post (DONE! 🤙🏿)', initialDone: true },
+  { id: 'b2b-pitch-academy', label: 'Pitch to 5 Culinary Academies (Admin Reduction)', highPriority: true },
+  { id: 'b2b-pitch-corp', label: 'Email 3 Corporate Catering Groups', highPriority: true },
+  { id: 'app-reel-marketing', label: 'Generate Viral App Demo Reel', highPriority: true },
+  { id: 'whop-community-update', label: 'Post 2026 Strategy Update on Whop', initialDone: true },
 ];
 
-const videoScripts = [
+const appPitchScripts = [
   {
-    id: 'price-acquisitions',
-    title: "Price Real Estate: Acquisitions VA",
-    focus: "Acquisition Grit & Asset Expansion",
+    id: 'academy-pitch',
+    title: "Academy Pitch: The Student PoE Solver",
+    focus: "Academy Admin & Student Stress",
     time: "90 Seconds",
-    script: `Hi Price Real Estate Team! I’m Tumi Seroka.
+    script: `Hi there! I’m Tumi, Founder of CaterPro AI. 
 
-I’m applying for the Acquisitions VA role because I don’t just understand real estate—I understand how to pivot a property into an asset. 
+I’m reaching out because I know that for culinary academies, the biggest bottleneck isn't the cooking—it's the 'Portfolio of Evidence' admin. Students spend hours fighting with costing sheets and menu formatting instead of being in the kitchen.
 
-My background isn’t just theoretical. I personally took a distressed 2-room family property in South Africa that was burdened with debt, negotiated the liquidation of that debt, and architected a plan to expand it into a 12-unit rental system for students and contractors. 
+I’ve built CaterPro AI to be the 'Digital Sous Chef' for your students. It automates professional menu proposals and shopping lists in local ZAR currency in under 30 seconds. 
 
-I’ve spent years making "offers" where the stakes were personal. I know how to speak to people in high-stress situations, identify their pain points, and offer a solution that closes the deal.
+By integrating this into your curriculum, you reduce student burnout, ensure 100% accuracy in food costing assignments, and position your academy as a 2026 tech-forward leader. 
 
-Combined with my 5-star international communications background with Disney, I have the grit and the professional polish to represent Price Real Estate during the US shift. I am ready to close for you.`
+I’d love to show your dean how we can implement this to reclaim 10 hours of teaching time per week. Let’s modernize your kitchen operations.`
   },
   {
-    id: 'gattaca-closer',
-    title: "Gattaca Holdings: Sales Closer",
-    focus: "Closing Psychology & Global Experience",
+    id: 'enterprise-pitch',
+    title: "Enterprise Pitch: Systems Over Chaos",
+    focus: "ROI & Scalable Operations",
     time: "2 Minutes",
-    script: `Hello Gattaca Hiring Team! My name is Tumi Seroka.
+    script: `Hello! I’m Tumi Seroka. 
 
-What you need in a Sales Closer is someone who can handle "Systems over Chaos." 
+Most catering businesses are losing 15% of their margin to 'Chaos'—slow proposals, inaccurate shopping lists, and manual logistics. 
 
-For 15 years, I have operated in high-pressure environments—from managing international guest relations for Disney Cruise Line to operating my own residential portfolio. My biggest career win was taking a 2-room home with utility debt and scaling it into a 12-unit commercial rental business. 
+I founded CaterPro AI to replace that chaos with Systems. Our platform allows your sales team to generate client-ready, high-end proposals and exact procurement lists instantly. 
 
-That required more than just "selling." It required closing negotiations with contractors, managing municipal logistics, and convincing tenants of the value of my system. 
+We don't just 'save time'; we increase your 'Close Rate' because your clients get a Michelin-style proposal while your competitors are still typing their first draft. 
 
-I am 100% committed to the 3 PM to 2 AM SAST shift because I know that is when the best deals are closed in the US market. I bring a "Founder Mindset" to every call. I’m not looking for a job; I’m looking for a portfolio to grow. Let’s close some deals together.`
+I am looking to partner with one forward-thinking catering group to implement our Enterprise Suite. If you are ready to scale without increasing your admin headcount, we need to talk. I bring a 'Founder Mindset' to your operations. Let's build your 2026 roadmap.`
   }
 ];
 
-const realEstateCV = `TUMELO HANNES SEROKA
-+27 679 461 487 | turoka15@gmail.com
-Mokopane, South Africa (Remote Ready)
+const b2bBusinessProposal = `CATERPRO AI | BUSINESS PROPOSAL 2026
+EXECUTIVE SUMMARY: RECLAIMING MARGIN THROUGH AI AUTOMATION
 
-REAL ESTATE SALES CLOSER & ASSET OPERATOR
-Specializing in Distressed Asset Pivot | International Client Communications
+THE PROBLEM:
+Catering operations and culinary academies are burdened by "Manual Admin Decay." Menus, procurement lists, and student PoE requirements take up 40% of operational hours.
 
-PROFESSIONAL SUMMARY
-Results-driven Sales and Operations professional with 15+ years of international experience. Proven track record in "Closing" complex situations: notably pivoting a 2-room high-debt residential property into a 12-unit income-generating student housing system. Expert in high-stakes communication (Disney Cruise Line) and AI-driven workflow optimization. Committed to the 3PM-2AM SAST shift for US market alignment.
+THE SOLUTION:
+CaterPro AI (SaaS). A specialized LLM-driven engine that generates:
+1. Professional Client Proposals (PDF/Link)
+2. Categorized Shopping Lists (Store/Aisle optimized)
+3. Service & Mise en Place Logistics
+4. Marketing Reels & Social Captions
 
-CORE COMPETENCIES
-• Real Estate: Asset Management, Property Scaling, Yield Optimization.
-• Sales: Closing, Negotiation, Conflict Resolution, High-Intent Scripting.
-• Communication: International Stakeholder Management, US-aligned English Proficiency.
-• Tech: AI Productivity (100% Google Certified), CRM Management.
+VALUE PROPOSITION:
+• For Academies: 80% reduction in Student PoE admin.
+• For Companies: 3x faster proposal turnaround; 15% improvement in procurement accuracy.
 
-KEY EXPERIENCE
+PRICING MODEL:
+• Enterprise Seat: R549/mo (Business Tier)
+• Academy Bulk License: Contact for Pilot Program pricing.
 
-ASSET MANAGER | Residential Rental Portfolio
-South Africa | 2015 – Present
-• Orchestrated the commercial expansion of a township property from 2 rooms to 12 rooms.
-• Managed the total liquidation of utility debt through strategic financial planning.
-• Successfully marketed and closed monthly rental agreements with contractors and students, maintaining 90%+ occupancy.
-• Developed local sourcing systems for maintenance and construction, reducing overhead by 30%.
-
-COMMERCIAL OPERATIONS | Disney Cruise Line
-International | Feb 2011 – July 2015
-• Managed high-volume client relations in a 5-star international environment.
-• Navigated complex, fast-paced commercial scenarios where clear communication was vital for safety and satisfaction.
-• Represented a global brand with strict adherence to quality and performance metrics.
-
-EDUCATION & CERTIFICATIONS
-• CERTIFICATE: Maximize Productivity with AI Tools (100% Final Grade) | Google | 2024
-• DIPLOMA: Culinary Arts | Prue Leith College of Food and Wine | 2007
-
-Available for immediate placement in the US-Hours Shift.`;
+CONTACT:
+Tumi Seroka | Founder
+turoka15@gmail.com | +27 679 461 487`;
 
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
-  const [activeTab, setActiveTab] = useState<'mission' | 'sniper' | 'cv' | 'video'>('video');
-  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['whop-post-1']));
-  const [selectedScript, setSelectedScript] = useState(videoScripts[0]);
+  const [activeTab, setActiveTab] = useState<'mission' | 'sniper' | 'proposal' | 'video'>('video');
+  const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['whop-community-update']));
+  const [selectedScript, setSelectedScript] = useState(appPitchScripts[0]);
 
   const toggleTask = (taskId: string) => {
     const newTasks = new Set(completedTasks);
@@ -106,41 +94,41 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
       <div className="p-8 bg-slate-950 text-white">
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
           <div className="flex items-center gap-4">
-            <div className="p-3 bg-primary-500 rounded-2xl shadow-lg shadow-primary-500/20">
-                <Target size={24} className="text-white" />
+            <div className="p-3 bg-indigo-500 rounded-2xl shadow-lg shadow-indigo-500/20">
+                <Building2 size={24} className="text-white" />
             </div>
             <div>
-                <h2 className="text-2xl font-black uppercase tracking-tight">Closing Control</h2>
-                <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Real Estate VA & Sales Pitch Hub</p>
+                <h2 className="text-2xl font-black uppercase tracking-tight">B2B Growth Hub</h2>
+                <p className="text-slate-400 text-[10px] font-black uppercase tracking-widest mt-1">Selling CaterPro AI to the World</p>
             </div>
           </div>
           
           <div className="flex bg-slate-900 p-1 rounded-xl border border-slate-800 overflow-x-auto no-scrollbar">
             <button onClick={() => setActiveTab('video')} className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'video' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:text-white'}`}>
-                <Camera size={14} className="inline mr-2" /> Loom Studio
+                <Camera size={14} className="inline mr-2" /> App Pitch Studio
             </button>
             <button onClick={() => setActiveTab('mission')} className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'mission' ? 'bg-white text-slate-950 shadow-lg' : 'text-slate-500 hover:text-white'}`}>
-                <Trophy size={14} className="inline mr-2" /> Daily Tasks
+                <Trophy size={14} className="inline mr-2" /> Daily Missions
             </button>
-            <button onClick={() => setActiveTab('cv')} className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'cv' ? 'bg-amber-500 text-white shadow-lg' : 'text-slate-500 hover:text-white'}`}>
-                <FileUser size={14} className="inline mr-2" /> Closer CV
+            <button onClick={() => setActiveTab('proposal')} className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'proposal' ? 'bg-amber-500 text-white shadow-lg' : 'text-slate-500 hover:text-white'}`}>
+                <Presentation size={14} className="inline mr-2" /> One-Pager
             </button>
             <button onClick={() => setActiveTab('sniper')} className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === 'sniper' ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-500 hover:text-white'}`}>
-                <Crosshair size={14} className="inline mr-2" /> Email Sniper
+                <Crosshair size={14} className="inline mr-2" /> B2B Sniper
             </button>
           </div>
         </div>
       </div>
 
       <div className="p-8">
-        {/* LOOM STUDIO TAB */}
+        {/* APP PITCH STUDIO TAB */}
         {activeTab === 'video' && (
             <div className="animate-fade-in space-y-12">
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
                     {/* Script Selector */}
                     <div className="lg:col-span-1 space-y-3">
-                        <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Select Target</p>
-                        {videoScripts.map(s => (
+                        <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Select Target Market</p>
+                        {appPitchScripts.map(s => (
                             <button 
                                 key={s.id}
                                 onClick={() => setSelectedScript(s)}
@@ -150,69 +138,41 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                                 <p className="text-[10px] text-slate-400 mt-1">{s.time}</p>
                             </button>
                         ))}
-                        <div className="p-6 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border-2 border-dashed border-amber-200 dark:border-amber-800 mt-6">
-                            <Mic2 size={24} className="text-amber-500 mb-2" />
-                            <p className="text-[10px] font-bold text-amber-800 dark:text-amber-400">Pro Tip: Look into the lens, not the script. Use your iPad as a teleprompter!</p>
+                        <div className="p-6 bg-indigo-50 dark:bg-indigo-900/10 rounded-2xl border-2 border-dashed border-indigo-200 dark:border-indigo-800 mt-6">
+                            <Monitor size={24} className="text-indigo-500 mb-2" />
+                            <p className="text-[10px] font-bold text-indigo-800 dark:text-indigo-400">Pro Tip: Use these scripts to record video messages (Loom) for your B2B outreach.</p>
                         </div>
                     </div>
 
                     {/* Teleprompter View */}
                     <div className="lg:col-span-3">
-                        <div className="bg-slate-50 dark:bg-slate-950 rounded-[2.5rem] border-2 border-slate-200 dark:border-slate-800 overflow-hidden shadow-inner">
-                            <div className="p-6 border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex justify-between items-center">
+                        <div className="bg-slate-950 rounded-[2.5rem] border-2 border-indigo-500/20 overflow-hidden shadow-2xl">
+                            <div className="p-6 border-b border-white/10 bg-black/40 flex justify-between items-center">
                                 <div>
-                                    <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-[9px] font-black uppercase tracking-widest">{selectedScript.focus}</span>
-                                    <h3 className="text-lg font-black mt-2">{selectedScript.title}</h3>
+                                    <span className="px-3 py-1 bg-indigo-500/20 text-indigo-400 rounded-full text-[9px] font-black uppercase tracking-widest">{selectedScript.focus}</span>
+                                    <h3 className="text-lg font-black mt-2 text-white">{selectedScript.title}</h3>
                                 </div>
-                                <button onClick={() => copyToClipboard(selectedScript.script, "Script")} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl hover:bg-indigo-100 transition-colors">
-                                    <Copy size={18} className="text-slate-500" />
+                                <button onClick={() => copyToClipboard(selectedScript.script, "Script")} className="p-3 bg-white/10 rounded-xl hover:bg-white/20 transition-colors text-white">
+                                    <Copy size={18} />
                                 </button>
                             </div>
-                            <div className="p-10 sm:p-16 text-center">
-                                <p className="text-2xl sm:text-4xl font-medium leading-relaxed text-slate-800 dark:text-slate-200 italic">
+                            <div className="p-10 sm:p-20 text-center">
+                                <p className="text-2xl sm:text-4xl font-bold leading-relaxed text-white italic whitespace-pre-wrap">
                                     {selectedScript.script}
                                 </p>
-                                <div className="mt-12 flex justify-center items-center gap-4">
-                                    <div className="w-4 h-4 rounded-full bg-red-500 animate-pulse"></div>
-                                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Recording Mode Active</span>
-                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
-
-                {/* PLAIN TEXT SCRIPT REVIEW FOR EASY COPY-PASTE */}
-                <div className="mt-16 border-t border-slate-100 dark:border-slate-800 pt-16">
-                    <div className="flex items-center gap-3 mb-8">
-                        <BookOpen className="text-indigo-500" />
-                        <h4 className="text-xl font-black uppercase">Direct Script Review (Plain Text)</h4>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        {videoScripts.map((s) => (
-                            <div key={s.id} className="p-8 bg-slate-50 dark:bg-slate-950 rounded-[2.5rem] border-2 border-slate-200 dark:border-slate-800 relative group">
-                                <h5 className="text-sm font-black uppercase text-indigo-500 mb-4 tracking-widest">{s.title}</h5>
-                                <div className="p-6 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 text-xs font-medium text-slate-600 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
-                                    {s.script}
-                                </div>
-                                <button 
-                                    onClick={() => copyToClipboard(s.script, s.title)}
-                                    className="mt-6 w-full py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95"
-                                >
-                                    <Copy size={14} /> Copy This Script
-                                </button>
-                            </div>
-                        ))}
                     </div>
                 </div>
             </div>
         )}
 
-        {/* DAILY TASKS TAB */}
+        {/* DAILY MISSIONS TAB */}
         {activeTab === 'mission' && (
           <div className="animate-fade-in py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-3xl overflow-hidden">
-                    <h3 className="p-5 border-b border-slate-200 dark:border-slate-700 text-xs font-black uppercase tracking-widest text-slate-400">Tactical Tasks</h3>
+                    <h3 className="p-5 border-b border-slate-200 dark:border-slate-700 text-xs font-black uppercase tracking-widest text-slate-400">Business Dev Tasks</h3>
                     {dailyTasks.map((task) => (
                     <button key={task.id} onClick={() => toggleTask(task.id)} className={`w-full flex items-center gap-4 p-5 border-b border-slate-200 dark:border-slate-700 last:border-0 hover:bg-white dark:hover:bg-slate-800 transition-colors ${completedTasks.has(task.id) ? 'bg-green-50/50' : ''}`}>
                         <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${completedTasks.has(task.id) ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300'}`}>
@@ -220,52 +180,65 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                         </div>
                         <span className={`text-sm font-bold text-left ${completedTasks.has(task.id) ? 'text-slate-400 line-through' : 'text-slate-700 dark:text-slate-200'}`}>
                             {task.label}
-                            {task.highPriority && !completedTasks.has(task.id) && <span className="ml-2 text-[8px] bg-red-500 text-white px-1.5 py-0.5 rounded">URGENT</span>}
+                            {task.highPriority && !completedTasks.has(task.id) && <span className="ml-2 text-[8px] bg-red-500 text-white px-1.5 py-0.5 rounded">HIGH INTENT</span>}
                         </span>
                     </button>
                     ))}
                 </div>
                 <div className="bg-primary-50/50 dark:bg-primary-900/10 p-8 rounded-[2rem] border-2 border-dashed border-primary-200 dark:border-primary-800 flex flex-col justify-center items-center text-center">
-                    <Quote className="text-primary-600 mb-4 opacity-30" />
+                    <TrendingUp className="text-primary-600 mb-4" size={40} />
                     <p className="text-lg font-black text-slate-800 dark:text-white leading-tight mb-4">
-                        "Close the day before the day closes you."
+                        "Focus on the App. Build the Equity."
                     </p>
                     <button onClick={() => setActiveTab('video')} className="px-6 py-3 bg-slate-950 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
-                        Open Teleprompter <PlayCircle size={14} />
+                        Start Pitching <PlayCircle size={14} />
                     </button>
                 </div>
             </div>
           </div>
         )}
 
-        {/* CV TAB */}
-        {activeTab === 'cv' && (
+        {/* PROPOSAL TAB */}
+        {activeTab === 'proposal' && (
             <div className="animate-fade-in space-y-6">
                 <div className="flex justify-between items-center">
-                    <h4 className="text-xl font-black uppercase">Real Estate Sales CV</h4>
-                    <button onClick={() => copyToClipboard(realEstateCV, "CV")} className="px-4 py-2 bg-slate-950 text-white rounded-xl text-xs font-black uppercase flex items-center gap-2">
-                        <Copy size={14} /> Copy CV
+                    <h4 className="text-xl font-black uppercase">App Value Proposition (One-Pager)</h4>
+                    <button onClick={() => copyToClipboard(b2bBusinessProposal, "Proposal")} className="px-4 py-2 bg-slate-950 text-white rounded-xl text-xs font-black uppercase flex items-center gap-2">
+                        <Copy size={14} /> Copy One-Pager
                     </button>
                 </div>
-                <div className="p-8 bg-slate-50 dark:bg-slate-800 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 max-h-[500px] overflow-y-auto font-mono text-xs leading-relaxed">
-                    {realEstateCV}
+                <div className="p-10 bg-slate-50 dark:bg-slate-800 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 max-h-[600px] overflow-y-auto font-mono text-xs leading-relaxed">
+                    <pre className="whitespace-pre-wrap">{b2bBusinessProposal}</pre>
                 </div>
             </div>
         )}
 
-        {/* SNIPER TAB */}
+        {/* B2B SNIPER TAB */}
         {activeTab === 'sniper' && (
            <div className="animate-fade-in grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border-2 border-slate-200 dark:border-slate-700 flex flex-col justify-between h-full">
+              <div className="p-8 bg-indigo-50 dark:bg-indigo-900/20 rounded-[2rem] border-2 border-indigo-200 dark:border-indigo-800 flex flex-col justify-between h-full">
                    <div>
-                       <h5 className="text-xs font-black uppercase text-indigo-500 tracking-widest mb-1">Acquisitions Cover Letter</h5>
-                       <p className="text-[10px] text-slate-500 font-bold mb-4">Optimized for Price Real Estate.</p>
-                       <div className="p-4 bg-white dark:bg-slate-900 rounded-2xl text-[11px] text-slate-600 dark:text-slate-400 italic mb-6 border border-slate-100 dark:border-slate-800">
-                           "I am applying for the Acquisitions VA role because I personally transformed a distressed 2-room home into a 12-unit rental system. I understand property expansion and utility debt liquidation firsthand..."
+                       <h5 className="text-sm font-black uppercase text-indigo-600 tracking-widest mb-1">Academy Dean Outreach</h5>
+                       <p className="text-[10px] text-slate-500 font-bold mb-4">Focus on Student PoE Admin reduction.</p>
+                       <div className="p-5 bg-white dark:bg-slate-950 rounded-2xl text-[11px] text-slate-600 dark:text-slate-400 italic mb-6 border border-indigo-100">
+                           "I noticed your students are currently managing their Portfolio of Evidence (PoE) manually. I've built an AI system specifically to automate the costing and menu planning admin, reclaiming 10 hours of teaching time per week..."
                        </div>
                    </div>
-                   <button onClick={() => copyToClipboard("I am applying for the Acquisitions VA role because I personally transformed a distressed 2-room home into a 12-unit rental system. I understand property expansion and utility debt liquidation firsthand. My background at Disney Cruise Line gives me the international professional polish to handle your US-based homeowners.", "Email Template")} className="w-full py-4 bg-slate-950 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all">
-                       <Copy size={16} /> Copy Email
+                   <button onClick={() => copyToClipboard("I noticed your students are currently managing their Portfolio of Evidence (PoE) manually. I've built an AI system specifically to automate the costing and menu planning admin, reclaiming 10 hours of teaching time per week. I'd love to show you how we can integrate this into your curriculum.", "Academy Email")} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all">
+                       <Copy size={16} /> Copy Academy Email
+                   </button>
+                </div>
+
+                <div className="p-8 bg-emerald-50 dark:bg-emerald-900/20 rounded-[2rem] border-2 border-emerald-200 dark:border-emerald-800 flex flex-col justify-between h-full">
+                   <div>
+                       <h5 className="text-sm font-black uppercase text-emerald-600 tracking-widest mb-1">Catering CEO Pitch</h5>
+                       <p className="text-[10px] text-slate-500 font-bold mb-4">Focus on Close Rates & Profit Margin.</p>
+                       <div className="p-5 bg-white dark:bg-slate-950 rounded-2xl text-[11px] text-slate-600 dark:text-slate-400 italic mb-6 border border-emerald-100">
+                           "Your team is currently losing margin to slow manual proposals. CaterPro AI generates high-end, client-ready proposals in 30 seconds. We've seen close rates increase by 25% by hitting clients with a professional bid while competitors are still typing..."
+                       </div>
+                   </div>
+                   <button onClick={() => copyToClipboard("Your team is currently losing margin to slow manual proposals. CaterPro AI generates high-end, client-ready proposals in 30 seconds. We've seen close rates increase by 25% by hitting clients with a professional bid while competitors are still typing. Can we discuss your 2026 digital roadmap?", "CEO Pitch Email")} className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl active:scale-95 transition-all">
+                       <Copy size={16} /> Copy CEO Pitch Email
                    </button>
                 </div>
            </div>
