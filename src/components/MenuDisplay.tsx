@@ -1,8 +1,7 @@
 
 import React, { useState } from 'react';
 import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types';
-// Fixed: Added Globe to the lucide-react imports to resolve the missing name error.
-import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock, Sparkle, EyeOff, Eye, BrainCircuit, Globe } from 'lucide-react';
+import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock, Sparkle, EyeOff, Eye, BrainCircuit, Globe, ExternalLink } from 'lucide-react';
 import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES } from '../constants';
 
 interface MenuDisplayProps {
@@ -84,26 +83,26 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                           <div className="p-3 bg-primary-500 rounded-2xl shadow-lg shadow-primary-500/20">
                               <Megaphone size={24} className="text-white" />
                           </div>
-                          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary-400">Content Studio (Paid)</span>
+                          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary-400">Visibility Boost</span>
                       </div>
-                      <h4 className="text-3xl font-black tracking-tight leading-none mb-2">Viral Marketing Hub</h4>
-                      <p className="text-slate-400 text-sm font-medium">Generate vertical reels and 2026 captions in seconds.</p>
+                      <h4 className="text-3xl font-black tracking-tight leading-none mb-2">Algorithm Ready</h4>
+                      <p className="text-slate-400 text-sm font-medium">Use these tools to drive traffic to your Whop Store.</p>
                       
                       <div className="mt-8 flex flex-wrap gap-3">
                           <button 
                             onClick={() => handleSocialAction('reel')}
                             className="flex items-center gap-2 px-6 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-xl active:scale-95 group/reel"
                           >
-                            {!canAccessFeature('socialMediaTools') && <Lock size={12} className="opacity-60" />}
                             <Video size={18} className="group-hover/reel:animate-bounce" /> 
-                            Generate Reel 
+                            Viral Reel 
                           </button>
-                          <button 
-                            onClick={() => handleSocialAction('create')}
+                          <a 
+                            href="https://whop.com/melotwo2"
+                            target="_blank"
                             className="flex items-center gap-2 px-6 py-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-xs font-black uppercase tracking-widest border border-white/10 transition-all active:scale-95"
                           >
-                            <MessageSquareQuote size={18} /> Marketing Captions
-                          </button>
+                            <ExternalLink size={18} /> Whop Dashboard
+                          </a>
                       </div>
                   </div>
 
@@ -111,55 +110,20 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                     <div className="p-6 bg-white/5 rounded-3xl border border-white/10">
                        <div className="flex items-center gap-2 mb-2 text-indigo-400">
                           <TrendingUp size={16} />
-                          <span className="text-[10px] font-black uppercase">Lifecycle ROI</span>
+                          <span className="text-[10px] font-black uppercase">Growth ROI</span>
                        </div>
-                       <p className="text-xs text-slate-400 leading-relaxed font-medium">Strategy built to guide clients from awareness to loyalty automatically.</p>
+                       <p className="text-xs text-slate-400 leading-relaxed font-medium">Share this proposal to gain beta testers and reviews on Whop.</p>
                     </div>
                     <div className="p-6 bg-white/5 rounded-3xl border border-white/10">
                        <div className="flex items-center gap-2 mb-2 text-amber-400">
                           <Target size={16} />
-                          <span className="text-[10px] font-black uppercase">Hyper-Targeting</span>
+                          <span className="text-[10px] font-black uppercase">SEO Ranking</span>
                        </div>
-                       <p className="text-xs text-slate-400 leading-relaxed font-medium">Content laser-focused on specific client pain points and desires.</p>
+                       <p className="text-xs text-slate-400 leading-relaxed font-medium">Keywords optimized for the "Hospitality" discovery category.</p>
                     </div>
                   </div>
               </div>
           </div>
-
-          {/* AI Search & Strategy Hub */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {menu.salesScripts?.map((script, idx) => (
-                  <div key={idx} className="p-6 bg-indigo-50 dark:bg-indigo-900/10 rounded-3xl border border-indigo-100 dark:border-indigo-800 shadow-sm relative group">
-                      <div className="absolute top-4 right-4 text-indigo-400 opacity-20 group-hover:opacity-40 transition-opacity">
-                          <BrainCircuit size={24} />
-                      </div>
-                      <span className="text-[10px] font-black uppercase text-indigo-600 dark:text-indigo-400 tracking-widest block mb-2">{script.phase} Purchase Hook</span>
-                      <h5 className="text-sm font-black mb-2 text-slate-900 dark:text-white">{script.hook}</h5>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 italic mb-4 leading-relaxed line-clamp-2">"{script.script}"</p>
-                      <button 
-                        onClick={() => { navigator.clipboard.writeText(script.script); showToast(`${script.phase} script copied!`); }}
-                        className="text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-800 flex items-center gap-1 transition-colors"
-                      >
-                         <Copy size={12} /> Copy Script
-                      </button>
-                  </div>
-              ))}
-          </div>
-
-          {/* AI Search Schema Preview */}
-          {menu.aiKeywords && menu.aiKeywords.length > 0 && (
-              <div className="p-4 bg-slate-100 dark:bg-slate-800/50 rounded-2xl flex items-center justify-between gap-4">
-                  <div className="flex items-center gap-3">
-                      <div className="p-2 bg-slate-900 text-white rounded-lg"><Globe size={14} /></div>
-                      <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">AI Search Intent Tags</span>
-                  </div>
-                  <div className="flex gap-2">
-                      {menu.aiKeywords.map(k => (
-                          <span key={k} className="px-3 py-1 bg-white dark:bg-slate-800 text-slate-500 rounded-full text-[9px] font-bold border border-slate-200 dark:border-slate-700">#{k.replace(/\s+/g, '')}</span>
-                      ))}
-                  </div>
-              </div>
-          )}
       </div>
       )}
 
