@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types';
-import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock, Sparkle, EyeOff, Eye, BrainCircuit, Globe, ExternalLink } from 'lucide-react';
+import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock, Sparkle, EyeOff, Eye, BrainCircuit, Globe, ExternalLink, Camera, Instagram, Smartphone } from 'lucide-react';
 import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES } from '../constants';
 
 interface MenuDisplayProps {
@@ -44,6 +44,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
   const t = theme.classes;
   
   const [hideWatermark, setHideWatermark] = useState(false);
+  const [clipperMode, setClipperMode] = useState(false);
 
   if (!menu) return null;
 
@@ -66,7 +67,20 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
   const isProUser = canAccessFeature('noWatermark');
 
   return (
-    <div className={`p-4 sm:p-10 theme-container ${t.container} rounded-[3rem] shadow-2xl border border-slate-100 dark:border-slate-800 animate-fade-in`}>
+    <div className={`p-4 sm:p-10 theme-container ${t.container} rounded-[3rem] shadow-2xl border border-slate-100 dark:border-slate-800 animate-fade-in relative transition-all duration-500 ${clipperMode ? 'scale-[0.98] ring-[20px] ring-indigo-600/20' : ''}`}>
+      
+      {/* Clipper Mode Frame */}
+      {clipperMode && (
+          <div className="absolute inset-0 pointer-events-none z-50 rounded-[3rem] border-[3px] border-indigo-500 border-dashed animate-pulse overflow-hidden">
+              <div className="absolute top-10 left-10 flex items-center gap-2 bg-indigo-600 text-white px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl">
+                  <Smartphone size={12} /> Record Screen Now
+              </div>
+              <div className="absolute bottom-10 right-10 flex items-center gap-2 bg-slate-900 text-white px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl">
+                  <DollarSign size={12} /> Bounty Mode Active
+              </div>
+          </div>
+      )}
+
       <div className="space-y-10">
       
       {!isReadOnlyView && (
@@ -83,26 +97,26 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                           <div className="p-3 bg-primary-500 rounded-2xl shadow-lg shadow-primary-500/20">
                               <Megaphone size={24} className="text-white" />
                           </div>
-                          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary-400">Visibility Boost</span>
+                          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary-400">Viral Bounty Program</span>
                       </div>
-                      <h4 className="text-3xl font-black tracking-tight leading-none mb-2">Algorithm Ready</h4>
-                      <p className="text-slate-400 text-sm font-medium">Use these tools to drive traffic to your Whop Store.</p>
+                      <h4 className="text-3xl font-black tracking-tight leading-none mb-2">High-Intent Media</h4>
+                      <p className="text-slate-400 text-sm font-medium">Record the screen or render a reel to attract clippers on Whop.</p>
                       
                       <div className="mt-8 flex flex-wrap gap-3">
                           <button 
-                            onClick={() => handleSocialAction('reel')}
-                            className="flex items-center gap-2 px-6 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-xl active:scale-95 group/reel"
+                            onClick={() => setClipperMode(!clipperMode)}
+                            className={`flex items-center gap-2 px-6 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-xl active:scale-95 ${clipperMode ? 'bg-red-500 text-white animate-pulse' : 'bg-white text-slate-950 hover:bg-slate-100'}`}
                           >
-                            <Video size={18} className="group-hover/reel:animate-bounce" /> 
-                            Viral Reel 
+                            <Camera size={18} /> 
+                            {clipperMode ? 'Exit Record Mode' : 'Enter Record Mode'} 
                           </button>
-                          <a 
-                            href="https://whop.com/melotwo2"
-                            target="_blank"
-                            className="flex items-center gap-2 px-6 py-4 bg-white/10 hover:bg-white/20 text-white rounded-2xl text-xs font-black uppercase tracking-widest border border-white/10 transition-all active:scale-95"
+                          <button 
+                            onClick={() => handleSocialAction('reel')}
+                            className="flex items-center gap-2 px-6 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-xl active:scale-95"
                           >
-                            <ExternalLink size={18} /> Whop Dashboard
-                          </a>
+                            <Video size={18} /> 
+                            Render Reel 
+                          </button>
                       </div>
                   </div>
 
@@ -110,16 +124,16 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                     <div className="p-6 bg-white/5 rounded-3xl border border-white/10">
                        <div className="flex items-center gap-2 mb-2 text-indigo-400">
                           <TrendingUp size={16} />
-                          <span className="text-[10px] font-black uppercase">Growth ROI</span>
+                          <span className="text-[10px] font-black uppercase">Affiliate ROI</span>
                        </div>
-                       <p className="text-xs text-slate-400 leading-relaxed font-medium">Share this proposal to gain beta testers and reviews on Whop.</p>
+                       <p className="text-xs text-slate-400 leading-relaxed font-medium">40% recurring commissions enabled for all clippers on Whop.</p>
                     </div>
                     <div className="p-6 bg-white/5 rounded-3xl border border-white/10">
                        <div className="flex items-center gap-2 mb-2 text-amber-400">
                           <Target size={16} />
-                          <span className="text-[10px] font-black uppercase">SEO Ranking</span>
+                          <span className="text-[10px] font-black uppercase">Category Rank</span>
                        </div>
-                       <p className="text-xs text-slate-400 leading-relaxed font-medium">Keywords optimized for the "Hospitality" discovery category.</p>
+                       <p className="text-xs text-slate-400 leading-relaxed font-medium">Keywords optimized for the $46k/mo Hospitality Discovery niche.</p>
                     </div>
                   </div>
               </div>
