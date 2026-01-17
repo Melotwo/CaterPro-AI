@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { X, Star, Briefcase, Check, Gift, Key, GraduationCap } from 'lucide-react';
+import { X, Star, Briefcase, Check, Gift, Key, GraduationCap, Sparkles } from 'lucide-react';
 import { SubscriptionPlan } from '../hooks/useAppSubscription';
 
 interface UpgradeModalProps {
@@ -49,7 +49,11 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
           <X size={20} />
         </button>
 
-        <div className="p-8 text-center bg-slate-50 dark:bg-slate-900/50">
+        <div className="p-8 text-center bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700">
+             <div className="flex items-center justify-center gap-2 mb-3">
+                 <Sparkles size={16} className="text-amber-500 animate-pulse" />
+                 <span className="text-[10px] font-black uppercase text-amber-600 tracking-widest">7-Day Free Trial Available</span>
+             </div>
              <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Upgrade Your Kitchen</h3>
              <p className="mt-1 text-slate-500 text-sm">Join the pro chefs and students using AI to grow.</p>
         </div>
@@ -61,7 +65,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
                     <h4 className="font-black text-lg">Student</h4>
                 </div>
                 <ul className="space-y-3 mb-8">
-                    {['Unlimited PoE', 'Education Hub', 'AI Tutor Bot'].map(f => (
+                    {['Unlimited PoE', 'AI Tutor Bot', 'Trial Included'].map(f => (
                         <li key={f} className="flex gap-2 text-sm text-slate-600 dark:text-slate-400">
                             <Check size={16} className="text-green-500" /> {f}
                         </li>
@@ -71,7 +75,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
                     onClick={() => { onViewPricing(); onClose(); }}
                     className="w-full py-3 rounded-2xl bg-blue-600 text-white font-black text-sm shadow-lg shadow-blue-500/20"
                 >
-                    Learn More
+                    Try Free
                 </button>
             </div>
 
@@ -81,7 +85,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
                     <h4 className="font-black text-lg">Professional</h4>
                 </div>
                 <ul className="space-y-3 mb-8">
-                    {['NO Watermarks', 'AI Food Photos', 'Unlimited Storage'].map(f => (
+                    {['NO Watermarks', 'AI Food Photos', 'Trial Included'].map(f => (
                         <li key={f} className="flex gap-2 text-sm text-slate-600 dark:text-slate-400">
                             <Check size={16} className="text-green-500" /> {f}
                         </li>
@@ -91,7 +95,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
                     onClick={() => { onViewPricing(); onClose(); }}
                     className="w-full py-3 rounded-2xl bg-amber-500 text-white font-black text-sm shadow-lg shadow-amber-500/20"
                 >
-                    Pro Tools
+                    Try Free
                 </button>
             </div>
 
@@ -101,7 +105,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
                     <h4 className="font-black text-lg">Business</h4>
                 </div>
                 <ul className="space-y-3 mb-8">
-                    {['Shareable Links', 'Suppliers Hub', 'Video Reels'].map(f => (
+                    {['Shareable Links', 'Video Reels', 'Trial Included'].map(f => (
                         <li key={f} className="flex gap-2 text-sm text-slate-600 dark:text-slate-400">
                             <Check size={16} className="text-green-500" /> {f}
                         </li>
@@ -111,12 +115,12 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
                     onClick={() => { onViewPricing(); onClose(); }}
                     className="w-full py-3 rounded-2xl bg-primary-600 text-white font-black text-sm shadow-lg shadow-primary-500/20"
                 >
-                    Get Business
+                    Try Free
                 </button>
             </div>
         </div>
         
-        <div className="p-6 bg-slate-50 dark:bg-slate-900 flex flex-col items-center gap-4">
+        <div className="p-6 bg-slate-50 dark:bg-slate-900 flex flex-col items-center gap-4 border-t border-slate-100 dark:border-slate-700">
              {!showPromo ? (
                 <button onClick={() => setShowPromo(true)} className="flex items-center gap-2 text-xs font-bold text-primary-600 hover:underline">
                     <Key size={14} /> Founder Access Code
