@@ -1,12 +1,212 @@
 
 import React, { useState } from 'react';
-import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation, Layout, Eye, MessageSquare, Sparkles, Loader2, AlertCircle, ListChecks, Star, Settings2, HelpCircle } from 'lucide-react';
+import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation, Layout, Eye, MessageSquare, Sparkles, Loader2, AlertCircle, ListChecks, Star, Settings2, HelpCircle, ShoppingBag, UserPlus, MessageCircle } from 'lucide-react';
 import { generateWhopSEO } from '../services/geminiService';
 import ThumbnailStudio from './ThumbnailStudio';
 
 interface FounderRoadmapProps {
   whopUrl: string;
 }
+
+const CommunityRecruiter: React.FC = () => {
+    const [copied, setCopied] = useState<string | null>(null);
+
+    const handleCopy = (text: string, id: string) => {
+        navigator.clipboard.writeText(text.trim());
+        setCopied(id);
+        setTimeout(() => setCopied(null), 2000);
+    };
+
+    const scripts = [
+        {
+            id: 'public',
+            title: 'Public Chat Sniper',
+            subtitle: 'Use this in the "Whop Clips" chat',
+            icon: MessageSquare,
+            color: 'bg-indigo-600',
+            text: `Hey guys! I’ve just finished the 2026 update for CaterPro AI. I’m looking for 3 active users to test the 7-Day Free Trial and give me an honest review in exchange for a "Founder" discount later. Anyone here working in the service/hospitality space?`
+        },
+        {
+            id: 'dm',
+            title: 'The Direct Partner DM',
+            subtitle: 'For active members like Felix or Sean',
+            icon: UserPlus,
+            color: 'bg-emerald-600',
+            text: `Chef! Noticed you were active in the Whop chat. I'm Tumi, building CaterPro AI. I’ve engineered a 2026 automation system for catering proposals. I’m looking for reliable partners to help me promote it—you keep 40% of every referral sale. Want to see the dashboard?`
+        },
+        {
+            id: 'affiliate',
+            title: 'Affiliate Recruitment',
+            subtitle: 'Post this on your Twitter/IG bio',
+            icon: TrendingUp,
+            color: 'bg-amber-500',
+            text: `Stop selling low-ticket tools. Join the CaterPro AI affiliate program on Whop. Help chefs escape the paperwork grind and earn recurring 40% commissions. 7-Day Free Trial active now for your audience. 🚀`
+        }
+    ];
+
+    return (
+        <div className="animate-fade-in space-y-10">
+            <div className="max-w-3xl">
+                <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4 flex items-center gap-3">
+                    <UserPlus className="text-indigo-600" /> Community Recruiter
+                </h3>
+                <p className="text-lg text-slate-500 font-medium leading-relaxed">
+                    Don't just sell—**Recruit.** Use these scripts to turn active Whop members into your marketing army.
+                </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                {scripts.map((script) => (
+                    <div key={script.id} className="bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-[2.5rem] p-8 flex flex-col justify-between shadow-xl group hover:border-indigo-500/30 transition-all">
+                        <div>
+                            <div className={`w-12 h-12 ${script.color} rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg`}>
+                                <script.icon size={24} />
+                            </div>
+                            <h4 className="text-xl font-black text-slate-900 dark:text-white leading-none">{script.title}</h4>
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-2">{script.subtitle}</p>
+                            
+                            <div className="mt-8 p-6 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800 italic text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                                "{script.text}"
+                            </div>
+                        </div>
+
+                        <button 
+                            onClick={() => handleCopy(script.text, script.id)}
+                            className={`w-full mt-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 ${copied === script.id ? 'bg-emerald-500 text-white' : 'bg-slate-900 text-white hover:bg-slate-800'}`}
+                        >
+                            {copied === script.id ? <CheckCircle2 size={16} /> : <Copy size={16} />}
+                            {copied === script.id ? 'Copied Script' : 'Copy Script'}
+                        </button>
+                    </div>
+                ))}
+            </div>
+
+            <div className="p-10 bg-indigo-50 dark:bg-indigo-900/10 rounded-[3rem] border border-indigo-100 dark:border-indigo-800 flex flex-col sm:flex-row items-center gap-8">
+                <div className="p-6 bg-white dark:bg-slate-900 rounded-full shadow-2xl">
+                    <Sparkles className="text-indigo-600" size={40} />
+                </div>
+                <div>
+                    <h5 className="text-xl font-black text-indigo-900 dark:text-indigo-200">The "Beta Tester" Strategy</h5>
+                    <p className="text-sm text-indigo-700/70 dark:text-indigo-400/70 mt-1 font-medium leading-relaxed">
+                        Whop Discovery loves "Total Members." Even if someone uses the 7-Day Free Trial and cancels, they count as a member in the eyes of the algorithm. Your goal is to get as many people to click "Start Trial" as possible.
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const StoreArchitect: React.FC = () => {
+    const [copied, setCopied] = useState<string | null>(null);
+
+    const storeMarkdown = `
+# 🍽️ CaterPro AI: The 2026 Catering Command Center
+
+**Stop spending Sundays on admin. Start spending them on your craft.**
+
+CaterPro AI is the first "Lifecycle" automation system built by chefs, for chefs. Whether you are a culinary student tackling PoE paperwork or a pro managing high-volume weddings, this is your unfair advantage.
+
+### 🚀 WHY CHEFS CHOOSE CATERPRO:
+*   **Instant Proposals:** Generate 5-course professional menus in < 30 seconds.
+*   **Precision Costing:** Automated shopping lists in local ZAR/USD/EUR currency.
+*   **ADHD-Friendly:** Visually structured, distraction-free, and optimized for inclusive learning.
+*   **Viral Marketing:** Built-in "Reel Creator" to drive traffic to your business.
+
+### 💎 WHAT'S INSIDE THE SYSTEM:
+1.  **AI Menu Architect:** Michelin-star logic for any event type.
+2.  **Sourcing Intelligence:** Smart shopping lists organized by aisle.
+3.  **The Growth Lab:** Ready-to-use social media scripts and viral hooks.
+4.  **Consultant Bot:** 24/7 access to your personal AI culinary strategist.
+
+---
+**Join the future of the kitchen. Start your 7-Day Free Trial today.**
+    `;
+
+    const handleCopy = (text: string, id: string) => {
+        navigator.clipboard.writeText(text.trim());
+        setCopied(id);
+        setTimeout(() => setCopied(null), 2000);
+    };
+
+    return (
+        <div className="animate-fade-in space-y-10">
+            <div className="max-w-3xl">
+                <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4 flex items-center gap-3">
+                    <ShoppingBag className="text-indigo-600" /> Storefront Architect
+                </h3>
+                <p className="text-lg text-slate-500 font-medium leading-relaxed">
+                    Your Whop store page is your 24/7 salesperson. Use this **Structured Markdown** to transform your page from "Basic" to "Premium."
+                </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div className="space-y-6">
+                    <div className="p-8 bg-slate-900 text-white rounded-[3rem] shadow-2xl relative overflow-hidden">
+                        <div className="flex justify-between items-start mb-6">
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400">Step 1: The Bio</span>
+                            <button 
+                                onClick={() => handleCopy("The AI Secret Weapon for Chefs. Automate Proposals, Costing, & PoE Admin in 30 seconds. 7-Day Free Trial Active. 🚀", "bio")}
+                                className="p-2 bg-white/10 hover:bg-white/20 rounded-xl transition-all"
+                            >
+                                {copied === 'bio' ? <CheckCircle2 size={16} className="text-emerald-400" /> : <Copy size={16} />}
+                            </button>
+                        </div>
+                        <p className="text-sm font-bold leading-relaxed italic">
+                            "The AI Secret Weapon for Chefs. Automate Proposals, Costing, & PoE Admin in 30 seconds. 7-Day Free Trial Active. 🚀"
+                        </p>
+                    </div>
+
+                    <div className="p-8 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-[3rem] shadow-xl">
+                        <div className="flex justify-between items-start mb-6">
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">Step 2: The About Section (Markdown)</span>
+                            <button 
+                                onClick={() => handleCopy(storeMarkdown, "about")}
+                                className="p-2 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 transition-all rounded-xl"
+                            >
+                                {copied === 'about' ? <CheckCircle2 size={16} className="text-emerald-500" /> : <Copy size={16} />}
+                            </button>
+                        </div>
+                        <div className="bg-slate-50 dark:bg-slate-950 p-6 rounded-2xl border border-slate-100 dark:border-slate-800 h-64 overflow-y-auto no-scrollbar">
+                            <pre className="text-[10px] text-slate-500 font-mono whitespace-pre-wrap leading-relaxed">
+                                {storeMarkdown.trim()}
+                            </pre>
+                        </div>
+                        <p className="mt-4 text-[10px] font-black text-indigo-600 uppercase tracking-widest text-center">Copy & Paste into the Whop "About" Editor</p>
+                    </div>
+                </div>
+
+                <div className="relative">
+                    <div className="sticky top-24 p-10 bg-indigo-600 rounded-[3rem] text-white shadow-2xl overflow-hidden group">
+                        <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
+                            <Layout size={180} />
+                        </div>
+                        <h4 className="text-2xl font-black mb-6">Visual Advice</h4>
+                        <div className="space-y-6">
+                            {[
+                                { t: 'Retina Cover', d: 'Your banner must be high-contrast. Use the "Dark ROI" template from our Studio.' },
+                                { t: 'Emoji Power', d: 'Use emojis as bullet points. They act as visual anchors for mobile users.' },
+                                { t: 'Call to Action', d: 'Always end with "Start your 7-Day Free Trial".' }
+                            ].map((item, i) => (
+                                <div key={i} className="flex gap-4">
+                                    <div className="mt-1 w-6 h-6 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0 text-[10px] font-black">{i+1}</div>
+                                    <div>
+                                        <p className="font-black text-sm uppercase tracking-wide">{item.t}</p>
+                                        <p className="text-xs text-indigo-100 mt-1 font-medium leading-relaxed">{item.d}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="mt-12 p-6 bg-black/20 rounded-[2rem] border border-white/10">
+                            <p className="text-xs font-bold leading-relaxed italic">
+                                "The difference between a $10 tool and a $500 system is the quality of the sales page. We are building a system."
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const WhopSEOSniper: React.FC = () => {
     const [isGenerating, setIsGenerating] = useState(false);
@@ -140,7 +340,7 @@ const WhopSEOSniper: React.FC = () => {
 };
 
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
-  const [activeTab, setActiveTab] = useState<'mission' | 'whop' | 'sniper' | 'video' | 'design'>('whop');
+  const [activeTab, setActiveTab] = useState<'mission' | 'whop' | 'recruiter' | 'design' | 'store'>('whop');
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['community-post']));
 
   const toggleTask = (taskId: string) => {
@@ -181,16 +381,19 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
           
           <div className="flex bg-slate-900/50 p-2 rounded-[1.5rem] border border-white/10 overflow-x-auto no-scrollbar backdrop-blur-md">
             <button onClick={() => setActiveTab('whop')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'whop' ? 'bg-white text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white'}`}>
-                <Crosshair size={16} /> Visibility Hub
+                <Crosshair size={16} /> Visibility
             </button>
-            <button onClick={() => setActiveTab('design')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'design' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
+            <button onClick={() => setActiveTab('store')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'store' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
+                <ShoppingBag size={16} /> Store Architect
+            </button>
+            <button onClick={() => setActiveTab('recruiter')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'recruiter' ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
+                <UserPlus size={16} /> Recruiter Lab
+            </button>
+            <button onClick={() => setActiveTab('design')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'design' ? 'bg-amber-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
                 <Layout size={16} /> Asset Studio
             </button>
-            <button onClick={() => setActiveTab('mission')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'mission' ? 'bg-amber-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
-                <ClipboardCheck size={16} /> Dashboard Checklist
-            </button>
-            <button onClick={() => setActiveTab('sniper')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'sniper' ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
-                <TrendingUp size={16} /> Conversion Lab
+            <button onClick={() => setActiveTab('mission')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'mission' ? 'bg-slate-700 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
+                <ClipboardCheck size={16} /> Dashboard
             </button>
           </div>
         </div>
@@ -198,6 +401,8 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
 
       <div className="p-10 sm:p-16">
         {activeTab === 'whop' && <WhopSEOSniper />}
+        {activeTab === 'store' && <StoreArchitect />}
+        {activeTab === 'recruiter' && <CommunityRecruiter />}
         {activeTab === 'design' && <ThumbnailStudio />}
 
         {/* MISSION CONTROL TAB */}
@@ -226,45 +431,12 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                     <p className="text-indigo-100 text-sm font-medium mb-10 leading-relaxed">
                         Whop Discover loves high-volume trials. It feeds the algorithm and builds your "Members" count instantly.
                     </p>
-                    <button onClick={() => setActiveTab('whop')} className="px-12 py-6 bg-white text-indigo-600 rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all">
-                        Launch Sniper Hub
+                    <button onClick={() => setActiveTab('recruiter')} className="px-12 py-6 bg-white text-indigo-600 rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all">
+                        Open Recruiter Lab
                     </button>
                 </div>
             </div>
           </div>
-        )}
-
-        {/* GROWTH STRATEGY TAB */}
-        {activeTab === 'sniper' && (
-           <div className="animate-fade-in grid grid-cols-1 md:grid-cols-2 gap-10">
-                <div className="p-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-[3rem] border-2 border-indigo-100 dark:border-indigo-800 flex flex-col justify-between h-full shadow-lg">
-                   <div>
-                       <div className="p-3 bg-indigo-600 w-fit rounded-2xl mb-6 text-white shadow-lg"><MessageSquare size={24} /></div>
-                       <h5 className="text-lg font-black uppercase text-indigo-700 dark:text-indigo-400 tracking-widest mb-1">Whop Viral Strategy</h5>
-                       <p className="text-[11px] text-slate-500 font-black mb-8 uppercase tracking-widest">Growth Loop Post</p>
-                       <div className="p-8 bg-white dark:bg-slate-950 rounded-[2.5rem] text-sm text-slate-700 dark:text-slate-300 italic mb-10 border border-indigo-100 leading-relaxed font-bold shadow-inner">
-                           "I just updated the 2026 Catering Command Center on Whop. You can now try the system for 7 days FREE. I'm looking for reviews to help my Discovery ranking. Link in bio!"
-                       </div>
-                   </div>
-                   <button onClick={() => copyToClipboard("I just updated the 2026 Catering Command Center on Whop. You can now try the system for 7 days FREE. I'm looking for reviews to help my Discovery ranking. Link in bio!", "Review Post")} className="w-full py-6 bg-indigo-600 text-white rounded-[2rem] font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl hover:bg-indigo-700 transition-all">
-                       <Copy size={20} /> Copy "Free Trial" Post
-                   </button>
-                </div>
-
-                <div className="p-12 bg-emerald-50 dark:bg-emerald-900/20 rounded-[3rem] border-2 border-emerald-100 dark:border-emerald-800 flex flex-col justify-between h-full shadow-lg">
-                   <div>
-                       <div className="p-3 bg-emerald-600 w-fit rounded-2xl mb-6 text-white shadow-lg"><Users size={24} /></div>
-                       <h5 className="text-lg font-black uppercase text-emerald-700 dark:text-emerald-400 tracking-widest mb-1">Affiliate Fuel</h5>
-                       <p className="text-[11px] text-slate-500 font-black mb-8 uppercase tracking-widest">Recruit others to rank for you</p>
-                       <div className="p-8 bg-white dark:bg-slate-950 rounded-[2.5rem] text-sm text-slate-700 dark:text-slate-300 italic mb-10 border border-emerald-100 leading-relaxed font-bold shadow-inner">
-                           "Chef! I've built a system that automates our admin. Become an affiliate on Whop—tell people they can try it for FREE for 7 days. You keep 40% of every sale after that."
-                       </div>
-                   </div>
-                   <button onClick={() => copyToClipboard("Chef! I've built a system that automates our admin. Become an affiliate on Whop—tell people they can try it for FREE for 7 days. You keep 40% of every sale after that.", "Affiliate DM")} className="w-full py-6 bg-emerald-600 text-white rounded-[2rem] font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 shadow-xl hover:bg-emerald-700 transition-all">
-                       <Copy size={20} /> Copy Recruiter DM
-                   </button>
-                </div>
-           </div>
         )}
       </div>
     </section>
