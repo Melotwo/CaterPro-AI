@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Download, Layout, Type, Sparkles, Image as ImageIcon, ShieldCheck, Zap, ArrowRight, Loader2, Eye, Search, AlertCircle, CheckCircle2, Maximize, Smartphone } from 'lucide-react';
+import { Camera, Download, Layout, Type, Sparkles, Image as ImageIcon, ShieldCheck, Zap, ArrowRight, Loader2, Eye, Search, AlertCircle, CheckCircle2, Maximize, Smartphone, AlertTriangle } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
 const TEMPLATES = [
@@ -43,7 +43,7 @@ const ThumbnailStudio: React.FC = () => {
       await new Promise(r => setTimeout(r, 100));
 
       const canvas = await html2canvas(previewRef.current, {
-        scale: 3, // Ultra-high resolution for Whop retina displays
+        scale: 2, // Scale 2 is better for iPad stability than Scale 3
         useCORS: true,
         backgroundColor: null,
         logging: false,
@@ -55,6 +55,7 @@ const ThumbnailStudio: React.FC = () => {
       link.click();
     } catch (err) {
       console.error('Export failed', err);
+      alert('Export failed. Try a smaller screenshot or refresh the page.');
     } finally {
       setIsExporting(false);
       setShowSafetyZone(wasSafetyOn);
