@@ -1,12 +1,96 @@
 
 import React, { useState } from 'react';
-import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation, Layout, Eye, MessageSquare, Sparkles, Loader2, AlertCircle, ListChecks, Star, Settings2, HelpCircle, ShoppingBag, UserPlus, MessageCircle } from 'lucide-react';
+/* Added AlertTriangle to the imports */
+import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation, Layout, Eye, MessageSquare, Sparkles, Loader2, AlertCircle, AlertTriangle, ListChecks, Star, Settings2, HelpCircle, ShoppingBag, UserPlus, MessageCircle, DollarSign, PieChart } from 'lucide-react';
 import { generateWhopSEO } from '../services/geminiService';
 import ThumbnailStudio from './ThumbnailStudio';
 
 interface FounderRoadmapProps {
   whopUrl: string;
 }
+
+const ClippingBountyLab: React.FC = () => {
+    const [budget, setBudget] = useState(100);
+    const [viewRate, setViewRate] = useState(0.05); // $0.05 per view
+
+    const potentialViews = (budget / viewRate).toLocaleString();
+
+    return (
+        <div className="animate-fade-in space-y-10">
+            <div className="max-w-3xl">
+                <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4 flex items-center gap-3">
+                    <DollarSign className="text-emerald-500" /> Clipping Bounty Lab
+                </h3>
+                <p className="text-lg text-slate-500 font-medium leading-relaxed">
+                    Whop clippers don't work for free. Use this to calculate your "Content Reward" budget to attract high-quality creators.
+                </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div className="p-10 bg-slate-50 dark:bg-slate-800/50 rounded-[3rem] border-2 border-slate-100 dark:border-slate-700 shadow-xl space-y-8">
+                    <div>
+                        <label className="text-[10px] font-black uppercase text-slate-400 mb-4 block tracking-[0.3em]">Total Testing Budget ($)</label>
+                        <input 
+                            type="range" min="50" max="1000" step="50"
+                            value={budget}
+                            onChange={(e) => setBudget(Number(e.target.value))}
+                            className="w-full accent-indigo-600 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+                        />
+                        <div className="flex justify-between mt-2 font-black text-slate-900 dark:text-white">${budget}</div>
+                    </div>
+
+                    <div>
+                        <label className="text-[10px] font-black uppercase text-slate-400 mb-4 block tracking-[0.3em]">Bounty Rate (per 1,000 views)</label>
+                        <div className="grid grid-cols-3 gap-2">
+                            {[1, 5, 10].map(rate => (
+                                <button 
+                                    key={rate} 
+                                    onClick={() => setViewRate(rate/1000)}
+                                    className={`py-3 rounded-xl border-2 font-black text-xs ${viewRate === rate/1000 ? 'bg-indigo-600 border-indigo-600 text-white shadow-lg' : 'bg-white border-slate-200 text-slate-400'}`}
+                                >
+                                    ${rate}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="p-8 bg-indigo-600 rounded-[2rem] text-white shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-6 opacity-10"><TrendingUp size={100} /></div>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1">Target Reach</p>
+                        <h4 className="text-5xl font-black">{potentialViews} <span className="text-xl opacity-60">Views</span></h4>
+                        <p className="text-xs mt-4 text-indigo-100 font-medium">Estimated traffic based on current Whop bounty standards.</p>
+                    </div>
+                </div>
+
+                <div className="space-y-6">
+                    <div className="p-8 bg-white dark:bg-slate-900 rounded-[3rem] border-2 border-slate-100 dark:border-slate-700 shadow-lg">
+                        <h4 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
+                            <PieChart size={18} className="text-indigo-500" /> Why this works
+                        </h4>
+                        <div className="space-y-4">
+                            {[
+                                { t: 'Leverage Community', d: 'Clippers are already on Whop looking for products to promote.' },
+                                { t: 'Fixed Cost ROI', d: 'You only pay for actual views recorded by the Whop system.' },
+                                { t: 'Viral Potential', d: 'One good clip can generate thousands in recurring SaaS revenue.' }
+                            ].map(i => (
+                                <div key={i.t} className="flex gap-4">
+                                    <CheckCircle2 className="text-emerald-500 shrink-0" size={18} />
+                                    <div>
+                                        <p className="font-black text-xs uppercase text-slate-800 dark:text-white">{i.t}</p>
+                                        <p className="text-[10px] text-slate-500 font-bold mt-1 leading-relaxed">{i.d}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <a href="https://whop.com/melotwo2" target="_blank" className="w-full py-6 bg-slate-950 text-white rounded-[2rem] font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-2xl hover:scale-105 active:scale-95 transition-all">
+                        Set Bounty in Whop Dashboard <ExternalLink size={18} />
+                    </a>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const CommunityRecruiter: React.FC = () => {
     const [copied, setCopied] = useState<string | null>(null);
@@ -19,28 +103,28 @@ const CommunityRecruiter: React.FC = () => {
 
     const scripts = [
         {
-            id: 'public',
-            title: 'Public Chat Sniper',
-            subtitle: 'Use this in the "Whop Clips" chat',
-            icon: MessageSquare,
-            color: 'bg-indigo-600',
-            text: `Hey guys! I’ve just finished the 2026 update for CaterPro AI. I’m looking for 3 active users to test the 7-Day Free Trial and give me an honest review in exchange for a "Founder" discount later. Anyone here working in the service/hospitality space?`
+            id: 'clipper-invite',
+            title: 'The Clipper Bounty',
+            subtitle: 'Post this in "Whop Clips" chat',
+            icon: PlayCircle,
+            color: 'bg-red-600',
+            text: `I'm launching a new AI SaaS for Chefs. Looking for 5 Clippers to join the Launch Team. Paying $5 per 1k views + 40% recurring commissions. The hospitality niche is wide open right now. DM me for the link!`
         },
         {
             id: 'dm',
-            title: 'The Direct Partner DM',
-            subtitle: 'For active members like Felix or Sean',
+            title: 'Direct High-Ticket DM',
+            subtitle: 'For power-users on the leaderboard',
             icon: UserPlus,
             color: 'bg-emerald-600',
-            text: `Chef! Noticed you were active in the Whop chat. I'm Tumi, building CaterPro AI. I’ve engineered a 2026 automation system for catering proposals. I’m looking for reliable partners to help me promote it—you keep 40% of every referral sale. Want to see the dashboard?`
+            text: `Chef! Noticed you're moving weight in the clips chat. I've built CaterPro AI—the first automation system for large-scale catering. I'm looking for a lead affiliate to own this category. 40% cut for you. Want a demo?`
         },
         {
-            id: 'affiliate',
-            title: 'Affiliate Recruitment',
-            subtitle: 'Post this on your Twitter/IG bio',
-            icon: TrendingUp,
+            id: 'review-swap',
+            title: 'The Ranking Sniper',
+            subtitle: 'To boost Discovery Rank',
+            icon: Star,
             color: 'bg-amber-500',
-            text: `Stop selling low-ticket tools. Join the CaterPro AI affiliate program on Whop. Help chefs escape the paperwork grind and earn recurring 40% commissions. 7-Day Free Trial active now for your audience. 🚀`
+            text: `Who here wants to test the 2026 Hospitality Command Center? 7-Day Free Trial is live. I'm looking for reviews to help my Discovery ranking. If you drop a review, I'll give you a permanent 30% discount code.`
         }
     ];
 
@@ -48,10 +132,10 @@ const CommunityRecruiter: React.FC = () => {
         <div className="animate-fade-in space-y-10">
             <div className="max-w-3xl">
                 <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4 flex items-center gap-3">
-                    <UserPlus className="text-indigo-600" /> Community Recruiter
+                    <UserPlus className="text-indigo-600" /> Recruitment Command
                 </h3>
                 <p className="text-lg text-slate-500 font-medium leading-relaxed">
-                    Don't just sell—**Recruit.** Use these scripts to turn active Whop members into your marketing army.
+                    Turn the Whop community into your salesforce. Don't sell the app—**sell the opportunity to earn.**
                 </p>
             </div>
 
@@ -75,22 +159,10 @@ const CommunityRecruiter: React.FC = () => {
                             className={`w-full mt-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 ${copied === script.id ? 'bg-emerald-500 text-white' : 'bg-slate-900 text-white hover:bg-slate-800'}`}
                         >
                             {copied === script.id ? <CheckCircle2 size={16} /> : <Copy size={16} />}
-                            {copied === script.id ? 'Copied Script' : 'Copy Script'}
+                            {copied === script.id ? 'Copied' : 'Copy Script'}
                         </button>
                     </div>
                 ))}
-            </div>
-
-            <div className="p-10 bg-indigo-50 dark:bg-indigo-900/10 rounded-[3rem] border border-indigo-100 dark:border-indigo-800 flex flex-col sm:flex-row items-center gap-8">
-                <div className="p-6 bg-white dark:bg-slate-900 rounded-full shadow-2xl">
-                    <Sparkles className="text-indigo-600" size={40} />
-                </div>
-                <div>
-                    <h5 className="text-xl font-black text-indigo-900 dark:text-indigo-200">The "Beta Tester" Strategy</h5>
-                    <p className="text-sm text-indigo-700/70 dark:text-indigo-400/70 mt-1 font-medium leading-relaxed">
-                        Whop Discovery loves "Total Members." Even if someone uses the 7-Day Free Trial and cancels, they count as a member in the eyes of the algorithm. Your goal is to get as many people to click "Start Trial" as possible.
-                    </p>
-                </div>
             </div>
         </div>
     );
@@ -171,7 +243,6 @@ CaterPro AI is the first "Lifecycle" automation system built by chefs, for chefs
                                 {storeMarkdown.trim()}
                             </pre>
                         </div>
-                        <p className="mt-4 text-[10px] font-black text-indigo-600 uppercase tracking-widest text-center">Copy & Paste into the Whop "About" Editor</p>
                     </div>
                 </div>
 
@@ -196,143 +267,7 @@ CaterPro AI is the first "Lifecycle" automation system built by chefs, for chefs
                                 </div>
                             ))}
                         </div>
-                        <div className="mt-12 p-6 bg-black/20 rounded-[2rem] border border-white/10">
-                            <p className="text-xs font-bold leading-relaxed italic">
-                                "The difference between a $10 tool and a $500 system is the quality of the sales page. We are building a system."
-                            </p>
-                        </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const WhopSEOSniper: React.FC = () => {
-    const [isGenerating, setIsGenerating] = useState(false);
-    const [seoData, setSeoData] = useState<any>(null);
-    const [niche, setNiche] = useState('Hospitality AI System');
-
-    const handleGenerate = async () => {
-        setIsGenerating(true);
-        try {
-            const data = await generateWhopSEO(niche);
-            setSeoData(data);
-        } catch (e) {
-            console.error(e);
-        } finally {
-            setIsGenerating(false);
-        }
-    };
-
-    return (
-        <div className="animate-fade-in space-y-10">
-            <div className="max-w-3xl">
-                <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4 flex items-center gap-3">
-                    <Crosshair className="text-red-500" /> Discovery Ranking Hub
-                </h3>
-                <p className="text-lg text-slate-500 font-medium leading-relaxed">
-                    Whop's "Discover" feed is a search engine. To get listed, you must match the <span className="text-indigo-600 font-black italic">Search Intent</span> of people looking for AI and Catering tools.
-                </p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                <div className="p-10 bg-slate-50 dark:bg-slate-800/50 rounded-[3rem] border-2 border-slate-100 dark:border-slate-700 shadow-xl">
-                    <label className="text-[10px] font-black uppercase text-slate-400 mb-4 block tracking-[0.3em]">1. Meta-Copy Sniper</label>
-                    <div className="relative mb-8">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
-                        <input 
-                            type="text" 
-                            value={niche}
-                            onChange={(e) => setNiche(e.target.value)}
-                            className="w-full pl-12 pr-6 py-5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 outline-none focus:border-indigo-500 transition-all font-black text-lg shadow-sm"
-                            placeholder="Enter niche (e.g. AI Chef System)"
-                        />
-                    </div>
-                    <button 
-                        onClick={handleGenerate}
-                        disabled={isGenerating}
-                        className="w-full py-6 bg-slate-950 text-white rounded-[2rem] font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-2xl hover:scale-[1.02] active:scale-95 transition-all disabled:opacity-50"
-                    >
-                        {isGenerating ? <Loader2 className="animate-spin" /> : <Sparkles size={20} className="text-amber-400" />}
-                        {isGenerating ? 'Analyzing Keyword Velocity...' : 'Generate Discovery Package'}
-                    </button>
-
-                    <div className="mt-12 space-y-6">
-                        <div className="p-6 bg-indigo-50 dark:bg-indigo-900/10 rounded-3xl border border-indigo-100 dark:border-indigo-800">
-                            <h4 className="text-[11px] font-black uppercase text-indigo-700 dark:text-indigo-400 tracking-[0.2em] flex items-center gap-2 mb-4">
-                                <Settings2 size={18} /> Discovery Listing Checklist
-                            </h4>
-                            <div className="space-y-4">
-                                {[
-                                    { t: 'Category Fix', d: 'Set Category to "Software > Productivity" (Not Other).', done: false },
-                                    { t: '7-Day Trial', d: 'Verify "Free Trial" is enabled on all paid plans.', done: false },
-                                    { t: 'Yearly Plan', d: 'Ensure "Yearly" payment option is active in Whop.', done: false },
-                                    { t: 'Headline SEO', d: 'Must be under 80 chars & contain "Catering" + "AI".', done: false }
-                                ].map(step => (
-                                    <div key={step.t} className="flex items-start gap-4">
-                                        <div className="mt-1 w-5 h-5 rounded-md border-2 border-indigo-200 dark:border-indigo-700 flex items-center justify-center text-indigo-500">
-                                            <CheckCircle2 size={12} className="opacity-0" />
-                                        </div>
-                                        <div>
-                                            <p className="text-[11px] font-black text-slate-800 dark:text-white uppercase leading-none">{step.t}</p>
-                                            <p className="text-[10px] text-slate-500 font-bold mt-1">{step.d}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="relative">
-                    {seoData ? (
-                        <div className="p-10 bg-indigo-600 text-white rounded-[3rem] shadow-[0_35px_60px_-15px_rgba(79,70,229,0.4)] space-y-8 animate-slide-in relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-12 opacity-10 pointer-events-none">
-                                <Trophy size={140} />
-                            </div>
-                            
-                            <div className="relative z-10">
-                                <span className="text-[11px] font-black uppercase tracking-[0.3em] text-indigo-200 mb-2 block">Whop Discovery Headline</span>
-                                <p className="text-2xl font-black leading-tight tracking-tight mt-1">{seoData.optimizedTitle}</p>
-                                <button onClick={() => { navigator.clipboard.writeText(seoData.optimizedTitle); alert("Headline Copied!"); }} className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-100 hover:text-white bg-white/10 px-3 py-1.5 rounded-lg border border-white/20 transition-all">
-                                    <Copy size={12} /> Copy Headline
-                                </button>
-                            </div>
-
-                            <div className="relative z-10">
-                                <span className="text-[11px] font-black uppercase tracking-[0.3em] text-indigo-200 mb-3 block">Discovery Search Tags</span>
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                    {seoData.searchTags.map((tag: string) => (
-                                        <span key={tag} className="px-4 py-2 bg-white/10 rounded-xl text-xs font-black border border-white/20 shadow-inner">{tag}</span>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="relative z-10 p-6 bg-black/20 rounded-3xl border border-white/10">
-                                <div className="flex items-center gap-2 mb-2 text-amber-300">
-                                    <Star size={16} className="fill-amber-300" />
-                                    <span className="text-[11px] font-black uppercase tracking-widest">Discovery Description</span>
-                                </div>
-                                <p className="text-xs text-indigo-100 mt-2 leading-relaxed italic font-medium">"{seoData.optimizedDescription}"</p>
-                            </div>
-
-                            <div className="p-4 bg-amber-500/20 rounded-2xl border border-amber-400/30 flex gap-4 relative z-10">
-                                <AlertCircle size={20} className="text-amber-400 shrink-0" />
-                                <p className="text-[10px] font-bold text-amber-100 leading-relaxed">
-                                    <strong>Listing Tip:</strong> Whop users click on "Results" not "Tools". Your description must promise saved time or increased revenue.
-                                </p>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="h-full min-h-[400px] border-4 border-dashed border-slate-200 dark:border-slate-800 rounded-[3rem] flex flex-col items-center justify-center text-center p-12 bg-white dark:bg-slate-900/20">
-                            <div className="w-20 h-20 bg-slate-50 dark:bg-slate-800 rounded-full flex items-center justify-center mb-6 shadow-inner">
-                                <HelpCircle className="text-slate-300" size={32} />
-                            </div>
-                            <h5 className="text-xl font-black text-slate-300 uppercase tracking-widest">Package Pending</h5>
-                            <p className="text-sm font-bold text-slate-400 mt-3 max-w-xs leading-relaxed">Let Gemini scan your niche and build the perfect listing package for Whop Discovery.</p>
-                        </div>
-                    )}
                 </div>
             </div>
         </div>
@@ -340,7 +275,7 @@ const WhopSEOSniper: React.FC = () => {
 };
 
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
-  const [activeTab, setActiveTab] = useState<'mission' | 'whop' | 'recruiter' | 'design' | 'store'>('whop');
+  const [activeTab, setActiveTab] = useState<'mission' | 'whop' | 'recruiter' | 'design' | 'store' | 'bounty'>('whop');
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['community-post']));
 
   const toggleTask = (taskId: string) => {
@@ -350,16 +285,11 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
     setCompletedTasks(newTasks);
   };
 
-  const copyToClipboard = (text: string, label: string) => {
-      navigator.clipboard.writeText(text);
-      alert(`${label} copied!`);
-  };
-
   const dailyTasks = [
     { id: 'whop-trial', label: 'Enable 7-Day Free Trial in Whop', highPriority: true },
+    { id: 'whop-bounty', label: 'Set Clipping Bounty Budget ($2 per 1k views)', highPriority: true },
     { id: 'whop-yearly', label: 'Add Yearly Payment Option (Save 20%)', highPriority: true },
-    { id: 'whop-list-button', label: 'Confirm Visibility on Whop Discover', highPriority: true },
-    { id: 'b2b-pitch-academy', label: 'Email 5 Culinary Schools (Free Access Offer)', highPriority: false },
+    { id: 'b2b-pitch-academy', label: 'Email 5 Culinary Schools', highPriority: false },
   ];
 
   return (
@@ -383,24 +313,44 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
             <button onClick={() => setActiveTab('whop')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'whop' ? 'bg-white text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white'}`}>
                 <Crosshair size={16} /> Visibility
             </button>
-            <button onClick={() => setActiveTab('store')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'store' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
-                <ShoppingBag size={16} /> Store Architect
+            <button onClick={() => setActiveTab('bounty')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'bounty' ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
+                <DollarSign size={16} /> Bounty Lab
             </button>
-            <button onClick={() => setActiveTab('recruiter')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'recruiter' ? 'bg-emerald-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
-                <UserPlus size={16} /> Recruiter Lab
+            <button onClick={() => setActiveTab('store')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'store' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
+                <ShoppingBag size={16} /> Storefront
+            </button>
+            <button onClick={() => setActiveTab('recruiter')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'recruiter' ? 'bg-indigo-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
+                <UserPlus size={16} /> Recruiter
             </button>
             <button onClick={() => setActiveTab('design')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'design' ? 'bg-amber-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
-                <Layout size={16} /> Asset Studio
+                <Layout size={16} /> Assets
             </button>
             <button onClick={() => setActiveTab('mission')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'mission' ? 'bg-slate-700 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
-                <ClipboardCheck size={16} /> Dashboard
+                <ClipboardCheck size={16} /> Checklist
             </button>
           </div>
         </div>
       </div>
 
       <div className="p-10 sm:p-16">
-        {activeTab === 'whop' && <WhopSEOSniper />}
+        {activeTab === 'whop' && (
+            <div className="animate-fade-in space-y-10">
+                <div className="max-w-3xl">
+                    <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Discovery Strategy</h3>
+                    <p className="text-lg text-slate-500">The Whop algorithm prioritizes products that bring **New Users** to the platform. By setting up a clipping bounty, you generate hundreds of "New User" entries, pushing you to the top of the feed.</p>
+                </div>
+                <div className="p-8 bg-amber-50 dark:bg-amber-900/10 rounded-[3rem] border-2 border-amber-100 dark:border-amber-800 flex gap-6">
+                    <AlertTriangle className="text-amber-500 shrink-0" size={32} />
+                    <div>
+                        <p className="font-black text-amber-900 dark:text-amber-200 uppercase tracking-widest">Crucial Insight</p>
+                        <p className="text-sm text-amber-700/80 dark:text-amber-400/80 mt-1 font-medium leading-relaxed">
+                            Your research shows people are earning **$13k/day** in Hospitality. Your advantage is **Accessibility.** Ensure your Whop pricing has the "7-Day Trial" and "Yearly" options turned ON to maximize conversion velocity.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        )}
+        {activeTab === 'bounty' && <ClippingBountyLab />}
         {activeTab === 'store' && <StoreArchitect />}
         {activeTab === 'recruiter' && <CommunityRecruiter />}
         {activeTab === 'design' && <ThumbnailStudio />}
@@ -418,7 +368,7 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                         </div>
                         <span className={`text-base font-black text-left ${completedTasks.has(task.id) ? 'text-slate-400 line-through' : 'text-slate-800 dark:text-slate-100'}`}>
                             {task.label}
-                            {task.highPriority && !completedTasks.has(task.id) && <span className="ml-3 text-[9px] bg-red-500 text-white px-2.5 py-1 rounded-md font-black tracking-widest shadow-lg shadow-red-500/20">REQUIRED FOR DISCOVERY</span>}
+                            {task.highPriority && !completedTasks.has(task.id) && <span className="ml-3 text-[9px] bg-red-500 text-white px-2.5 py-1 rounded-md font-black tracking-widest shadow-lg shadow-red-500/20">REQUIRED</span>}
                         </span>
                     </button>
                     ))}
@@ -426,13 +376,10 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                 <div className="bg-indigo-600 p-16 rounded-[3rem] flex flex-col justify-center items-center text-center shadow-[0_40px_80px_-15px_rgba(79,70,229,0.5)]">
                     <Award className="text-white/30 mb-8" size={80} />
                     <p className="text-3xl font-black text-white leading-tight mb-8">
-                        "Trial leads to<br/>Conversion Velocity."
+                        "Clips drive views.<br/>Views drive trials."
                     </p>
-                    <p className="text-indigo-100 text-sm font-medium mb-10 leading-relaxed">
-                        Whop Discover loves high-volume trials. It feeds the algorithm and builds your "Members" count instantly.
-                    </p>
-                    <button onClick={() => setActiveTab('recruiter')} className="px-12 py-6 bg-white text-indigo-600 rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all">
-                        Open Recruiter Lab
+                    <button onClick={() => setActiveTab('bounty')} className="px-12 py-6 bg-white text-indigo-600 rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all">
+                        Launch Bounty Lab
                     </button>
                 </div>
             </div>
