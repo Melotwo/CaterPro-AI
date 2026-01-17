@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Check, Star, Zap, Briefcase, GraduationCap, ExternalLink, ShieldCheck, Globe, Clock, Lock } from 'lucide-react';
+import { Check, Star, Zap, Briefcase, GraduationCap, ExternalLink, ShieldCheck, Globe, Clock, Lock, Sparkles } from 'lucide-react';
 import { SubscriptionPlan } from '../hooks/useAppSubscription';
 import Footer from './Footer';
 import PaymentModal from './PaymentModal';
@@ -46,8 +46,9 @@ const TIER_STYLES = {
   },
 };
 
-const getTiers = (currency: string = 'ZAR', whopUrl: string) => {
+const getTiers = (currency: string = 'ZAR', whopUrl: string, period: 'monthly' | 'yearly') => {
   const isZar = currency === 'ZAR';
+  const isYearly = period === 'yearly';
   const symbol = isZar ? 'R' : (currency === 'EUR' ? '€' : (currency === 'GBP' ? '£' : '$'));
   
   return [
@@ -68,27 +69,31 @@ const getTiers = (currency: string = 'ZAR', whopUrl: string) => {
     {
       name: 'Student Edition',
       id: 'student',
-      price: symbol + (isZar ? '110' : '5.99'),
-      priceSuffix: '/mo',
+      price: isYearly 
+        ? symbol + (isZar ? '1100' : '59.90')
+        : symbol + (isZar ? '110' : '5.99'),
+      priceSuffix: isYearly ? '/yr' : '/mo',
       icon: GraduationCap,
       description: 'The Academy Secret Weapon.',
       features: [
         'UNLIMITED Generations',
-        'Local Currency Costing',
         'AI Tutor (Ask any PoE question)',
         'ADHD/Dyslexia Helper Mode',
         'Direct Support via Whop',
       ],
-      cta: 'Lock in Price',
-      badge: 'Launch Deal',
+      cta: 'Start 7-Day Trial',
+      badge: isYearly ? 'Save 16%' : 'Free Trial',
       colorKey: 'blue' as keyof typeof TIER_STYLES,
       whopLink: whopUrl,
+      hasTrial: true,
     },
     {
       name: 'Professional',
       id: 'professional',
-      price: symbol + (isZar ? '349' : '19.99'),
-      priceSuffix: '/mo',
+      price: isYearly 
+        ? symbol + (isZar ? '3490' : '199.90')
+        : symbol + (isZar ? '349' : '19.99'),
+      priceSuffix: isYearly ? '/yr' : '/mo',
       icon: Zap,
       description: 'For Working Caterers.',
       features: [
@@ -96,19 +101,21 @@ const getTiers = (currency: string = 'ZAR', whopUrl: string) => {
         'NO Watermarks on PDFs',
         'AI Food Photography',
         'Sommelier AI Pairings',
-        'Whop Affiliate Access',
       ],
-      cta: 'Lock in Price',
+      cta: 'Start 7-Day Trial',
       highlight: true,
-      badge: 'Limited: Founder Rate',
+      badge: isYearly ? '2 Months Free' : 'Free Trial',
       colorKey: 'amber' as keyof typeof TIER_STYLES,
       whopLink: whopUrl,
+      hasTrial: true,
     },
     {
       name: 'Business',
       id: 'business',
-      price: symbol + (isZar ? '549' : '29.99'),
-      priceSuffix: '/mo',
+      price: isYearly 
+        ? symbol + (isZar ? '5490' : '299.90')
+        : symbol + (isZar ? '549' : '29.99'),
+      priceSuffix: isYearly ? '/yr' : '/mo',
       icon: Briefcase,
       description: 'The Ultimate Suite.',
       features: [
@@ -116,11 +123,12 @@ const getTiers = (currency: string = 'ZAR', whopUrl: string) => {
         'Viral Video Reel Creator',
         'Magic Share Links',
         'Global Supply Hub',
-        'Custom Growth Roadmap',
       ],
-      cta: 'Lock in Price',
+      cta: 'Start 7-Day Trial',
+      badge: isYearly ? 'Best Value' : 'Free Trial',
       colorKey: 'royal' as keyof typeof TIER_STYLES,
       whopLink: whopUrl,
+      hasTrial: true,
     },
   ];
 };
@@ -128,6 +136,7 @@ const getTiers = (currency: string = 'ZAR', whopUrl: string) => {
 const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR', whopUrl }) => {
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState<SubscriptionPlan | null>(null);
   const [selectedPrice, setSelectedPrice] = useState('');
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
 
   const handleTierClick = (tier: any) => {
     if (tier.id === 'free') {
@@ -136,7 +145,6 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
     }
     
     if (tier.whopLink) {
-        // Robust opening for iPads
         const win = window.open(tier.whopLink, '_blank');
         if (win) win.focus();
         onSelectPlan(tier.id as SubscriptionPlan);
@@ -154,23 +162,38 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
     }
   };
 
-  const tiers = getTiers(currency, whopUrl);
+  const tiers = getTiers(currency, whopUrl, billingPeriod);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans">
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-12">
             <div className="flex items-center justify-center gap-2 mb-4 bg-indigo-50 dark:bg-indigo-900/30 w-fit mx-auto px-4 py-2 rounded-full border border-indigo-100 dark:border-indigo-800">
-                <Clock className="text-indigo-600 w-4 h-4 animate-pulse" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-300">Founder Phase: 70% Off Launch Special</span>
+                <Sparkles size={14} className="text-indigo-600 animate-pulse" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-300">7-Day Free Trial Active on All Plans</span>
             </div>
-            <h1 className="text-4xl sm:text-5xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            <h1 className="text-4xl sm:text-6xl font-black text-slate-900 dark:text-white tracking-tighter leading-none mb-6">
               Pick Your Toolkit
             </h1>
-            <p className="mt-4 text-xl text-slate-600 dark:text-slate-400">
-              Join the global community of smart chefs. Lock in launch rates today.
+            <p className="text-lg text-slate-500 dark:text-slate-400 font-medium">
+              Start your 7-day trial. Zero commitment. Cancel anytime via Whop.
             </p>
+
+            {/* Monthly / Yearly Toggle */}
+            <div className="mt-10 flex items-center justify-center gap-4">
+                <span className={`text-sm font-black uppercase tracking-widest ${billingPeriod === 'monthly' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>Monthly</span>
+                <button 
+                    onClick={() => setBillingPeriod(billingPeriod === 'monthly' ? 'yearly' : 'monthly')}
+                    className="relative w-16 h-8 bg-slate-200 dark:bg-slate-800 rounded-full p-1 transition-colors hover:bg-slate-300"
+                >
+                    <div className={`w-6 h-6 bg-indigo-600 rounded-full shadow-lg transform transition-transform duration-300 ${billingPeriod === 'yearly' ? 'translate-x-8' : 'translate-x-0'}`}></div>
+                </button>
+                <div className="flex items-center gap-2">
+                    <span className={`text-sm font-black uppercase tracking-widest ${billingPeriod === 'yearly' ? 'text-indigo-600' : 'text-slate-400'}`}>Yearly</span>
+                    <span className="px-2 py-0.5 bg-emerald-500 text-white text-[9px] font-black rounded-md uppercase tracking-tighter">Save 20%</span>
+                </div>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
@@ -179,20 +202,25 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
               return (
                 <div
                   key={tier.id}
-                  className={`relative flex flex-col rounded-3xl border p-8 shadow-sm h-full transition-all hover:shadow-xl ${
-                    tier.highlight || tier.id === 'student'
+                  className={`relative flex flex-col rounded-[2.5rem] border p-8 shadow-sm h-full transition-all hover:shadow-xl ${
+                    tier.highlight
                       ? `${styles.highlightBorder} bg-white dark:bg-slate-900 z-10 scale-105` 
                       : `${styles.border} bg-white dark:bg-slate-900`
                   }`}
                 >
-                  {(tier.highlight || tier.badge) && (
+                  {(tier.badge) && (
                     <div className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 transform rounded-full px-5 py-1.5 text-[10px] font-black text-white uppercase tracking-widest shadow-lg ${styles.badge}`}>
                       {tier.badge}
                     </div>
                   )}
                   
-                  <div className="mb-6">
+                  <div className="mb-6 flex justify-between items-start">
                       <tier.icon className={`w-10 h-10 ${styles.icon}`} />
+                      {tier.hasTrial && (
+                          <div className="text-[10px] font-black text-emerald-500 border border-emerald-500/30 px-2 py-1 rounded-lg uppercase tracking-widest">
+                              Trial
+                          </div>
+                      )}
                   </div>
 
                   <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{tier.name}</h3>
@@ -217,23 +245,14 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
                   <button
                     onClick={() => handleTierClick(tier)}
                     className={`w-full rounded-2xl px-4 py-4 text-center text-sm font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
-                      tier.highlight || tier.id === 'student' ? styles.buttonHighlight : styles.button
+                      tier.highlight ? styles.buttonHighlight : styles.button
                     } active:scale-95`}
                   >
                     {tier.cta}
                     {tier.whopLink && <ExternalLink size={16} />}
                   </button>
 
-                  <div className="mt-6 flex flex-col items-center gap-2">
-                      <div className="flex items-center gap-1.5 text-[9px] font-black text-slate-400 uppercase tracking-widest">
-                         <Lock size={10} className="text-emerald-500" /> Secure via PayPal
-                      </div>
-                      <div className="flex gap-2 grayscale opacity-30">
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg" alt="PayPal" className="h-3" />
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg" alt="Visa" className="h-3" />
-                          <img src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg" alt="Mastercard" className="h-3" />
-                      </div>
-                  </div>
+                  <p className="mt-4 text-center text-[9px] font-bold text-slate-400 uppercase">Secure via Whop Marketplace</p>
                 </div>
               );
             })}
