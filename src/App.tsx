@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail, Search, Globe, Facebook, Lightbulb, Target, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail, Search, Globe, Facebook, Lightbulb, Target, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -52,6 +52,19 @@ const App: React.FC = () => {
   const [dietaryRestrictions, setDietaryRestrictions] = useState<string[]>([]);
   const [proposalTheme, setProposalTheme] = useState('classic');
   
+  // Gating Logic for Founder Interface
+  const [isFounderMode, setIsFounderMode] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get('mode');
+    const stored = localStorage.getItem('caterpro_is_founder');
+    
+    if (mode === 'founder' || stored === 'true') {
+        localStorage.setItem('caterpro_is_founder', 'true');
+        return true;
+    }
+    return false;
+  });
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<ErrorState | null>(null);
   const [menu, setMenu] = useState<Menu | null>(null);
@@ -191,7 +204,11 @@ const App: React.FC = () => {
         savedCount={savedMenus.length} 
         onOpenQrCode={() => setIsQrModalOpen(true)}
         onOpenInstall={() => setIsInstallModalOpen(true)}
-        onReset={() => { localStorage.removeItem('caterpro-subscription'); window.location.reload(); }}
+        onReset={() => { 
+            localStorage.removeItem('caterpro-subscription'); 
+            localStorage.removeItem('caterpro_is_founder');
+            window.location.href = window.location.pathname; 
+        }}
         onViewLanding={() => setViewMode('landing')}
         onViewPricing={() => setViewMode('pricing')}
       />
@@ -201,15 +218,24 @@ const App: React.FC = () => {
       {viewMode === 'pricing' && <PricingPage whopUrl={WHOP_STORE_URL} onSelectPlan={(p) => { selectPlan(p); setViewMode('generator'); }} currency={currency} />}
 
       {viewMode === 'generator' && (
-        <main className="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <main className="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-8 py-8 sm:py-16">
           {!menu && !isLoading && (
-            <div className="space-y-10 animate-slide-in">
-              <div className="text-center max-w-2xl mx-auto">
-                <h1 className="text-4xl sm:text-6xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">Catering Command Center</h1>
+            <div className="space-y-12 animate-slide-in">
+              <div className="text-center max-w-2xl mx-auto px-4">
+                <h1 className="text-4xl sm:text-7xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">Catering Command Center</h1>
                 <p className="mt-4 text-slate-600 dark:text-slate-400 font-medium text-lg">Define your culinary vision and strategy.</p>
               </div>
 
-              <div className="bg-white dark:bg-slate-900 p-6 sm:p-12 rounded-[3rem] shadow-2xl border border-slate-200 dark:border-slate-800 relative overflow-hidden">
+              {/* Founder Mode Badge (Only you see this) */}
+              {isFounderMode && (
+                  <div className="flex justify-center animate-bounce">
+                      <div className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl border-2 border-indigo-400">
+                          <ShieldCheck size={14} /> Founder Hub Active
+                      </div>
+                  </div>
+              )}
+
+              <div className="bg-white dark:bg-slate-900 p-6 sm:p-12 md:p-16 rounded-[3rem] shadow-2xl border border-slate-200 dark:border-slate-800 relative overflow-hidden">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 main-grid">
                   
                   <div className="space-y-1 relative" ref={eventRef}>
@@ -292,17 +318,20 @@ const App: React.FC = () => {
                             <HelpCircle size={14} />
                         </button>
                       </div>
-                      <div className="flex flex-wrap gap-2">
-                         {STRATEGY_PRESETS.map(preset => (
-                           <button 
-                            key={preset.id}
-                            onClick={() => handleApplyPreset(preset.text)}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-primary-500 hover:text-white transition-all text-[10px] font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
-                           >
-                             <preset.icon size={12} /> {preset.label}
-                           </button>
-                         ))}
-                      </div>
+                      {/* Hidden for users, only visible for Founder/Business plans */}
+                      {(isFounderMode || canAccessFeature('reelsMode')) && (
+                        <div className="flex flex-wrap gap-2">
+                            {STRATEGY_PRESETS.map(preset => (
+                            <button 
+                                key={preset.id}
+                                onClick={() => handleApplyPreset(preset.text)}
+                                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-800 hover:bg-primary-500 hover:text-white transition-all text-[10px] font-bold text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700"
+                            >
+                                <preset.icon size={12} /> {preset.label}
+                            </button>
+                            ))}
+                        </div>
+                      )}
                     </div>
                     
                     {showStrategyGuide && (
@@ -342,8 +371,14 @@ const App: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <MarketingRoadmap />
-              <FounderRoadmap whopUrl={WHOP_STORE_URL} />
+
+              {/* Gated Founder Sections */}
+              {isFounderMode && (
+                  <>
+                    <MarketingRoadmap />
+                    <FounderRoadmap whopUrl={WHOP_STORE_URL} />
+                  </>
+              )}
             </div>
           )}
 
@@ -403,8 +438,13 @@ const App: React.FC = () => {
                   onOpenSocialModal={handleOpenSocial}
                 />
                 
-                <MarketingRoadmap />
-                <FounderRoadmap whopUrl={WHOP_STORE_URL} />
+                {/* Gated Founder Sections (Duplicate for Result View) */}
+                {isFounderMode && (
+                    <>
+                        <MarketingRoadmap />
+                        <FounderRoadmap whopUrl={WHOP_STORE_URL} />
+                    </>
+                )}
             </div>
           )}
         </main>
