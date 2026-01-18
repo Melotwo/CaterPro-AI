@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
-// Added missing 'Activity' import from lucide-react
-import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation, Layout, Eye, MessageSquare, Sparkles, Loader2, AlertCircle, AlertTriangle, ListChecks, Star, Settings2, HelpCircle, ShoppingBag, UserPlus, MessageCircle, DollarSign, PieChart, Info, Smartphone, Check, MousePointer2, Activity } from 'lucide-react';
+import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation, Layout, Eye, MessageSquare, Sparkles, Loader2, AlertCircle, AlertTriangle, ListChecks, Star, Settings2, HelpCircle, ShoppingBag, UserPlus, MessageCircle, DollarSign, PieChart, Info, Smartphone, Check, MousePointer2, Activity, ShieldAlert } from 'lucide-react';
 import { generateWhopSEO } from '../services/geminiService';
 import ThumbnailStudio from './ThumbnailStudio';
 
@@ -24,8 +23,37 @@ const StorefrontAudit: React.FC = () => {
                     <ShoppingBag className="text-indigo-600" /> Whop Store Polish
                 </h3>
                 <p className="text-lg text-slate-500 font-medium leading-relaxed">
-                    Melo, I see you are in the <strong>"Add Link"</strong> dialog. Use these exact details to make your button look like a professional SaaS launch.
+                    Melo, let's make sure your store structure is 100% correct before you go live.
                 </p>
+            </div>
+
+            {/* DANGER ZONE WARNING */}
+            <div className="p-8 bg-red-50 dark:bg-red-900/20 border-4 border-red-500 rounded-[3rem] shadow-2xl animate-pulse">
+                <div className="flex items-start gap-6">
+                    <div className="p-4 bg-red-500 rounded-2xl text-white shadow-xl">
+                        <ShieldAlert size={32} />
+                    </div>
+                    <div>
+                        <h4 className="text-xl font-black text-red-900 dark:text-red-200 uppercase tracking-tight">Stop! Do not mix these up</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
+                            <div className="space-y-2">
+                                <p className="text-[10px] font-black text-red-600 dark:text-red-400 uppercase">1. Whop "Edit URL" Box</p>
+                                <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                                    This is your <strong>Username</strong> on Whop. Keep it as <code className="bg-white/50 px-1 rounded">melotwo2</code> or change it to <code className="bg-white/50 px-1 rounded">caterpro-ai</code>. 
+                                    <br/><span className="text-red-600 underline">DO NOT put the .web.app link here.</span>
+                                </p>
+                            </div>
+                            <div className="space-y-2">
+                                <p className="text-[10px] font-black text-emerald-600 uppercase">2. Whop "Add Link" Button</p>
+                                <p className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                                    This is the <strong>Action Button</strong> on your page. 
+                                    <br/><span className="text-emerald-600">THIS is where you put:</span>
+                                    <br/><code className="bg-emerald-100 dark:bg-emerald-900/50 px-1 rounded">https://caterpro-ai.web.app/</code>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
@@ -33,12 +61,12 @@ const StorefrontAudit: React.FC = () => {
                     {/* ADD LINK DIALOG HELPER */}
                     <div className="p-8 bg-slate-900 text-white rounded-[2.5rem] shadow-2xl relative overflow-hidden border-4 border-indigo-500/30">
                          <div className="absolute top-0 right-0 p-6 opacity-10"><MousePointer2 size={60} /></div>
-                         <span className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 block mb-6">Whop: Add Link Dialog</span>
+                         <span className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 block mb-6">Whop: The correct "Add Link" button</span>
                          
                          <div className="space-y-6">
                             <div>
                                 <div className="flex justify-between items-center mb-2">
-                                    <p className="text-[10px] font-black text-slate-500 uppercase">Field: Title (Max 30 chars)</p>
+                                    <p className="text-[10px] font-black text-slate-500 uppercase">Field: Title</p>
                                     <button onClick={() => handleCopy("Launch AI Command Center", "title")} className="text-[10px] font-black text-indigo-400 hover:underline">Copy</button>
                                 </div>
                                 <div className="p-4 bg-white/5 rounded-xl border border-white/10 text-sm font-bold">
@@ -51,23 +79,16 @@ const StorefrontAudit: React.FC = () => {
                                     <p className="text-[10px] font-black text-slate-500 uppercase">Field: URL</p>
                                     <button onClick={() => handleCopy("https://caterpro-ai.web.app/", "url")} className="text-[10px] font-black text-indigo-400 hover:underline">Copy</button>
                                 </div>
-                                <div className="p-4 bg-white/5 rounded-xl border border-white/10 text-sm font-mono opacity-60">
+                                <div className="p-4 bg-white/5 rounded-xl border border-white/10 text-sm font-mono text-emerald-400">
                                     {copied === 'url' ? 'Copied!' : 'https://caterpro-ai.web.app/'}
                                 </div>
-                            </div>
-
-                            <div>
-                                <p className="text-[10px] font-black text-slate-500 uppercase mb-2">Field: Image</p>
-                                <p className="text-xs font-medium text-slate-300 leading-relaxed">
-                                    Click <strong>"Edit"</strong> on that globe icon and upload your <span className="text-white font-bold">logo.svg</span>. This makes the button look custom-built for your brand.
-                                </p>
                             </div>
                          </div>
                     </div>
 
                     <div className="p-8 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-[2.5rem] shadow-xl">
                         <div className="flex justify-between items-center mb-4">
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Next Step: Optimized Bio</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Step 3: Optimized Bio</span>
                             <button onClick={() => handleCopy("The AI Secret Weapon for Chefs. Stop spending Sundays on admin. Automate professional Proposals, Costing & PoE paperwork in 30 seconds. 7-Day Free Trial active. 🚀", "bio")} className="p-2 hover:bg-slate-100 rounded-xl transition-all">
                                 {copied === 'bio' ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} />}
                             </button>
@@ -84,10 +105,10 @@ const StorefrontAudit: React.FC = () => {
                     </h4>
                     <div className="space-y-6">
                         {[
-                            { t: 'The "Featured" Layout', d: 'In your screenshot, "Featured" is selected. This is perfect. It highlights your main product images.' },
+                            { t: 'Product Media', d: 'Go back to each product (Student/Pro) and upload a high-quality cover photo from our Studio tab.' },
                             { t: 'Theme Selection', d: 'You have "Blue" selected. This is the industry standard for SaaS and looks expensive.' },
-                            { t: 'Whop Clips Chat', d: 'Once this link is saved, your store is ready. Go to the "Whop Clips" chat and post your $2 bounty script.' },
-                            { t: 'Trial Confirmation', d: 'The "Free Trial" badge is visible in your preview. Good job—this drives 3x more clicks.' }
+                            { t: 'Whop Clips Chat', d: 'Once the Link and Bio are saved, your store is ready. Go post the $2 bounty in the clipper chat.' },
+                            { t: 'Check Mobile Preview', d: 'Look at the "Store page preview" on the right of your Whop dashboard. It should look clean!' }
                         ].map(item => (
                             <div key={item.t} className="flex gap-4">
                                 <CheckCircle2 className="text-emerald-500 shrink-0" size={20} />
