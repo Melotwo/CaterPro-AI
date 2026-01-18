@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation, Layout, Eye, MessageSquare, Sparkles, Loader2, AlertCircle, AlertTriangle, ListChecks, Star, Settings2, HelpCircle, ShoppingBag, UserPlus, MessageCircle, DollarSign, PieChart } from 'lucide-react';
+import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation, Layout, Eye, MessageSquare, Sparkles, Loader2, AlertCircle, AlertTriangle, ListChecks, Star, Settings2, HelpCircle, ShoppingBag, UserPlus, MessageCircle, DollarSign, PieChart, Info } from 'lucide-react';
 import { generateWhopSEO } from '../services/geminiService';
 import ThumbnailStudio from './ThumbnailStudio';
 
@@ -10,7 +10,7 @@ interface FounderRoadmapProps {
 
 const ClippingBountyLab: React.FC = () => {
     const [budget, setBudget] = useState(100);
-    const [viewRate, setViewRate] = useState(0.001); // $1.00 per 1k views default
+    const [viewRate, setViewRate] = useState(0.002); // $2.00 per 1k views default (Competitive)
 
     const potentialViews = (budget / viewRate).toLocaleString();
 
@@ -21,7 +21,7 @@ const ClippingBountyLab: React.FC = () => {
                     <DollarSign className="text-emerald-500" /> Clipping Bounty Lab
                 </h3>
                 <p className="text-lg text-slate-500 font-medium leading-relaxed">
-                    Whop clippers choose projects based on CPM (Cost Per Mille). Use this to calculate your "Content Reward" budget.
+                    Based on your Whop research, $2.00 CPM is the "Premium Standard" that will attract the top 10% of clippers.
                 </p>
             </div>
 
@@ -39,9 +39,9 @@ const ClippingBountyLab: React.FC = () => {
                     </div>
 
                     <div>
-                        <label className="text-[10px] font-black uppercase text-slate-400 mb-4 block tracking-[0.3em]">Competitive Bounty Rate (per 1,000 views)</label>
+                        <label className="text-[10px] font-black uppercase text-slate-400 mb-4 block tracking-[0.3em]">Bounty Rate (per 1,000 views)</label>
                         <div className="grid grid-cols-3 gap-2">
-                            {[0.50, 1, 2].map(rate => (
+                            {[1, 2, 3].map(rate => (
                                 <button 
                                     key={rate} 
                                     onClick={() => setViewRate(rate/1000)}
@@ -51,7 +51,7 @@ const ClippingBountyLab: React.FC = () => {
                                 </button>
                             ))}
                         </div>
-                        <p className="text-[9px] text-slate-400 mt-2 font-bold uppercase tracking-tighter">* $1-$2 is highly competitive for 2026 SaaS</p>
+                        <p className="text-[9px] text-indigo-500 mt-2 font-bold uppercase tracking-tighter">* $2.00 beats vidIQ ($1.00) for clipper attention</p>
                     </div>
 
                     <div className="p-8 bg-indigo-600 rounded-[2rem] text-white shadow-2xl relative overflow-hidden">
@@ -65,13 +65,13 @@ const ClippingBountyLab: React.FC = () => {
                 <div className="space-y-6">
                     <div className="p-8 bg-white dark:bg-slate-900 rounded-[3rem] border-2 border-slate-100 dark:border-slate-700 shadow-lg">
                         <h4 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
-                            <PieChart size={18} className="text-indigo-500" /> 2026 Economics
+                            <PieChart size={18} className="text-indigo-500" /> 2026 Profit Model
                         </h4>
                         <div className="space-y-4">
                             {[
-                                { t: '30% Lifetime Cut', d: 'Lower than 40%, but covers the users whole life cycle. Better for long-term profit.' },
-                                { t: 'High Velocity', d: 'A $2 bounty will get your app in front of thousands of chefs by Monday.' },
-                                { t: 'Viral Feedback', d: 'Clippers will tell you what "Hooks" are working best for the algorithm.' }
+                                { t: '30% Lifetime Recurring', d: 'Secure long-term partners with a permanent cut of the chefs they bring in.' },
+                                { t: 'Whop Clips Dominance', d: 'A $2 bounty makes you the #1 trending deal in the recruitment chat.' },
+                                { t: '7-Day Velocity', d: 'Free trials remove friction, giving clippers "Quick Wins" to keep them posting.' }
                             ].map(i => (
                                 <div key={i.t} className="flex gap-4">
                                     <CheckCircle2 className="text-emerald-500 shrink-0" size={18} />
@@ -84,7 +84,7 @@ const ClippingBountyLab: React.FC = () => {
                         </div>
                     </div>
                     <a href="https://whop.com/melotwo2" target="_blank" className="w-full py-6 bg-slate-950 text-white rounded-[2rem] font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-2xl hover:scale-105 active:scale-95 transition-all">
-                        Configure Bounty Dashboard <ExternalLink size={18} />
+                        Open My Whop Dashboard <ExternalLink size={18} />
                     </a>
                 </div>
             </div>
@@ -104,65 +104,94 @@ const CommunityRecruiter: React.FC = () => {
     const scripts = [
         {
             id: 'clipper-invite',
-            title: 'The "Launch Team" Hook',
-            subtitle: 'Post this in "Whop Clips" chat',
+            title: 'Whop Clips Chat Hook',
+            subtitle: 'Post this in the main Clipping Deals chat',
             icon: PlayCircle,
             color: 'bg-red-600',
-            text: `I'm launching the first AI Catering System for 2026. I'm looking for 5 Clippers to join my 'Launch Team'—paying $2 per 1k views + 30% recurring lifetime commission. The niche is empty and ready to blow. Who wants the dashboard link?`
+            text: `I'm launching the first AI Catering System for 2026. Looking for 5 clippers to join my 'Launch Team'—paying $2 per 1k views + 30% recurring lifetime commission. The niche is empty and ready to blow. Who wants the dashboard link?`
         },
         {
             id: 'dm',
-            title: 'Partner Acquisition DM',
-            subtitle: 'For the top 10% of creators',
+            title: 'Direct Partner DM',
+            subtitle: 'For creators already posting videos',
             icon: UserPlus,
             color: 'bg-emerald-600',
             text: `Chef! Noticed your edits are clean. I've built CaterPro AI—the first 'Lifecycle' system for catering pros. I'm looking for a lead partner. I'll give you a permanent 30% cut of every sub you bring in for life. Want to see the app?`
         },
         {
-            id: 'review-swap',
-            title: 'Discovery Ranking Sniper',
-            subtitle: 'Boost your storefront rank',
-            icon: Star,
-            color: 'bg-amber-500',
-            text: `Launching the 2026 Catering Command Center today. 7-Day FREE trial is active. I'm looking for honest reviews to help my Whop ranking. If you drop a review, I'll send you a 30% lifetime discount code for your own business.`
+            id: 'trial-push',
+            title: 'Store Chat "Alpha" Post',
+            subtitle: 'Post this in your internal store chat',
+            icon: MessageCircle,
+            color: 'bg-indigo-600',
+            text: `Welcome to the CaterPro family. 🥂 I'm looking for 5 chefs to be my 'Alpha Testers'. Use the system to generate a menu, leave a review this week, and I'll send you a 50% lifetime discount code. Let's win 2026.`
         }
     ];
 
     return (
         <div className="animate-fade-in space-y-10">
-            <div className="max-w-3xl">
-                <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4 flex items-center gap-3">
-                    <UserPlus className="text-indigo-600" /> Recruitment Command
-                </h3>
-                <p className="text-lg text-slate-500 font-medium leading-relaxed">
-                    Use these optimized scripts to build your salesforce. 30% lifetime commission is the "Gold Standard" for serious partners.
-                </p>
-            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2">
+                    <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4 flex items-center gap-3">
+                        <UserPlus className="text-indigo-600" /> Whop Command Hub
+                    </h3>
+                    <p className="text-lg text-slate-500 font-medium leading-relaxed">
+                        Use these optimized scripts to build your salesforce. 30% lifetime commission is the "Gold Standard" for serious partners.
+                    </p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                        {scripts.map((script) => (
+                            <div key={script.id} className="bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-[2.5rem] p-8 flex flex-col justify-between shadow-xl group hover:border-indigo-500/30 transition-all">
+                                <div>
+                                    <div className={`w-12 h-12 ${script.color} rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg`}>
+                                        <script.icon size={24} />
+                                    </div>
+                                    <h4 className="text-xl font-black text-slate-900 dark:text-white leading-none">{script.title}</h4>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-2">{script.subtitle}</p>
+                                    
+                                    <div className="mt-8 p-6 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800 italic text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
+                                        "{script.text}"
+                                    </div>
+                                </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                {scripts.map((script) => (
-                    <div key={script.id} className="bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-[2.5rem] p-8 flex flex-col justify-between shadow-xl group hover:border-indigo-500/30 transition-all">
-                        <div>
-                            <div className={`w-12 h-12 ${script.color} rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg`}>
-                                <script.icon size={24} />
+                                <button 
+                                    onClick={() => handleCopy(script.text, script.id)}
+                                    className={`w-full mt-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 ${copied === script.id ? 'bg-emerald-500 text-white' : 'bg-slate-900 text-white hover:bg-slate-800'}`}
+                                >
+                                    {copied === script.id ? <CheckCircle2 size={16} /> : <Copy size={16} />}
+                                    {copied === script.id ? 'Copied' : 'Copy Script'}
+                                </button>
                             </div>
-                            <h4 className="text-xl font-black text-slate-900 dark:text-white leading-none">{script.title}</h4>
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-2">{script.subtitle}</p>
-                            
-                            <div className="mt-8 p-6 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800 italic text-sm text-slate-600 dark:text-slate-400 leading-relaxed font-medium">
-                                "{script.text}"
-                            </div>
-                        </div>
-
-                        <button 
-                            onClick={() => handleCopy(script.text, script.id)}
-                            className={`w-full mt-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 ${copied === script.id ? 'bg-emerald-500 text-white' : 'bg-slate-900 text-white hover:bg-slate-800'}`}
-                        >
-                            {copied === script.id ? <CheckCircle2 size={16} /> : <Copy size={16} />}
-                            {copied === script.id ? 'Copied' : 'Copy Script'}
-                        </button>
+                        ))}
                     </div>
-                ))}
+                </div>
+
+                <div className="space-y-6">
+                    <div className="p-8 bg-indigo-50 dark:bg-indigo-900/20 border-2 border-indigo-100 dark:border-indigo-800 rounded-[3rem] shadow-lg">
+                        <h4 className="text-sm font-black uppercase tracking-widest text-indigo-600 dark:text-indigo-400 mb-6 flex items-center gap-2">
+                            <Info size={18} /> Posting Locations
+                        </h4>
+                        <ul className="space-y-4">
+                            {[
+                                { t: 'Whop Clips Chat', d: 'Find the "Daniel Bitton" clipping chat. Post your $2 bounty there.' },
+                                { t: 'Your Store Chat', d: 'Welcome new users and offer discount codes for reviews.' },
+                                { t: 'General Activity', d: 'Post screenshots of AI menus to attract organic discovery.' }
+                            ].map(i => (
+                                <li key={i.t} className="space-y-1">
+                                    <p className="text-xs font-black text-slate-800 dark:text-white uppercase">{i.t}</p>
+                                    <p className="text-[10px] text-slate-500 font-bold leading-relaxed">{i.d}</p>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    
+                    <div className="p-8 bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-100 dark:border-amber-800 rounded-[3rem]">
+                        <h4 className="text-[10px] font-black text-amber-600 uppercase tracking-widest mb-3">Founder Pro Tip</h4>
+                        <p className="text-xs text-amber-900 dark:text-amber-200 font-bold leading-relaxed">
+                            "Melo, the niche is empty. Your $2 bounty + 30% lifetime recurring will make you the #1 offer on Whop by Monday. Don't forget to enable the 7-day trial in Whop settings!"
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
     );
@@ -286,10 +315,10 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
   };
 
   const dailyTasks = [
-    { id: 'whop-trial', label: 'Enable 7-Day Free Trial in Whop', highPriority: true },
-    { id: 'whop-bounty', label: 'Set Clipping Bounty Budget ($2 per 1k views)', highPriority: true },
+    { id: 'whop-trial', label: 'Enable 7-Day Free Trial in Whop Dashboard', highPriority: true },
+    { id: 'whop-bounty', label: 'Post Bounty ($2/1k views) in Whop Clips chat', highPriority: true },
     { id: 'whop-yearly', label: 'Add Yearly Payment Option (Save 20%)', highPriority: true },
-    { id: 'b2b-pitch-academy', label: 'Email 5 Culinary Schools', highPriority: false },
+    { id: 'review-alpha', label: 'DM 5 chefs to join "Alpha" review team', highPriority: false },
   ];
 
   return (
@@ -344,7 +373,7 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                     <div>
                         <p className="font-black text-amber-900 dark:text-amber-200 uppercase tracking-widest">Crucial Insight</p>
                         <p className="text-sm text-amber-700/80 dark:text-amber-400/80 mt-1 font-medium leading-relaxed">
-                            Your research shows people are earning **$13k/day** in Hospitality. Your advantage is **Accessibility.** Ensure your Whop pricing has the "7-Day Trial" and "Yearly" options turned ON to maximize conversion velocity.
+                            Your research shows competitors are earning **$13k/day**. Your advantage is **$2 Bounty + 30% Lifetime Cut.** Ensure your Whop pricing has the "7-Day Trial" turned ON to maximize conversion velocity.
                         </p>
                     </div>
                 </div>
@@ -376,10 +405,10 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl }) => {
                 <div className="bg-indigo-600 p-16 rounded-[3rem] flex flex-col justify-center items-center text-center shadow-[0_40px_80px_-15px_rgba(79,70,229,0.5)]">
                     <Award className="text-white/30 mb-8" size={80} />
                     <p className="text-3xl font-black text-white leading-tight mb-8">
-                        "Clips drive views.<br/>Views drive trials."
+                        "The niche is empty.<br/>Claim your crown today."
                     </p>
-                    <button onClick={() => setActiveTab('bounty')} className="px-12 py-6 bg-white text-indigo-600 rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all">
-                        Launch Bounty Lab
+                    <button onClick={() => setActiveTab('recruiter')} className="px-12 py-6 bg-white text-indigo-600 rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all">
+                        Open Recruiter Scripts
                     </button>
                 </div>
             </div>
