@@ -376,7 +376,7 @@ const App: React.FC = () => {
               {isFounderMode && (
                   <>
                     <MarketingRoadmap />
-                    <FounderRoadmap whopUrl={WHOP_STORE_URL} />
+                    <FounderRoadmap whopUrl={WHOP_STORE_URL} onOpenSocial={handleOpenSocial} />
                   </>
               )}
             </div>
@@ -442,7 +442,7 @@ const App: React.FC = () => {
                 {isFounderMode && (
                     <>
                         <MarketingRoadmap />
-                        <FounderRoadmap whopUrl={WHOP_STORE_URL} />
+                        <FounderRoadmap whopUrl={WHOP_STORE_URL} onOpenSocial={handleOpenSocial} />
                     </>
                 )}
             </div>
