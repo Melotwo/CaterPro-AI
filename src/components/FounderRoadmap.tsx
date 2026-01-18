@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-/* Added AlertTriangle to the imports */
 import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation, Layout, Eye, MessageSquare, Sparkles, Loader2, AlertCircle, AlertTriangle, ListChecks, Star, Settings2, HelpCircle, ShoppingBag, UserPlus, MessageCircle, DollarSign, PieChart } from 'lucide-react';
 import { generateWhopSEO } from '../services/geminiService';
 import ThumbnailStudio from './ThumbnailStudio';
@@ -11,7 +10,7 @@ interface FounderRoadmapProps {
 
 const ClippingBountyLab: React.FC = () => {
     const [budget, setBudget] = useState(100);
-    const [viewRate, setViewRate] = useState(0.05); // $0.05 per view
+    const [viewRate, setViewRate] = useState(0.001); // $1.00 per 1k views default
 
     const potentialViews = (budget / viewRate).toLocaleString();
 
@@ -22,14 +21,14 @@ const ClippingBountyLab: React.FC = () => {
                     <DollarSign className="text-emerald-500" /> Clipping Bounty Lab
                 </h3>
                 <p className="text-lg text-slate-500 font-medium leading-relaxed">
-                    Whop clippers don't work for free. Use this to calculate your "Content Reward" budget to attract high-quality creators.
+                    Whop clippers choose projects based on CPM (Cost Per Mille). Use this to calculate your "Content Reward" budget.
                 </p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 <div className="p-10 bg-slate-50 dark:bg-slate-800/50 rounded-[3rem] border-2 border-slate-100 dark:border-slate-700 shadow-xl space-y-8">
                     <div>
-                        <label className="text-[10px] font-black uppercase text-slate-400 mb-4 block tracking-[0.3em]">Total Testing Budget ($)</label>
+                        <label className="text-[10px] font-black uppercase text-slate-400 mb-4 block tracking-[0.3em]">Testing Budget ($)</label>
                         <input 
                             type="range" min="50" max="1000" step="50"
                             value={budget}
@@ -40,9 +39,9 @@ const ClippingBountyLab: React.FC = () => {
                     </div>
 
                     <div>
-                        <label className="text-[10px] font-black uppercase text-slate-400 mb-4 block tracking-[0.3em]">Bounty Rate (per 1,000 views)</label>
+                        <label className="text-[10px] font-black uppercase text-slate-400 mb-4 block tracking-[0.3em]">Competitive Bounty Rate (per 1,000 views)</label>
                         <div className="grid grid-cols-3 gap-2">
-                            {[1, 5, 10].map(rate => (
+                            {[0.50, 1, 2].map(rate => (
                                 <button 
                                     key={rate} 
                                     onClick={() => setViewRate(rate/1000)}
@@ -52,26 +51,27 @@ const ClippingBountyLab: React.FC = () => {
                                 </button>
                             ))}
                         </div>
+                        <p className="text-[9px] text-slate-400 mt-2 font-bold uppercase tracking-tighter">* $1-$2 is highly competitive for 2026 SaaS</p>
                     </div>
 
                     <div className="p-8 bg-indigo-600 rounded-[2rem] text-white shadow-2xl relative overflow-hidden">
                         <div className="absolute top-0 right-0 p-6 opacity-10"><TrendingUp size={100} /></div>
-                        <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1">Target Reach</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-1">Guaranteed Reach</p>
                         <h4 className="text-5xl font-black">{potentialViews} <span className="text-xl opacity-60">Views</span></h4>
-                        <p className="text-xs mt-4 text-indigo-100 font-medium">Estimated traffic based on current Whop bounty standards.</p>
+                        <p className="text-xs mt-4 text-indigo-100 font-medium">Expected traffic based on Whop's "Verified Views" system.</p>
                     </div>
                 </div>
 
                 <div className="space-y-6">
                     <div className="p-8 bg-white dark:bg-slate-900 rounded-[3rem] border-2 border-slate-100 dark:border-slate-700 shadow-lg">
                         <h4 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
-                            <PieChart size={18} className="text-indigo-500" /> Why this works
+                            <PieChart size={18} className="text-indigo-500" /> 2026 Economics
                         </h4>
                         <div className="space-y-4">
                             {[
-                                { t: 'Leverage Community', d: 'Clippers are already on Whop looking for products to promote.' },
-                                { t: 'Fixed Cost ROI', d: 'You only pay for actual views recorded by the Whop system.' },
-                                { t: 'Viral Potential', d: 'One good clip can generate thousands in recurring SaaS revenue.' }
+                                { t: '30% Lifetime Cut', d: 'Lower than 40%, but covers the users whole life cycle. Better for long-term profit.' },
+                                { t: 'High Velocity', d: 'A $2 bounty will get your app in front of thousands of chefs by Monday.' },
+                                { t: 'Viral Feedback', d: 'Clippers will tell you what "Hooks" are working best for the algorithm.' }
                             ].map(i => (
                                 <div key={i.t} className="flex gap-4">
                                     <CheckCircle2 className="text-emerald-500 shrink-0" size={18} />
@@ -84,7 +84,7 @@ const ClippingBountyLab: React.FC = () => {
                         </div>
                     </div>
                     <a href="https://whop.com/melotwo2" target="_blank" className="w-full py-6 bg-slate-950 text-white rounded-[2rem] font-black text-sm uppercase tracking-widest flex items-center justify-center gap-3 shadow-2xl hover:scale-105 active:scale-95 transition-all">
-                        Set Bounty in Whop Dashboard <ExternalLink size={18} />
+                        Configure Bounty Dashboard <ExternalLink size={18} />
                     </a>
                 </div>
             </div>
@@ -104,27 +104,27 @@ const CommunityRecruiter: React.FC = () => {
     const scripts = [
         {
             id: 'clipper-invite',
-            title: 'The Clipper Bounty',
+            title: 'The "Launch Team" Hook',
             subtitle: 'Post this in "Whop Clips" chat',
             icon: PlayCircle,
             color: 'bg-red-600',
-            text: `I'm launching a new AI SaaS for Chefs. Looking for 5 Clippers to join the Launch Team. Paying $5 per 1k views + 40% recurring commissions. The hospitality niche is wide open right now. DM me for the link!`
+            text: `I'm launching the first AI Catering System for 2026. I'm looking for 5 Clippers to join my 'Launch Team'—paying $2 per 1k views + 30% recurring lifetime commission. The niche is empty and ready to blow. Who wants the dashboard link?`
         },
         {
             id: 'dm',
-            title: 'Direct High-Ticket DM',
-            subtitle: 'For power-users on the leaderboard',
+            title: 'Partner Acquisition DM',
+            subtitle: 'For the top 10% of creators',
             icon: UserPlus,
             color: 'bg-emerald-600',
-            text: `Chef! Noticed you're moving weight in the clips chat. I've built CaterPro AI—the first automation system for large-scale catering. I'm looking for a lead affiliate to own this category. 40% cut for you. Want a demo?`
+            text: `Chef! Noticed your edits are clean. I've built CaterPro AI—the first 'Lifecycle' system for catering pros. I'm looking for a lead partner. I'll give you a permanent 30% cut of every sub you bring in for life. Want to see the app?`
         },
         {
             id: 'review-swap',
-            title: 'The Ranking Sniper',
-            subtitle: 'To boost Discovery Rank',
+            title: 'Discovery Ranking Sniper',
+            subtitle: 'Boost your storefront rank',
             icon: Star,
             color: 'bg-amber-500',
-            text: `Who here wants to test the 2026 Hospitality Command Center? 7-Day Free Trial is live. I'm looking for reviews to help my Discovery ranking. If you drop a review, I'll give you a permanent 30% discount code.`
+            text: `Launching the 2026 Catering Command Center today. 7-Day FREE trial is active. I'm looking for honest reviews to help my Whop ranking. If you drop a review, I'll send you a 30% lifetime discount code for your own business.`
         }
     ];
 
@@ -135,7 +135,7 @@ const CommunityRecruiter: React.FC = () => {
                     <UserPlus className="text-indigo-600" /> Recruitment Command
                 </h3>
                 <p className="text-lg text-slate-500 font-medium leading-relaxed">
-                    Turn the Whop community into your salesforce. Don't sell the app—**sell the opportunity to earn.**
+                    Use these optimized scripts to build your salesforce. 30% lifetime commission is the "Gold Standard" for serious partners.
                 </p>
             </div>
 
