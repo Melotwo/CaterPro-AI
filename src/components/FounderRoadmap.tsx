@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation, Layout, Eye, MessageSquare, Sparkles, Loader2, AlertCircle, AlertTriangle, ListChecks, Star, Settings2, HelpCircle, ShoppingBag, UserPlus, MessageCircle, DollarSign, PieChart, Info, Smartphone, Check } from 'lucide-react';
+// Added missing 'Activity' import from lucide-react
+import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation, Layout, Eye, MessageSquare, Sparkles, Loader2, AlertCircle, AlertTriangle, ListChecks, Star, Settings2, HelpCircle, ShoppingBag, UserPlus, MessageCircle, DollarSign, PieChart, Info, Smartphone, Check, MousePointer2, Activity } from 'lucide-react';
 import { generateWhopSEO } from '../services/geminiService';
 import ThumbnailStudio from './ThumbnailStudio';
 
@@ -23,52 +24,70 @@ const StorefrontAudit: React.FC = () => {
                     <ShoppingBag className="text-indigo-600" /> Whop Store Polish
                 </h3>
                 <p className="text-lg text-slate-500 font-medium leading-relaxed">
-                    Melo, based on your screenshots, you are 90% there. Use these specific adjustments to make the page look like a high-end SaaS company.
+                    Melo, I see you are in the <strong>"Add Link"</strong> dialog. Use these exact details to make your button look like a professional SaaS launch.
                 </p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                 <div className="space-y-6">
-                    {/* BIO SECTION */}
+                    {/* ADD LINK DIALOG HELPER */}
+                    <div className="p-8 bg-slate-900 text-white rounded-[2.5rem] shadow-2xl relative overflow-hidden border-4 border-indigo-500/30">
+                         <div className="absolute top-0 right-0 p-6 opacity-10"><MousePointer2 size={60} /></div>
+                         <span className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 block mb-6">Whop: Add Link Dialog</span>
+                         
+                         <div className="space-y-6">
+                            <div>
+                                <div className="flex justify-between items-center mb-2">
+                                    <p className="text-[10px] font-black text-slate-500 uppercase">Field: Title (Max 30 chars)</p>
+                                    <button onClick={() => handleCopy("Launch AI Command Center", "title")} className="text-[10px] font-black text-indigo-400 hover:underline">Copy</button>
+                                </div>
+                                <div className="p-4 bg-white/5 rounded-xl border border-white/10 text-sm font-bold">
+                                    {copied === 'title' ? 'Copied!' : 'Launch AI Command Center'}
+                                </div>
+                            </div>
+
+                            <div>
+                                <div className="flex justify-between items-center mb-2">
+                                    <p className="text-[10px] font-black text-slate-500 uppercase">Field: URL</p>
+                                    <button onClick={() => handleCopy("https://caterpro-ai.web.app/", "url")} className="text-[10px] font-black text-indigo-400 hover:underline">Copy</button>
+                                </div>
+                                <div className="p-4 bg-white/5 rounded-xl border border-white/10 text-sm font-mono opacity-60">
+                                    {copied === 'url' ? 'Copied!' : 'https://caterpro-ai.web.app/'}
+                                </div>
+                            </div>
+
+                            <div>
+                                <p className="text-[10px] font-black text-slate-500 uppercase mb-2">Field: Image</p>
+                                <p className="text-xs font-medium text-slate-300 leading-relaxed">
+                                    Click <strong>"Edit"</strong> on that globe icon and upload your <span className="text-white font-bold">logo.svg</span>. This makes the button look custom-built for your brand.
+                                </p>
+                            </div>
+                         </div>
+                    </div>
+
                     <div className="p-8 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-[2.5rem] shadow-xl">
                         <div className="flex justify-between items-center mb-4">
-                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Section: Bio (Keep it punchy)</span>
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Next Step: Optimized Bio</span>
                             <button onClick={() => handleCopy("The AI Secret Weapon for Chefs. Stop spending Sundays on admin. Automate professional Proposals, Costing & PoE paperwork in 30 seconds. 7-Day Free Trial active. 🚀", "bio")} className="p-2 hover:bg-slate-100 rounded-xl transition-all">
                                 {copied === 'bio' ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} />}
                             </button>
                         </div>
-                        <p className="text-sm font-bold text-slate-700 dark:text-slate-200 leading-relaxed italic">
+                        <p className="text-xs font-bold text-slate-500 dark:text-slate-300 leading-relaxed italic">
                             "The AI Secret Weapon for Chefs. Stop spending Sundays on admin. Automate professional Proposals, Costing & PoE paperwork in 30 seconds. 7-Day Free Trial active. 🚀"
                         </p>
-                    </div>
-
-                    {/* LINKS SECTION */}
-                    <div className="p-8 bg-slate-900 text-white rounded-[2.5rem] shadow-xl">
-                         <span className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-400 block mb-6">Section: Links (Crucial)</span>
-                         <div className="space-y-4">
-                            <div className="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/10">
-                                <div>
-                                    <p className="text-[10px] font-black text-slate-400 uppercase">Link 1 Label</p>
-                                    <p className="text-sm font-bold">Open CaterPro Web App</p>
-                                </div>
-                                <button onClick={() => handleCopy("https://caterpro-ai.web.app", "link1")} className="p-2 bg-white/10 rounded-lg">
-                                    {copied === 'link1' ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-                                </button>
-                            </div>
-                         </div>
                     </div>
                 </div>
 
                 <div className="p-8 bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-100 dark:border-amber-800 rounded-[3rem]">
                     <h4 className="text-sm font-black uppercase tracking-widest text-amber-700 mb-6 flex items-center gap-2">
-                        <AlertTriangle size={18} /> Final Store Audit Checklist
+                        <Activity size={18} /> Final Store Polish Tasks
                     </h4>
                     <div className="space-y-6">
                         {[
-                            { t: 'Product Media', d: 'In each edition (Student/Pro), upload the high-contrast thumbnails we made in the "Asset Studio" tab.' },
-                            { t: 'Social Icons', d: 'Add your Instagram and Facebook page links to the "Socials" section in Whop.' },
-                            { t: 'The "Blue" Theme', d: 'Your screenshot shows the Blue theme selected. This is perfect—it signals "Professional Systems".' },
-                            { t: 'Free Trial Toggle', d: 'Ensure "Free Trial" is visible on the buy buttons (as seen in your preview).' }
+                            { t: 'The "Featured" Layout', d: 'In your screenshot, "Featured" is selected. This is perfect. It highlights your main product images.' },
+                            { t: 'Theme Selection', d: 'You have "Blue" selected. This is the industry standard for SaaS and looks expensive.' },
+                            { t: 'Whop Clips Chat', d: 'Once this link is saved, your store is ready. Go to the "Whop Clips" chat and post your $2 bounty script.' },
+                            { t: 'Trial Confirmation', d: 'The "Free Trial" badge is visible in your preview. Good job—this drives 3x more clicks.' }
                         ].map(item => (
                             <div key={item.t} className="flex gap-4">
                                 <CheckCircle2 className="text-emerald-500 shrink-0" size={20} />
