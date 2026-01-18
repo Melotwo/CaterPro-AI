@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ChefHat, Sun, Moon, Bookmark, Share2, Download, LogOut, Globe, Zap, ExternalLink, Users, Facebook } from 'lucide-react';
+import { ChefHat, Sun, Moon, Bookmark, Zap, Facebook, LogOut } from 'lucide-react';
 
 const Navbar: React.FC<{
   whopUrl: string;
@@ -22,7 +22,7 @@ const Navbar: React.FC<{
             className={`flex items-center space-x-3 ${onViewLanding ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`} 
             onClick={onViewLanding}
             role={onViewLanding ? "button" : undefined}
-            tabIndex={onViewLanding ? 0 : -1}
+            tabIndex={0}
         >
           <div className="relative">
              <ChefHat className="w-8 h-8 text-primary-500" />
@@ -34,52 +34,48 @@ const Navbar: React.FC<{
           </div>
         </div>
 
-        <div className="flex items-center space-x-2 sm:space-x-4">
+        <div className="flex items-center space-x-1 sm:space-x-4">
+          {/* THEME TOGGLE - NOW FULLY VISIBLE */}
+          <button 
+            onClick={onThemeToggle} 
+            className="p-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:scale-105 transition-all border border-slate-200 dark:border-slate-700"
+            aria-label="Toggle Dark Mode"
+          >
+            {isDarkMode ? <Sun size={18} className="text-amber-400" /> : <Moon size={18} />}
+          </button>
+
           {facebookUrl && (
              <a 
               href={facebookUrl} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="p-2 rounded-full text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
+              className="p-2.5 rounded-xl text-blue-600 bg-blue-50 dark:bg-blue-900/30 hover:scale-105 transition-all border border-blue-100 dark:border-blue-800 hidden xs:flex"
               title="Facebook Community"
             >
-              <Facebook size={20} />
+              <Facebook size={18} />
             </a>
           )}
-
-          <a 
-            href={whopUrl} 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-black bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 transition-colors border border-indigo-200 dark:border-indigo-700"
-          >
-            <Users size={16} /> Community
-          </a>
 
            {onViewPricing && (
             <button 
                 onClick={onViewPricing} 
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-black bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 hover:bg-amber-100 transition-colors border border-amber-200 dark:border-amber-700" 
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 hover:bg-amber-100 transition-colors border border-amber-200 dark:border-amber-700 shadow-sm" 
                 title="View Plans"
             >
-                <Zap size={18} className="fill-amber-400" />
+                <Zap size={16} className="fill-amber-400" />
                 <span className="hidden md:inline">Upgrade</span>
             </button>
           )}
 
-          <button onClick={onOpenSaved} className="relative p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500 dark:focus-visible:ring-offset-slate-900" aria-label={`View saved menus (${savedCount} saved)`}>
+          <button onClick={onOpenSaved} className="relative p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none transition-all" aria-label={`Saved menus (${savedCount})`}>
             <Bookmark size={20} />
             {savedCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary-500 text-xs font-medium text-white" aria-hidden="true">{savedCount}</span>
+              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary-500 text-[10px] font-black text-white shadow-lg">{savedCount}</span>
             )}
           </button>
           
-          <button onClick={onOpenQrCode} className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500 dark:focus-visible:ring-offset-slate-900" aria-label="Share application">
-            <Share2 size={20} />
-          </button>
-          
           {onReset && (
-            <button onClick={onReset} className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-red-500 dark:focus-visible:ring-offset-slate-900" aria-label="Sign Out / Reset App" title="Sign Out">
+            <button onClick={onReset} className="p-2 rounded-full text-slate-400 hover:text-red-500 transition-colors" title="Sign Out">
               <LogOut size={20} />
             </button>
           )}
