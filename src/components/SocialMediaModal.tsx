@@ -1,9 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Image as ImageIcon, Check, RefreshCw, Linkedin, Twitter, MessageCircle, Send, Film, Play, Zap, GraduationCap, ArrowRight, Loader2, Mail, Pin, Sparkles, Mic2, Layout, Video, ShieldCheck, Sparkle, Target, MessageSquareQuote, Smartphone, Camera, Facebook, Download, AlertTriangle, Key, Info, Activity } from 'lucide-react';
-import { generateSocialCaption, generateVideoFromApi, generateWhatsAppStatus, generateProvanceVSLScript, generateNewYearLaunchScript } from '../services/geminiService';
+import { X, Copy, Check, Facebook, Twitter, Instagram, Video, Loader2, Smartphone, MessageSquareQuote, Activity, Pin } from 'lucide-react';
+import { generateSocialCaption, generateVideoFromApi, generateWhatsAppStatus } from '../services/geminiService';
 
-export type Mode = 'create' | 'pitch' | 'video' | 'podcast' | 'explainer' | 'provance' | 'newyear' | 'bait' | 'sniper' | 'status' | 'reel' | 'formula';
+export type Mode = 'create' | 'pitch' | 'video' | 'status' | 'reel' | 'formula';
 
 interface SocialMediaModalProps {
   isOpen: boolean;
@@ -15,269 +15,123 @@ interface SocialMediaModalProps {
   onImageGenerated?: (base64: string) => void;
 }
 
-type Platform = 'instagram' | 'linkedin' | 'twitter' | 'facebook' | 'tiktok';
-
-const LOADING_MESSAGES = [
-  "Analyzing culinary profile...",
-  "Visualizing cinematic plating...",
-  "Orchestrating transitions...",
-  "Applying 2026 aesthetic filters...",
-  "Polishing gourmet visual effects...",
-  "Readying your high-intent reel..."
-];
+type Platform = 'instagram' | 'linkedin' | 'twitter' | 'facebook' | 'tiktok' | 'pinterest';
 
 const SocialMediaModal: React.FC<SocialMediaModalProps> = ({ 
-  isOpen, onClose, image, menuTitle, menuDescription, initialMode = 'create', onImageGenerated
+  isOpen, onClose, image, menuTitle, menuDescription, initialMode = 'create'
 }) => {
   const [activeMode, setActiveMode] = useState<Mode>(initialMode);
-  const [activePlatform, setActivePlatform] = useState<Platform>('tiktok');
+  const [activePlatform, setActivePlatform] = useState<Platform>('facebook');
   const [editedContent, setEditedContent] = useState('');
-  const [videoBlobUrl, setVideoBlobUrl] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [loadingStep, setLoadingStep] = useState(0);
   const [copiedText, setCopiedText] = useState(false);
-  const [needsApiKey, setNeedsApiKey] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setActiveMode(initialMode);
-      setEditedContent('');
-      if (videoBlobUrl) URL.revokeObjectURL(videoBlobUrl);
-      setVideoBlobUrl(null);
-      setNeedsApiKey(false);
-      
       if (initialMode !== 'reel') {
         handleGenerate(initialMode === 'create' ? 'facebook' : undefined);
       }
     }
   }, [isOpen, initialMode]);
 
-  useEffect(() => {
-    let interval: any;
-    if (isGenerating && activeMode === 'reel') {
-      interval = setInterval(() => {
-        setLoadingStep(prev => (prev + 1) % LOADING_MESSAGES.length);
-      }, 4000);
-    }
-    return () => clearInterval(interval);
-  }, [isGenerating, activeMode]);
-
-  const handleSelectKey = async () => {
-    if (window.aistudio?.openSelectKey) {
-        await window.aistudio.openSelectKey();
-        setNeedsApiKey(false);
-        handleGenerate();
-    }
-  };
-
   const handleGenerate = async (platformOverride?: Platform) => {
     const platform = platformOverride || activePlatform;
-    
-    if (activeMode === 'reel') {
-        const hasKey = await window.aistudio?.hasSelectedApiKey?.();
-        if (!hasKey) {
-            setNeedsApiKey(true);
-            return;
-        }
-    }
-
     setIsGenerating(true);
-    setLoadingStep(0);
+    setEditedContent('');
     try {
       if (activeMode === 'create') {
-        const caption = await generateSocialCaption(menuTitle, menuDescription, platform);
+        const caption = await generateSocialCaption(menuTitle || "CaterPro AI System", menuDescription || "Automating catering for 2026.", platform);
         setEditedContent(caption);
       } else if (activeMode === 'status') {
-        const status = await generateWhatsAppStatus(menuTitle);
+        const status = await generateWhatsAppStatus(menuTitle || "CaterPro AI");
         setEditedContent(status);
-      } else if (activeMode === 'reel') {
-        const url = await generateVideoFromApi(menuTitle, menuDescription, image);
-        const response = await fetch(url);
-        const blob = await response.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        setVideoBlobUrl(blobUrl);
-      } else if (activeMode === 'provance') {
-        const script = await generateProvanceVSLScript(menuTitle, menuDescription);
-        setEditedContent(script);
-      } else if (activeMode === 'newyear') {
-        const script = await generateNewYearLaunchScript(menuTitle, menuDescription);
-        setEditedContent(script);
       } else if (activeMode === 'formula') {
-        // Simple formula prompt based on the 4-step video strategy
-        const formulaScript = `[HOOK]\n"Stop wasting time on ${menuTitle} admin. I'll show you why."\n\n[VALUE]\n"I built an AI that generates full catering proposals like this in 30 seconds." (Show screen)\n\n[PROOF]\n"It's saved me 15 hours of typing this week. 100% accurate, professional results."\n\n[OFFER]\n"Comment 'CHEF' below and I'll send you the link to use it for free. 2026 is here."`;
+        const formulaScript = `[HOOK]\n"Stop wasting time on ${menuTitle || 'admin'}. It's 2026."\n\n[VALUE]\n"I built an AI that generates full catering proposals in 30 seconds."\n\n[PROOF]\n"It's saved me 15 hours of typing this week."\n\n[OFFER]\n"Comment 'CHEF' below for the link."`;
         setEditedContent(formulaScript);
       }
     } catch (e: any) {
-      if (e.message?.includes("Requested entity was not found") || e.message?.includes("API key")) {
-          setNeedsApiKey(true);
-      } else {
-          setEditedContent("AI is busy refining your strategy. Please try again in a few seconds.");
-      }
+       setEditedContent("Strategy session timed out. Please try again.");
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const handleCopyText = () => {
-    navigator.clipboard.writeText(editedContent || '').then(() => {
-      setCopiedText(true);
-      setTimeout(() => setCopiedText(false), 2000);
-    });
-  };
-
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div onClick={onClose} className="fixed inset-0 bg-slate-900/80 backdrop-blur-md animate-[fade-in_0.2s_ease-out]"></div>
-      <div className="relative w-full max-w-5xl bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-[scale-up_0.2s_ease-out] flex flex-col h-[90dvh]">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-0 sm:p-4">
+      <div onClick={onClose} className="fixed inset-0 bg-slate-900/90 backdrop-blur-md animate-fade-in"></div>
+      <div className="relative w-full max-w-5xl bg-white dark:bg-slate-900 rounded-none sm:rounded-[3.5rem] shadow-2xl overflow-hidden animate-scale-up flex flex-col h-full sm:h-[90dvh]">
         
-        <button onClick={onClose} className="absolute top-5 right-5 p-2 z-20 bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-700 rounded-full transition-colors shadow-sm">
-          <X size={20} />
-        </button>
+        <div className="bg-slate-50 dark:bg-slate-800 p-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-700">
+            <h3 className="text-xs font-black uppercase tracking-widest text-slate-500">Marketing & Strategy Console</h3>
+            <button onClick={onClose} className="p-3 bg-white dark:bg-slate-700 rounded-full shadow-sm hover:scale-110 transition-transform"><X size={20} /></button>
+        </div>
 
-        <div className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700 p-3 flex gap-2 overflow-x-auto no-scrollbar">
-            <button onClick={() => {setActiveMode('reel'); setVideoBlobUrl(null); setNeedsApiKey(false);}} className={`px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'reel' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
-                <Video size={16} /> Viral Video Reel
-            </button>
-            <button onClick={() => {setActiveMode('formula'); handleGenerate();}} className={`px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'formula' ? 'bg-red-600 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
-                <Activity size={16} /> 4-Step Formula
-            </button>
-            <button onClick={() => {setActiveMode('create'); handleGenerate('facebook');}} className={`px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'create' ? 'bg-blue-600 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
-                <MessageSquareQuote size={16} /> Marketing Captions
-            </button>
-            <button onClick={() => {setActiveMode('status'); handleGenerate();}} className={`px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all whitespace-nowrap ${activeMode === 'status' ? 'bg-green-600 text-white shadow-lg' : 'text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}`}>
-                <Smartphone size={16} /> WhatsApp Status
-            </button>
+        <div className="flex bg-white dark:bg-slate-950 p-3 border-b border-slate-100 dark:border-slate-800 overflow-x-auto no-scrollbar gap-3">
+            {[
+                { id: 'create', icon: MessageSquareQuote, label: 'Captions' },
+                { id: 'formula', icon: Activity, label: 'Formula' },
+                { id: 'status', icon: Smartphone, label: 'WhatsApp' },
+                { id: 'reel', icon: Video, label: 'Reel Render' }
+            ].map(m => (
+                <button 
+                  key={m.id}
+                  onClick={() => { setActiveMode(m.id as Mode); if(m.id !== 'reel') handleGenerate(); }}
+                  className={`flex-1 min-w-[120px] py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all ${activeMode === m.id ? 'bg-indigo-600 text-white shadow-lg scale-105' : 'bg-slate-50 dark:bg-slate-800 text-slate-400'}`}
+                >
+                    <m.icon size={16} /> {m.label}
+                </button>
+            ))}
         </div>
 
         <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
-            <div className="md:w-2/5 bg-slate-50 dark:bg-slate-950 flex flex-col p-8 border-r border-slate-200 dark:border-slate-800 overflow-y-auto">
-                <div className="space-y-6">
-                    <div className="bg-slate-900 text-white p-8 rounded-[2.5rem] border-4 border-indigo-500/30 flex flex-col items-center text-center shadow-2xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-4 opacity-10">
-                            <Sparkle size={40} className="animate-spin-slow" />
-                        </div>
-                        <Play size={56} className="text-indigo-400 mb-6 animate-pulse" />
-                        <h3 className="text-2xl font-black uppercase tracking-tighter leading-none">Content Lab</h3>
-                        <p className="text-[10px] text-slate-400 mt-4 leading-relaxed font-black uppercase tracking-widest">
-                            2026 Strategy Optimized
-                        </p>
-                    </div>
-
-                    <div className="p-6 bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4 shadow-sm">
-                        <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Quality Check</h4>
-                        <div className="flex items-center gap-3 text-xs font-bold text-slate-600 dark:text-slate-400">
-                           <ShieldCheck size={14} className="text-emerald-500" /> High-Intent Render
-                        </div>
-                        <div className="flex items-center gap-3 text-xs font-bold text-slate-600 dark:text-slate-400">
-                           <Video size={14} className="text-indigo-500" /> Google Veo 3.1 Fast
-                        </div>
-                    </div>
-
-                    <button 
-                        onClick={() => handleGenerate()} 
-                        disabled={isGenerating} 
-                        className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50"
-                    >
-                        {isGenerating ? <Loader2 className="animate-spin" size={20} /> : <RefreshCw size={20} />}
-                        {isGenerating ? 'Architecting Media...' : (videoBlobUrl || editedContent ? 'Re-Generate' : 'Render Viral Asset')}
-                    </button>
-                </div>
-            </div>
-
-            <div className="md:w-3/5 flex flex-col bg-white dark:bg-slate-900 relative">
-                {needsApiKey && (
-                    <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/95 dark:bg-slate-900/95 p-12 text-center animate-fade-in">
-                        <div className="p-8 bg-amber-100 dark:bg-amber-900/30 rounded-full text-amber-600 mb-8 shadow-inner">
-                            <Key size={56} className="animate-bounce" />
-                        </div>
-                        <h4 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Paid API Key Required</h4>
-                        <p className="text-slate-600 dark:text-slate-400 mb-10 max-w-sm font-medium leading-relaxed">
-                            Generating high-end cinematic video requires a paid-tier API key from Google AI Studio. 
-                            <br/><br/>
-                            <span className="text-xs uppercase font-black text-indigo-500">Google Cloud Policy</span>
-                        </p>
+            {activeMode === 'create' && (
+                <div className="md:w-1/4 bg-slate-50 dark:bg-slate-950 p-4 border-r border-slate-100 dark:border-slate-800 overflow-x-auto no-scrollbar flex md:flex-col gap-3">
+                    {[
+                        { id: 'facebook', icon: Facebook, label: 'Facebook' },
+                        { id: 'twitter', icon: Twitter, label: 'X (Twitter)' },
+                        { id: 'instagram', icon: Instagram, label: 'Instagram' },
+                        { id: 'pinterest', icon: Pin, label: 'Pinterest' }
+                    ].map(p => (
                         <button 
-                            onClick={handleSelectKey}
-                            className="px-12 py-5 bg-slate-950 text-white dark:bg-white dark:text-slate-900 rounded-2xl font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-all flex items-center gap-3"
+                          key={p.id}
+                          onClick={() => { setActivePlatform(p.id as Platform); handleGenerate(p.id as Platform); }}
+                          className={`flex items-center gap-3 px-6 py-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activePlatform === p.id ? 'bg-white dark:bg-slate-800 text-indigo-600 shadow-md border-2 border-indigo-100 dark:border-indigo-900 scale-105' : 'text-slate-400 hover:text-slate-500'}`}
                         >
-                            Select Your Key <ArrowRight size={18} />
+                            <p.icon size={18} /> {p.label}
                         </button>
-                    </div>
-                )}
-
-                <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                    <h4 className="text-xs font-black uppercase tracking-[0.2em] text-slate-400">
-                        {activeMode === 'reel' ? 'Studio Preview' : 'Strategy Editor'}
-                    </h4>
+                    ))}
                 </div>
+            )}
 
-                <div className="flex-grow p-8 overflow-y-auto flex flex-col items-center justify-center">
-                    {activeMode === 'reel' ? (
-                        videoBlobUrl ? (
-                            <div className="w-full h-full max-w-[360px] aspect-[9/16] bg-black rounded-[2.5rem] overflow-hidden shadow-2xl border-[12px] border-slate-100 dark:border-slate-800 group relative">
-                                <video 
-                                    src={videoBlobUrl} 
-                                    controls 
-                                    autoPlay 
-                                    loop 
-                                    className="w-full h-full object-cover"
-                                />
-                                <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <a href={videoBlobUrl} download={`${menuTitle}_Reel.mp4`} className="p-3 bg-white/20 backdrop-blur-md rounded-full text-white hover:bg-white/40 transition-all">
-                                        <Download size={20} />
-                                    </a>
-                                </div>
-                            </div>
-                        ) : isGenerating ? (
-                            <div className="text-center space-y-6">
-                                <div className="relative">
-                                    <div className="w-24 h-24 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin mx-auto"></div>
-                                    <Play size={32} className="absolute inset-0 m-auto text-indigo-500 animate-pulse" />
-                                </div>
-                                <div>
-                                    <h5 className="text-xl font-black text-slate-900 dark:text-white mb-2">{LOADING_MESSAGES[loadingStep]}</h5>
-                                    <p className="text-sm text-slate-500 font-medium">Veo 3.1 is building your assets.</p>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="text-center py-20">
-                                <div className="w-24 h-24 bg-slate-50 dark:bg-slate-800/50 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-300 shadow-inner">
-                                    <Video size={48} />
-                                </div>
-                                <h5 className="text-xl font-black text-slate-400 uppercase tracking-widest">Ready to Render</h5>
-                                <p className="text-sm text-slate-500 mt-2 max-w-xs mx-auto font-medium">Transform this catering concept into a vertical cinematic reel automatically.</p>
-                            </div>
-                        )
+            <div className="flex-grow flex flex-col relative bg-white dark:bg-slate-900 overflow-hidden">
+                <div className="flex-grow p-10 overflow-y-auto custom-scrollbar">
+                    {isGenerating ? (
+                        <div className="h-full flex flex-col items-center justify-center animate-pulse">
+                            <Loader2 className="w-16 h-16 text-indigo-500 animate-spin mb-6" />
+                            <p className="font-black text-slate-400 uppercase text-[10px] tracking-[0.4em]">Gemini is Architecting Post...</p>
+                        </div>
                     ) : (
                         <textarea 
-                            className="w-full h-full min-h-[300px] resize-none border-none focus:ring-0 bg-transparent text-slate-800 dark:text-slate-200 text-lg leading-relaxed font-medium" 
+                            className="w-full h-full min-h-[350px] resize-none border-none focus:ring-0 bg-transparent text-slate-800 dark:text-slate-200 text-xl leading-relaxed font-medium" 
                             value={editedContent} 
                             onChange={(e) => setEditedContent(e.target.value)} 
-                            placeholder={isGenerating ? "AI is architecting content..." : "Click generate to see your viral captions."}
+                            placeholder="Select a platform to generate your 2026 strategy post."
                         />
                     )}
                 </div>
 
-                <div className="p-6 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50">
-                    {activeMode === 'reel' ? (
-                        <button 
-                            disabled={!videoBlobUrl || isGenerating}
-                            className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black shadow-xl hover:bg-indigo-700 transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
-                        >
-                            <Download size={20} /> Save Reel to Device
-                        </button>
-                    ) : (
-                        <button 
-                            onClick={handleCopyText} 
-                            disabled={!editedContent || isGenerating}
-                            className="w-full py-5 bg-slate-950 text-white rounded-2xl font-black shadow-xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
-                        >
-                            {copiedText ? <Check size={20} className="text-green-400" /> : <Copy size={20} />} 
-                            {copiedText ? 'Copied Successfully!' : 'Copy Strategy Script'}
-                        </button>
-                    )}
+                <div className="p-8 bg-slate-50 dark:bg-slate-950 border-t border-slate-100 dark:border-slate-800">
+                    <button 
+                        onClick={() => { navigator.clipboard.writeText(editedContent); setCopiedText(true); setTimeout(() => setCopiedText(false), 2000); }}
+                        disabled={!editedContent}
+                        className="w-full py-6 bg-slate-950 dark:bg-indigo-600 text-white rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl flex items-center justify-center gap-3 active:scale-95 disabled:opacity-30 transition-all"
+                    >
+                        {copiedText ? <Check size={20} /> : <Copy size={20} />}
+                        {copiedText ? 'Post Copied!' : 'Copy to Clipboard'}
+                    </button>
                 </div>
             </div>
         </div>
