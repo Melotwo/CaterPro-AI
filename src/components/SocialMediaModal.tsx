@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Check, Facebook, Twitter, Instagram, Video, Loader2, Smartphone, MessageSquareQuote, Activity, Pin } from 'lucide-react';
+import { X, Copy, Check, Facebook, Twitter, Instagram, Video, Loader2, Smartphone, MessageSquareQuote, Activity, Pin, Flame } from 'lucide-react';
 import { generateSocialCaption, generateVideoFromApi, generateWhatsAppStatus } from '../services/geminiService';
 
 export type Mode = 'create' | 'pitch' | 'video' | 'status' | 'reel' | 'formula';
@@ -15,7 +15,7 @@ interface SocialMediaModalProps {
   onImageGenerated?: (base64: string) => void;
 }
 
-type Platform = 'instagram' | 'linkedin' | 'twitter' | 'facebook' | 'tiktok' | 'pinterest';
+type Platform = 'instagram' | 'linkedin' | 'twitter' | 'facebook' | 'tiktok' | 'pinterest' | 'reddit';
 
 const SocialMediaModal: React.FC<SocialMediaModalProps> = ({ 
   isOpen, onClose, image, menuTitle, menuDescription, initialMode = 'create'
@@ -93,7 +93,8 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                         { id: 'facebook', icon: Facebook, label: 'Facebook' },
                         { id: 'twitter', icon: Twitter, label: 'X (Twitter)' },
                         { id: 'instagram', icon: Instagram, label: 'Instagram' },
-                        { id: 'pinterest', icon: Pin, label: 'Pinterest' }
+                        { id: 'pinterest', icon: Pin, label: 'Pinterest' },
+                        { id: 'reddit', icon: Flame, label: 'Reddit' }
                     ].map(p => (
                         <button 
                           key={p.id}
