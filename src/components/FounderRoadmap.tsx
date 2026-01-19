@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation, Layout, Eye, MessageSquare, Sparkles, Loader2, AlertCircle, AlertTriangle, ListChecks, Star, Settings2, HelpCircle, ShoppingBag, UserPlus, MessageCircle, DollarSign, PieChart, Info, Smartphone, Check, MousePointer2, Activity, ShieldAlert, Instagram, Facebook, Link2, MessageSquareQuote, Flame, ShieldCheck as Shield } from 'lucide-react';
+// Added Clock to the lucide-react import list
+import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation, Layout, Eye, MessageSquare, Sparkles, Loader2, AlertCircle, AlertTriangle, ListChecks, Star, Settings2, HelpCircle, ShoppingBag, UserPlus, MessageCircle, DollarSign, PieChart, Info, Smartphone, Check, MousePointer2, Activity, ShieldAlert, Instagram, Facebook, Link2, MessageSquareQuote, Flame, Moon, Sun, Clock } from 'lucide-react';
 import { generateWhopSEO } from '../services/geminiService';
 import ThumbnailStudio from './ThumbnailStudio';
 
@@ -8,6 +9,65 @@ interface FounderRoadmapProps {
   whopUrl: string;
   onOpenSocial?: (mode: 'create' | 'reel' | 'status') => void;
 }
+
+const MorningMission: React.FC = () => {
+    return (
+        <div className="animate-fade-in space-y-8">
+            <div className="p-10 bg-gradient-to-br from-slate-900 to-indigo-950 text-white rounded-[3rem] shadow-2xl border-4 border-indigo-500/20 relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-12 opacity-10 rotate-12"><Moon size={160} /></div>
+                <div className="relative z-10">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="p-3 bg-indigo-500 rounded-2xl shadow-lg"><Clock size={24} /></div>
+                        <h3 className="text-2xl font-black uppercase tracking-tight">Tomorrow's Launch Sequence</h3>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div className="space-y-4">
+                            <h4 className="text-xs font-black uppercase tracking-widest text-indigo-400">Mission 1: The Sales Exec Application</h4>
+                            <div className="space-y-3">
+                                {[
+                                    { t: "Finalize Intro Video", d: "Record the 2-minute pitch following the 4-step outline." },
+                                    { t: "Check Resume 'Blank 20.pages'", d: "Ensure the file uploaded to Google Forms is the correct version." },
+                                    { t: "Submit nothing.eco Form", d: "Confirm availability is set to 'Immediate'." }
+                                ].map((task, i) => (
+                                    <div key={i} className="p-4 bg-white/5 border border-white/10 rounded-2xl flex items-start gap-4 group hover:bg-white/10 transition-all">
+                                        <div className="w-6 h-6 rounded-full border-2 border-indigo-500/50 flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-indigo-500 transition-all">
+                                            <Check size={12} className="text-white opacity-0 group-hover:opacity-100" />
+                                        </div>
+                                        <div>
+                                            <p className="font-bold text-sm">{task.t}</p>
+                                            <p className="text-[10px] text-slate-400 font-medium">{task.d}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <h4 className="text-xs font-black uppercase tracking-widest text-emerald-400">Mission 2: App Final Polish</h4>
+                            <div className="p-6 bg-emerald-500/10 border border-emerald-500/20 rounded-[2rem] space-y-4">
+                                <p className="text-sm font-medium leading-relaxed">"Melo, the app is looking amazing. Tomorrow we just need to verify the **ZAR procurement calculation** accuracy and test one **Share Link** on a mobile device."</p>
+                                <button className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-lg shadow-emerald-500/20 active:scale-95 transition-all">
+                                    Final Launch Checklist
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="p-8 bg-amber-50 dark:bg-amber-900/10 rounded-[2.5rem] border-2 border-amber-100 dark:border-amber-800 flex gap-6 items-center">
+                <div className="p-4 bg-amber-500 rounded-2xl text-white shadow-xl"><Trophy size={32} /></div>
+                <div>
+                    <h5 className="font-black text-amber-900 dark:text-amber-200 uppercase tracking-widest text-sm">Founder Mindset</h5>
+                    <p className="text-sm text-amber-700/80 dark:text-amber-400/80 font-medium leading-relaxed">
+                        If they ask about your sales experience in the interview, show them **CaterPro AI**. Tell them you built a digital lifecycle system to solve customer churn in the hospitality industry.
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const RedditHub: React.FC = () => {
     const [copied, setCopied] = useState<string | null>(null);
@@ -340,7 +400,7 @@ const CommunityRecruiter: React.FC = () => {
 };
 
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }) => {
-  const [activeTab, setActiveTab] = useState<'mission' | 'whop' | 'recruiter' | 'design' | 'store' | 'bounty' | 'reddit'>('whop');
+  const [activeTab, setActiveTab] = useState<'mission' | 'whop' | 'recruiter' | 'design' | 'store' | 'bounty' | 'reddit'>('mission');
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['community-post']));
 
   const toggleTask = (taskId: string) => {
@@ -351,11 +411,11 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
   };
 
   const dailyTasks = [
+    { id: 'sales-form', label: 'Finish Inbound Sales Exec Form (Resume + Video)', highPriority: true },
     { id: 'whop-bio', label: 'Update Whop Bio (Copy from Polish Tab)', highPriority: true },
     { id: 'whop-links', label: 'Add Web App Link to Whop Links section', highPriority: true },
     { id: 'whop-socials', label: 'Add Instagram/Facebook icons to Storefront', highPriority: true },
     { id: 'whop-bounty-live', label: 'Post Bounty offer in Whop Clips chat', highPriority: true },
-    { id: 'reddit-engage', label: 'Complete 3 helpful Reddit comments', highPriority: true },
   ];
 
   return (
@@ -376,7 +436,10 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
           </div>
           
           <div className="flex bg-slate-900/50 p-2 rounded-[1.5rem] border border-white/10 overflow-x-auto no-scrollbar backdrop-blur-md">
-            <button onClick={() => setActiveTab('whop')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'whop' ? 'bg-white text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white'}`}>
+            <button onClick={() => setActiveTab('mission')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'mission' ? 'bg-white text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white'}`}>
+                <Star size={16} /> Morning Mission
+            </button>
+            <button onClick={() => setActiveTab('whop')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'whop' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
                 <Crosshair size={16} /> Visibility
             </button>
             <button onClick={() => setActiveTab('reddit')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'reddit' ? 'bg-orange-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
@@ -399,6 +462,8 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
       </div>
 
       <div className="p-10 sm:p-16">
+        {activeTab === 'mission' && <MorningMission />}
+        
         {activeTab === 'whop' && (
             <div className="animate-fade-in space-y-10">
                 <div className="max-w-3xl">
