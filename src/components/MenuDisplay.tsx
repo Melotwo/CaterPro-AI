@@ -67,14 +67,11 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
     }
   };
 
-  const isProUser = canAccessFeature('noWatermark');
-
   return (
     <div className={`p-4 sm:p-10 theme-container ${t.container} rounded-[3rem] shadow-2xl border border-slate-100 dark:border-slate-800 animate-fade-in relative transition-all duration-500 ${clipperMode ? 'scale-[0.98] ring-[20px] ring-indigo-600/20' : ''}`}>
       
       {!isReadOnlyView && (
       <div className="no-print space-y-6">
-          {/* Viral Marketing Hub */}
           <div className="bg-slate-950 text-white p-8 sm:p-12 rounded-[2.5rem] relative overflow-hidden group border border-white/10 shadow-indigo-500/10 shadow-2xl">
               <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:opacity-10 transition-opacity">
                   <Sparkles size={120} />
@@ -130,9 +127,8 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
       </div>
       )}
 
-      {/* --- BUSINESS INTELLIGENCE OVERLAY --- */}
       {showBusinessIntel && menu.businessAnalysis && (
-          <div className="no-print animate-slide-in p-8 bg-amber-50 dark:bg-amber-900/10 border-4 border-amber-400/30 rounded-[3rem] shadow-2xl space-y-8">
+          <div className="no-print animate-slide-in p-8 bg-amber-50 dark:bg-amber-900/10 border-4 border-amber-400/30 rounded-[3rem] shadow-2xl space-y-8 mt-6">
               <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                       <div className="p-3 bg-amber-500 rounded-2xl text-white shadow-lg"><BarChart4 size={24} /></div>
@@ -147,7 +143,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {menu.businessAnalysis.map((item, idx) => (
                       <div key={idx} className="p-6 bg-white dark:bg-slate-800 rounded-2xl border border-amber-200 dark:border-amber-700 shadow-sm group hover:scale-105 transition-all">
-                          {/* Fixed trailing backtick in className template literal interpolation */}
                           <div className={`w-fit px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-widest mb-3 ${
                               item.category === 'Star' ? 'bg-emerald-500 text-white' : 
                               item.category === 'Plow Horse' ? 'bg-indigo-500 text-white' : 
@@ -178,13 +173,13 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                    <div className="p-4 bg-indigo-500 rounded-2xl shadow-xl shadow-indigo-500/20"><Target size={32} /></div>
                    <div>
                         <h6 className="font-black uppercase tracking-widest text-indigo-400">The Golden Triangle Advice</h6>
-                        <p className="text-sm text-slate-300 font-medium leading-relaxed mt-1">The center of this proposal should feature the <strong>{menu.businessAnalysis.find(i => i.category === 'Star')?.name || 'main entree'}</strong>. Customers look here first. Use the high margin from this 'Star' to subsidize the 'Dogs'.</p>
+                        <p className="text-sm text-slate-300 font-medium leading-relaxed mt-1">The center of this proposal should feature the <strong>{menu.businessAnalysis.find(i => i.category === 'Star')?.name || 'main entree'}</strong>. Customers look here first.</p>
                    </div>
               </div>
           </div>
       )}
 
-      <div className="flex flex-col sm:flex-row items-center justify-between border-b-2 border-dashed border-slate-200 dark:border-slate-700 pb-8 gap-4">
+      <div className="flex flex-col sm:flex-row items-center justify-between border-b-2 border-dashed border-slate-200 dark:border-slate-700 pb-8 gap-4 mt-8">
          <div className="flex items-center gap-4">
             <ChefHat className={`w-10 h-10 ${t.title}`} />
             <div>
@@ -199,17 +194,17 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
          </div>
          
          <div className="flex items-center gap-2 no-print">
-            <button onClick={() => { analytics.track({ type: 'founder_action', data: { actionName: 'print_menu' } }); window.print(); }} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:bg-slate-200 transition-colors" title="Print/Export">
+            <button onClick={() => window.print()} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:bg-slate-200 transition-colors" title="Print/Export">
                 <FileDown size={20} className={t.description} />
             </button>
-            <button onClick={() => { navigator.clipboard.writeText(window.location.href); showToast("Link Copied!"); analytics.track({ type: 'loyalty_save', data: { menuTitle: menu.menuTitle } }); }} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:bg-slate-200 transition-colors" title="Share Link">
+            <button onClick={() => { navigator.clipboard.writeText(window.location.href); showToast("Link Copied!"); }} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:bg-slate-200 transition-colors" title="Share Link">
                 <Share2 size={20} className={t.description} />
             </button>
          </div>
       </div>
 
       {menu.image && !isGeneratingImage && (
-         <div className="relative group overflow-hidden rounded-[3rem] shadow-2xl border-8 border-white dark:border-slate-800 transition-transform hover:scale-[1.01] duration-700">
+         <div className="relative group overflow-hidden rounded-[3rem] shadow-2xl border-8 border-white dark:border-slate-800 transition-transform hover:scale-[1.01] duration-700 mt-8">
              <img 
                src={`data:image/png;base64,${menu.image}`} 
                alt={menu.menuTitle}
@@ -227,7 +222,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
          </div>
       )}
 
-      <div className="text-center max-w-4xl mx-auto space-y-6 py-8">
+      <div className="text-center max-w-4xl mx-auto space-y-6 py-12">
         <h2 className={`text-5xl sm:text-7xl font-black tracking-tighter ${t.title} leading-[0.9]`}>{menu.menuTitle}</h2>
         <div className="flex justify-center gap-2">
             {[1,2,3].map(i => <div key={i} className="w-2 h-2 rounded-full bg-primary-500 opacity-20"></div>)}
@@ -258,8 +253,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                 {items.filter((i): i is string => typeof i === 'string').map((item, index) => {
                   const checkKey = `${key}-${index}`;
                   const isChecked = checkedItems.has(checkKey);
-                  
-                  // Find analytical description if available
                   const analysis = menu.businessAnalysis?.find(a => a.name.includes(item.split(':')[0]) || item.includes(a.name));
 
                   return (
@@ -290,9 +283,8 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
           );
         })}
 
-        {/* --- HACCP SAFETY COMMAND CENTER --- */}
         {menu.safetyProtocols && menu.safetyProtocols.length > 0 && (
-            <div className={`lg:col-span-2 border-4 border-red-500/20 bg-red-50/20 dark:bg-red-900/10 rounded-[3rem] shadow-xl overflow-hidden`}>
+            <div className="lg:col-span-2 border-4 border-red-500/20 bg-red-50/20 dark:bg-red-900/10 rounded-[3rem] shadow-xl overflow-hidden mt-6">
                 <div className="p-10 border-b border-red-200 dark:border-red-900 flex items-center justify-between bg-white dark:bg-slate-900/50">
                     <div className="flex items-center gap-5">
                         <div className="p-4 bg-red-500 rounded-3xl text-white shadow-xl"><ShieldAlert size={28} /></div>
@@ -307,7 +299,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                         {menu.safetyProtocols.map((protocol, idx) => (
                             <div key={idx} className="flex gap-4 p-5 bg-white dark:bg-slate-800 rounded-2xl border border-red-100 dark:border-red-800 shadow-sm">
                                 <div className="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs font-black shrink-0">{idx+1}</div>
-                                <p className="text-sm font-bold text-slate-700 dark:text-slate-200 leading-relaxed">{protocol}</p>
+                                <p className="text-sm font-bold text-slate-700 dark:text-slate-300 leading-relaxed">{protocol}</p>
                             </div>
                         ))}
                     </div>
@@ -330,17 +322,13 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                                 <span className="text-xs font-black">2h (60°C to 21°C)</span>
                             </div>
                         </div>
-                        <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center gap-3">
-                            <Droplets className="text-blue-500" size={20} />
-                            <p className="text-[10px] font-bold text-slate-400 leading-tight">Cross-contamination protocols active for all {menu.appetizers.length + menu.mainCourses.length} generated dishes.</p>
-                        </div>
                     </div>
                 </div>
             </div>
         )}
 
         {menu.shoppingList && menu.shoppingList.length > 0 && (
-            <div className={`lg:col-span-2 ${t.sectionContainer} rounded-[3rem] shadow-2xl bg-white dark:bg-slate-900 overflow-hidden border-2 border-slate-100 dark:border-slate-800`}>
+            <div className={`lg:col-span-2 ${t.sectionContainer} rounded-[3rem] shadow-2xl bg-white dark:bg-slate-900 overflow-hidden border-2 border-slate-100 dark:border-slate-800 mt-6`}>
                 <div className="p-10 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
                     <div className="flex items-center gap-5">
                         <div className={`p-4 ${t.sectionIcon} rounded-3xl shadow-xl`}><ShoppingCart size={28} /></div>
@@ -377,14 +365,11 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                                 </div>
                             </div>
                         </div>
-                        <div className="flex flex-col gap-3 w-full sm:w-auto">
-                            <button className="px-10 py-5 bg-white text-slate-950 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl">Export List</button>
-                        </div>
+                        <button className="px-10 py-5 bg-white text-slate-950 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl">Export List</button>
                      </div>
                 </div>
             </div>
         )}
-      </div>
       </div>
     </div>
   );
