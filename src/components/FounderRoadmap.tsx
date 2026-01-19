@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation, Layout, Eye, MessageSquare, Sparkles, Loader2, AlertCircle, AlertTriangle, ListChecks, Star, Settings2, HelpCircle, ShoppingBag, UserPlus, MessageCircle, DollarSign, PieChart, Info, Smartphone, Check, MousePointer2, Activity, ShieldAlert, Instagram, Facebook, Link2, MessageSquareQuote, Flame } from 'lucide-react';
+import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation, Layout, Eye, MessageSquare, Sparkles, Loader2, AlertCircle, AlertTriangle, ListChecks, Star, Settings2, HelpCircle, ShoppingBag, UserPlus, MessageCircle, DollarSign, PieChart, Info, Smartphone, Check, MousePointer2, Activity, ShieldAlert, Instagram, Facebook, Link2, MessageSquareQuote, Flame, ShieldCheck as Shield } from 'lucide-react';
 import { generateWhopSEO } from '../services/geminiService';
 import ThumbnailStudio from './ThumbnailStudio';
 
@@ -95,15 +95,112 @@ const RedditHub: React.FC = () => {
                             {copied === 'reddit-tutorial' ? 'Copied Script' : 'Copy Reddit Script'}
                         </button>
                     </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 
-                    <div className="p-8 bg-slate-100 dark:bg-slate-800 rounded-[2.5rem] border-2 border-slate-200 dark:border-slate-700">
-                        <h5 className="text-sm font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-4">The "Helpful Comment"</h5>
-                        <p className="text-xs font-medium text-slate-500 leading-relaxed mb-6">
-                            "Chef, I feel you on the admin stress. I was typing proposals manually until I built an AI tool to do it for me. It’s been a lifesaver. Happy to share the link if you want to try it out (it's free for chefs)."
+const ClippingBountyLab: React.FC = () => {
+    const [copied, setCopied] = useState<string | null>(null);
+
+    const handleCopy = (text: string, id: string) => {
+        navigator.clipboard.writeText(text.trim());
+        setCopied(id);
+        setTimeout(() => setCopied(null), 2000);
+    };
+
+    return (
+        <div className="animate-fade-in space-y-12">
+            <div className="max-w-3xl">
+                <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4 flex items-center gap-3">
+                    <DollarSign className="text-emerald-500" /> Bounty & Lead Command
+                </h3>
+                <p className="text-lg text-slate-500 font-medium leading-relaxed">
+                    Melo, your current outreach is **perfect**. You are providing the link immediately. Now, let's protect the brand and scale.
+                </p>
+            </div>
+
+            {/* BRAND PROTECTION: RULES & REGS */}
+            <div className="p-8 bg-slate-50 dark:bg-slate-900/50 border-4 border-slate-200 dark:border-slate-800 rounded-[3rem] shadow-xl">
+                <div className="flex items-center gap-4 mb-8">
+                    <div className="p-3 bg-red-500 rounded-2xl text-white shadow-lg"><ShieldAlert size={24} /></div>
+                    <div>
+                        <h4 className="text-xl font-black uppercase tracking-tight text-slate-900 dark:text-white leading-none">Clipper Rules & Regulations</h4>
+                        <p className="text-[10px] font-black uppercase text-red-500 tracking-widest mt-2">Zero Tolerance for Brand Damage</p>
+                    </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-4">
+                        <p className="text-xs font-black uppercase tracking-widest text-slate-400">The Clipper Code (Send this to them)</p>
+                        <div className="space-y-3">
+                            {[
+                                "No Spamming: Do not post the same video more than 3 times a week.",
+                                "No Fake Promises: Do not say the app is '100% Free Forever'.",
+                                "Aesthetic Only: Use the provided high-res reels or recorded screen only.",
+                                "Clear CTA: Must mention 'Link in Bio' or 'Join via dashboard'.",
+                                "Social Handles: Tag @caterproai_ in every post for visibility."
+                            ].map((rule, idx) => (
+                                <div key={idx} className="flex gap-3 p-4 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm">
+                                    <div className="w-5 h-5 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-black shrink-0">{idx+1}</div>
+                                    <p className="text-xs font-bold text-slate-700 dark:text-slate-300 leading-relaxed">{rule}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    
+                    <div className="bg-slate-950 p-8 rounded-[2rem] text-white space-y-6">
+                        <h5 className="text-sm font-black uppercase tracking-[0.2em] text-indigo-400">Scaling Strategy: The "Waitlist"</h5>
+                        <p className="text-xs font-medium text-slate-400 leading-relaxed">
+                            Melo, when you hit Clipper #6, do not just say "Yes." Say this:
                         </p>
-                        <button onClick={() => handleCopy("Chef, I feel you on the admin stress. I was typing proposals manually until I built an AI tool to do it for me. It’s been a lifesaver. Happy to share the link if you want to try it out (it's free for chefs).", "reddit-comment")} className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all">
-                            {copied === 'reddit-comment' ? 'Copied' : 'Copy Comment Script'}
-                        </button>
+                        <div className="p-5 bg-white/5 border border-white/10 rounded-2xl italic text-sm text-indigo-100 leading-relaxed">
+                            "Chef! The Launch Team (First 5) is currently FULL. I'm moving you to the Priority Waitlist. As soon as a slot opens up based on performance, I'll send you your dashboard link. Show me an edit you've done before and I might fast-track you."
+                        </div>
+                        <p className="text-[10px] font-black uppercase text-amber-500">Why? Scarcity makes clippers work harder and stay loyal.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                {/* INTEREST RESPONSE KIT (ONBOARDING) */}
+                <div className="p-10 bg-indigo-600 rounded-[3rem] text-white shadow-2xl space-y-8 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-12 opacity-10"><MessageCircle size={120} /></div>
+                    <div className="relative z-10">
+                        <h4 className="text-xl font-black uppercase tracking-tight mb-6">Retention Scripts</h4>
+                        <div className="space-y-6">
+                            <div className="p-6 bg-white/10 rounded-2xl border border-white/20">
+                                <p className="text-[10px] font-black uppercase text-indigo-200 mb-2">The "Rules & Assets" Message</p>
+                                <p className="text-sm font-bold italic leading-relaxed">"Legend, dashboard is live! Here is the code: No spam, tag @caterproai_, and use high-res assets only. I've attached the Content Kit below. Let's get these views!"</p>
+                                <button onClick={() => handleCopy("Legend, dashboard is live! Here is the code: No spam, tag @caterproai_, and use high-res assets only. I've attached the Content Kit below. Let's get these views!", "rules-msg")} className="mt-4 text-[10px] font-black uppercase tracking-widest bg-white text-indigo-600 px-4 py-2 rounded-lg hover:scale-105 transition-transform">
+                                    {copied === 'rules-msg' ? 'Copied!' : 'Copy Rules Message'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="space-y-6">
+                    <div className="p-8 bg-white dark:bg-slate-900 rounded-[3rem] border-2 border-slate-100 dark:border-slate-700 shadow-lg">
+                        <h4 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
+                            <Link2 size={18} className="text-indigo-500" /> Success Checklist
+                        </h4>
+                        <div className="space-y-4">
+                            {[
+                                { t: 'Rules Established', d: 'Always send the 5 rules immediately after they sign up.' },
+                                { t: 'Waitlist Mode (Clipper #6+)', d: 'Stop auto-approving. Start vetting based on editing quality.' },
+                                { t: 'Weekly Payout Call', d: 'Check Whop every Friday to see who is earning and send them a "Keep it up" DM.' }
+                            ].map(i => (
+                                <div key={i.t} className="flex gap-4">
+                                    <CheckCircle2 className="text-emerald-500 shrink-0" size={18} />
+                                    <div>
+                                        <p className="font-black text-xs uppercase text-slate-800 dark:text-white">{i.t}</p>
+                                        <p className="text-[10px] text-slate-500 font-bold mt-1 leading-relaxed">{i.d}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -159,101 +256,6 @@ const StorefrontAudit: React.FC = () => {
                         <button onClick={() => handleCopy("https://www.facebook.com/CaterProAi", "fb")} className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-xl hover:scale-110 transition-transform">
                             {copied === 'fb' ? <Check size={16} className="text-emerald-500" /> : <Copy size={16} className="text-blue-600" />}
                         </button>
-                    </div>
-                </div>
-            </div>
-
-            {/* DANGER ZONE WARNING */}
-            <div className="p-8 bg-red-50 dark:bg-red-900/20 border-4 border-red-500 rounded-[3rem] shadow-2xl">
-                <div className="flex items-start gap-6">
-                    <div className="p-4 bg-red-500 rounded-2xl text-white shadow-xl">
-                        <ShieldAlert size={32} />
-                    </div>
-                    <div>
-                        <h4 className="text-xl font-black text-red-900 dark:text-red-200 uppercase tracking-tight">Configuration Check</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-4">
-                            <div className="space-y-2">
-                                <p className="text-[10px] font-black text-red-600 dark:text-red-400 uppercase">1. Whop "Edit URL" Box</p>
-                                <p className="text-xs font-bold text-slate-700 dark:text-slate-300 leading-relaxed">
-                                    This is your shop name. Keep as <code className="bg-white/50 px-1 rounded">melotwo2</code> or <code className="bg-white/50 px-1 rounded">caterpro-ai</code>.
-                                </p>
-                            </div>
-                            <div className="space-y-2">
-                                <p className="text-[10px] font-black text-emerald-600 uppercase">2. Whop "Add Link" Button</p>
-                                <p className="text-xs font-bold text-slate-700 dark:text-slate-300 leading-relaxed">
-                                    URL: <code className="bg-emerald-100 dark:bg-emerald-900/50 px-1 rounded">https://caterpro-ai.web.app/</code>
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const ClippingBountyLab: React.FC = () => {
-    const [budget, setBudget] = useState(100);
-    const [viewRate, setViewRate] = useState(0.002); // $2.00 per 1k views default
-    const [copied, setCopied] = useState<string | null>(null);
-
-    const handleCopy = (text: string, id: string) => {
-        navigator.clipboard.writeText(text.trim());
-        setCopied(id);
-        setTimeout(() => setCopied(null), 2000);
-    };
-
-    const potentialViews = (budget / viewRate).toLocaleString();
-
-    return (
-        <div className="animate-fade-in space-y-10">
-            <div className="max-w-3xl">
-                <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4 flex items-center gap-3">
-                    <DollarSign className="text-emerald-500" /> Bounty & Lead Command
-                </h3>
-                <p className="text-lg text-slate-500 font-medium leading-relaxed">
-                    Melo, you are already getting interest in the Whop chat! Use these tools to close them.
-                </p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-                {/* INTEREST RESPONSE KIT */}
-                <div className="p-10 bg-indigo-600 rounded-[3rem] text-white shadow-2xl space-y-8 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-12 opacity-10"><MessageCircle size={120} /></div>
-                    <div className="relative z-10">
-                        <h4 className="text-xl font-black uppercase tracking-tight mb-6">Chat Response Kit</h4>
-                        <div className="space-y-6">
-                            <div className="p-6 bg-white/10 rounded-2xl border border-white/20">
-                                <p className="text-[10px] font-black uppercase text-indigo-200 mb-2">When someone says "I'm interested"</p>
-                                <p className="text-sm font-bold italic leading-relaxed">"Legend! Here is the partner dashboard. Sign up here and you'll get your tracking links instantly: https://whop.com/melotwo2/affiliate"</p>
-                                <button onClick={() => handleCopy("Legend! Here is the partner dashboard. Sign up here and you'll get your tracking links instantly: https://whop.com/melotwo2/affiliate", "chat-reply")} className="mt-4 text-[10px] font-black uppercase tracking-widest bg-white text-indigo-600 px-4 py-2 rounded-lg">
-                                    {copied === 'chat-reply' ? 'Copied!' : 'Copy Reply'}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="space-y-6">
-                    <div className="p-8 bg-white dark:bg-slate-900 rounded-[3rem] border-2 border-slate-100 dark:border-slate-700 shadow-lg">
-                        <h4 className="text-sm font-black uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
-                            <Link2 size={18} className="text-indigo-500" /> Affiliate Management
-                        </h4>
-                        <div className="space-y-4">
-                            {[
-                                { t: 'Affiliate Dashboard', d: 'Go to Settings > Affiliates on Whop to see your growing list of partners.' },
-                                { t: 'Payout Rules', d: 'Whop handles the 30% split automatically. You just focus on recruiting.' },
-                                { t: 'Content Kits', d: 'Send your clippers the "High-Intent Media" reels you render in our Content Lab tab.' }
-                            ].map(i => (
-                                <div key={i.t} className="flex gap-4">
-                                    <CheckCircle2 className="text-emerald-500 shrink-0" size={18} />
-                                    <div>
-                                        <p className="font-black text-xs uppercase text-slate-800 dark:text-white">{i.t}</p>
-                                        <p className="text-[10px] text-slate-500 font-bold mt-1 leading-relaxed">{i.d}</p>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
                     </div>
                 </div>
             </div>
@@ -439,37 +441,6 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
         {activeTab === 'bounty' && <ClippingBountyLab />}
         {activeTab === 'recruiter' && <CommunityRecruiter />}
         {activeTab === 'design' && <ThumbnailStudio />}
-
-        {/* MISSION CONTROL TAB */}
-        {activeTab === 'mission' && (
-          <div className="animate-fade-in py-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                <div className="bg-slate-50 dark:bg-slate-800/50 border-2 border-slate-100 dark:border-slate-700 rounded-[3rem] overflow-hidden shadow-inner">
-                    <h3 className="p-8 border-b border-slate-100 dark:border-slate-700 text-[11px] font-black uppercase tracking-[0.25em] text-slate-400">Manual Dashboard Actions</h3>
-                    {dailyTasks.map((task) => (
-                    <button key={task.id} onClick={() => toggleTask(task.id)} className={`w-full flex items-center gap-6 p-8 border-b border-slate-100 dark:border-slate-700 last:border-0 hover:bg-white dark:hover:bg-slate-800 transition-all ${completedTasks.has(task.id) ? 'bg-emerald-50/50 dark:bg-emerald-900/10' : ''}`}>
-                        <div className={`w-8 h-8 rounded-xl border-2 flex items-center justify-center transition-all ${completedTasks.has(task.id) ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-300'}`}>
-                            {completedTasks.has(task.id) && <CheckCircle2 size={18} />}
-                        </div>
-                        <span className={`text-base font-black text-left ${completedTasks.has(task.id) ? 'text-slate-400 line-through' : 'text-slate-800 dark:text-slate-100'}`}>
-                            {task.label}
-                            {task.highPriority && !completedTasks.has(task.id) && <span className="ml-3 text-[9px] bg-red-500 text-white px-2.5 py-1 rounded-md font-black tracking-widest shadow-lg shadow-red-500/20">REQUIRED</span>}
-                        </span>
-                    </button>
-                    ))}
-                </div>
-                <div className="bg-indigo-600 p-16 rounded-[3rem] flex flex-col justify-center items-center text-center shadow-[0_40px_80px_-15px_rgba(79,70,229,0.5)]">
-                    <Award className="text-white/30 mb-8" size={80} />
-                    <p className="text-3xl font-black text-white leading-tight mb-8">
-                        "The niche is empty.<br/>Claim your crown today."
-                    </p>
-                    <button onClick={() => setActiveTab('recruiter')} className="px-12 py-6 bg-white text-indigo-600 rounded-[2rem] font-black text-sm uppercase tracking-widest shadow-2xl hover:scale-105 active:scale-95 transition-all">
-                        Open Recruiter Scripts
-                    </button>
-                </div>
-            </div>
-          </div>
-        )}
       </div>
     </section>
   );
