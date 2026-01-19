@@ -29,6 +29,7 @@ import { CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGE
 import { SavedMenu, ErrorState, ValidationErrors, Menu, MenuSection } from './types';
 import { getApiErrorState } from './services/apiErrorHandler';
 import { generateMenuFromApi, generateMenuImageFromApi } from './services/geminiService';
+import { analytics } from './services/analyticsManager';
 
 const WHOP_STORE_URL = "https://whop.com/melotwo2"; 
 const FACEBOOK_PAGE_URL = "https://facebook.com/CaterProAi"; 
@@ -105,6 +106,10 @@ const App: React.FC = () => {
   );
 
   useEffect(() => {
+    analytics.track({ type: 'awareness_view', data: { page: viewMode } });
+  }, [viewMode]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (cuisineRef.current && !cuisineRef.current.contains(event.target as Node)) {
         setShowCuisineResults(false);
@@ -136,6 +141,7 @@ const App: React.FC = () => {
   const handleApplyPreset = (text: string) => {
     setStrategyHook(text);
     setToastMessage("Marketing Strategy Applied!");
+    analytics.track({ type: 'founder_action', data: { actionName: 'apply_strategy_preset' } });
   };
 
   const handleOpenSocial = (mode: SocialMode) => {
@@ -158,6 +164,8 @@ const App: React.FC = () => {
     setIsLoading(true);
     setError(null);
     setMenu(null);
+
+    analytics.track({ type: 'conversion_generate', data: { eventType, plan: subscription.plan } });
 
     try {
       const result = await generateMenuFromApi({
@@ -366,7 +374,7 @@ const App: React.FC = () => {
 
                   <div className="md:col-span-2 full-width-tablet pt-4">
                     <button onClick={generateMenu} className="w-full py-6 bg-primary-600 hover:bg-primary-700 text-white rounded-[2rem] font-black text-xl shadow-2xl shadow-primary-500/30 transition-all active:scale-95 flex items-center justify-center gap-3">
-                      <Sparkles className="w-7 h-7" /> Launch AI Culinary Planner
+                      <Sparkles className="w-7 h-7" /> Launch Strategic AI Planner
                     </button>
                   </div>
                 </div>
@@ -385,8 +393,8 @@ const App: React.FC = () => {
           {isLoading && (
             <div className="flex flex-col items-center justify-center py-32 animate-pulse text-center">
                 <Loader2 className="w-20 h-20 text-primary-500 animate-spin mb-8" />
-                <h2 className="text-3xl font-black text-slate-900 dark:text-white">Orchestrating the Digital Journey...</h2>
-                <p className="text-slate-500 mt-2 font-medium">Applying NotebookLM marketing hooks to your menu.</p>
+                <h2 className="text-3xl font-black text-slate-900 dark:text-white">Orchestrating Business Intelligence...</h2>
+                <p className="text-slate-500 mt-2 font-medium">Applying Menu Engineering logic and HACCP safety protocols.</p>
             </div>
           )}
 
@@ -396,14 +404,14 @@ const App: React.FC = () => {
                     <div className="flex items-center gap-5">
                         <div className="p-4 bg-primary-100 dark:bg-primary-900/30 rounded-3xl"><Sparkles className="text-primary-600 w-8 h-8" /></div>
                         <div>
-                            <h3 className="text-2xl font-black text-slate-900 dark:text-white">Proposal Architected</h3>
-                            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest mt-1">Ready for 2026 Client Delivery</p>
+                            <h3 className="text-2xl font-black text-slate-900 dark:text-white">Marketing Hub Proposal</h3>
+                            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest mt-1">HACCP & Margin Analysis Active</p>
                         </div>
                     </div>
                     <div className="flex gap-3">
                         <button onClick={() => setMenu(null)} className="px-6 py-3.5 bg-slate-100 dark:bg-slate-800 rounded-2xl text-xs font-black uppercase text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors">← New Event</button>
                         <button onClick={() => window.print()} className="px-8 py-3.5 bg-primary-600 text-white rounded-2xl text-xs font-black uppercase flex items-center gap-2 shadow-xl shadow-primary-500/20 active:scale-95 transition-all">
-                           <FileDown size={18} /> Export PDF
+                           <FileDown size={18} /> Export Strategic PDF
                         </button>
                     </div>
                 </div>
