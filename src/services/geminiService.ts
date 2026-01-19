@@ -26,7 +26,9 @@ const safeParseMenuJson = (text: string): Menu => {
             shoppingList: ensureObjectArray(parsed.shoppingList),
             recommendedEquipment: ensureObjectArray(parsed.recommendedEquipment),
             salesScripts: ensureObjectArray(parsed.salesScripts),
-            aiKeywords: ensureArray(parsed.aiKeywords)
+            aiKeywords: ensureArray(parsed.aiKeywords),
+            businessAnalysis: ensureObjectArray(parsed.businessAnalysis),
+            safetyProtocols: ensureArray(parsed.safetyProtocols)
         };
     } catch (e) {
         console.error("JSON Parse Error. Raw text:", text);
@@ -50,16 +52,18 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
        Implement a 'Before, During, After' customer lifecycle strategy in the sales scripts.`
     : '';
 
-  const prompt = `You are a Michelin-star catering strategist. 
+  const prompt = `You are a Michelin-star catering strategist and business consultant. 
   Create a menu proposal for ${params.eventType}. 
   Guest Count: ${params.guestCount}. Budget: ${params.budget}. Cuisine: ${params.cuisine}. 
   
   ${strategyContext}
   
-  Return JSON. 
-  Include 'salesScripts' for the user (3 scripts: before, during, after purchase).
-  Include 'aiKeywords' (5 keywords that will help this menu rank in ChatGPT/Perplexity AI search).
-  Categorized Shopping List in ${params.currency}.`;
+  BUSINESS LOGIC REQUIREMENTS:
+  1. MENU ENGINEERING: Identify which items are 'Stars' (high profit/popularity), 'Plow Horses', 'Puzzles', or 'Dogs'.
+  2. EVOCATIVE DESCRIPTIONS: Use sensorially rich, nostalgia-driven descriptions for each dish to increase perceived value.
+  3. SAFETY: Include HACCP (Hazard Analysis and Critical Control Points) protocols for cross-contamination and transport.
+  
+  Return JSON. Categorized Shopping List in ${params.currency}.`;
   
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
@@ -75,6 +79,20 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
           mainCourses: { type: Type.ARRAY, items: { type: Type.STRING } },
           sideDishes: { type: Type.ARRAY, items: { type: Type.STRING } },
           dessert: { type: Type.ARRAY, items: { type: Type.STRING } },
+          businessAnalysis: {
+              type: Type.ARRAY,
+              items: {
+                  type: Type.OBJECT,
+                  properties: {
+                      name: { type: Type.STRING },
+                      category: { type: Type.STRING, description: 'Star, Plow Horse, Puzzle, or Dog' },
+                      profitMargin: { type: Type.NUMBER, description: '1-10' },
+                      popularityPotential: { type: Type.NUMBER, description: '1-10' },
+                      evocativeDescription: { type: Type.STRING }
+                  }
+              }
+          },
+          safetyProtocols: { type: Type.ARRAY, items: { type: Type.STRING }, description: 'HACCP Safety Checkpoints' },
           salesScripts: {
               type: Type.ARRAY,
               items: {
@@ -114,7 +132,7 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
             } 
           }
         },
-        required: ["menuTitle", "description", "appetizers", "mainCourses", "salesScripts"]
+        required: ["menuTitle", "description", "businessAnalysis", "safetyProtocols"]
       }
     }
   });
@@ -132,9 +150,13 @@ export const regenerateMenuItemFromApi = async (originalText: string, instructio
 
 export const generateWhopSEO = async (niche: string): Promise<any> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const prompt = `You are a Whop Discovery SEO Expert. Generate an optimized store title, description, and 5 search tags for a product in the "${niche}" niche. 
-    The goal is to rank #1 when users search for "Hospitality", "Chef", or "Automation".
-    Return JSON with fields: optimizedTitle, optimizedDescription, searchTags (array), and thumbnailIdea.`;
+    const prompt = `You are a Whop Discovery SEO Expert. Generate high-performance listing assets for the niche: "${niche}".
+    
+    1. OPTIMIZED HEADLINE: Under 80 characters. Start with the Benefit. (e.g. AI Catering System: Automate Proposals).
+    2. OPTIMIZED DESCRIPTION: Use the "Results-First" framework. Explain why a buyer will make more money or save time.
+    3. SEARCH TAGS: 5 precise tags used on Whop (e.g. #Hospitality, #AI, #Automation).
+    
+    Return structured JSON.`;
     
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -146,8 +168,7 @@ export const generateWhopSEO = async (niche: string): Promise<any> => {
                 properties: {
                     optimizedTitle: { type: Type.STRING },
                     optimizedDescription: { type: Type.STRING },
-                    searchTags: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    thumbnailIdea: { type: Type.STRING }
+                    searchTags: { type: Type.ARRAY, items: { type: Type.STRING } }
                 },
                 required: ["optimizedTitle", "optimizedDescription", "searchTags"]
             }
@@ -158,7 +179,18 @@ export const generateWhopSEO = async (niche: string): Promise<any> => {
 
 export const generateSocialCaption = async (menuTitle: string, description: string, platform: string = 'facebook'): Promise<string> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const prompt = `Write a viral ${platform} post for: "${menuTitle}". Content: ${description}. Link: https://caterpro-ai.web.app/`;
+    let platformSpecific = "";
+    if (platform === 'pinterest') {
+        platformSpecific = "Write a high-converting Pinterest Pin description. Focus on aesthetic culinary keywords, visual appeal, and 'lifestyle' aspirations. Use 3 specific hashtags.";
+    } else if (platform === 'reddit') {
+        platformSpecific = "Write a long-form, value-first Reddit post for r/Chefit. Focus on a 'Case Study' format. Headline: How I cut catering paperwork by 80% with AI. Explain the workflow clearly. Avoid sounding like an ad. Mention the tool is free for chefs.";
+    } else if (platform === 'twitter') {
+        platformSpecific = "Write a short, punchy 2026 tweet with a curiosity-driven hook. Under 240 chars.";
+    } else {
+        platformSpecific = `Write a viral ${platform} post focusing on the ease of generating this menu instantly.`;
+    }
+
+    const prompt = `${platformSpecific} Topic: "${menuTitle}". Content: ${description}. Link: https://caterpro-ai.web.app/`;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: prompt
@@ -168,7 +200,7 @@ export const generateSocialCaption = async (menuTitle: string, description: stri
 
 export const generateWhatsAppStatus = async (menuTitle: string): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `Write 3 curiosity-driven WhatsApp Status updates for "${menuTitle}".`;
+  const prompt = `Write 3 curiosity-driven WhatsApp Status updates for "${menuTitle}". Include emojis.`;
   const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
       contents: prompt
