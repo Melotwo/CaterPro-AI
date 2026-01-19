@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation, Layout, Eye, MessageSquare, Sparkles, Loader2, AlertCircle, AlertTriangle, ListChecks, Star, Settings2, HelpCircle, ShoppingBag, UserPlus, MessageCircle, DollarSign, PieChart, Info, Smartphone, Check, MousePointer2, Activity, ShieldAlert, Instagram, Facebook, Link2, MessageSquareQuote } from 'lucide-react';
+import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation, Layout, Eye, MessageSquare, Sparkles, Loader2, AlertCircle, AlertTriangle, ListChecks, Star, Settings2, HelpCircle, ShoppingBag, UserPlus, MessageCircle, DollarSign, PieChart, Info, Smartphone, Check, MousePointer2, Activity, ShieldAlert, Instagram, Facebook, Link2, MessageSquareQuote, Flame } from 'lucide-react';
 import { generateWhopSEO } from '../services/geminiService';
 import ThumbnailStudio from './ThumbnailStudio';
 
@@ -8,6 +8,108 @@ interface FounderRoadmapProps {
   whopUrl: string;
   onOpenSocial?: (mode: 'create' | 'reel' | 'status') => void;
 }
+
+const RedditHub: React.FC = () => {
+    const [copied, setCopied] = useState<string | null>(null);
+    const [karmaDays, setKarmaDays] = useState(0);
+
+    const handleCopy = (text: string, id: string) => {
+        navigator.clipboard.writeText(text.trim());
+        setCopied(id);
+        setTimeout(() => setCopied(null), 2000);
+    };
+
+    const subreddits = [
+        { name: 'r/Chefit', focus: 'Pro Chefs & Techniques' },
+        { name: 'r/KitchenConfidential', focus: 'Industry Culture (Be authentic)' },
+        { name: 'r/foodtrucks', focus: 'Mobile Logistics' },
+        { name: 'r/MealPrepSunday', focus: 'Efficiency & Systems' },
+        { name: 'r/SaaS', focus: 'Builder Community' }
+    ];
+
+    return (
+        <div className="animate-fade-in space-y-10">
+            <div className="max-w-3xl">
+                <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4 flex items-center gap-3">
+                    <Flame className="text-orange-600" /> Reddit Growth Hub
+                </h3>
+                <p className="text-lg text-slate-500 font-medium leading-relaxed">
+                    Melo, your research is 100% correct. Reddit is for <span className="italic font-bold">value</span>, not ads. Use this kit to build authority before dropping the link.
+                </p>
+            </div>
+
+            {/* KARMA WARMUP TRACKER */}
+            <div className="p-8 bg-slate-900 text-white rounded-[3rem] shadow-2xl border-4 border-indigo-500/30">
+                <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div>
+                        <h4 className="text-xl font-black uppercase tracking-tight mb-2">Phase 1: Karma Warmup</h4>
+                        <p className="text-slate-400 text-sm font-medium">Day {karmaDays}/14 of helpful commenting. Do not post threads yet!</p>
+                    </div>
+                    <div className="flex gap-2">
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14].map(day => (
+                            <button 
+                                key={day} 
+                                onClick={() => setKarmaDays(day)}
+                                className={`w-8 h-8 rounded-lg text-[10px] font-black flex items-center justify-center transition-all ${karmaDays >= day ? 'bg-indigo-500 text-white shadow-lg' : 'bg-slate-800 text-slate-600 border border-slate-700'}`}
+                            >
+                                {day}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* SUBREDDIT DIRECTORY */}
+                <div className="space-y-4">
+                    <h4 className="text-xs font-black uppercase tracking-[0.3em] text-slate-400">Target Communities</h4>
+                    {subreddits.map(sub => (
+                        <div key={sub.name} className="p-5 bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-2xl flex items-center justify-between group hover:border-indigo-500/30 transition-all">
+                            <div>
+                                <p className="font-black text-slate-900 dark:text-white">{sub.name}</p>
+                                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">{sub.focus}</p>
+                            </div>
+                            <a 
+                                href={`https://reddit.com/${sub.name}`} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-slate-400 group-hover:text-indigo-500 transition-colors"
+                            >
+                                <ExternalLink size={18} />
+                            </a>
+                        </div>
+                    ))}
+                </div>
+
+                {/* REDDIT VALUE SCRIPTS */}
+                <div className="space-y-6">
+                    <h4 className="text-xs font-black uppercase tracking-[0.3em] text-slate-400">Value-First Scripts</h4>
+                    
+                    <div className="p-8 bg-indigo-600 rounded-[2.5rem] text-white shadow-xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 p-8 opacity-10"><MessageSquare size={80} /></div>
+                        <h5 className="text-sm font-black uppercase tracking-widest mb-4">Tutorial Hook (Best for r/Chefit)</h5>
+                        <p className="text-xs font-medium italic leading-relaxed mb-6">
+                            "I spent years dreading the admin side of my catering business. Last month I decided to build an AI system to handle it. I managed to cut my proposal time by 80%. Here is the exact workflow I'm using now to stay in the kitchen instead of the office..."
+                        </p>
+                        <button onClick={() => handleCopy("I spent years dreading the admin side of my catering business. Last month I decided to build an AI system to handle it. I managed to cut my proposal time by 80%. Here is the exact workflow I'm using now to stay in the kitchen instead of the office...", "reddit-tutorial")} className="w-full py-4 bg-white text-indigo-600 rounded-2xl font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all">
+                            {copied === 'reddit-tutorial' ? 'Copied Script' : 'Copy Reddit Script'}
+                        </button>
+                    </div>
+
+                    <div className="p-8 bg-slate-100 dark:bg-slate-800 rounded-[2.5rem] border-2 border-slate-200 dark:border-slate-700">
+                        <h5 className="text-sm font-black uppercase tracking-widest text-slate-600 dark:text-slate-400 mb-4">The "Helpful Comment"</h5>
+                        <p className="text-xs font-medium text-slate-500 leading-relaxed mb-6">
+                            "Chef, I feel you on the admin stress. I was typing proposals manually until I built an AI tool to do it for me. It’s been a lifesaver. Happy to share the link if you want to try it out (it's free for chefs)."
+                        </p>
+                        <button onClick={() => handleCopy("Chef, I feel you on the admin stress. I was typing proposals manually until I built an AI tool to do it for me. It’s been a lifesaver. Happy to share the link if you want to try it out (it's free for chefs).", "reddit-comment")} className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all">
+                            {copied === 'reddit-comment' ? 'Copied' : 'Copy Comment Script'}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const StorefrontAudit: React.FC = () => {
     const [copied, setCopied] = useState<string | null>(null);
@@ -236,7 +338,7 @@ const CommunityRecruiter: React.FC = () => {
 };
 
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }) => {
-  const [activeTab, setActiveTab] = useState<'mission' | 'whop' | 'recruiter' | 'design' | 'store' | 'bounty'>('whop');
+  const [activeTab, setActiveTab] = useState<'mission' | 'whop' | 'recruiter' | 'design' | 'store' | 'bounty' | 'reddit'>('whop');
   const [completedTasks, setCompletedTasks] = useState<Set<string>>(new Set(['community-post']));
 
   const toggleTask = (taskId: string) => {
@@ -251,6 +353,7 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
     { id: 'whop-links', label: 'Add Web App Link to Whop Links section', highPriority: true },
     { id: 'whop-socials', label: 'Add Instagram/Facebook icons to Storefront', highPriority: true },
     { id: 'whop-bounty-live', label: 'Post Bounty offer in Whop Clips chat', highPriority: true },
+    { id: 'reddit-engage', label: 'Complete 3 helpful Reddit comments', highPriority: true },
   ];
 
   return (
@@ -274,6 +377,9 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
             <button onClick={() => setActiveTab('whop')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'whop' ? 'bg-white text-slate-950 shadow-lg' : 'text-slate-400 hover:text-white'}`}>
                 <Crosshair size={16} /> Visibility
             </button>
+            <button onClick={() => setActiveTab('reddit')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'reddit' ? 'bg-orange-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
+                <Flame size={16} /> Reddit Hub
+            </button>
             <button onClick={() => setActiveTab('store')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'store' ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
                 <ShoppingBag size={16} /> Store Polish
             </button>
@@ -285,9 +391,6 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
             </button>
             <button onClick={() => setActiveTab('design')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'design' ? 'bg-amber-500 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
                 <Layout size={16} /> Assets
-            </button>
-            <button onClick={() => setActiveTab('mission')} className={`px-6 py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap flex items-center gap-2 ${activeTab === 'mission' ? 'bg-slate-700 text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}>
-                <ClipboardCheck size={16} /> Checklist
             </button>
           </div>
         </div>
@@ -331,6 +434,7 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
                 </div>
             </div>
         )}
+        {activeTab === 'reddit' && <RedditHub />}
         {activeTab === 'store' && <StorefrontAudit />}
         {activeTab === 'bounty' && <ClippingBountyLab />}
         {activeTab === 'recruiter' && <CommunityRecruiter />}
