@@ -8,6 +8,14 @@ export interface DeliveryFeeStructure {
   currency: string;
 }
 
+export interface MenuItemAnalysis {
+  name: string;
+  category: 'Star' | 'Plow Horse' | 'Puzzle' | 'Dog';
+  profitMargin: number; // 1-10
+  popularityPotential: number; // 1-10
+  evocativeDescription: string;
+}
+
 export interface SalesScript {
   phase: 'before' | 'during' | 'after';
   hook: string;
@@ -32,6 +40,14 @@ export interface Menu {
   groundingChunks?: GroundingChunk[];
   theme?: string;
   deliveryFeeStructure?: DeliveryFeeStructure;
+  /**
+   * AI-generated business intelligence analysis for menu engineering.
+   */
+  businessAnalysis?: MenuItemAnalysis[];
+  /**
+   * HACCP Safety Standards and Protocols.
+   */
+  safetyProtocols?: string[];
   /**
    * AI-generated sales scripts based on the marketing strategy chosen.
    */
