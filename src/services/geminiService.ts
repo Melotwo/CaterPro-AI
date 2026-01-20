@@ -4,6 +4,7 @@ import { Menu, Supplier, EducationContent, ShoppingListItem, BeveragePairing } f
 
 const safeParseMenuJson = (text: string): Menu => {
     try {
+        if (!text) throw new Error("Empty response from AI");
         const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
         const parsed = JSON.parse(cleaned);
         const ensureArray = (arr: any) => (Array.isArray(arr) ? arr : []);
@@ -32,7 +33,7 @@ const safeParseMenuJson = (text: string): Menu => {
         };
     } catch (e) {
         console.error("JSON Parse Error. Raw text:", text);
-        throw new Error("Invalid format. Please try again.");
+        throw new Error("The AI response was interrupted. Please try again with a simpler request.");
     }
 };
 
@@ -48,27 +49,24 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
   
   const strategyContext = params.strategyHook 
-    ? `CRITICAL MARKETING STRATEGY: ${params.strategyHook}. 
-       Implement a 'Before, During, After' customer lifecycle strategy in the sales scripts.`
+    ? `STRATEGY: ${params.strategyHook}.`
     : '';
 
-  const prompt = `You are a Michelin-star catering strategist and business consultant. 
-  Create a menu proposal for ${params.eventType}. 
-  Guest Count: ${params.guestCount}. Budget: ${params.budget}. Cuisine: ${params.cuisine}. 
-  
+  const prompt = `Michelin catering strategist. 
+  Event: ${params.eventType}. Guests: ${params.guestCount}. Budget: ${params.budget}. Cuisine: ${params.cuisine}. 
   ${strategyContext}
   
-  BUSINESS LOGIC REQUIREMENTS:
-  1. MENU ENGINEERING: Identify which items are 'Stars' (high profit/popularity), 'Plow Horses', 'Puzzles', or 'Dogs'.
-  2. EVOCATIVE DESCRIPTIONS: Use sensorially rich, nostalgia-driven descriptions for each dish to increase perceived value.
-  3. SAFETY: Include HACCP (Hazard Analysis and Critical Control Points) protocols for cross-contamination and transport.
+  REQUIREMENTS:
+  1. MENU ENGINEERING: Identify 'Star', 'Plow Horse', 'Puzzle', or 'Dog' for dishes.
+  2. HACCP: Precise safety checkpoints for these dishes.
   
-  Return JSON. Categorized Shopping List in ${params.currency}.`;
+  Return JSON only. List shopping items in ${params.currency}.`;
   
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
     contents: prompt,
     config: {
+      thinkingConfig: { thinkingBudget: 0 }, // Disable thinking to prioritize instant generation speed
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
@@ -85,26 +83,14 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
                   type: Type.OBJECT,
                   properties: {
                       name: { type: Type.STRING },
-                      category: { type: Type.STRING, description: 'Star, Plow Horse, Puzzle, or Dog' },
-                      profitMargin: { type: Type.NUMBER, description: '1-10' },
-                      popularityPotential: { type: Type.NUMBER, description: '1-10' },
+                      category: { type: Type.STRING },
+                      profitMargin: { type: Type.NUMBER },
+                      popularityPotential: { type: Type.NUMBER },
                       evocativeDescription: { type: Type.STRING }
                   }
               }
           },
-          safetyProtocols: { type: Type.ARRAY, items: { type: Type.STRING }, description: 'HACCP Safety Checkpoints' },
-          salesScripts: {
-              type: Type.ARRAY,
-              items: {
-                  type: Type.OBJECT,
-                  properties: {
-                      phase: { type: Type.STRING },
-                      hook: { type: Type.STRING },
-                      script: { type: Type.STRING }
-                  }
-              }
-          },
-          aiKeywords: { type: Type.ARRAY, items: { type: Type.STRING } },
+          safetyProtocols: { type: Type.ARRAY, items: { type: Type.STRING } },
           shoppingList: { 
             type: Type.ARRAY, 
             items: { 
@@ -136,6 +122,11 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
       }
     }
   });
+  
+  if (!response.text) {
+      throw new Error("AI failed to provide content. The network might be unstable.");
+  }
+  
   return { menu: safeParseMenuJson(response.text) };
 };
 
@@ -144,24 +135,20 @@ export const regenerateMenuItemFromApi = async (originalText: string, instructio
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `Original text: "${originalText}". Instruction: "${instruction}". Revised text only.`,
+        config: { thinkingConfig: { thinkingBudget: 0 } }
     });
     return response.text?.trim() || originalText;
 };
 
 export const generateWhopSEO = async (niche: string): Promise<any> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const prompt = `You are a Whop Discovery SEO Expert. Generate high-performance listing assets for the niche: "${niche}".
-    
-    1. OPTIMIZED HEADLINE: Under 80 characters. Start with the Benefit. (e.g. AI Catering System: Automate Proposals).
-    2. OPTIMIZED DESCRIPTION: Use the "Results-First" framework. Explain why a buyer will make more money or save time.
-    3. SEARCH TAGS: 5 precise tags used on Whop (e.g. #Hospitality, #AI, #Automation).
-    
-    Return structured JSON.`;
+    const prompt = `Whop SEO Asset: "${niche}". Headline, Description, Tags. JSON.`;
     
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: prompt,
         config: {
+            thinkingConfig: { thinkingBudget: 0 },
             responseMimeType: "application/json",
             responseSchema: {
                 type: Type.OBJECT,
@@ -169,8 +156,7 @@ export const generateWhopSEO = async (niche: string): Promise<any> => {
                     optimizedTitle: { type: Type.STRING },
                     optimizedDescription: { type: Type.STRING },
                     searchTags: { type: Type.ARRAY, items: { type: Type.STRING } }
-                },
-                required: ["optimizedTitle", "optimizedDescription", "searchTags"]
+                }
             }
         }
     });
@@ -179,21 +165,11 @@ export const generateWhopSEO = async (niche: string): Promise<any> => {
 
 export const generateSocialCaption = async (menuTitle: string, description: string, platform: string = 'facebook'): Promise<string> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    let platformSpecific = "";
-    if (platform === 'pinterest') {
-        platformSpecific = "Write a high-converting Pinterest Pin description. Focus on aesthetic culinary keywords, visual appeal, and 'lifestyle' aspirations. Use 3 specific hashtags.";
-    } else if (platform === 'reddit') {
-        platformSpecific = "Write a long-form, value-first Reddit post for r/Chefit. Focus on a 'Case Study' format. Headline: How I cut catering paperwork by 80% with AI. Explain the workflow clearly. Avoid sounding like an ad. Mention the tool is free for chefs.";
-    } else if (platform === 'twitter') {
-        platformSpecific = "Write a short, punchy 2026 tweet with a curiosity-driven hook. Under 240 chars.";
-    } else {
-        platformSpecific = `Write a viral ${platform} post focusing on the ease of generating this menu instantly.`;
-    }
-
-    const prompt = `${platformSpecific} Topic: "${menuTitle}". Content: ${description}. Link: https://caterpro-ai.web.app/`;
+    const prompt = `Viral ${platform} post for catering. Topic: "${menuTitle}". Content: ${description}.`;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: prompt
+        contents: prompt,
+        config: { thinkingConfig: { thinkingBudget: 0 } }
     });
     return response.text?.trim() || "";
 };
@@ -203,7 +179,8 @@ export const generateWhatsAppStatus = async (menuTitle: string): Promise<string>
   const prompt = `Write 3 curiosity-driven WhatsApp Status updates for "${menuTitle}". Include emojis.`;
   const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: prompt
+      contents: prompt,
+      config: { thinkingConfig: { thinkingBudget: 0 } }
   });
   return response.text?.trim() || "";
 };
@@ -242,7 +219,8 @@ export const generateProvanceVSLScript = async (menuTitle: string, description: 
   const prompt = `Write a VSL script for: "${menuTitle}". Focus on "Systems over Chaos".`;
   const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: prompt
+      contents: prompt,
+      config: { thinkingConfig: { thinkingBudget: 0 } }
   });
   return response.text?.trim() || "";
 };
@@ -252,7 +230,8 @@ export const generateNewYearLaunchScript = async (menuTitle: string, description
   const prompt = `Write a 2026 launch script for Tumi. Topic: "${menuTitle}"`;
   const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: prompt
+      contents: prompt,
+      config: { thinkingConfig: { thinkingBudget: 0 } }
   });
   return response.text?.trim() || "";
 };
@@ -307,6 +286,7 @@ export const generateStudyGuideFromApi = async (topic: string, curriculum: strin
     model: "gemini-3-flash-preview",
     contents: prompt,
     config: {
+      thinkingConfig: { thinkingBudget: 0 },
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
@@ -329,8 +309,7 @@ export const generateStudyGuideFromApi = async (topic: string, curriculum: strin
           keyVocabulary: { type: Type.ARRAY, items: { type: Type.STRING } },
           assessmentCriteria: { type: Type.ARRAY, items: { type: Type.STRING } },
           practicalExercises: { type: Type.ARRAY, items: { type: Type.STRING } }
-        },
-        required: ["title", "overview", "modules", "keyVocabulary"]
+        }
       }
     }
   });
@@ -344,10 +323,11 @@ export const analyzeReceiptFromApi = async (base64: string): Promise<any> => {
     contents: {
       parts: [
         { inlineData: { data: base64, mimeType: "image/jpeg" } },
-        { text: "Analyze this receipt. Extract merchant, date, total. Return JSON." }
+        { text: "Analyze receipt merchant, date, total. JSON." }
       ]
     },
     config: {
+      thinkingConfig: { thinkingBudget: 0 },
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
@@ -356,8 +336,7 @@ export const analyzeReceiptFromApi = async (base64: string): Promise<any> => {
           date: { type: Type.STRING },
           total: { type: Type.STRING },
           categories: { type: Type.ARRAY, items: { type: Type.STRING } }
-        },
-        required: ["merchant", "total"]
+        }
       }
     }
   });
@@ -366,7 +345,7 @@ export const analyzeReceiptFromApi = async (base64: string): Promise<any> => {
 
 export const analyzeLabelFromApi = async (base64: string, dietaryRestrictions: string[]): Promise<any> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `Scan this label for: ${dietaryRestrictions.join(', ')}. Return JSON with suitabilityScore (1-10), flaggedIngredients, and reasoning.`;
+  const prompt = `Scan label for: ${dietaryRestrictions.join(', ')}. JSON with suitabilityScore (1-10), flaggedIngredients, and reasoning.`;
   
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
@@ -377,6 +356,7 @@ export const analyzeLabelFromApi = async (base64: string, dietaryRestrictions: s
       ]
     },
     config: {
+      thinkingConfig: { thinkingBudget: 0 },
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
@@ -384,8 +364,7 @@ export const analyzeLabelFromApi = async (base64: string, dietaryRestrictions: s
           suitabilityScore: { type: Type.NUMBER },
           flaggedIngredients: { type: Type.ARRAY, items: { type: Type.STRING } },
           reasoning: { type: Type.STRING }
-        },
-        required: ["suitabilityScore", "flaggedIngredients", "reasoning"]
+        }
       }
     }
   });
