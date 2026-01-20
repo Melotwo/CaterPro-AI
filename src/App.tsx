@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail, Search, Globe, Facebook, Lightbulb, Target, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail, Search, Globe, Facebook, Lightbulb, Target, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck, RefreshCw } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -67,6 +67,7 @@ const App: React.FC = () => {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingTimer, setLoadingTimer] = useState(0);
   const [error, setError] = useState<ErrorState | null>(null);
   const [menu, setMenu] = useState<Menu | null>(null);
   const [isGeneratingImage, setIsGeneratingImage] = useState(false);
@@ -108,6 +109,20 @@ const App: React.FC = () => {
   useEffect(() => {
     analytics.track({ type: 'awareness_view', data: { page: viewMode } });
   }, [viewMode]);
+
+  useEffect(() => {
+    let interval: any;
+    if (isLoading) {
+      setLoadingTimer(0);
+      interval = setInterval(() => {
+        setLoadingTimer(prev => prev + 1);
+      }, 1000);
+    } else {
+      setLoadingTimer(0);
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [isLoading]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -395,6 +410,19 @@ const App: React.FC = () => {
                 <Loader2 className="w-20 h-20 text-primary-500 animate-spin mb-8" />
                 <h2 className="text-3xl font-black text-slate-900 dark:text-white">Orchestrating Business Intelligence...</h2>
                 <p className="text-slate-500 mt-2 font-medium">Applying Menu Engineering logic and HACCP safety protocols.</p>
+                
+                {loadingTimer > 20 && (
+                   <div className="mt-12 p-8 bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-3xl max-w-md animate-slide-in">
+                       <p className="text-sm font-black text-amber-700 dark:text-amber-300 uppercase tracking-widest mb-4">Taking too long?</p>
+                       <p className="text-xs text-slate-600 dark:text-slate-400 font-medium leading-relaxed mb-6">The AI is struggling with this specific request. Try refreshing or simplifying your cuisine choice.</p>
+                       <button 
+                          onClick={() => window.location.reload()}
+                          className="px-6 py-3 bg-amber-500 text-white rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2 mx-auto"
+                       >
+                          <RefreshCw size={14} /> Force Restart
+                       </button>
+                   </div>
+                )}
             </div>
           )}
 
