@@ -1,7 +1,6 @@
 
-import React, { useState } from 'react';
-import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation, Layout, Eye, MessageSquare, Sparkles, Loader2, AlertCircle, AlertTriangle, ListChecks, Star, Settings2, HelpCircle, ShoppingBag, UserPlus, MessageCircle, DollarSign, PieChart, Info, Smartphone, Check, MousePointer2, Activity, ShieldAlert, Instagram, Facebook, Link2, MessageSquareQuote, Flame, Moon, Sun, Clock, ListChecks as ChecklistIcon, FileSearch, X } from 'lucide-react';
-import { generateWhopSEO } from '../services/geminiService';
+import React, { useState, useEffect, useRef } from 'react';
+import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation, Layout, Eye, MessageSquare, Sparkles, Loader2, AlertCircle, AlertTriangle, ListChecks, Star, Settings2, HelpCircle, ShoppingBag, UserPlus, MessageCircle, DollarSign, PieChart, Info, Smartphone, Check, MousePointer2, Activity, ShieldAlert, Instagram, Facebook, Link2, MessageSquareQuote, Flame, Moon, Sun, Clock, ListChecks as ChecklistIcon, FileSearch, X, Pause, Play, Smartphone as IpadIcon, RefreshCw } from 'lucide-react';
 import ThumbnailStudio from './ThumbnailStudio';
 
 interface FounderRoadmapProps {
@@ -98,15 +97,18 @@ const WhopSEOArchitect: React.FC = () => {
 
 const MorningMission: React.FC = () => {
     const [isPitchModalOpen, setIsPitchModalOpen] = useState(false);
+    const [showInstructions, setShowInstructions] = useState(true);
+    const [fontSize, setFontSize] = useState(40);
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     const salesPitchScript = `[1. NAME + CITY]
-"Hi there, my name is Tumelo (Melo) and I’m based in [Insert Your City]."
+"Hi there, my name is Tumelo (Melo) and I’m based in Mokopane in Limpopo the province."
 
-[2. YEARS OF SALES EXPERIENCE]
-"I have [X] years of experience in high-performance sales and business development, specifically focusing on building and selling automated systems for the hospitality sector."
+[2. 15 YEARS OF SALES EXPERIENCE]
+"I have 15 years of experience in high-performance sales and business development, specifically focusing on building and selling automated systems for the hospitality sector."
 
 [3. THE WIN STORY]
-"The deal I'm most proud of happened recently with my own project, CaterPro AI. I realized chefs were drowning in paperwork, so I didn't just sell them a menu—I sold them a digital lifecycle system. I managed the process from identifying the pain point to delivering a custom AI solution that reduced their proposal time by 80%. I'm proud of this because it proves that true sales is about moving a customer from chaos to structured growth through automation."
+"The deal that makes me most proud just wrapped up on my own project, CaterPro AI. I spotted how chefs were buried under endless paperwork, so I didn’t pitch a simple menu tool—I delivered a full digital lifecycle system. I handled everything from pinpointing their pain to rolling out a tailored AI solution that slashed their proposal time by 80%. What gets me is how it shows real sales isn’t about pushing products; it’s guiding customers from total chaos to smooth, automated growth."
 
 [4. THE CLOSE]
 "Thank you for the opportunity, and look forward to speaking soon."`;
@@ -138,8 +140,8 @@ const MorningMission: React.FC = () => {
                                         <PlayCircle size={14} className="text-indigo-600" />
                                     </div>
                                     <div>
-                                        <p className="font-black text-sm text-white uppercase tracking-tight">Open Intro Video Script</p>
-                                        <p className="text-[10px] text-indigo-100 font-medium">Follow the 4-step outline for Nothing.eco</p>
+                                        <p className="font-black text-sm text-white uppercase tracking-tight">Launch iPad Teleprompter</p>
+                                        <p className="text-[10px] text-indigo-100 font-medium">Read script while using Front Camera</p>
                                     </div>
                                     <ArrowRight size={16} className="ml-auto mt-1 opacity-50 group-hover:opacity-100 transition-opacity" />
                                 </button>
@@ -183,40 +185,90 @@ const MorningMission: React.FC = () => {
                 </div>
             </div>
 
-            {/* SALES PITCH TELEPROMPTER MODAL */}
+            {/* iPad-OPTIMIZED TELEPROMPTER MODAL */}
             {isPitchModalOpen && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-                    <div onClick={() => setIsPitchModalOpen(false)} className="fixed inset-0 bg-slate-950/95 backdrop-blur-xl animate-fade-in"></div>
-                    <div className="relative w-full max-w-4xl bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl border-4 border-indigo-500/30 overflow-hidden animate-scale-up h-[85vh] flex flex-col">
-                        <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950">
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-0 sm:p-4">
+                    <div onClick={() => setIsPitchModalOpen(false)} className="fixed inset-0 bg-slate-950/98 backdrop-blur-3xl animate-fade-in"></div>
+                    <div className="relative w-full max-w-5xl bg-white dark:bg-slate-900 h-full sm:h-[90vh] sm:rounded-[4rem] shadow-2xl border-x sm:border-4 border-indigo-600/30 flex flex-col overflow-hidden animate-scale-up">
+                        
+                        {/* Header Area */}
+                        <div className="p-6 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-950">
                             <div className="flex items-center gap-4">
                                 <div className="p-3 bg-red-600 rounded-2xl text-white shadow-lg animate-pulse"><Video size={24} /></div>
                                 <div>
-                                    <h3 className="text-xl font-black uppercase tracking-tight text-slate-900 dark:text-white">Nothing.eco Application Pitch</h3>
-                                    <p className="text-[10px] font-black uppercase text-indigo-500 tracking-widest">Outline-Compliant Teleprompter</p>
+                                    <h3 className="text-lg font-black uppercase tracking-tight text-slate-900 dark:text-white">Nothing.eco Application</h3>
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-[8px] font-black uppercase text-indigo-500 bg-indigo-50 px-2 py-0.5 rounded tracking-widest">iPad Front Camera Optimized</span>
+                                    </div>
                                 </div>
                             </div>
                             <div className="flex gap-2">
-                                <button onClick={handleCopy} className="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:bg-slate-50 transition-all text-slate-500"><Copy size={20} /></button>
-                                <button onClick={() => setIsPitchModalOpen(false)} className="p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl hover:bg-red-50 hover:text-red-500 transition-all text-slate-500"><X size={24} /></button>
+                                <button onClick={() => setFontSize(f => Math.min(f + 10, 80))} className="p-3 bg-white dark:bg-slate-800 border rounded-xl font-bold">A+</button>
+                                <button onClick={() => setFontSize(f => Math.max(f - 10, 20))} className="p-3 bg-white dark:bg-slate-800 border rounded-xl font-bold">A-</button>
+                                <button onClick={() => setIsPitchModalOpen(false)} className="p-3 bg-red-50 text-red-500 rounded-xl"><X size={24} /></button>
                             </div>
                         </div>
-                        <div className="flex-grow p-12 sm:p-20 overflow-y-auto custom-scrollbar bg-white dark:bg-slate-900">
-                            <p className="text-3xl sm:text-4xl lg:text-5xl font-black leading-tight text-slate-800 dark:text-slate-100 italic whitespace-pre-wrap max-w-3xl mx-auto text-center tracking-tight">
+
+                        {/* iPad Multitasking Instructions (Dismissible) */}
+                        {showInstructions && (
+                            <div className="p-6 bg-indigo-600 text-white flex items-center justify-between gap-6">
+                                <div className="flex items-center gap-4">
+                                    {/* Changed iPadIcon to IpadIcon to fix JSX identification error */}
+                                    <div className="p-2 bg-white/20 rounded-lg"><IpadIcon size={24} /></div>
+                                    <div>
+                                        <p className="text-xs font-black uppercase tracking-widest">How to read while recording:</p>
+                                        <p className="text-[11px] font-medium opacity-90">1. Open Camera App. 2. Swipe up for Dock. 3. Drag Safari to the side. 4. Record!</p>
+                                    </div>
+                                </div>
+                                <button onClick={() => setShowInstructions(false)} className="p-2 bg-white/10 rounded-full"><X size={16} /></button>
+                            </div>
+                        )}
+
+                        {/* Teleprompter Content */}
+                        <div 
+                            ref={scrollContainerRef}
+                            className="flex-grow p-10 sm:p-20 overflow-y-auto custom-scrollbar bg-white dark:bg-slate-900 scroll-smooth"
+                        >
+                            {/* Eye-Contact Marker */}
+                            <div className="sticky top-0 left-0 right-0 h-0 z-50 flex justify-center pointer-events-none">
+                                <div className="bg-indigo-500/20 backdrop-blur-md px-4 py-1 rounded-b-xl border border-indigo-500/30 text-[8px] font-black text-indigo-600 uppercase tracking-[0.4em] translate-y-[-40px]">
+                                    Look Here for Lens
+                                </div>
+                            </div>
+
+                            <p 
+                                style={{ fontSize: `${fontSize}px` }}
+                                className="font-black leading-[1.3] text-slate-800 dark:text-slate-100 italic whitespace-pre-wrap max-w-4xl mx-auto text-center tracking-tight pb-40"
+                            >
                                 {salesPitchScript}
                             </p>
                         </div>
-                        <div className="p-10 bg-slate-950 flex flex-col sm:flex-row items-center justify-between gap-6">
+
+                        {/* Footer Controls */}
+                        <div className="p-8 bg-slate-950 flex flex-col sm:flex-row items-center justify-between gap-6">
                             <div className="flex items-center gap-4">
-                                <div className="p-3 bg-indigo-500/20 rounded-2xl"><Mic2 className="text-indigo-400" /></div>
+                                <div className="p-3 bg-emerald-500/20 rounded-2xl"><Target className="text-emerald-400" /></div>
                                 <div>
-                                    <p className="text-[10px] font-black uppercase text-indigo-400 tracking-widest">Application Phase</p>
-                                    <p className="text-xs font-bold text-white uppercase tracking-tight">Intro Video Submission</p>
+                                    <p className="text-[10px] font-black uppercase text-emerald-400 tracking-widest">Target Duration</p>
+                                    <p className="text-xs font-bold text-white uppercase tracking-tight">Under 2 Minutes</p>
                                 </div>
                             </div>
-                            <button onClick={() => setIsPitchModalOpen(false)} className="px-12 py-5 bg-indigo-600 text-white rounded-[1.5rem] font-black text-sm uppercase tracking-widest flex items-center gap-3 shadow-2xl hover:scale-105 transition-all">
-                                Ready to Record <ArrowRight size={18} />
-                            </button>
+                            <div className="flex gap-3 w-full sm:w-auto">
+                                <button onClick={handleCopy} className="flex-1 sm:flex-none px-8 py-5 bg-white/10 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2">
+                                    <Copy size={16} /> Copy
+                                </button>
+                                <button 
+                                    onClick={() => {
+                                        scrollContainerRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }} 
+                                    className="flex-1 sm:flex-none px-8 py-5 bg-slate-800 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2"
+                                >
+                                    <RefreshCw size={16} /> Reset
+                                </button>
+                                <button onClick={() => setIsPitchModalOpen(false)} className="flex-1 sm:flex-none px-12 py-5 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-2xl flex items-center justify-center gap-3 active:scale-95 transition-all">
+                                    Ready to Record <ArrowRight size={18} />
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
