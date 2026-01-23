@@ -28,8 +28,8 @@ const FiverrCheatSheet: React.FC = () => {
         { label: "Category", value: "Programming & Tech > AI Development" },
         { label: "Service Type", value: "AI Agents & Automation" },
         { label: "Model Expertise", value: "Gemini, OpenAI, Claude" },
-        { label: "Programming", value: "TypeScript, Python, React" },
-        { label: "Industry", value: "Hospitality, Food & Beverage, Events" }
+        { label: "Programming", value: "TypeScript, React, Python" },
+        { label: "Industry", value: "Hospitality, Food & Beverage" }
     ];
 
     return (
@@ -37,8 +37,8 @@ const FiverrCheatSheet: React.FC = () => {
             <div className="flex items-center gap-4">
                 <div className="p-3 bg-indigo-600 rounded-2xl text-white shadow-lg"><Terminal size={24} /></div>
                 <div>
-                    <h4 className="text-xl font-black uppercase tracking-tight text-slate-900 dark:text-white">Fiverr Metadata Blueprint</h4>
-                    <p className="text-[10px] font-black uppercase text-indigo-500 tracking-widest mt-1">Exact Settings for Maximum ROI</p>
+                    <h4 className="text-xl font-black uppercase tracking-tight text-slate-900 dark:text-white">Fiverr Gig Metadata</h4>
+                    <p className="text-[10px] font-black uppercase text-indigo-500 tracking-widest mt-1">Copy-Paste these settings</p>
                 </div>
             </div>
             
@@ -49,7 +49,7 @@ const FiverrCheatSheet: React.FC = () => {
                             <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{item.label}</p>
                             <p className="text-sm font-black text-slate-800 dark:text-slate-200">{item.value}</p>
                         </div>
-                        <button onClick={() => handleCopy(item.value)} className="p-2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+                        <button onClick={() => handleCopy(item.value)} className="p-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
                             <Copy size={14} className="text-indigo-500" />
                         </button>
                     </div>
@@ -62,11 +62,10 @@ const FiverrCheatSheet: React.FC = () => {
                     <h5 className="text-xs font-black uppercase tracking-widest">Targeted Search Tags</h5>
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    {["CATERPROAI", "MENU ENGINEERING", "AI AUTOMATION", "HOSPITALITY", "GEMINI AI"].map(tag => (
+                    {["CATERPROAI", "MENU COSTING", "AI AGENT", "HOSPITALITY", "GEMINI"].map(tag => (
                         <span key={tag} className="px-3 py-1.5 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/10">{tag}</span>
                     ))}
                 </div>
-                <p className="text-[10px] text-slate-400 italic">Upload your Thumbnail Studio image to the Fiverr Gallery now.</p>
             </div>
         </div>
     );
@@ -81,7 +80,7 @@ const Teleprompter: React.FC<{ script: string; isOpen: boolean; onClose: () => v
                 <div className="p-8 border-b border-white/10 flex justify-between items-center bg-slate-900">
                     <div className="flex items-center gap-4">
                         <div className="w-4 h-4 rounded-full bg-red-500 animate-pulse"></div>
-                        <h3 className="text-xl font-black text-white uppercase tracking-[0.2em]">Teleprompter Mode</h3>
+                        <h3 className="text-xl font-black text-white uppercase tracking-[0.2em]">Recording Mode</h3>
                     </div>
                     <button onClick={onClose} className="p-4 bg-white/10 rounded-2xl text-white hover:bg-white/20 transition-all">
                         <X size={28} />
@@ -97,12 +96,12 @@ const Teleprompter: React.FC<{ script: string; isOpen: boolean; onClose: () => v
                     <div className="flex items-center gap-4 text-indigo-400">
                         <Mic2 size={32} />
                         <div>
-                            <p className="text-[10px] font-black uppercase tracking-[0.3em]">Audio Focus Active</p>
-                            <p className="text-sm font-bold text-white">Look at the camera lens, not the text.</p>
+                            <p className="text-[10px] font-black uppercase tracking-[0.3em]">Audio Focus</p>
+                            <p className="text-sm font-bold text-white">Eye level with iPad camera.</p>
                         </div>
                     </div>
                     <button onClick={onClose} className="px-12 py-5 bg-indigo-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest active:scale-95 transition-all shadow-xl">
-                        End Session
+                        Done Recording
                     </button>
                 </div>
             </div>
@@ -111,55 +110,47 @@ const Teleprompter: React.FC<{ script: string; isOpen: boolean; onClose: () => v
 };
 
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }) => {
-  const [activeTab, setActiveTab] = useState<'profile' | 'morning' | 'assets'>('profile');
+  const [activeTab, setActiveTab] = useState<'assets' | 'morning' | 'profile'>('assets');
   const [isTeleprompterOpen, setIsTeleprompterOpen] = useState(false);
   const [currentScript, setCurrentScript] = useState('');
 
-  const morningScript = `[HOOK - 0:00]
-"Hi there, my name is Tumelo (Melo) and I’m based in Mokopane in Limpopo."
+  const morningScript = `[INTRO - 0:00]
+"Hi there, my name is Melo and I’m based in Limpopo."
 
 [THE WHY - 0:15]
-"After 15 years in high-performance sales, I realized the biggest bottleneck in hospitality isn't the talent—it's the boring admin paperwork."
+"I know how stressful catering admin is. That's why I built CaterPro AI."
 
 [THE PROOF - 0:30]
-"That's why I built CaterPro AI. I’ve architected a system that takes a 100-guest menu from 'chaos' to a professional, costed proposal in exactly 30 seconds."
+"Look at this: a full Wedding menu generated in 30 seconds, costed in Rands, with safety protocols ready to print."
 
-[THE VISION - 0:45]
-"I bridge the gap between human connection and AI efficiency. I'm not just selling software; I'm selling your time back."
-
-[CLOSE - 1:00]
-"Let's automate your office so you can get back to your kitchen. Thank you!"`;
+[CLOSE - 0:45]
+"I'm here to save your time. Click below and let's start your first proposal. Thank you!"`;
 
   const handleOpenTeleprompter = (script: string) => {
     setCurrentScript(script);
     setIsTeleprompterOpen(true);
   };
 
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text);
-    alert("Copied!");
-  };
-
   return (
-    <section id="founder-roadmap" className="mt-20 space-y-12 animate-slide-in">
+    <section id="founder-roadmap" className="mt-20 space-y-12 animate-slide-in scroll-mt-24">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div>
           <h2 className="text-4xl font-black text-slate-900 dark:text-white tracking-tighter flex items-center gap-4">
             <ShieldCheck className="text-primary-500 w-10 h-10" />
-            Founder Command Center
+            Gig Asset Command
           </h2>
-          <p className="text-lg text-slate-500 font-medium mt-2">Strategic blueprints for Melo's 2026 expansion.</p>
+          <p className="text-lg text-slate-500 font-medium mt-2">Finish your Fiverr Gallery here.</p>
         </div>
-        <div className="flex bg-slate-100 dark:bg-slate-800 p-1.5 rounded-[2rem] border border-slate-200 dark:border-slate-700">
+        <div className="flex bg-slate-100 dark:bg-slate-800 p-1.5 rounded-[2rem] border border-slate-200 dark:border-slate-700 overflow-x-auto no-scrollbar max-w-full">
             {[
-                { id: 'profile', label: 'Gig Architect', icon: Briefcase },
-                { id: 'morning', label: 'Morning Mission', icon: Video },
-                { id: 'assets', label: 'Asset Studio', icon: Layout }
+                { id: 'assets', label: 'Asset Studio', icon: Layout },
+                { id: 'morning', label: 'Gig Video Script', icon: Video },
+                { id: 'profile', label: 'Fiverr Metadata', icon: Briefcase }
             ].map(tab => (
                 <button 
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === tab.id ? 'bg-white dark:bg-slate-950 text-indigo-600 shadow-xl scale-105' : 'text-slate-400 hover:text-slate-600'}`}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activeTab === tab.id ? 'bg-white dark:bg-slate-950 text-indigo-600 shadow-xl scale-105' : 'text-slate-400 hover:text-slate-600'}`}
                 >
                     <tab.icon size={16} /> {tab.label}
                 </button>
@@ -168,39 +159,7 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
       </div>
 
       <div className="grid grid-cols-1 gap-12">
-        {activeTab === 'profile' && (
-            <div className="space-y-12 animate-fade-in">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <FiverrCheatSheet />
-                    <div className="p-10 bg-slate-900 text-white rounded-[3.5rem] relative overflow-hidden shadow-2xl border-4 border-indigo-500/20">
-                        <div className="absolute top-0 right-0 p-12 opacity-5"><UserCog size={160} /></div>
-                        <div className="relative z-10">
-                            <h4 className="text-2xl font-black uppercase tracking-tight mb-4">Gallery Master Checklist</h4>
-                            <p className="text-sm text-slate-400 leading-relaxed font-medium mb-8">
-                                Upload these 3 items to the Fiverr screen you are looking at right now to build instant trust.
-                            </p>
-                            <div className="space-y-4 mb-10">
-                                <div className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/10">
-                                    <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-black text-xs">1</div>
-                                    <p className="text-xs font-bold">Main Image: Your "High-Click" Yellow Thumbnail</p>
-                                </div>
-                                <div className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/10">
-                                    <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-black text-xs">2</div>
-                                    <p className="text-xs font-bold">Portfolio PDF: Generate a sample Wedding menu from this app</p>
-                                </div>
-                                <div className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/10">
-                                    <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center font-black text-xs">3</div>
-                                    <p className="text-xs font-bold">Gig Video: Record the "Morning Mission" script on your iPad</p>
-                                </div>
-                            </div>
-                            <button onClick={() => window.print()} className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-3 transition-all shadow-xl shadow-indigo-500/20 active:scale-95">
-                                <FileDown size={18} /> Export Sample Portfolio PDF
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        )}
+        {activeTab === 'assets' && <ThumbnailStudio />}
 
         {activeTab === 'morning' && (
             <div className="space-y-12 animate-fade-in">
@@ -210,8 +169,8 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
                         <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center mb-8 shadow-2xl">
                             <Mic2 size={40} className="text-white" />
                         </div>
-                        <h3 className="text-4xl font-black uppercase tracking-tighter mb-4 leading-none">The Morning Mission Script</h3>
-                        <p className="text-lg text-indigo-100 font-medium mb-12">Use this for your Fiverr Introduction Video.</p>
+                        <h3 className="text-4xl font-black uppercase tracking-tighter mb-4 leading-none">Fiverr Intro Script</h3>
+                        <p className="text-lg text-indigo-100 font-medium mb-12">Record this on your iPad to build trust with buyers.</p>
                         
                         <div className="p-10 bg-white dark:bg-slate-900 rounded-[3rem] shadow-inner border border-white/20 mb-12 text-left">
                             <p className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100 leading-relaxed italic whitespace-pre-wrap">
@@ -219,41 +178,44 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
                             </p>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row gap-4 w-full">
-                            <button onClick={() => handleOpenTeleprompter(morningScript)} className="flex-1 py-5 bg-white text-indigo-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-2xl active:scale-95 flex items-center justify-center gap-3">
-                                <Maximize size={20} /> Open Teleprompter
-                            </button>
-                            <button onClick={() => handleCopy(morningScript)} className="flex-1 py-5 bg-indigo-500/30 backdrop-blur-md text-white border-2 border-white/20 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-500/50 transition-all flex items-center justify-center gap-3">
-                                <Copy size={20} /> Copy Text
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="p-8 bg-slate-50 dark:bg-slate-800 rounded-[3rem] border-2 border-slate-100 dark:border-slate-700">
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="p-2 bg-primary-500 rounded-lg text-white"><Lightbulb size={20} /></div>
-                            <h4 className="text-sm font-black uppercase text-slate-800 dark:text-white">Recording Hack</h4>
-                        </div>
-                        <p className="text-xs text-slate-500 font-bold leading-relaxed">
-                            "Melo, record this on your iPad. Place the iPad on a stack of books so the camera is at eye level. This builds subconscious authority—the 'Professional' look."
-                        </p>
-                    </div>
-                    <div className="p-8 bg-slate-50 dark:bg-slate-800 rounded-[3rem] border-2 border-slate-100 dark:border-slate-700">
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="p-2 bg-indigo-500 rounded-lg text-white"><Target size={20} /></div>
-                            <h4 className="text-sm font-black uppercase text-slate-800 dark:text-white">Growth Objective</h4>
-                        </div>
-                        <p className="text-xs text-slate-500 font-bold leading-relaxed">
-                            "Aim for 1 video per day. Use the 'Teleprompter' to stay focused. Every video is a seed planted for a $1,000+ contract."
-                        </p>
+                        <button onClick={() => handleOpenTeleprompter(morningScript)} className="w-full sm:w-auto px-12 py-5 bg-white text-indigo-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-2xl active:scale-95 flex items-center justify-center gap-3">
+                            <Maximize size={20} /> Open Teleprompter
+                        </button>
                     </div>
                 </div>
             </div>
         )}
 
-        {activeTab === 'assets' && <ThumbnailStudio />}
+        {activeTab === 'profile' && (
+            <div className="space-y-12 animate-fade-in">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <FiverrCheatSheet />
+                    <div className="p-10 bg-slate-900 text-white rounded-[3.5rem] relative overflow-hidden shadow-2xl border-4 border-indigo-500/20">
+                        <div className="absolute top-0 right-0 p-12 opacity-5"><UserCog size={160} /></div>
+                        <div className="relative z-10">
+                            <h4 className="text-2xl font-black uppercase tracking-tight mb-4">Gallery Final List</h4>
+                            <p className="text-sm text-slate-400 leading-relaxed font-medium mb-8">
+                                Upload these 3 items to the Fiverr screen now:
+                            </p>
+                            <div className="space-y-4 mb-10">
+                                <div className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/10">
+                                    <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-black text-xs">1</div>
+                                    <p className="text-xs font-bold">Image 1: Yellow "High-Click" Thumbnail</p>
+                                </div>
+                                <div className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/10">
+                                    <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-black text-xs">2</div>
+                                    <p className="text-xs font-bold">Image 2: Screenshot of Shopping List</p>
+                                </div>
+                                <div className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/10">
+                                    <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center font-black text-xs">3</div>
+                                    <p className="text-xs font-bold">Document: PDF Portfolio of Sample Menus</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
       </div>
       
       <Teleprompter 
