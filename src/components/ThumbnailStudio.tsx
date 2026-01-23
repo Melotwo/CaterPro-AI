@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Download, Layout, Type, Sparkles, Image as ImageIcon, ShieldCheck, Zap, ArrowRight, Loader2, Eye, Search, AlertCircle, CheckCircle2, Maximize, Smartphone, AlertTriangle, Star } from 'lucide-react';
+import { Camera, Download, Layout, Type, Sparkles, Image as ImageIcon, ShieldCheck, Zap, ArrowRight, Loader2, Eye, Search, AlertCircle, CheckCircle2, Maximize, Smartphone, AlertTriangle, Star, Save, X } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
 const TEMPLATES = [
@@ -18,6 +18,8 @@ const ThumbnailStudio: React.FC = () => {
   const [isExporting, setIsExporting] = useState(false);
   const [showSimulator, setShowSimulator] = useState(false);
   const [showSafetyZone, setShowSafetyZone] = useState(false);
+  const [capturedImageUrl, setCapturedImageUrl] = useState<string | null>(null);
+  
   const previewRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -25,7 +27,10 @@ const ThumbnailStudio: React.FC = () => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (event) => setBgImage(event.target?.result as string);
+      reader.onload = (event) => {
+        setBgImage(event.target?.result as string);
+        setCapturedImageUrl(null); // Reset preview on change
+      };
       reader.readAsDataURL(file);
     }
   };
@@ -33,23 +38,31 @@ const ThumbnailStudio: React.FC = () => {
   const exportThumbnail = async () => {
     if (!previewRef.current) return;
     setIsExporting(true);
+    setCapturedImageUrl(null);
     
     const wasSafetyOn = showSafetyZone;
     setShowSafetyZone(false);
 
     try {
-      await new Promise(r => setTimeout(r, 100));
+      // Small delay to ensure any layout changes are settled
+      await new Promise(r => setTimeout(r, 200));
+      
       const canvas = await html2canvas(previewRef.current, {
-        scale: 2,
+        scale: 3, // High quality for Fiverr
         useCORS: true,
         backgroundColor: null,
         logging: false,
       });
 
+      const dataUrl = canvas.toDataURL('image/png');
+      setCapturedImageUrl(dataUrl);
+      
+      // Still try programmatic download for desktop users
       const link = document.createElement('a');
-      link.download = `CaterPro_Fiverr_Asset_${Date.now()}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.download = `CaterPro_Fiverr_${Date.now()}.png`;
+      link.href = dataUrl;
       link.click();
+      
     } catch (err) {
       console.error('Export failed', err);
     } finally {
@@ -71,7 +84,7 @@ const ThumbnailStudio: React.FC = () => {
             </div>
         </div>
         <p className="text-lg text-slate-500 font-medium leading-relaxed mt-6">
-          For Fiverr, use the <span className="text-amber-600 font-black">Fiverr High-Click</span> template. High-contrast colors like Yellow and Black get more clicks in the search grid.
+          Create high-contrast Fiverr Gig images. After clicking generate, **long-press the final image** to save it to your iPad Photos.
         </p>
       </div>
 
@@ -87,7 +100,7 @@ const ThumbnailStudio: React.FC = () => {
                 {bgImage ? (
                     <div className="flex flex-col items-center gap-2">
                         <CheckCircle2 size={40} className="text-emerald-500" />
-                        <span className="text-emerald-600">Screenshot Ready</span>
+                        <span className="text-emerald-600">Screenshot Loaded</span>
                     </div>
                 ) : (
                     <>
@@ -107,7 +120,7 @@ const ThumbnailStudio: React.FC = () => {
                 {TEMPLATES.map(t => (
                   <button 
                     key={t.id}
-                    onClick={() => setTemplate(t)}
+                    onClick={() => { setTemplate(t); setCapturedImageUrl(null); }}
                     className={`p-4 rounded-2xl text-[9px] font-black uppercase tracking-widest border-2 transition-all flex flex-col items-center gap-3 ${template.id === t.id ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-900/20 text-indigo-600 shadow-md scale-105' : 'border-slate-200 dark:border-slate-700 text-slate-400 bg-white dark:bg-slate-800'}`}
                   >
                     <div className={`w-8 h-8 rounded-xl shadow-lg ${t.bg} border-2 border-white`}></div>
@@ -123,13 +136,13 @@ const ThumbnailStudio: React.FC = () => {
                 <input 
                     type="text" 
                     value={title} 
-                    onChange={(e) => setTitle(e.target.value.toUpperCase())}
+                    onChange={(e) => { setTitle(e.target.value.toUpperCase()); setCapturedImageUrl(null); }}
                     className="w-full px-5 py-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-black uppercase"
                 />
                 <input 
                     type="text" 
                     value={subtitle} 
-                    onChange={(e) => setSubtitle(e.target.value)}
+                    onChange={(e) => { setSubtitle(e.target.value); setCapturedImageUrl(null); }}
                     className="w-full px-5 py-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-bold"
                 />
               </div>
@@ -140,10 +153,10 @@ const ThumbnailStudio: React.FC = () => {
             <button 
                 onClick={exportThumbnail}
                 disabled={isExporting || !bgImage}
-                className="py-5 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50"
+                className="py-5 bg-amber-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50 transition-all hover:bg-amber-600"
             >
-                {isExporting ? <Loader2 className="animate-spin" /> : <Download size={20} />}
-                Download for Fiverr
+                {isExporting ? <Loader2 className="animate-spin" /> : <Sparkles size={20} />}
+                Generate Final Image
             </button>
             <button 
                 onClick={() => setShowSimulator(!showSimulator)}
@@ -152,6 +165,35 @@ const ThumbnailStudio: React.FC = () => {
                 <Maximize size={20} /> Preview Grid
             </button>
           </div>
+
+          {/* iPad Save Instructions Area */}
+          {capturedImageUrl && (
+              <div className="p-8 bg-emerald-50 dark:bg-emerald-900/20 border-4 border-emerald-500/30 rounded-[3rem] animate-slide-in">
+                  <div className="flex items-center gap-3 mb-4 text-emerald-700 dark:text-emerald-400">
+                      <Save size={24} />
+                      <h4 className="font-black uppercase tracking-tight">Step 2: Save to iPad</h4>
+                  </div>
+                  <p className="text-sm text-emerald-800 dark:text-emerald-300 font-medium mb-6">
+                      Your photo is ready below. **Hold your finger on the image** then select **"Save to Photos"**.
+                  </p>
+                  <div className="relative group">
+                      <img 
+                        src={capturedImageUrl} 
+                        alt="Final Gig Asset" 
+                        className="w-full rounded-2xl shadow-2xl border-4 border-white dark:border-slate-800"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none rounded-2xl">
+                          <p className="text-white font-black text-xs uppercase tracking-widest">Hold to Save</p>
+                      </div>
+                  </div>
+                  <button 
+                    onClick={() => setCapturedImageUrl(null)}
+                    className="mt-6 w-full py-3 bg-white/50 text-emerald-800 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
+                  >
+                      <X size={14} /> Clear Preview
+                  </button>
+              </div>
+          )}
         </div>
 
         <div className="relative">
