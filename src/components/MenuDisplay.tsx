@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types';
-import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock, Sparkle, EyeOff, Eye, BrainCircuit, Globe, ExternalLink, Camera, Instagram, Smartphone, BarChart4, ShieldAlert, Thermometer, Droplets, Layout } from 'lucide-react';
+import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock, Sparkle, EyeOff, Eye, BrainCircuit, Globe, ExternalLink, Camera, Instagram, Smartphone, BarChart4, ShieldAlert, Thermometer, Droplets, Layout, Palette } from 'lucide-react';
 import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES } from '../constants';
 import { analytics } from '../services/analyticsManager';
 
@@ -60,26 +60,26 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
 
   const totalCost = Array.isArray(menu.shoppingList) ? calculateTotal(menu.shoppingList) : 0;
 
-  const handleSocialAction = (mode: 'reel' | 'status' | 'create') => {
-    if (onAttemptAccess('socialMediaTools')) {
-        analytics.track({ type: 'founder_action', data: { actionName: `social_${mode}` } });
-        onOpenSocialModal?.(mode);
-    }
-  };
-
-  const handleSourcingSearch = (item: string) => {
-      const query = encodeURIComponent(`buy ${item} ${menu.menuTitle}`);
+  const handleSourcingSearch = (e: React.MouseEvent | React.TouchEvent, item: string) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const query = encodeURIComponent(`buy ${item} catering supplies south africa`);
       window.open(`https://www.google.com/search?q=${query}`, '_blank');
-      showToast("Opening Sourcing Link...");
+      showToast(`Searching for ${item}...`);
   };
 
   const jumpToThumbnailStudio = () => {
     const section = document.getElementById('founder-roadmap');
     if (section) {
         section.scrollIntoView({ behavior: 'smooth' });
-        // Give the UI time to scroll before trying to find the tab button if needed
-        showToast("Jumping to Asset Studio...");
+        showToast("Opening Asset Studio below...");
     }
+  };
+
+  // Fix: Added handleSocialAction function to track analytics and open social modal
+  const handleSocialAction = (mode: 'reel' | 'status' | 'create') => {
+    analytics.track({ type: 'founder_action', data: { actionName: `open_social_${mode}` } });
+    onOpenSocialModal?.(mode);
   };
 
   return (
@@ -87,6 +87,18 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
       
       {!isReadOnlyView && (
       <div className="no-print space-y-6">
+          {/* CRITICAL: THE "WHERE IS MY THUMBNAIL" FIX BUTTON */}
+          <div className="bg-amber-500 p-6 rounded-[2rem] flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xl border-4 border-white dark:border-slate-800 animate-bounce cursor-pointer" onClick={jumpToThumbnailStudio}>
+              <div className="flex items-center gap-4 text-white">
+                  <div className="p-3 bg-white/20 rounded-2xl"><Palette size={32} /></div>
+                  <div>
+                      <h4 className="text-xl font-black uppercase tracking-tight leading-none">Ready for Fiverr?</h4>
+                      <p className="text-[10px] font-black uppercase opacity-90 tracking-widest mt-1">Create your high-click gig thumbnail now</p>
+                  </div>
+              </div>
+              <button className="px-8 py-3 bg-white text-amber-600 rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-transform active:scale-95">Open Asset Studio</button>
+          </div>
+
           <div className="bg-slate-950 text-white p-8 sm:p-12 rounded-[2.5rem] relative overflow-hidden group border border-white/10 shadow-indigo-500/10 shadow-2xl">
               <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:opacity-10 transition-opacity">
                   <Sparkles size={120} />
@@ -142,58 +154,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
       </div>
       )}
 
-      {showBusinessIntel && menu.businessAnalysis && (
-          <div className="no-print animate-slide-in p-8 bg-amber-50 dark:bg-amber-900/10 border-4 border-amber-400/30 rounded-[3rem] shadow-2xl space-y-8 mt-6">
-              <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                      <div className="p-3 bg-amber-500 rounded-2xl text-white shadow-lg"><BarChart4 size={24} /></div>
-                      <div>
-                          <h4 className="text-xl font-black uppercase tracking-tight text-amber-900 dark:text-amber-200">Profitability Matrix</h4>
-                          <p className="text-[10px] font-black uppercase text-amber-600 tracking-widest mt-1">Applying Menu Engineering Quadrants</p>
-                      </div>
-                  </div>
-                  <button onClick={() => setShowBusinessIntel(false)} className="p-2 hover:bg-amber-100 rounded-full"><X size={20} className="text-amber-600" /></button>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {menu.businessAnalysis.map((item, idx) => (
-                      <div key={idx} className="p-6 bg-white dark:bg-slate-800 rounded-2xl border border-amber-200 dark:border-amber-700 shadow-sm group hover:scale-105 transition-all">
-                          <div className={`w-fit px-2.5 py-1 rounded-full text-[8px] font-black uppercase tracking-widest mb-3 ${
-                              item.category === 'Star' ? 'bg-emerald-500 text-white' : 
-                              item.category === 'Plow Horse' ? 'bg-indigo-500 text-white' : 
-                              item.category === 'Puzzle' ? 'bg-amber-500 text-white' : 'bg-slate-200 text-slate-500'
-                          }`}>
-                              {item.category}
-                          </div>
-                          <h5 className="font-black text-sm text-slate-900 dark:text-white leading-tight mb-2">{item.name}</h5>
-                          <div className="flex items-center justify-between mt-4 border-t border-slate-100 dark:border-slate-700 pt-3">
-                              <div>
-                                  <p className="text-[8px] font-black text-slate-400 uppercase">Margin</p>
-                                  <div className="flex gap-0.5 mt-1">
-                                      {[...Array(5)].map((_, i) => <div key={i} className={`h-1 w-2 rounded-full ${i < Math.round(item.profitMargin/2) ? 'bg-emerald-500' : 'bg-slate-100 dark:bg-slate-700'}`}></div>)}
-                                  </div>
-                              </div>
-                              <div className="text-right">
-                                  <p className="text-[8px] font-black text-slate-400 uppercase">Popularity</p>
-                                  <div className="flex gap-0.5 mt-1 justify-end">
-                                      {[...Array(5)].map((_, i) => <div key={i} className={`h-1 w-2 rounded-full ${i < Math.round(item.popularityPotential/2) ? 'bg-indigo-500' : 'bg-slate-100 dark:bg-slate-700'}`}></div>)}
-                                  </div>
-                              </div>
-                          </div>
-                      </div>
-                  ))}
-              </div>
-              
-              <div className="p-6 bg-slate-950 rounded-[2rem] text-white flex flex-col md:flex-row items-center gap-6">
-                   <div className="p-4 bg-indigo-500 rounded-2xl shadow-xl shadow-indigo-500/20"><Target size={32} /></div>
-                   <div>
-                        <h6 className="font-black uppercase tracking-widest text-indigo-400">The Golden Triangle Advice</h6>
-                        <p className="text-sm text-slate-300 font-medium leading-relaxed mt-1">The center of this proposal should feature the <strong>{menu.businessAnalysis.find(i => i.category === 'Star')?.name || 'main entree'}</strong>. Customers look here first.</p>
-                   </div>
-              </div>
-          </div>
-      )}
-
       <div className="flex flex-col sm:flex-row items-center justify-between border-b-2 border-dashed border-slate-200 dark:border-slate-700 pb-8 gap-4 mt-8">
          <div className="flex items-center gap-4">
             <ChefHat className={`w-10 h-10 ${t.title}`} />
@@ -209,13 +169,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
          </div>
          
          <div className="flex items-center gap-2 no-print">
-            <button 
-                onClick={jumpToThumbnailStudio}
-                className="flex items-center gap-2 px-5 py-3 bg-amber-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-amber-500/20 active:scale-95 transition-all"
-                title="Create Marketing Image"
-            >
-                <Layout size={18} /> Create Fiverr Thumbnail
-            </button>
             <button onClick={() => window.print()} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:bg-slate-200 transition-colors" title="Print/Export">
                 <FileDown size={20} className={t.description} />
             </button>
@@ -245,7 +198,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
       )}
 
       <div className="text-center max-w-4xl mx-auto space-y-6 py-12">
-        <h2 className={`text-5xl sm:text-7xl font-black tracking-tighter ${t.title} leading-[0.9]`}>{menu.menuTitle}</h2>
+        <h2 className={`text-5xl sm:text-7xl font-black tracking-tighter ${t.title} leading-[0.9]}`}>{menu.menuTitle}</h2>
         <div className="flex justify-center gap-2">
             {[1,2,3].map(i => <div key={i} className="w-2 h-2 rounded-full bg-primary-500 opacity-20"></div>)}
         </div>
@@ -373,12 +326,13 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                         {menu.shoppingList.map((item, idx) => (
                             <button 
                                 key={idx} 
-                                onClick={() => handleSourcingSearch(item.item)}
-                                className={`${t.card} p-6 rounded-[2.5rem] border-2 border-transparent hover:border-primary-500 transition-all shadow-sm group text-left w-full active:scale-95`}
+                                onClick={(e) => handleSourcingSearch(e, item.item)}
+                                onTouchEnd={(e) => handleSourcingSearch(e, item.item)}
+                                className={`${t.card} p-6 rounded-[2.5rem] border-2 border-transparent hover:border-primary-500 transition-all shadow-sm group text-left w-full active:scale-95 touch-manipulation`}
                             >
                                 <div className="flex justify-between items-start mb-4">
                                     <h5 className="font-black text-sm uppercase tracking-wider text-slate-400 group-hover:text-primary-500 transition-colors">{item.item}</h5>
-                                    <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
                                         <ExternalLink size={14} className="text-primary-500" />
                                     </div>
                                 </div>
@@ -422,8 +376,9 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                     {menu.recommendedEquipment.map((eq, idx) => (
                         <button 
                             key={idx} 
-                            onClick={() => handleSourcingSearch(eq.item)}
-                            className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] border-2 border-transparent hover:border-indigo-500 transition-all flex items-start gap-4 text-left active:scale-95 group"
+                            onClick={(e) => handleSourcingSearch(e, eq.item)}
+                            onTouchEnd={(e) => handleSourcingSearch(e, eq.item)}
+                            className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] border-2 border-transparent hover:border-indigo-500 transition-all flex items-start gap-4 text-left active:scale-95 group touch-manipulation"
                         >
                             <div className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-700 flex items-center justify-center shrink-0 shadow-sm group-hover:bg-indigo-500 group-hover:text-white transition-colors">
                                 <LinkIcon size={18} />
