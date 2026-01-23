@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types';
-import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock, Sparkle, EyeOff, Eye, BrainCircuit, Globe, ExternalLink, Camera, Instagram, Smartphone, BarChart4, ShieldAlert, Thermometer, Droplets } from 'lucide-react';
+import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock, Sparkle, EyeOff, Eye, BrainCircuit, Globe, ExternalLink, Camera, Instagram, Smartphone, BarChart4, ShieldAlert, Thermometer, Droplets, Layout } from 'lucide-react';
 import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES } from '../constants';
 import { analytics } from '../services/analyticsManager';
 
@@ -64,6 +64,21 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
     if (onAttemptAccess('socialMediaTools')) {
         analytics.track({ type: 'founder_action', data: { actionName: `social_${mode}` } });
         onOpenSocialModal?.(mode);
+    }
+  };
+
+  const handleSourcingSearch = (item: string) => {
+      const query = encodeURIComponent(`buy ${item} ${menu.menuTitle}`);
+      window.open(`https://www.google.com/search?q=${query}`, '_blank');
+      showToast("Opening Sourcing Link...");
+  };
+
+  const jumpToThumbnailStudio = () => {
+    const section = document.getElementById('founder-roadmap');
+    if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+        // Give the UI time to scroll before trying to find the tab button if needed
+        showToast("Jumping to Asset Studio...");
     }
   };
 
@@ -194,6 +209,13 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
          </div>
          
          <div className="flex items-center gap-2 no-print">
+            <button 
+                onClick={jumpToThumbnailStudio}
+                className="flex items-center gap-2 px-5 py-3 bg-amber-500 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-amber-500/20 active:scale-95 transition-all"
+                title="Create Marketing Image"
+            >
+                <Layout size={18} /> Create Fiverr Thumbnail
+            </button>
             <button onClick={() => window.print()} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:bg-slate-200 transition-colors" title="Print/Export">
                 <FileDown size={20} className={t.description} />
             </button>
@@ -297,9 +319,17 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                 <div className="p-10 grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-4">
                         {menu.safetyProtocols.map((protocol, idx) => (
-                            <div key={idx} className="flex gap-4 p-5 bg-white dark:bg-slate-800 rounded-2xl border border-red-100 dark:border-red-800 shadow-sm">
-                                <div className="w-6 h-6 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xs font-black shrink-0">{idx+1}</div>
-                                <p className="text-sm font-bold text-slate-700 dark:text-slate-300 leading-relaxed">{protocol}</p>
+                            <div key={idx} 
+                                onClick={() => onToggleItem(`haccp-${idx}`)}
+                                className={`flex gap-4 p-5 rounded-2xl border-2 transition-all cursor-pointer ${checkedItems.has(`haccp-${idx}`) ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-500/30 opacity-60' : 'bg-white dark:bg-slate-800 border-red-100 dark:border-red-800 shadow-sm hover:border-red-500/50'}`}
+                            >
+                                <input 
+                                    type="checkbox" 
+                                    checked={checkedItems.has(`haccp-${idx}`)} 
+                                    readOnly
+                                    className="w-5 h-5 rounded-lg text-emerald-600"
+                                />
+                                <p className={`text-sm font-bold leading-relaxed ${checkedItems.has(`haccp-${idx}`) ? 'text-emerald-700 dark:text-emerald-400 line-through' : 'text-slate-700 dark:text-slate-300'}`}>{protocol}</p>
                             </div>
                         ))}
                     </div>
@@ -334,23 +364,29 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                         <div className={`p-4 ${t.sectionIcon} rounded-3xl shadow-xl`}><ShoppingCart size={28} /></div>
                         <div>
                             <h3 className="text-2xl font-black">Procurement & Sourcing</h3>
-                            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest mt-1">Calculated in {preferredCurrency}</p>
+                            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest mt-1">Calculated in {preferredCurrency} (Click items to source)</p>
                         </div>
                     </div>
                 </div>
                 <div className="p-10">
                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {menu.shoppingList.map((item, idx) => (
-                            <div key={idx} className={`${t.card} p-6 rounded-[2.5rem] border-2 border-transparent hover:border-primary-500/20 transition-all shadow-sm group`}>
+                            <button 
+                                key={idx} 
+                                onClick={() => handleSourcingSearch(item.item)}
+                                className={`${t.card} p-6 rounded-[2.5rem] border-2 border-transparent hover:border-primary-500 transition-all shadow-sm group text-left w-full active:scale-95`}
+                            >
                                 <div className="flex justify-between items-start mb-4">
                                     <h5 className="font-black text-sm uppercase tracking-wider text-slate-400 group-hover:text-primary-500 transition-colors">{item.item}</h5>
-                                    <div className="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+                                    <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <ExternalLink size={14} className="text-primary-500" />
+                                    </div>
                                 </div>
                                 <div className="flex justify-between items-end">
                                     <p className="text-xs text-slate-500 font-bold leading-relaxed">{item.quantity} • {item.category}<br/><span className="text-[10px] opacity-60">Source: {item.store || 'Local Market'}</span></p>
                                     <p className="text-lg font-black text-primary-600">{item.estimatedCost}</p>
                                 </div>
-                            </div>
+                            </button>
                         ))}
                      </div>
                      
@@ -367,6 +403,37 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                         </div>
                         <button className="px-10 py-5 bg-white text-slate-950 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl">Export List</button>
                      </div>
+                </div>
+            </div>
+        )}
+        
+        {menu.recommendedEquipment && menu.recommendedEquipment.length > 0 && (
+            <div className={`lg:col-span-2 ${t.sectionContainer} rounded-[3rem] shadow-2xl bg-white dark:bg-slate-900 overflow-hidden border-2 border-slate-100 dark:border-slate-800 mt-6`}>
+                 <div className="p-10 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+                    <div className="flex items-center gap-5">
+                        <div className={`p-4 bg-indigo-500 rounded-3xl shadow-xl text-white`}><ClipboardCheck size={28} /></div>
+                        <div>
+                            <h3 className="text-2xl font-black">Equipment & Supplies</h3>
+                            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest mt-1">Inventory Required (Click to find suppliers)</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="p-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {menu.recommendedEquipment.map((eq, idx) => (
+                        <button 
+                            key={idx} 
+                            onClick={() => handleSourcingSearch(eq.item)}
+                            className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] border-2 border-transparent hover:border-indigo-500 transition-all flex items-start gap-4 text-left active:scale-95 group"
+                        >
+                            <div className="w-10 h-10 rounded-2xl bg-white dark:bg-slate-700 flex items-center justify-center shrink-0 shadow-sm group-hover:bg-indigo-500 group-hover:text-white transition-colors">
+                                <LinkIcon size={18} />
+                            </div>
+                            <div>
+                                <h5 className="font-black text-slate-900 dark:text-white">{eq.item}</h5>
+                                <p className="text-xs text-slate-500 mt-1 font-medium leading-relaxed">{eq.description}</p>
+                            </div>
+                        </button>
+                    ))}
                 </div>
             </div>
         )}
