@@ -43,7 +43,7 @@ body {
   p { @apply text-pretty; }
 }
 
-/* Enhanced Tablet Consistency Fix */
+/* Enhanced Tablet Consistency & Interactivity Fix */
 @media (min-width: 768px) and (max-width: 1180px) {
   .main-grid {
     grid-template-columns: 1fr !important;
@@ -70,6 +70,11 @@ body {
   h1 {
       font-size: 3.5rem !important;
       line-height: 1 !important;
+  }
+  
+  /* Bigger tap targets for buttons on iPad */
+  button, .clickable-item {
+      min-height: 48px;
   }
 }
 
@@ -108,4 +113,15 @@ img {
 .vertical-text {
   writing-mode: vertical-rl;
   text-orientation: mixed;
+}
+
+/* Pointer feedback */
+.cursor-pointer {
+    cursor: pointer !important;
+}
+
+/* Active touch feedback for iPad */
+.active-press:active {
+    transform: scale(0.97);
+    transition: transform 0.1s ease;
 }
