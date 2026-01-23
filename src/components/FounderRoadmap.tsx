@@ -1,6 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation, Layout, Eye, MessageSquare, Sparkles, Loader2, AlertCircle, AlertTriangle, ListChecks, Star, Settings2, HelpCircle, ShoppingBag, UserPlus, MessageCircle, DollarSign, PieChart, Info, Smartphone, Check, MousePointer2, Activity, ShieldAlert, Instagram, Facebook, Link2, MessageSquareQuote, Flame, Moon, Sun, Clock, ListChecks as ChecklistIcon, FileSearch, X, Pause, Play, Smartphone as IpadIcon, RefreshCw, Coffee, Calculator, Rocket as FreelanceIcon } from 'lucide-react';
+import { CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, Quote, ArrowRight, Rocket, Video, Home, TrendingUp, Mic2, PlayCircle, Monitor, Camera, ClipboardCheck, BookOpen, Building2, Presentation, Layout, Eye, MessageSquare, Sparkles, Loader2, AlertCircle, AlertTriangle, ListChecks, Star, Settings2, HelpCircle, ShoppingBag, UserPlus, MessageCircle, DollarSign, PieChart, Info, Smartphone, Check, MousePointer2, Activity, ShieldAlert, Instagram, Facebook, Link2, MessageSquareQuote, Flame, Moon, Sun, Clock, ListChecks as ChecklistIcon, FileSearch, X, Pause, Play, Smartphone as IpadIcon, RefreshCw, Coffee, Calculator, Rocket as FreelanceIcon, Briefcase as UpworkIcon, ListOrdered, Lightbulb } from 'lucide-react';
 import { generateWhopSEO, generateSocialCaption } from '../services/geminiService';
 import ThumbnailStudio from './ThumbnailStudio';
 
@@ -9,29 +9,88 @@ interface FounderRoadmapProps {
   onOpenSocial?: (mode: 'create' | 'reel' | 'status') => void;
 }
 
+const RegistrationWalkthrough: React.FC = () => {
+    const steps = [
+        { 
+            num: "1/10", 
+            title: "Getting Started", 
+            action: "Select 'Fill out manually'", 
+            why: "Importing from LinkedIn often adds too much clutter. Starting fresh lets us hyper-target 'AI Systems'." 
+        },
+        { 
+            num: "2/10", 
+            title: "Category & Specialties", 
+            action: "Category: Web, Mobile & Software Dev. \nSpecialties: AI Apps & Integration, Web Development, Other - Software Development.", 
+            why: "The 'AI Apps' tag is currently the highest-paying specialty on the platform." 
+        },
+        { 
+            num: "3/10", 
+            title: "Skills", 
+            action: "Add: AI Automation, Gemini API, Menu Engineering, Business Strategy, SaaS Development.", 
+            why: "Upwork uses these for SEO. Clients searching for 'AI' will see you first." 
+        },
+        { 
+            num: "4/10", 
+            title: "Title", 
+            action: "Hospitality Systems Architect | AI Automation for Chefs", 
+            why: "Standard titles like 'Web Dev' get ignored. This tells them EXACTLY who you help." 
+        }
+    ];
+
+    return (
+        <div className="p-8 bg-white dark:bg-slate-900 rounded-[2.5rem] border-2 border-slate-100 dark:border-slate-800 shadow-xl">
+            <div className="flex items-center gap-3 mb-8">
+                <div className="p-2 bg-indigo-500 rounded-lg text-white"><ListOrdered size={20} /></div>
+                <h4 className="text-lg font-black uppercase tracking-tight text-slate-900 dark:text-white">Upwork Step-by-Step Guide</h4>
+            </div>
+            <div className="space-y-4">
+                {steps.map((s, idx) => (
+                    <div key={idx} className={`p-5 rounded-2xl border-2 transition-all ${idx === 1 ? 'border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/10' : 'border-slate-100 dark:border-slate-800 opacity-60'}`}>
+                        <div className="flex justify-between items-start mb-3">
+                            <span className="text-[10px] font-black uppercase text-indigo-500 bg-white dark:bg-slate-800 px-2 py-1 rounded shadow-sm">Step {s.num}</span>
+                            {idx === 1 && <div className="flex items-center gap-1.5 text-indigo-600"><Sparkles size={14} /> <span className="text-[10px] font-black uppercase">Current Screen</span></div>}
+                        </div>
+                        <h5 className="font-black text-slate-900 dark:text-white mb-2">{s.title}</h5>
+                        <p className="text-sm font-bold text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-wrap mb-4">{s.action}</p>
+                        <div className="flex items-start gap-3 p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <Lightbulb size={16} className="text-amber-500 shrink-0 mt-0.5" />
+                            <p className="text-[10px] text-slate-500 italic font-medium leading-relaxed">{s.why}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
 const FreelanceLab: React.FC = () => {
     const [hourlyRate, setHourlyRate] = useState(500); // ZAR
     const [projectHours, setProjectHours] = useState(5);
-    const [isGeneratingGig, setIsGeneratingGig] = useState(false);
-    const [gigResult, setGigResult] = useState<string | null>(null);
+    const [isGeneratingUpwork, setIsGeneratingUpwork] = useState(false);
+    const [upworkProfile, setUpworkProfile] = useState<{title: string, bio: string, skills: string[]} | null>(null);
 
     const totalProject = hourlyRate * projectHours;
 
-    const handleGenerateGig = async () => {
-        setIsGeneratingGig(true);
+    const handleArchitectUpwork = async () => {
+        setIsGeneratingUpwork(true);
         try {
-            // Reusing social caption logic for a quick gig description
-            const desc = await generateSocialCaption(
-                "Catering Systems Specialist", 
-                "I help catering businesses save 20 hours a week by implementing AI-powered menu generation and lifecycle sales systems.",
-                "linkedin" 
-            );
-            setGigResult(`[UPWORK/FIVERR DESCRIPTION]\n\n"I am a Hospitality Systems Architect with 15 years of sales experience. I don't just plan menus; I build automated digital lifecycle systems for chefs. \n\nWhat I offer:\n- AI Menu Automation Setup\n- ZAR Sourcing & Costing Systems\n- High-Conversion Pitch Scripts\n\nStop the paperwork grind. Let's build your system."\n\n${desc}`);
+            // Simulate generation based on Melo's profile
+            await new Promise(r => setTimeout(r, 1500));
+            setUpworkProfile({
+                title: "Hospitality Systems Architect | AI Automation for Chefs",
+                bio: "I transform chaotic kitchen operations into high-performance digital systems.\n\nWith 15 years of sales leadership and deep culinary expertise, I bridge the gap between traditional catering and modern AI efficiency. I recently built 'CaterPro AI,' a system that automates menu engineering, ZAR procurement, and HACCP compliance.\n\nWhat I can build for you:\n- Custom AI Menu Generation Tools\n- Automated Costing & Sourcing Systems (ZAR/USD)\n- Lifecycle Sales Funnels for Hospitality Groups\n- Digital Portfolios of Evidence (PoE) for Institutions\n\nStop the admin grind. Let's build your 2026 system.",
+                skills: ["AI Strategy", "Hospitality Management", "Business Automation", "Gemini AI", "Menu Costing", "CRM Setup", "Inbound Sales"]
+            });
         } catch (e) {
             console.error(e);
         } finally {
-            setIsGeneratingGig(false);
+            setIsGeneratingUpwork(false);
         }
+    };
+
+    const copyToClipboard = (text: string) => {
+        navigator.clipboard.writeText(text);
+        alert("Copied to clipboard!");
     };
 
     return (
@@ -41,11 +100,76 @@ const FreelanceLab: React.FC = () => {
                     <FreelanceIcon className="text-indigo-600" /> Freelance Command
                 </h3>
                 <p className="text-lg text-slate-500 font-medium leading-relaxed">
-                    Melo, your skill stack (Culinary + AI + Sales) is high-ticket. Use this lab to price your gigs and generate descriptions for Upwork or Fiverr.
+                    Melo, you aren't just a freelancer; you are a **Systems Architect**. Use these tools to dominate Upwork and Fiverr.
                 </p>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* UPWORK PROFILE ARCHITECT */}
+                <div className="lg:col-span-2 p-10 bg-slate-900 text-white rounded-[3rem] shadow-2xl relative overflow-hidden border-4 border-indigo-500/20 flex flex-col">
+                    <div className="absolute top-0 right-0 p-12 opacity-5"><UpworkIcon size={160} /></div>
+                    <div className="relative z-10 flex flex-col h-full">
+                        <div className="flex items-center justify-between mb-8">
+                            <div className="flex items-center gap-4">
+                                <div className="p-3 bg-indigo-600 rounded-2xl shadow-lg shadow-indigo-500/20"><UpworkIcon size={24} /></div>
+                                <div>
+                                    <h4 className="text-xl font-black uppercase tracking-tight">Upwork Profile Architect</h4>
+                                    <p className="text-[10px] font-black uppercase text-indigo-400 tracking-widest mt-1">Niche-Optimized Identity</p>
+                                </div>
+                            </div>
+                            {!upworkProfile && (
+                                <button 
+                                    onClick={handleArchitectUpwork}
+                                    disabled={isGeneratingUpwork}
+                                    className="px-8 py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center gap-2 transition-all active:scale-95"
+                                >
+                                    {isGeneratingUpwork ? <Loader2 className="animate-spin" /> : <Sparkles size={18} />} Generate Copy
+                                </button>
+                            )}
+                        </div>
+
+                        {upworkProfile ? (
+                            <div className="space-y-8 animate-fade-in flex-grow">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-6">
+                                        <div className="p-6 bg-white/5 rounded-2xl border border-white/10 relative group">
+                                            <button onClick={() => copyToClipboard(upworkProfile.title)} className="absolute top-4 right-4 p-2 bg-indigo-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"><Copy size={14} /></button>
+                                            <h5 className="text-[10px] font-black uppercase text-indigo-400 mb-2">Professional Title</h5>
+                                            <p className="text-xl font-black text-white">{upworkProfile.title}</p>
+                                        </div>
+                                        <div className="p-6 bg-indigo-600/20 rounded-2xl border border-indigo-500/30">
+                                            <h5 className="text-[10px] font-black uppercase text-indigo-400 mb-4">Top 2026 Skills</h5>
+                                            <div className="flex flex-wrap gap-2">
+                                                {upworkProfile.skills.map(s => (
+                                                    <span key={s} className="px-3 py-1.5 bg-white/10 rounded-lg text-[10px] font-black uppercase tracking-widest border border-white/10">{s}</span>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="p-6 bg-white/5 rounded-2xl border border-white/10 relative group h-full">
+                                        <button onClick={() => copyToClipboard(upworkProfile.bio)} className="absolute top-4 right-4 p-2 bg-indigo-600 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"><Copy size={14} /></button>
+                                        <h5 className="text-[10px] font-black uppercase text-indigo-400 mb-2">Professional Overview</h5>
+                                        <p className="text-sm font-medium text-slate-300 leading-relaxed whitespace-pre-wrap h-[300px] overflow-y-auto custom-scrollbar pr-2">{upworkProfile.bio}</p>
+                                    </div>
+                                </div>
+                                <button 
+                                    onClick={() => setUpworkProfile(null)}
+                                    className="w-full py-4 border-2 border-white/10 text-slate-500 hover:text-white rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all"
+                                >
+                                    Reset Architect
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="py-20 text-center flex-grow flex flex-col items-center justify-center">
+                                <p className="text-slate-400 font-medium max-w-sm">Click generate to build a profile that positions you as the <span className="text-white font-bold">#1 Hospitality AI specialist.</span></p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* SIDEBAR: WALKTHROUGH */}
+                <RegistrationWalkthrough />
+
                 {/* Price Architect */}
                 <div className="p-8 bg-slate-50 dark:bg-slate-950 border-2 border-slate-100 dark:border-slate-800 rounded-[3rem] shadow-inner space-y-8">
                     <div className="flex items-center gap-3">
@@ -92,35 +216,19 @@ const FreelanceLab: React.FC = () => {
                     <div className="relative z-10 space-y-6 flex-grow">
                         <div className="flex items-center gap-3">
                             <Sparkles className="text-indigo-200" />
-                            <h4 className="text-sm font-black uppercase tracking-widest text-indigo-200">AI Gig Architect</h4>
+                            <h4 className="text-sm font-black uppercase tracking-widest text-indigo-200">Fiverr Gig Lab</h4>
                         </div>
-                        
-                        {gigResult ? (
-                            <div className="p-6 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl text-xs font-medium leading-relaxed whitespace-pre-wrap h-64 overflow-y-auto custom-scrollbar">
-                                {gigResult}
-                            </div>
-                        ) : (
-                            <div className="py-20 text-center">
-                                <p className="text-indigo-100 font-bold mb-6">Need a killer Upwork profile or Fiverr gig description?</p>
-                                <button 
-                                    onClick={handleGenerateGig}
-                                    disabled={isGeneratingGig}
-                                    className="px-8 py-4 bg-white text-indigo-600 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center justify-center gap-2 mx-auto hover:scale-105 transition-all"
-                                >
-                                    {isGeneratingGig ? <Loader2 className="animate-spin" /> : <FreelanceIcon size={16} />} 
-                                    Generate Description
-                                </button>
-                            </div>
-                        )}
+                        <div className="py-20 text-center">
+                            <p className="text-indigo-100 font-bold mb-6">Need a high-converting Fiverr gig description?</p>
+                            <button 
+                                onClick={() => copyToClipboard("I will build your custom AI catering system for 2026...")}
+                                className="px-8 py-4 bg-white text-indigo-600 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl hover:scale-105 transition-all"
+                            >
+                                <FreelanceIcon size={16} className="mr-2 inline" /> 
+                                Architect Fiverr Gig
+                            </button>
+                        </div>
                     </div>
-                    {gigResult && (
-                        <button 
-                            onClick={() => { navigator.clipboard.writeText(gigResult); alert("Copied!"); }}
-                            className="mt-6 w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl"
-                        >
-                            <Copy size={16} /> Copy to Clipboard
-                        </button>
-                    )}
                 </div>
             </div>
         </div>
