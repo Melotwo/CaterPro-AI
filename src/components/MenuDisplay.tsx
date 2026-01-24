@@ -31,6 +31,7 @@ interface MenuDisplayProps {
   onRegenerateImage?: () => void;
   preferredCurrency?: string;
   onOpenSocialModal?: (mode: 'reel' | 'status' | 'create') => void;
+  onOpenShareModal?: () => void;
 }
 
 const MenuDisplay: React.FC<MenuDisplayProps> = ({ 
@@ -39,7 +40,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
     onBulkCheck, onBulkUpdateQuantity, onClearBulkSelection, onSelectAllShoppingListItems,
     proposalTheme, canAccessFeature, onAttemptAccess, isReadOnlyView = false,
     deliveryRadius, onDeliveryRadiusChange, onCalculateFee, calculatedFee, onRegenerateImage,
-    preferredCurrency = 'ZAR', onOpenSocialModal
+    preferredCurrency = 'ZAR', onOpenSocialModal, onOpenShareModal
 }) => {
   const theme = PROPOSAL_THEMES[proposalTheme as keyof typeof PROPOSAL_THEMES] || PROPOSAL_THEMES.classic;
   const t = theme.classes;
@@ -76,7 +77,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
     }
   };
 
-  // Fix: Added handleSocialAction function to track analytics and open social modal
   const handleSocialAction = (mode: 'reel' | 'status' | 'create') => {
     analytics.track({ type: 'founder_action', data: { actionName: `open_social_${mode}` } });
     onOpenSocialModal?.(mode);
@@ -87,7 +87,6 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
       
       {!isReadOnlyView && (
       <div className="no-print space-y-6">
-          {/* CRITICAL: THE "WHERE IS MY THUMBNAIL" FIX BUTTON */}
           <div className="bg-amber-500 p-6 rounded-[2rem] flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xl border-4 border-white dark:border-slate-800 animate-bounce cursor-pointer" onClick={jumpToThumbnailStudio}>
               <div className="flex items-center gap-4 text-white">
                   <div className="p-3 bg-white/20 rounded-2xl"><Palette size={32} /></div>
@@ -169,11 +168,16 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
          </div>
          
          <div className="flex items-center gap-2 no-print">
+            <button 
+                onClick={() => onOpenShareModal?.()} 
+                className="px-6 py-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-100 transition-all flex items-center gap-2 border border-indigo-100 dark:border-indigo-800"
+                title="Share Proposal"
+            >
+                <Share2 size={16} />
+                <span className="hidden xs:inline">Share</span>
+            </button>
             <button onClick={() => window.print()} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:bg-slate-200 transition-colors" title="Print/Export">
                 <FileDown size={20} className={t.description} />
-            </button>
-            <button onClick={() => { navigator.clipboard.writeText(window.location.href); showToast("Link Copied!"); }} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:bg-slate-200 transition-colors" title="Share Link">
-                <Share2 size={20} className={t.description} />
             </button>
          </div>
       </div>
@@ -241,7 +245,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                         />
                       )}
                       <div className="space-y-2">
-                        <span className={`text-xl sm:text-2xl leading-tight font-black tracking-tight transition-all ${isChecked ? t.checkedText : t.uncheckedText}`}>
+                        <span className={`text-xl sm:text-2xl font-black tracking-tight transition-all ${isChecked ? t.checkedText : t.uncheckedText}`}>
                             {item}
                         </span>
                         {analysis?.evocativeDescription && (
@@ -278,7 +282,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                             >
                                 <input 
                                     type="checkbox" 
-                                    checked={checkedItems.has(`haccp-${idx}`)} 
+                                    checked={checkedItems.has(`haccp-${idx}`) ? true : false} 
                                     readOnly
                                     className="w-5 h-5 rounded-lg text-emerald-600"
                                 />
