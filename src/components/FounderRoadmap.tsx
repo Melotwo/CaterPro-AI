@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 /* Import missing ImageIcon and fix duplicate Check identifier */
 import { 
@@ -13,7 +14,9 @@ import {
   UserCog, Keyboard, Terminal, Sparkle, FileDown, VideoOff, Scissors, Newspaper, Ghost,
   UserCheck, Swords, CalendarDays, ListTodo, Image as ImageIcon, Box, HelpCircle as QuestionIcon,
   UserPlus2, FileSignature as FileSignatureIcon,
-  Trophy as CampaignIcon
+  Trophy as CampaignIcon,
+  Navigation2,
+  Heart
 } from 'lucide-react';
 import ThumbnailStudio from './ThumbnailStudio';
 import { generateClipperBriefFromApi } from '../services/geminiService';
@@ -31,8 +34,32 @@ const CampaignHunter: React.FC = () => {
 
     const campaignPitch = `Hi there! I am the founder of CaterPro AI (a SaaS for hospitality automation). I am a specialist in "Proof of Work" content. I don't just post; I build systems. I can create a professional UGC walkthrough for your campaign that demonstrates high-level utility and authority. Ready to start immediately.`;
 
+    const dmFollowUp = `Hey Nathan! Stoked to be here. I've already architected the 'Proof of Work' walkthrough for CaterPro AI. Where's the best spot to drop my first submission for the V2 rewards?`;
+
     return (
         <div className="space-y-10 animate-slide-in">
+            {/* DM STRATEGY - SPECIFIC TO USER SCREENSHOT */}
+            <div className="p-8 bg-indigo-50 dark:bg-indigo-900/10 border-4 border-indigo-500/20 rounded-[3rem] relative overflow-hidden">
+                <div className="flex items-center gap-4 mb-6">
+                    <div className="p-3 bg-indigo-600 rounded-2xl text-white shadow-lg"><MessageSquare size={24} /></div>
+                    <div>
+                        <h4 className="text-xl font-black uppercase tracking-tight">The "Clip Farm" DM Reply</h4>
+                        <p className="text-[10px] font-black uppercase text-indigo-500 tracking-widest mt-1">Reply to Nathan Johnson with this</p>
+                    </div>
+                </div>
+                <div className="p-6 bg-white dark:bg-slate-900 rounded-2xl border-2 border-indigo-100 dark:border-slate-800 shadow-sm">
+                    <p className="text-sm font-bold text-slate-700 dark:text-slate-200 italic leading-relaxed">
+                        "{dmFollowUp}"
+                    </p>
+                    <button 
+                        onClick={() => handleCopy(dmFollowUp, 'DM Reply')}
+                        className="mt-4 flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:underline"
+                    >
+                        <Copy size={14} /> Copy Reply Text
+                    </button>
+                </div>
+            </div>
+
             {/* WHOP CAMPAIGN STRATEGY */}
             <div className="p-10 bg-slate-950 text-white rounded-[3.5rem] border-4 border-purple-500/30 shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-10 opacity-10"><CampaignIcon size={160} className="text-purple-400" /></div>
@@ -48,7 +75,7 @@ const CampaignHunter: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-6">
                             <div className="bg-white/5 p-6 rounded-3xl border border-white/10">
-                                <h5 className="text-[10px] font-black uppercase text-purple-400 mb-2">The "Founder Pitch" (Copy this into forms)</h5>
+                                <h5 className="text-[10px] font-black uppercase text-purple-400 mb-2">The "Founder Pitch" (Post to Whop Forms)</h5>
                                 <p className="text-sm font-medium leading-relaxed italic text-slate-300">
                                     "{campaignPitch}"
                                 </p>
@@ -78,22 +105,6 @@ const CampaignHunter: React.FC = () => {
                     </div>
                 </div>
             </div>
-
-            <div className="p-8 bg-purple-50 dark:bg-purple-900/10 rounded-[3rem] border-2 border-purple-200 dark:border-purple-800 flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-4">
-                    <div className="p-3 bg-white dark:bg-slate-800 rounded-2xl shadow-sm text-purple-600"><Target size={24} /></div>
-                    <div>
-                        <h4 className="font-black uppercase text-sm">Target: Slideshow Campaigns</h4>
-                        <p className="text-xs text-slate-500">Fastest to produce. Zero face-recording required.</p>
-                    </div>
-                </div>
-                <button 
-                    onClick={() => window.open('https://whop.com/discover/campaigns/', '_blank')}
-                    className="px-8 py-4 bg-purple-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-xl hover:scale-105 active:scale-95 transition-all"
-                >
-                    Open Whop Discover <ExternalLink size={14} />
-                </button>
-            </div>
         </div>
     );
 };
@@ -106,8 +117,34 @@ const WhopWarRoom: React.FC = () => {
 
     return (
         <div className="space-y-10 animate-slide-in">
+            {/* POSTING DESTINATION MAP */}
+            <div className="p-8 bg-slate-900 rounded-[3rem] text-white border-4 border-slate-800 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-10 opacity-5 rotate-12"><Navigation2 size={140} /></div>
+                <div className="relative z-10">
+                    <h3 className="text-2xl font-black uppercase tracking-tighter mb-2">The "Where to Post" Map</h3>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-8">Match your App Outputs to these Platforms</p>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {[
+                            { output: 'Captions/Flex Posts', platform: 'Facebook Groups', icon: Facebook, color: 'text-blue-500' },
+                            { output: 'Reel Scripts', platform: 'TikTok / Instagram', icon: Video, color: 'text-pink-500' },
+                            { output: 'Gig Thumbnails', platform: 'Fiverr / Upwork', icon: ImageIcon, color: 'text-emerald-500' },
+                            { output: 'Campaign Pitches', platform: 'Whop Discovery', icon: CampaignIcon, color: 'text-purple-500' }
+                        ].map((item, i) => (
+                            <div key={i} className="p-5 bg-white/5 rounded-[2rem] border border-white/10 flex flex-col items-center text-center gap-3">
+                                <item.icon className={item.color} size={28} />
+                                <div>
+                                    <p className="text-[9px] font-black text-slate-500 uppercase">{item.output}</p>
+                                    <p className="text-xs font-bold">{item.platform}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+
             {/* NEW: WAITING ROOM STRATEGY CARD */}
-            <div className="p-10 bg-slate-900 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden border-4 border-slate-800">
+            <div className="p-10 bg-slate-950 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden border-4 border-slate-800">
                 <div className="absolute top-0 right-0 p-10 opacity-10"><Clock size={140} className="animate-spin-slow" /></div>
                 <div className="relative z-10">
                     <div className="flex items-center gap-4 mb-8">
@@ -130,44 +167,6 @@ const WhopWarRoom: React.FC = () => {
                         <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
                             <h5 className="text-[10px] font-black uppercase text-emerald-500 tracking-widest">3. Proof of Work</h5>
                             <p className="text-xs text-slate-300 leading-relaxed">Don't just wait. Go to the <strong>Asset Studio</strong> tab and render 3 more thumbnails. Have your portfolio ready for the moment they reply.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* WHOP FIELD GUIDE - MAPPED TO USER SCREENSHOTS */}
-            <div className="p-10 bg-indigo-600 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden border-4 border-indigo-400">
-                <div className="absolute top-0 right-0 p-10 opacity-10"><Box size={140} /></div>
-                <div className="relative z-10">
-                    <div className="flex items-center gap-4 mb-8">
-                        <div className="p-4 bg-white/20 rounded-3xl backdrop-blur-md"><ListTodo size={32} /></div>
-                        <div>
-                            <h3 className="text-3xl font-black uppercase tracking-tight">Whop Page Filler</h3>
-                            <p className="text-xs font-bold text-indigo-200 uppercase tracking-widest mt-1">Copy these into your Whop SEO & Ideation fields</p>
-                        </div>
-                    </div>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Ideation: Primary Keyword */}
-                        <div className="p-6 bg-black/20 rounded-3xl border border-white/10 space-y-4">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <p className="text-[10px] font-black uppercase text-indigo-200 mb-1">Primary Keyword</p>
-                                    <p className="text-sm font-bold">Catering Automation</p>
-                                </div>
-                                <button onClick={() => handleCopy('Catering Automation', 'Primary Keyword')} className="p-3 bg-white/20 rounded-xl hover:scale-110 transition-transform"><Copy size={16}/></button>
-                            </div>
-                        </div>
-
-                        {/* Ideation: Target Audience */}
-                        <div className="p-6 bg-black/20 rounded-3xl border border-white/10 space-y-4">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <p className="text-[10px] font-black uppercase text-indigo-200 mb-1">Target Audience</p>
-                                    <p className="text-sm font-bold">Busy chefs and catering business owners.</p>
-                                </div>
-                                <button onClick={() => handleCopy('Professional chefs, catering business owners, and culinary students in South Africa & US.', 'Target Audience')} className="p-3 bg-white/20 rounded-xl hover:scale-110 transition-transform"><Copy size={16}/></button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -196,7 +195,33 @@ const ClippingHub: React.FC = () => {
 
     return (
         <div className="space-y-8 animate-slide-in">
-            {/* NEW: V2 CONTENT REWARDS CHEAT SHEET */}
+            {/* FINDING CLIPPERS GUIDE */}
+            <div className="p-10 bg-slate-900 rounded-[3.5rem] text-white border-4 border-indigo-500/20 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-10 opacity-5 rotate-45"><Users size={160} /></div>
+                <div className="relative z-10">
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-3 bg-indigo-600 rounded-2xl"><Search size={32} /></div>
+                        <div>
+                            <h3 className="text-2xl font-black uppercase tracking-tight">Clipper Hiring Manual</h3>
+                            <p className="text-xs font-bold text-indigo-300 uppercase tracking-widest">Where to find world-class editors for $5-$15</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
+                            <h5 className="text-[10px] font-black uppercase text-emerald-500 tracking-widest">Option A: Marketplace</h5>
+                            <p className="text-xs text-slate-300 leading-relaxed">Search for <strong>"Short Form Video Editor"</strong> on Fiverr or Upwork. Look for people in Pakistan, India, or Philippines for the best ROI.</p>
+                            <button onClick={() => window.open('https://www.fiverr.com/search/gigs?query=short%20form%20video%20editor', '_blank')} className="px-4 py-2 bg-emerald-600 rounded-xl text-[9px] font-black uppercase tracking-widest">Open Fiverr Search</button>
+                        </div>
+                        <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
+                            <h5 className="text-[10px] font-black uppercase text-indigo-500 tracking-widest">Option B: Community</h5>
+                            <p className="text-xs text-slate-300 leading-relaxed">Go to the <strong>"Affiliates"</strong> or <strong>"Clip Farm"</strong> discord. There is usually a #hiring channel where hungry clippers post their portfolios.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* V2 CONTENT REWARDS CHEAT SHEET */}
             <div className="p-10 bg-emerald-600 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden border-4 border-emerald-400">
                 <div className="absolute top-0 right-0 p-10 opacity-10"><Trophy size={140} /></div>
                 <div className="relative z-10">
@@ -214,9 +239,6 @@ const ClippingHub: React.FC = () => {
                             <p className="text-sm font-medium leading-relaxed">
                                 You are looking at the <strong>Discover Campaigns</strong> dashboard. While waiting for your submission, look for campaigns tagged with <span className="px-2 py-0.5 bg-black/30 rounded text-emerald-300">UGC</span> or <span className="px-2 py-0.5 bg-black/30 rounded text-indigo-300">PRODUCT</span>.
                             </p>
-                            <div className="p-5 bg-black/20 rounded-3xl border border-white/10">
-                                <p className="text-xs italic text-emerald-100 leading-relaxed">"Pro Tip: Filter by 'CPM' to see which campaigns pay the most per 1k views. This is how you scale your income while waiting for responses."</p>
-                            </div>
                         </div>
 
                         <div className="space-y-4">
@@ -228,10 +250,6 @@ const ClippingHub: React.FC = () => {
                                 <CheckCircle2 size={20} className="text-emerald-300" />
                                 <p className="text-xs font-bold">Look for 'Scene Society' Badges</p>
                             </div>
-                            <div className="flex items-center gap-3 p-4 bg-white/10 rounded-2xl border border-white/20">
-                                <CheckCircle2 size={20} className="text-emerald-300" />
-                                <p className="text-xs font-bold">Sort by 'Paid Out' for Reliability</p>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -241,7 +259,7 @@ const ClippingHub: React.FC = () => {
                 <div className="absolute top-0 right-0 p-12 opacity-5"><Scissors size={120} /></div>
                 <div className="relative z-10">
                     <h4 className="text-2xl font-black uppercase tracking-tight mb-2">Clipping Team Command</h4>
-                    <p className="text-slate-400 text-sm font-medium mb-8">Manage UGC creators and automate their editing briefs.</p>
+                    <p className="text-slate-400 text-sm font-medium mb-8">Generate the brief below and send it to your hire.</p>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                         <div className="space-y-2">
@@ -309,11 +327,43 @@ const HighTicketPitch: React.FC = () => {
     const applicationText = `I am a South Africa-based founder currently scaling a B2B AI SaaS platform. I own the entire content engine, from video tutorial production to technical SEO. My strength lies in taking complex AI workflows and turning them into simple, educational content that drives user adoption. I'm ready to bring this founder-level ownership to your product's education strategy.`;
 
     const q1 = "3+ years of technical operations and founder-led content generation.";
-    const q2 = "Yes. As founder of CaterPro AI, I own the entire education engine. I architected the UI/UX tooltips and produced the full video tutorial series for our menu engineering dashboard, ensuring complex culinary logistics are simple for users.";
+    const q2 = "Yes. As founder of CaterPro AI, I own the entire education engine. I architected the UI/UX tooltips and produced the full video tutorial series for our menu dashboard, ensuring complex culinary logistics are simple for users.";
     const q3 = "I defined the 'Lifecycle Marketing' roadmap for my own SaaS, then personally wrote the technical logic for the AI-generated proposals and the marketing status scripts used by our community to drive engagement.";
 
     return (
         <div className="space-y-10 animate-slide-in">
+            {/* FINDING CUSTOMERS HUB */}
+            <div className="p-10 bg-slate-950 text-white rounded-[3.5rem] border-4 border-primary-500/20 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-10 opacity-5 rotate-12"><Target size={160} /></div>
+                <div className="relative z-10">
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-3 bg-primary-600 rounded-2xl"><Users size={32} /></div>
+                        <div>
+                            <h3 className="text-2xl font-black uppercase tracking-tight">Customer Sourcing Hub</h3>
+                            <p className="text-xs font-bold text-primary-300 uppercase tracking-widest">Where to find catering clients today</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="p-5 bg-white/5 rounded-2xl border border-white/10 text-center">
+                            <Building2 className="text-primary-500 mx-auto mb-2" size={24} />
+                            <h5 className="text-[10px] font-black uppercase mb-1">Corporate Parks</h5>
+                            <p className="text-[9px] text-slate-400">Offer 'Monday Menu Prep' automation for office managers.</p>
+                        </div>
+                        <div className="p-5 bg-white/5 rounded-2xl border border-white/10 text-center">
+                            <Heart className="text-pink-500 mx-auto mb-2" size={24} />
+                            <h5 className="text-[10px] font-black uppercase mb-1">Wedding Venues</h5>
+                            <p className="text-[9px] text-slate-400">Partner with venues to generate instant menus for couples.</p>
+                        </div>
+                        <div className="p-5 bg-white/5 rounded-2xl border border-white/10 text-center">
+                            <ShoppingBag className="text-amber-500 mx-auto mb-2" size={24} />
+                            <h5 className="text-[10px] font-black uppercase mb-1">Local Delis</h5>
+                            <p className="text-[9px] text-slate-400">Help them automate their 'Daily Specials' costing.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div className="p-10 bg-blue-600 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden border-4 border-blue-400">
                 <div className="absolute top-0 right-0 p-10 opacity-10"><LucideFileSignature size={140} /></div>
                 <div className="relative z-10">
@@ -350,24 +400,6 @@ const HighTicketPitch: React.FC = () => {
                             ))}
                         </div>
                     </div>
-                </div>
-            </div>
-            
-            <div className="p-8 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border-2 border-slate-200 dark:border-slate-800">
-                <h4 className="text-sm font-black uppercase mb-4 flex items-center gap-2">
-                    <ShieldCheck size={18} className="text-emerald-500" /> Recruitment Logic
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {[
-                        { t: "Availability", d: "Immediate Start / No Notice Period" },
-                        { t: "Compensation", d: "$2,800 USD (Competitive Mid-Point)" },
-                        { t: "Location", d: "Confirm: Yes (South Africa Based)" }
-                    ].map((item, i) => (
-                        <div key={i} className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
-                            <p className="text-[10px] font-black text-indigo-500 uppercase mb-1">{item.t}</p>
-                            <p className="text-xs font-bold">{item.d}</p>
-                        </div>
-                    ))}
                 </div>
             </div>
         </div>
