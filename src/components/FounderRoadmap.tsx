@@ -11,7 +11,7 @@ import {
   Flame, Moon, Sun, Clock, FileSearch, X, Pause, Play, RefreshCw, Coffee, Calculator, 
   Briefcase as UpworkIcon, ListOrdered, Lightbulb, ShoppingCart, Tag, FolderHeart, 
   UserCog, Keyboard, Terminal, Sparkle, FileDown, VideoOff, Scissors, Newspaper, Ghost,
-  UserCheck, Swords, CalendarDays
+  UserCheck, Swords, CalendarDays, ListTodo
 } from 'lucide-react';
 import ThumbnailStudio from './ThumbnailStudio';
 import { generateClipperBriefFromApi } from '../services/geminiService';
@@ -24,108 +24,130 @@ interface FounderRoadmapProps {
 const WhopWarRoom: React.FC = () => {
     const handleCopy = (text: string, label: string) => {
         navigator.clipboard.writeText(text);
-        alert(`${label} Copied to iPad Clipboard!`);
+        alert(`${label} Copied!`);
     };
 
     return (
         <div className="space-y-10 animate-slide-in">
-            {/* ALERT: HOW TO BEAT COMPETITORS */}
-            <div className="p-8 bg-amber-500 rounded-[3rem] text-white shadow-2xl border-4 border-white dark:border-slate-800 flex flex-col md:flex-row items-center gap-8">
-                <div className="p-5 bg-white/20 rounded-[2rem]"><Swords size={48} /></div>
-                <div>
-                    <h4 className="text-2xl font-black uppercase tracking-tight leading-none mb-2">The "Get Bigger" Edge</h4>
-                    <p className="text-sm font-bold opacity-90 leading-relaxed">
-                        Competitors sell "Calculators." You sell **"Freedom."** Focus your marketing on the AI thinking FOR the chef, not just doing math.
-                    </p>
+            {/* WHOP SEO POWER-UP - FIXES THE RED CHECKLIST ITEMS */}
+            <div className="p-10 bg-indigo-600 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden border-4 border-indigo-400">
+                <div className="absolute top-0 right-0 p-10 opacity-10"><ListTodo size={140} /></div>
+                <div className="relative z-10">
+                    <div className="flex items-center gap-4 mb-6">
+                        <div className="p-3 bg-white/20 rounded-2xl"><TrendingUp size={32} /></div>
+                        <div>
+                            <h3 className="text-2xl font-black uppercase tracking-tight">Whop SEO Power-Up</h3>
+                            <p className="text-xs font-bold text-indigo-200 uppercase tracking-widest">Turn those Red boxes Green</p>
+                        </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="p-5 bg-white/10 rounded-2xl border border-white/20">
+                            <p className="text-[10px] font-black uppercase text-indigo-200 mb-2">1. Optimized Title (Length + Number)</p>
+                            <div className="flex justify-between items-center bg-black/20 p-3 rounded-xl">
+                                <span className="text-sm font-bold">CaterPro AI: #1 Chef System 2026</span>
+                                <button onClick={() => handleCopy('CaterPro AI: #1 Chef System 2026', 'SEO Title')} className="text-indigo-300 hover:text-white"><Copy size={16}/></button>
+                            </div>
+                        </div>
+                        <div className="p-5 bg-white/10 rounded-2xl border border-white/20">
+                            <p className="text-[10px] font-black uppercase text-indigo-200 mb-2">2. Social Proof Headline</p>
+                            <div className="flex justify-between items-center bg-black/20 p-3 rounded-xl">
+                                <span className="text-sm font-bold">Join 500+ Chefs Using CaterPro AI</span>
+                                <button onClick={() => handleCopy('Join 500+ Chefs Using CaterPro AI', 'SEO Headline')} className="text-indigo-300 hover:text-white"><Copy size={16}/></button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Reddit Lead Gen Card - REDESIGNED FOR MAX VISIBILITY */}
+                {/* Reddit Lead Gen Card */}
                 <div className="p-10 bg-white dark:bg-slate-900 border-4 border-orange-500 rounded-[3.5rem] shadow-2xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-10 opacity-5 text-orange-500"><Ghost size={120} /></div>
                     <div className="flex items-center gap-5 mb-10">
                         <div className="p-4 bg-orange-500 rounded-[1.5rem] text-white shadow-xl"><Search size={32} /></div>
                         <div>
                             <h4 className="text-2xl font-black uppercase text-slate-900 dark:text-white">Reddit Lead Gen</h4>
-                            <p className="text-xs font-black uppercase text-orange-500 tracking-[0.2em]">OfficeX Form Fill</p>
+                            <p className="text-xs font-black uppercase text-orange-500 tracking-[0.2em]">OfficeX Setup</p>
                         </div>
                     </div>
 
                     <div className="space-y-8">
                         <div className="space-y-3">
                             <div className="flex justify-between items-center">
-                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">1. Search Query</label>
-                                <button onClick={() => handleCopy('catering menu help OR menu costing software OR "chef" admin stress OR culinary student help', 'Reddit Query')} className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-full text-[10px] font-black uppercase hover:bg-orange-500 hover:text-white transition-all">
-                                    <Copy size={12} /> Copy Answer
+                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">1. Search Query (Cleaned)</label>
+                                <button onClick={() => handleCopy('catering menu help OR menu costing OR "chef" admin stress', 'Reddit Query')} className="flex items-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-full text-[10px] font-black uppercase hover:scale-105 transition-all shadow-lg">
+                                    <Copy size={14} /> COPY CLEAN QUERY
                                 </button>
                             </div>
-                            <div className="p-5 bg-slate-50 dark:bg-slate-950 rounded-2xl border-2 border-slate-100 dark:border-slate-800 font-bold text-sm">
-                                catering menu help OR menu costing software OR "chef" admin stress OR culinary student help
+                            <div className="p-6 bg-slate-50 dark:bg-slate-950 rounded-2xl border-2 border-slate-100 dark:border-slate-800 font-bold text-sm">
+                                catering menu help OR menu costing OR "chef" admin stress
                             </div>
+                            <p className="text-[9px] text-slate-400 italic">Select all and delete the old code before pasting this.</p>
                         </div>
 
                         <div className="space-y-3">
                             <div className="flex justify-between items-center">
                                 <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">2. AI Filter Prompt</label>
-                                <button onClick={() => handleCopy('Identify professional chefs, caterers, or culinary students expressing frustration with manual paperwork, food costing errors, or slow menu creation. Approve only if they are asking for tools, advice, or a better system to handle admin.', 'Reddit Filter')} className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-full text-[10px] font-black uppercase hover:bg-orange-500 hover:text-white transition-all">
-                                    <Copy size={12} /> Copy Answer
+                                <button onClick={() => handleCopy('Identify chefs or caterers frustrated with manual paperwork or costing. Approve only if they are looking for a system or tool.', 'Reddit Filter')} className="flex items-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-full text-[10px] font-black uppercase hover:scale-105 transition-all shadow-lg">
+                                    <Copy size={14} /> COPY THIS
                                 </button>
                             </div>
                             <div className="p-5 bg-slate-50 dark:bg-slate-950 rounded-2xl border-2 border-slate-100 dark:border-slate-800 italic text-xs leading-relaxed text-slate-500">
-                                "Identify professional chefs, caterers, or culinary students expressing frustration with manual paperwork..."
+                                "Identify chefs or caterers frustrated with manual paperwork or costing..."
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Affiliate Recruitment Card */}
+                {/* Affiliate Hub - SHORTENED TO 81 CHARS */}
                 <div className="p-10 bg-white dark:bg-slate-900 border-4 border-emerald-500 rounded-[3.5rem] shadow-2xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-10 opacity-5 text-emerald-500"><TrendingUp size={120} /></div>
                     <div className="flex items-center gap-5 mb-10">
                         <div className="p-4 bg-emerald-500 rounded-[1.5rem] text-white shadow-xl"><Users size={32} /></div>
                         <div>
-                            <h4 className="text-2xl font-black uppercase text-slate-900 dark:text-white">Affiliate Hub</h4>
+                            <h4 className="text-2xl font-black uppercase text-slate-900 dark:text-white">Affiliate Pitch</h4>
                             <p className="text-xs font-black uppercase text-emerald-500 tracking-[0.2em]">Clipper Recruitment</p>
                         </div>
                     </div>
 
                     <div className="space-y-8">
+                        <div className="space-y-3">
+                            <div className="flex justify-between items-center">
+                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Pitch (Fits Whop 90-char Limit)</label>
+                                <button onClick={() => handleCopy('Earn 30% for life. #1 AI for chefs. High conversion SA/US. Viral scripts provided.', 'Affiliate Pitch')} className="flex items-center gap-2 px-6 py-3 bg-emerald-500 text-white rounded-full text-[10px] font-black uppercase hover:scale-105 transition-all shadow-lg">
+                                    <Copy size={14} /> COPY THIS
+                                </button>
+                            </div>
+                            <div className="p-6 bg-slate-50 dark:bg-slate-950 rounded-2xl border-2 border-slate-100 dark:border-slate-800 font-bold text-sm leading-tight">
+                                Earn 30% for life. #1 AI for chefs. High conversion SA/US. Viral scripts provided.
+                            </div>
+                            <p className="text-[10px] font-black text-emerald-600">81 / 90 Characters used. Perfect!</p>
+                        </div>
+                        
                         <div className="p-6 bg-emerald-50 dark:bg-emerald-900/10 rounded-3xl border-2 border-emerald-100 dark:border-emerald-800 flex justify-between items-center">
                             <div>
-                                <p className="text-[10px] font-black uppercase text-emerald-600 mb-1">Commission Rate</p>
-                                <p className="text-4xl font-black text-slate-900 dark:text-white">30% <span className="text-sm text-slate-400">Lifetime</span></p>
-                            </div>
-                            <div className="text-right">
                                 <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Target Payout</p>
                                 <p className="text-xl font-black text-emerald-600">30 Days</p>
                             </div>
-                        </div>
-
-                        <div className="space-y-3">
-                            <div className="flex justify-between items-center">
-                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Recruitment Pitch</label>
-                                <button onClick={() => handleCopy('Earn 30% passive income for life. We built the #1 AI system for chefs to delete their admin stress. Massive market in SA, US, and UK. We provide the viral scripts and professional thumbnails for you.', 'Affiliate Pitch')} className="flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-full text-[10px] font-black uppercase hover:bg-emerald-500 hover:text-white transition-all">
-                                    <Copy size={12} /> Copy Answer
-                                </button>
-                            </div>
-                            <div className="p-5 bg-slate-50 dark:bg-slate-950 rounded-2xl border-2 border-slate-100 dark:border-slate-800 font-bold text-sm leading-tight">
-                                Earn 30% passive income for life. We built the #1 AI system for chefs to delete their admin stress...
+                            <div className="text-right">
+                                <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Commission</p>
+                                <p className="text-xl font-black text-emerald-600">30%</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* SOCIAL CONTENT PLANNER - NEW FRESH CONTENT */}
+            {/* SOCIAL CONTENT PLANNER */}
             <div className="p-12 bg-slate-950 text-white rounded-[4rem] border-4 border-indigo-500/20 shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-12 opacity-5"><CalendarDays size={160} /></div>
                 <div className="relative z-10">
                     <div className="flex items-center gap-5 mb-10">
                         <div className="p-4 bg-indigo-600 rounded-[1.5rem] shadow-2xl shadow-indigo-500/20"><Activity size={32} /></div>
                         <div>
-                            <h3 className="text-3xl font-black uppercase tracking-tight">Social Content Roadmap</h3>
-                            <p className="text-sm font-bold text-indigo-400 uppercase tracking-widest">Fresh LinkedIn & Facebook Posts</p>
+                            <h3 className="text-3xl font-black uppercase tracking-tight">Social Roadmap</h3>
+                            <p className="text-sm font-bold text-indigo-400 uppercase tracking-widest">Post this week to stay fresh</p>
                         </div>
                     </div>
 
@@ -133,23 +155,23 @@ const WhopWarRoom: React.FC = () => {
                         <div className="p-8 bg-white/5 rounded-[2.5rem] border border-white/10 space-y-6">
                             <div className="flex items-center gap-3 text-blue-400">
                                 <Linkedin size={20} />
-                                <h5 className="font-black uppercase text-xs tracking-widest">LinkedIn (Professional Edge)</h5>
+                                <h5 className="font-black uppercase text-xs tracking-widest">LinkedIn (Industry Credibility)</h5>
                             </div>
-                            <p className="text-sm font-medium leading-relaxed text-slate-300">
-                                **Post Idea:** "Chef burnout isn't just about the heat in the kitchen; it's the cold paperwork in the office. I built CaterPro AI to give chefs their Sundays back. 100% Google Grade AI logic. #CulinaryTech #2026"
+                            <p className="text-sm font-medium leading-relaxed text-slate-300 italic">
+                                "Catering isn't just cooking; it's logistics. I built CaterPro AI to solve the 'Sunday Admin Grind' for chefs globally. 100% Google-grade AI. #2026 #ChefTech"
                             </p>
-                            <button onClick={() => handleCopy('Chef burnout isn\'t just about the heat in the kitchen; it\'s the cold paperwork in the office. I built CaterPro AI to give chefs their Sundays back. 100% Google Grade AI logic. #CulinaryTech #2026', 'LinkedIn Post')} className="w-full py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all">Copy Text</button>
+                            <button onClick={() => handleCopy('Catering isn\'t just cooking; it\'s logistics. I built CaterPro AI to solve the \'Sunday Admin Grind\' for chefs globally. 100% Google-grade AI. #2026 #ChefTech', 'LinkedIn')} className="w-full py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all">Copy Text</button>
                         </div>
 
                         <div className="p-8 bg-white/5 rounded-[2.5rem] border border-white/10 space-y-6">
                             <div className="flex items-center gap-3 text-indigo-400">
                                 <Facebook size={20} />
-                                <h5 className="font-black uppercase text-xs tracking-widest">Facebook (The Screen Recording)</h5>
+                                <h5 className="font-black uppercase text-xs tracking-widest">Facebook (Engagement Flex)</h5>
                             </div>
-                            <p className="text-sm font-medium leading-relaxed text-slate-300">
-                                **Post Idea:** Use your screen recording! **Overlay Text:** "Watch my AI build a 100-guest menu in 30 seconds while I drink my coffee. ☕️🇿🇦 Stop typing, start cooking."
+                            <p className="text-sm font-medium leading-relaxed text-slate-300 italic">
+                                Use your screen recording! Overlay: "Watch me build a 100-guest menu in 30 seconds. ☕️🇿🇦 No more late nights typing. Try free in bio!"
                             </p>
-                            <button onClick={() => handleCopy('Watch my AI build a 100-guest menu in 30 seconds while I drink my coffee. ☕️🇿🇦 Stop typing, start cooking. Try it free here: [Link]', 'Facebook Post')} className="w-full py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all">Copy Text</button>
+                            <button onClick={() => handleCopy('Watch me build a 100-guest menu in 30 seconds. ☕️🇿🇦 No more late nights typing. Try free in bio!', 'Facebook')} className="w-full py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all">Copy Text</button>
                         </div>
                     </div>
                 </div>
@@ -235,13 +257,6 @@ const ClippingHub: React.FC = () => {
                             {brief}
                         </div>
                     </div>
-                    <div className="mt-8 p-6 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border-2 border-amber-100 dark:border-amber-800 flex items-start gap-4">
-                        <Info className="text-amber-600 shrink-0 mt-1" />
-                        <div>
-                            <p className="text-xs font-black uppercase text-amber-700 dark:text-amber-400 mb-1">Founder Tip</p>
-                            <p className="text-xs text-amber-800 dark:text-amber-200 font-medium">Send this brief via Discord or WhatsApp to your clippers. It guarantees the video stays focused on ROI, not just pretty colors.</p>
-                        </div>
-                    </div>
                 </div>
             )}
         </div>
@@ -290,9 +305,6 @@ const SelfieBubble: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOp
                     <X size={16} />
                 </button>
             </div>
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-red-500 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg animate-pulse">
-                Live Preview
-            </div>
         </div>
     );
 };
@@ -302,48 +314,33 @@ const FiverrCheatSheet: React.FC = () => {
         navigator.clipboard.writeText(text);
     };
 
-    const selections = [
-        { label: "Category", value: "Programming & Tech > AI Development" },
-        { label: "Service Type", value: "AI Agents & Automation" },
-        { label: "Model Expertise", value: "Gemini, OpenAI, Claude" },
-        { label: "Programming", value: "TypeScript, React, Python" },
-        { label: "Industry", value: "Hospitality, Food & Beverage" }
-    ];
-
     return (
         <div className="p-8 bg-indigo-50 dark:bg-indigo-900/10 border-4 border-indigo-200 dark:border-indigo-800 rounded-[3rem] space-y-6 animate-slide-in">
             <div className="flex items-center gap-4">
                 <div className="p-3 bg-indigo-600 rounded-2xl text-white shadow-lg"><Terminal size={24} /></div>
                 <div>
-                    <h4 className="text-xl font-black uppercase tracking-tight text-slate-900 dark:text-white">Fiverr Gig Metadata</h4>
-                    <p className="text-[10px] font-black uppercase text-indigo-500 tracking-widest mt-1">Copy-Paste these settings</p>
+                    <h4 className="text-xl font-black uppercase tracking-tight text-slate-900 dark:text-white">Fiverr Meta Settings</h4>
+                    <p className="text-[10px] font-black uppercase text-indigo-500 tracking-widest mt-1">Select these in your Gig editor</p>
                 </div>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {selections.map((item, idx) => (
+                {[
+                    { label: "Category", value: "Programming & Tech > AI Development" },
+                    { label: "Service Type", value: "AI Agents & Automation" },
+                    { label: "Expertise", value: "Gemini, React, TypeScript" },
+                    { label: "Industry", value: "Hospitality, Food & Beverage" }
+                ].map((item, idx) => (
                     <div key={idx} className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 flex justify-between items-center group">
                         <div>
-                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{item.label}</p>
-                            <p className="text-sm font-black text-slate-800 dark:text-slate-200">{item.value}</p>
+                            <p className="text-[9px] font-black text-slate-400 uppercase mb-1">{item.label}</p>
+                            <p className="text-sm font-black">{item.value}</p>
                         </div>
-                        <button onClick={() => handleCopy(item.value)} className="p-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+                        <button onClick={() => handleCopy(item.value)} className="p-2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
                             <Copy size={14} className="text-indigo-500" />
                         </button>
                     </div>
                 ))}
-            </div>
-
-            <div className="p-6 bg-slate-900 text-white rounded-2xl space-y-4">
-                <div className="flex items-center gap-2 text-amber-400">
-                    <Tag size={18} />
-                    <h5 className="text-xs font-black uppercase tracking-widest">Targeted Search Tags</h5>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                    {["CATERPROAI", "MENU COSTING", "AI AGENT", "HOSPITALITY", "GEMINI"].map(tag => (
-                        <span key={tag} className="px-3 py-1.5 bg-white/10 rounded-full text-[10px] font-black uppercase tracking-widest border border-white/10">{tag}</span>
-                    ))}
-                </div>
             </div>
         </div>
     );
