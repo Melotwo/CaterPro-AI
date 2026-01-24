@@ -10,14 +10,231 @@ import {
   MousePointer2, Activity, ShieldAlert, Instagram, Facebook, Link2, MessageSquareQuote, 
   Flame, Moon, Sun, Clock, FileSearch, X, Pause, Play, RefreshCw, Coffee, Calculator, 
   Briefcase as UpworkIcon, ListOrdered, Lightbulb, ShoppingCart, Tag, FolderHeart, 
-  UserCog, Keyboard, Terminal, Sparkle, FileDown
+  UserCog, Keyboard, Terminal, Sparkle, FileDown, VideoOff, Scissors, Newspaper, Ghost
 } from 'lucide-react';
 import ThumbnailStudio from './ThumbnailStudio';
+import { generateClipperBriefFromApi } from '../services/geminiService';
 
 interface FounderRoadmapProps {
   whopUrl: string;
   onOpenSocial?: (mode: 'create' | 'reel' | 'status') => void;
 }
+
+const WhopConfig: React.FC = () => {
+    const handleCopy = (text: string, label: string) => {
+        navigator.clipboard.writeText(text);
+        alert(`${label} Copied!`);
+    };
+
+    return (
+        <div className="space-y-8 animate-slide-in">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Reddit Lead Gen Card */}
+                <div className="p-8 bg-white dark:bg-slate-900 border-4 border-orange-500/20 rounded-[3rem] shadow-xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-8 opacity-5 text-orange-500"><Ghost size={80} /></div>
+                    <div className="flex items-center gap-4 mb-6">
+                        <div className="p-3 bg-orange-500 rounded-2xl text-white shadow-lg"><Search size={24} /></div>
+                        <div>
+                            <h4 className="text-xl font-black uppercase text-slate-900 dark:text-white">Reddit Lead Gen</h4>
+                            <p className="text-[10px] font-black uppercase text-orange-500 tracking-widest">OfficeX Setup</p>
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        <div className="p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
+                            <div className="flex justify-between items-center mb-2">
+                                <label className="text-[9px] font-black uppercase text-slate-400">Search Query</label>
+                                <button onClick={() => handleCopy('catering menu help OR menu costing software OR "chef" admin stress', 'Search Query')} className="text-indigo-600 hover:scale-110 transition-transform"><Copy size={14} /></button>
+                            </div>
+                            <p className="text-xs font-bold text-slate-700 dark:text-slate-300">catering menu help OR menu costing software OR "chef" admin stress</p>
+                        </div>
+
+                        <div className="p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
+                            <div className="flex justify-between items-center mb-2">
+                                <label className="text-[9px] font-black uppercase text-slate-400">Filter Prompt (The "AI Boss")</label>
+                                <button onClick={() => handleCopy('Identify professional chefs, caterers, or restaurant owners expressing frustration with manual paperwork, menu creation, or food costing errors. Ignore people looking for jobs or general food recipes. Approve only if they are looking for a system or solution.', 'AI Prompt')} className="text-indigo-600 hover:scale-110 transition-transform"><Copy size={14} /></button>
+                            </div>
+                            <p className="text-[11px] font-medium leading-relaxed text-slate-600 dark:text-slate-400 italic">"Identify professional chefs, caterers, or restaurant owners expressing frustration..."</p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Affiliate App Card */}
+                <div className="p-8 bg-white dark:bg-slate-900 border-4 border-emerald-500/20 rounded-[3rem] shadow-xl relative overflow-hidden">
+                    <div className="absolute top-0 right-0 p-8 opacity-5 text-emerald-500"><TrendingUp size={80} /></div>
+                    <div className="flex items-center gap-4 mb-6">
+                        <div className="p-3 bg-emerald-500 rounded-2xl text-white shadow-lg"><Users size={24} /></div>
+                        <div>
+                            <h4 className="text-xl font-black uppercase text-slate-900 dark:text-white">Affiliate Recruitment</h4>
+                            <p className="text-[10px] font-black uppercase text-emerald-500 tracking-widest">Clipper Team Pay</p>
+                        </div>
+                    </div>
+
+                    <div className="space-y-6">
+                        <div className="p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
+                            <p className="text-[9px] font-black uppercase text-slate-400 mb-2">Suggested Commission</p>
+                            <p className="text-2xl font-black text-emerald-600">30% <span className="text-xs text-slate-400 uppercase">Lifetime</span></p>
+                        </div>
+
+                        <div className="p-5 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
+                            <div className="flex justify-between items-center mb-2">
+                                <label className="text-[9px] font-black uppercase text-slate-400">Program Description</label>
+                                <button onClick={() => handleCopy('Earn 30% for life promoting the #1 AI system for chefs. We solve the "Admin Grind" that kills catering margins. Huge market in US & SA. We provide viral video scripts and 24/7 support for clippers.', 'Affiliate Pitch')} className="text-indigo-600 hover:scale-110 transition-transform"><Copy size={14} /></button>
+                            </div>
+                            <p className="text-[11px] font-bold text-slate-700 dark:text-slate-300 leading-tight">"Earn 30% for life promoting the #1 AI system for chefs. We solve the admin grind..."</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div className="p-6 bg-slate-950 text-white rounded-3xl flex items-center gap-4 border border-white/10">
+                <Info className="text-indigo-400 shrink-0" />
+                <p className="text-xs font-medium text-slate-400">
+                    <span className="text-white font-black uppercase tracking-widest">Tip:</span> Set your Affiliate payout to 30 days to protect against credit card chargebacks.
+                </p>
+            </div>
+        </div>
+    );
+};
+
+const ClippingHub: React.FC = () => {
+    const [briefTopic, setBriefTopic] = useState('HOSPITALITY AI SYSTEM');
+    const [hookStyle, setHookStyle] = useState('Aggressive / Call-out');
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [brief, setBrief] = useState('');
+
+    const handleGenerateBrief = async () => {
+        setIsGenerating(true);
+        try {
+            const result = await generateClipperBriefFromApi(briefTopic, hookStyle);
+            setBrief(result);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
+    return (
+        <div className="space-y-8 animate-slide-in">
+            <div className="p-10 bg-slate-950 text-white rounded-[3rem] border border-white/10 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-12 opacity-5"><Scissors size={120} /></div>
+                <div className="relative z-10">
+                    <h4 className="text-2xl font-black uppercase tracking-tight mb-2">Clipping Team Command</h4>
+                    <p className="text-slate-400 text-sm font-medium mb-8">Manage UGC creators and automate their editing briefs.</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Video Topic</label>
+                            <input 
+                                value={briefTopic}
+                                onChange={(e) => setBriefTopic(e.target.value)}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:border-indigo-500 outline-none"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Hook Style</label>
+                            <select 
+                                value={hookStyle}
+                                onChange={(e) => setHookStyle(e.target.value)}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:border-indigo-500 outline-none"
+                            >
+                                <option>Aggressive / Call-out</option>
+                                <option>Curiosity Gap</option>
+                                <option>Educational / Tutorial</option>
+                                <option>Result-First / Flex</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button 
+                        onClick={handleGenerateBrief}
+                        disabled={isGenerating}
+                        className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 transition-all"
+                    >
+                        {isGenerating ? <Loader2 className="animate-spin" /> : <Sparkles size={18} />}
+                        {isGenerating ? 'Architecting Brief...' : 'Generate Editor Brief'}
+                    </button>
+                </div>
+            </div>
+
+            {brief && (
+                <div className="p-8 bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-[2.5rem] animate-fade-in">
+                    <div className="flex justify-between items-center mb-6">
+                        <h5 className="font-black uppercase text-xs tracking-widest text-slate-400">Final Clipper Instructions</h5>
+                        <button 
+                            onClick={() => { navigator.clipboard.writeText(brief); }}
+                            className="p-3 bg-slate-50 dark:bg-slate-800 rounded-xl text-indigo-600 hover:bg-slate-100"
+                        >
+                            <Copy size={16} />
+                        </button>
+                    </div>
+                    <div className="prose prose-sm dark:prose-invert max-w-none">
+                        <div className="whitespace-pre-wrap font-medium leading-relaxed text-slate-700 dark:text-slate-300 italic p-6 bg-slate-50 dark:bg-slate-950/50 rounded-2xl border border-dashed border-slate-200">
+                            {brief}
+                        </div>
+                    </div>
+                    <div className="mt-8 p-6 bg-amber-50 dark:bg-amber-900/10 rounded-2xl border-2 border-amber-100 dark:border-amber-800 flex items-start gap-4">
+                        <Info className="text-amber-600 shrink-0 mt-1" />
+                        <div>
+                            <p className="text-xs font-black uppercase text-amber-700 dark:text-amber-400 mb-1">Founder Tip</p>
+                            <p className="text-xs text-amber-800 dark:text-amber-200 font-medium">Send this brief via Discord or WhatsApp to your clippers. It guarantees the video stays focused on ROI, not just pretty colors.</p>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+const SelfieBubble: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+    const videoRef = useRef<HTMLVideoElement>(null);
+    const [stream, setStream] = useState<MediaStream | null>(null);
+
+    useEffect(() => {
+        if (isOpen) {
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
+                .then(s => {
+                    setStream(s);
+                    if (videoRef.current) videoRef.current.srcObject = s;
+                })
+                .catch(err => console.error("Camera access denied", err));
+        } else {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                setStream(null);
+            }
+        }
+        return () => {
+            if (stream) stream.getTracks().forEach(track => track.stop());
+        };
+    }, [isOpen]);
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed bottom-10 right-10 z-[100] group">
+            <div className="relative w-48 h-48 sm:w-64 sm:h-64 rounded-full overflow-hidden border-8 border-white dark:border-slate-800 shadow-2xl bg-slate-900 ring-4 ring-indigo-500/20">
+                <video 
+                    ref={videoRef} 
+                    autoPlay 
+                    playsInline 
+                    muted 
+                    className="w-full h-full object-cover scale-x-[-1]"
+                />
+                <button 
+                    onClick={onClose}
+                    className="absolute top-2 right-2 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                    <X size={16} />
+                </button>
+            </div>
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-red-500 text-white px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg animate-pulse">
+                Live Preview
+            </div>
+        </div>
+    );
+};
 
 const FiverrCheatSheet: React.FC = () => {
     const handleCopy = (text: string) => {
@@ -110,8 +327,9 @@ const Teleprompter: React.FC<{ script: string; isOpen: boolean; onClose: () => v
 };
 
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }) => {
-  const [activeTab, setActiveTab] = useState<'assets' | 'morning' | 'profile'>('assets');
+  const [activeTab, setActiveTab] = useState<'assets' | 'whop_config' | 'morning' | 'profile' | 'clipping'>('assets');
   const [isTeleprompterOpen, setIsTeleprompterOpen] = useState(false);
+  const [isSelfieBubbleOpen, setIsSelfieBubbleOpen] = useState(false);
   const [currentScript, setCurrentScript] = useState('');
 
   const morningScript = `[INTRO - 0:00]
@@ -144,8 +362,10 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
         <div className="flex bg-slate-100 dark:bg-slate-800 p-1.5 rounded-[2rem] border border-slate-200 dark:border-slate-700 overflow-x-auto no-scrollbar max-w-full">
             {[
                 { id: 'assets', label: 'Asset Studio', icon: Layout },
-                { id: 'morning', label: 'Gig Video Script', icon: Video },
-                { id: 'profile', label: 'Fiverr Metadata', icon: Briefcase }
+                { id: 'whop_config', label: 'Whop Config', icon: Settings2 },
+                { id: 'clipping', label: 'Clipping Hub', icon: Scissors },
+                { id: 'morning', label: 'Video Script', icon: Video },
+                { id: 'profile', label: 'Fiverr Meta', icon: Briefcase }
             ].map(tab => (
                 <button 
                   key={tab.id}
@@ -160,6 +380,10 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
 
       <div className="grid grid-cols-1 gap-12">
         {activeTab === 'assets' && <ThumbnailStudio />}
+        
+        {activeTab === 'whop_config' && <WhopConfig />}
+
+        {activeTab === 'clipping' && <ClippingHub />}
 
         {activeTab === 'morning' && (
             <div className="space-y-12 animate-fade-in">
@@ -170,7 +394,7 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
                             <Mic2 size={40} className="text-white" />
                         </div>
                         <h3 className="text-4xl font-black uppercase tracking-tighter mb-4 leading-none">Fiverr Intro Script</h3>
-                        <p className="text-lg text-indigo-100 font-medium mb-12">Record this on your iPad to build trust with buyers.</p>
+                        <p className="text-lg text-indigo-100 font-medium mb-12">Turn on the Face Bubble and record on your iPad.</p>
                         
                         <div className="p-10 bg-white dark:bg-slate-900 rounded-[3rem] shadow-inner border border-white/20 mb-12 text-left">
                             <p className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100 leading-relaxed italic whitespace-pre-wrap">
@@ -178,9 +402,21 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
                             </p>
                         </div>
 
-                        <button onClick={() => handleOpenTeleprompter(morningScript)} className="w-full sm:w-auto px-12 py-5 bg-white text-indigo-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-2xl active:scale-95 flex items-center justify-center gap-3">
-                            <Maximize size={20} /> Open Teleprompter
-                        </button>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full">
+                            <button 
+                                onClick={() => setIsSelfieBubbleOpen(!isSelfieBubbleOpen)} 
+                                className={`py-5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-2xl flex items-center justify-center gap-3 ${isSelfieBubbleOpen ? 'bg-red-500 text-white' : 'bg-white text-indigo-600 hover:scale-105'}`}
+                            >
+                                {isSelfieBubbleOpen ? <VideoOff size={20} /> : <Camera size={20} />} 
+                                {isSelfieBubbleOpen ? 'Turn Off Face Bubble' : 'Turn On Face Bubble'}
+                            </button>
+                            <button 
+                                onClick={() => handleOpenTeleprompter(morningScript)} 
+                                className="py-5 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-2xl active:scale-95 flex items-center justify-center gap-3"
+                            >
+                                <Maximize size={20} /> Open Teleprompter
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -222,6 +458,10 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
         script={currentScript} 
         isOpen={isTeleprompterOpen} 
         onClose={() => setIsTeleprompterOpen(false)} 
+      />
+      <SelfieBubble 
+        isOpen={isSelfieBubbleOpen} 
+        onClose={() => setIsSelfieBubbleOpen(false)} 
       />
     </section>
   );
