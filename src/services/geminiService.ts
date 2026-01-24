@@ -33,7 +33,7 @@ const safeParseMenuJson = (text: string): Menu => {
         };
     } catch (e) {
         console.error("JSON Parse Error. Raw text:", text);
-        throw new Error("The AI response was interrupted. Please try again with a simpler request.");
+        throw new Error("Generation interrupted. Try a simpler request.");
     }
 };
 
@@ -47,26 +47,21 @@ const getApiKey = () => {
 
 export const generateMenuFromApi = async (params: any): Promise<any> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  
-  const strategyContext = params.strategyHook 
-    ? `STRATEGY: ${params.strategyHook}.`
-    : '';
-
   const prompt = `Michelin catering strategist. 
   Event: ${params.eventType}. Guests: ${params.guestCount}. Budget: ${params.budget}. Cuisine: ${params.cuisine}. 
-  ${strategyContext}
+  STRATEGY: ${params.strategyHook || 'standard'}.
   
   REQUIREMENTS:
-  1. MENU ENGINEERING: Identify 'Star', 'Plow Horse', 'Puzzle', or 'Dog' for dishes.
-  2. HACCP: Precise safety checkpoints for these dishes.
+  1. MENU ENGINEERING: Itemize 'Star', 'Plow Horse', etc.
+  2. HACCP: Precise safety checkpoints.
   
-  Return JSON only. List shopping items in ${params.currency}.`;
+  Return JSON only. Currency: ${params.currency}.`;
   
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
     contents: prompt,
     config: {
-      thinkingConfig: { thinkingBudget: 0 }, // Disable thinking to prioritize instant generation speed
+      thinkingConfig: { thinkingBudget: 0 }, 
       responseMimeType: "application/json",
       responseSchema: {
         type: Type.OBJECT,
@@ -111,38 +106,49 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
             type: Type.ARRAY, 
             items: { 
                 type: Type.OBJECT, 
-                properties: { 
-                    item: { type: Type.STRING }, 
-                    description: { type: Type.STRING } 
-                } 
+                properties: { item: { type: Type.STRING }, description: { type: Type.STRING } } 
             } 
           }
-        },
-        required: ["menuTitle", "description", "businessAnalysis", "safetyProtocols"]
+        }
       }
     }
   });
   
-  if (!response.text) {
-      throw new Error("AI failed to provide content. The network might be unstable.");
-  }
-  
-  return { menu: safeParseMenuJson(response.text) };
+  return { menu: safeParseMenuJson(response.text || "") };
 };
 
-export const regenerateMenuItemFromApi = async (originalText: string, instruction: string): Promise<string> => {
+export const generateClipperBriefFromApi = async (menuTitle: string, hookType: string): Promise<string> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
+    const prompt = `Create a viral short-form video brief (TikTok/Reels) for my video editor.
+    PRODUCT: CaterPro AI (Menu automation for chefs).
+    CONTENT THEME: ${menuTitle}.
+    HOOK STYLE: ${hookType}.
+    
+    Format as:
+    1. THE HOOK (Text on screen + Voiceover)
+    2. THE VISUAL STORYBOARD (What to show on screen)
+    3. EDITING STYLE (Fast cuts, captions, emojis)
+    4. CALL TO ACTION (Bio link info)`;
+    
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: `Original text: "${originalText}". Instruction: "${instruction}". Revised text only.`,
+        contents: prompt,
         config: { thinkingConfig: { thinkingBudget: 0 } }
     });
-    return response.text?.trim() || originalText;
+    return response.text || "Brief generation failed.";
 };
 
 export const generateWhopSEO = async (niche: string): Promise<any> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const prompt = `Whop SEO Asset: "${niche}". Headline, Description, Tags. JSON.`;
+    const prompt = `Architect a WHOP Marketplace listing for: "${niche}".
+    CRITICAL CHECKLIST:
+    1. TITLE: 20-30 chars. MUST include a number (e.g. 2026, 7-Figure, +30%).
+    2. HEADLINE: 50-80 chars. Benefit-focused.
+    3. DESCRIPTION: 100-200 words. Use bullet points. Focus on outcomes, not features.
+    4. URGENCY: Include "Limited founder slots" or "Trial active".
+    5. FRESHNESS: Use "2026 Edition" or "Updated".
+    
+    Return JSON with fields: title, headline, description, tags.`;
     
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
@@ -153,22 +159,22 @@ export const generateWhopSEO = async (niche: string): Promise<any> => {
             responseSchema: {
                 type: Type.OBJECT,
                 properties: {
-                    optimizedTitle: { type: Type.STRING },
-                    optimizedDescription: { type: Type.STRING },
-                    searchTags: { type: Type.ARRAY, items: { type: Type.STRING } }
+                    title: { type: Type.STRING },
+                    headline: { type: Type.STRING },
+                    description: { type: Type.STRING },
+                    tags: { type: Type.ARRAY, items: { type: Type.STRING } }
                 }
             }
         }
     });
-    return JSON.parse(response.text);
+    return JSON.parse(response.text || "{}");
 };
 
 export const generateSocialCaption = async (menuTitle: string, description: string, platform: string = 'facebook'): Promise<string> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const prompt = `Viral ${platform} post for catering. Topic: "${menuTitle}". Content: ${description}.`;
     const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: prompt,
+        contents: `Viral ${platform} post for: "${menuTitle}". Content: ${description}.`,
         config: { thinkingConfig: { thinkingBudget: 0 } }
     });
     return response.text?.trim() || "";
@@ -176,197 +182,167 @@ export const generateSocialCaption = async (menuTitle: string, description: stri
 
 export const generateWhatsAppStatus = async (menuTitle: string): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `Write 3 curiosity-driven WhatsApp Status updates for "${menuTitle}". Include emojis.`;
   const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: prompt,
-      config: { thinkingConfig: { thinkingBudget: 0 } }
-  });
-  return response.text?.trim() || "";
-};
-
-export const generateVideoFromApi = async (menuTitle: string, description: string, base64Image?: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `Cinematic professional food catering reel for "${menuTitle}". High-energy, gourmet transitions, 9:16 aspect ratio.`;
-
-  let operation = await ai.models.generateVideos({
-    model: 'veo-3.1-fast-generate-preview',
-    prompt: prompt,
-    image: base64Image ? {
-      imageBytes: base64Image,
-      mimeType: 'image/png',
-    } : undefined,
-    config: {
-      numberOfVideos: 1,
-      resolution: '1080p',
-      aspectRatio: '9:16'
-    }
-  });
-
-  while (!operation.done) {
-    await new Promise(resolve => setTimeout(resolve, 8000));
-    operation = await ai.operations.getVideosOperation({operation: operation});
-  }
-
-  const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
-  if (!downloadLink) throw new Error("Video failed.");
-  
-  return `${downloadLink}&key=${getApiKey()}`;
-};
-
-export const generateProvanceVSLScript = async (menuTitle: string, description: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `Write a VSL script for: "${menuTitle}". Focus on "Systems over Chaos".`;
-  const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: prompt,
-      config: { thinkingConfig: { thinkingBudget: 0 } }
-  });
-  return response.text?.trim() || "";
-};
-
-export const generateNewYearLaunchScript = async (menuTitle: string, description: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `Write a 2026 launch script for Tumi. Topic: "${menuTitle}"`;
-  const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: prompt,
+      contents: `3 WhatsApp updates for "${menuTitle}". Emojis included.`,
       config: { thinkingConfig: { thinkingBudget: 0 } }
   });
   return response.text?.trim() || "";
 };
 
 export const generateMenuImageFromApi = async (title: string, description: string): Promise<string> => {
+  const ai = new GoogleGenAI({ apiKey: getApiKey() });
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash-image',
+    contents: { parts: [{ text: `A high-quality, professional food photography shot of ${title}. ${description}. Elegant plating, cinematic lighting, gourmet catering style.` }] },
+    config: {
+        imageConfig: { aspectRatio: "16:9" }
+    }
+  });
+  
+  for (const part of response.candidates?.[0]?.content?.parts || []) {
+    if (part.inlineData) {
+      return part.inlineData.data;
+    }
+  }
+  throw new Error("No image generated");
+};
+
+export const regenerateMenuItemFromApi = async (oldText: string, prompt: string): Promise<string> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
     const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: {
-            parts: [{ text: `Professional gourmet culinary photography of: "${title}". 4k.` }],
+        model: 'gemini-3-flash-preview',
+        contents: `Update this menu item: "${oldText}" based on this request: "${prompt}". Return ONLY the updated menu item text.`,
+        config: { thinkingConfig: { thinkingBudget: 0 } }
+    });
+    return response.text?.trim() || oldText;
+};
+
+export const generateStudyGuideFromApi = async (topic: string, curriculum: string, level: string, type: 'guide' | 'curriculum'): Promise<EducationContent> => {
+    const ai = new GoogleGenAI({ apiKey: getApiKey() });
+    const prompt = `Create a professional ${type === 'guide' ? 'study guide' : 'curriculum syllabus'} for the topic "${topic}". 
+    Standard: ${curriculum}. Level: ${level}.
+    Include overview, core modules with points, key vocabulary, assessment criteria, and practical exercises.`;
+    
+    const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: prompt,
+        config: {
+            thinkingConfig: { thinkingBudget: 0 },
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                    title: { type: Type.STRING },
+                    curriculum: { type: Type.STRING },
+                    level: { type: Type.STRING },
+                    overview: { type: Type.STRING },
+                    modules: {
+                        type: Type.ARRAY,
+                        items: {
+                            type: Type.OBJECT,
+                            properties: {
+                                title: { type: Type.STRING },
+                                content: { type: Type.ARRAY, items: { type: Type.STRING } }
+                            }
+                        }
+                    },
+                    keyVocabulary: { type: Type.ARRAY, items: { type: Type.STRING } },
+                    assessmentCriteria: { type: Type.ARRAY, items: { type: Type.STRING } },
+                    practicalExercises: { type: Type.ARRAY, items: { type: Type.STRING } }
+                }
+            }
         }
     });
-    for (const part of response.candidates[0].content.parts) {
-        if (part.inlineData) return part.inlineData.data;
+    return JSON.parse(response.text || "{}");
+};
+
+export const generateVideoFromApi = async (prompt: string): Promise<string> => {
+  const ai = new GoogleGenAI({ apiKey: getApiKey() });
+  let operation = await ai.models.generateVideos({
+    model: 'veo-3.1-fast-generate-preview',
+    prompt: prompt,
+    config: {
+      numberOfVideos: 1,
+      resolution: '720p',
+      aspectRatio: '9:16'
     }
-    throw new Error("No image.");
+  });
+  while (!operation.done) {
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    operation = await ai.operations.getVideosOperation({operation: operation});
+  }
+  const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
+  return `${downloadLink}&key=${getApiKey()}`;
+};
+
+export const analyzeReceiptFromApi = async (base64: string): Promise<any> => {
+    const ai = new GoogleGenAI({ apiKey: getApiKey() });
+    const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: {
+            parts: [
+                { inlineData: { mimeType: 'image/jpeg', data: base64 } },
+                { text: 'Analyze this receipt and extract merchant name, date, total amount, and categorize the expenses. Return JSON.' }
+            ]
+        },
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                    merchant: { type: Type.STRING },
+                    date: { type: Type.STRING },
+                    total: { type: Type.STRING },
+                    categories: { type: Type.ARRAY, items: { type: Type.STRING } }
+                }
+            }
+        }
+    });
+    return JSON.parse(response.text || "{}");
+};
+
+export const analyzeLabelFromApi = async (base64: string, dietaryRestrictions: string[]): Promise<any> => {
+    const ai = new GoogleGenAI({ apiKey: getApiKey() });
+    const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: {
+            parts: [
+                { inlineData: { mimeType: 'image/jpeg', data: base64 } },
+                { text: `Analyze this food label for the following dietary restrictions: ${dietaryRestrictions.join(', ')}. Provide a suitability score out of 10, flag restricted ingredients, and give reasoning. Return JSON.` }
+            ]
+        },
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                    suitabilityScore: { type: Type.NUMBER },
+                    flaggedIngredients: { type: Type.ARRAY, items: { type: Type.STRING } },
+                    reasoning: { type: Type.STRING }
+                }
+            }
+        }
+    });
+    return JSON.parse(response.text || "{}");
 };
 
 export const generateCulinaryInfographic = async (type: 'comparison' | 'meat_chart'): Promise<string> => {
     const ai = new GoogleGenAI({ apiKey: getApiKey() });
+    const prompt = type === 'comparison' 
+        ? "Create a professional infographic comparing a 'Chef' vs a 'Cook'. High-contrast typography, minimalist design, educational layout."
+        : "Create a professional culinary meat mapping chart showing primal cuts. Elegant technical drawing style, professional catering educational asset.";
     
-    let prompt = "";
-    if (type === 'comparison') {
-        prompt = "A high-quality educational vertical infographic poster titled 'CHEF vs COOK'. Vintage parchment texture. The left side shows a professional chef in a white toque and jacket with text bullets about 'Professional Training' and 'Kitchen Operations'. The right side shows a home cook in a simple apron with 'Practical Skills' and 'Recipe Execution'. Cinematic lighting, 4k detail, professional graphic design layout.";
-    } else {
-        prompt = "A high-resolution professional educational chart titled 'ANIMALS AND THEIR MEAT'. A clean grid-based infographic. Shows high-quality realistic animal photos (Cow, Pig, Sheep, Deer) on the left mapping to their corresponding raw meat cuts (Beef, Pork, Mutton, Venison) on the right. Professional studio food photography style, white background, scientific labels, ultra-detailed textures.";
-    }
-
     const response = await ai.models.generateContent({
         model: 'gemini-2.5-flash-image',
-        contents: {
-            parts: [{ text: prompt }],
-        },
-        config: {
-            imageConfig: {
-                aspectRatio: "3:4"
-            }
-        }
+        contents: { parts: [{ text: prompt }] },
+        config: { imageConfig: { aspectRatio: "4:3" } }
     });
-    
-    for (const part of response.candidates[0].content.parts) {
-        if (part.inlineData) return part.inlineData.data;
-    }
-    throw new Error("Infographic generation failed.");
-};
 
-export const generateStudyGuideFromApi = async (topic: string, curriculum: string, level: string, type: 'guide' | 'curriculum'): Promise<EducationContent> => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `Generate a ${type} for topic: "${topic}". Standard: ${curriculum}. Level: ${level}. Return structured JSON.`;
-  
-  const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
-    contents: prompt,
-    config: {
-      thinkingConfig: { thinkingBudget: 0 },
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: Type.OBJECT,
-        properties: {
-          title: { type: Type.STRING },
-          curriculum: { type: Type.STRING },
-          level: { type: Type.STRING },
-          overview: { type: Type.STRING },
-          modules: {
-            type: Type.ARRAY,
-            items: {
-              type: Type.OBJECT,
-              properties: {
-                title: { type: Type.STRING },
-                content: { type: Type.ARRAY, items: { type: Type.STRING } }
-              },
-              required: ["title", "content"]
-            }
-          },
-          keyVocabulary: { type: Type.ARRAY, items: { type: Type.STRING } },
-          assessmentCriteria: { type: Type.ARRAY, items: { type: Type.STRING } },
-          practicalExercises: { type: Type.ARRAY, items: { type: Type.STRING } }
+    for (const part of response.candidates?.[0]?.content?.parts || []) {
+        if (part.inlineData) {
+            return part.inlineData.data;
         }
-      }
     }
-  });
-  return JSON.parse(response.text);
-};
-
-export const analyzeReceiptFromApi = async (base64: string): Promise<any> => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
-    contents: {
-      parts: [
-        { inlineData: { data: base64, mimeType: "image/jpeg" } },
-        { text: "Analyze receipt merchant, date, total. JSON." }
-      ]
-    },
-    config: {
-      thinkingConfig: { thinkingBudget: 0 },
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: Type.OBJECT,
-        properties: {
-          merchant: { type: Type.STRING },
-          date: { type: Type.STRING },
-          total: { type: Type.STRING },
-          categories: { type: Type.ARRAY, items: { type: Type.STRING } }
-        }
-      }
-    }
-  });
-  return JSON.parse(response.text);
-};
-
-export const analyzeLabelFromApi = async (base64: string, dietaryRestrictions: string[]): Promise<any> => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `Scan label for: ${dietaryRestrictions.join(', ')}. JSON with suitabilityScore (1-10), flaggedIngredients, and reasoning.`;
-  
-  const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
-    contents: {
-      parts: [
-        { inlineData: { data: base64, mimeType: "image/jpeg" } },
-        { text: prompt }
-      ]
-    },
-    config: {
-      thinkingConfig: { thinkingBudget: 0 },
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: Type.OBJECT,
-        properties: {
-          suitabilityScore: { type: Type.NUMBER },
-          flaggedIngredients: { type: Type.ARRAY, items: { type: Type.STRING } },
-          reasoning: { type: Type.STRING }
-        }
-      }
-    }
-  });
-  return JSON.parse(response.text);
+    throw new Error("Infographic generation failed");
 };
