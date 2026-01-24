@@ -12,7 +12,7 @@ import {
   Flame, Moon, Sun, Clock, FileSearch, X, Pause, Play, RefreshCw, Coffee, Calculator, 
   Briefcase as UpworkIcon, ListOrdered, Lightbulb, ShoppingCart, Tag, FolderHeart, 
   UserCog, Keyboard, Terminal, Sparkle, FileDown, VideoOff, Scissors, Newspaper, Ghost,
-  UserCheck, Swords, CalendarDays, ListTodo, Image as ImageIcon
+  UserCheck, Swords, CalendarDays, ListTodo, Image as ImageIcon, Box, HelpCircle as QuestionIcon
 } from 'lucide-react';
 import ThumbnailStudio from './ThumbnailStudio';
 import { generateClipperBriefFromApi } from '../services/geminiService';
@@ -25,65 +25,78 @@ interface FounderRoadmapProps {
 const WhopWarRoom: React.FC = () => {
     const handleCopy = (text: string, label: string) => {
         navigator.clipboard.writeText(text);
-        alert(`${label} Copied! Overwrite the old field now.`);
+        alert(`${label} Copied!`);
     };
 
     return (
         <div className="space-y-10 animate-slide-in">
-            {/* WHOP CHECKLIST FIXER - MAPPED TO USER SCREENSHOT */}
-            <div className="p-10 bg-slate-900 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden border-4 border-indigo-500/30">
-                <div className="absolute top-0 right-0 p-10 opacity-5"><ListTodo size={140} /></div>
+            {/* WHOP FIELD GUIDE - MAPPED TO USER SCREENSHOTS */}
+            <div className="p-10 bg-indigo-600 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden border-4 border-indigo-400">
+                <div className="absolute top-0 right-0 p-10 opacity-10"><Box size={140} /></div>
                 <div className="relative z-10">
                     <div className="flex items-center gap-4 mb-8">
-                        <div className="p-4 bg-indigo-600 rounded-3xl shadow-xl shadow-indigo-500/20"><TrendingUp size={32} /></div>
+                        <div className="p-4 bg-white/20 rounded-3xl backdrop-blur-md"><ListTodo size={32} /></div>
                         <div>
-                            <h3 className="text-3xl font-black uppercase tracking-tight">Marketplace SEO Fixer</h3>
-                            <p className="text-xs font-bold text-indigo-400 uppercase tracking-widest mt-1">Turn Red Boxes Green on the 'Essential SEO' page</p>
+                            <h3 className="text-3xl font-black uppercase tracking-tight">Whop Page Filler</h3>
+                            <p className="text-xs font-bold text-indigo-200 uppercase tracking-widest mt-1">Copy these into your Whop SEO & Ideation fields</p>
                         </div>
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Title Fix */}
-                        <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
+                        {/* Ideation: Primary Keyword */}
+                        <div className="p-6 bg-black/20 rounded-3xl border border-white/10 space-y-4">
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <p className="text-[10px] font-black uppercase text-indigo-400 mb-1">1. Optimized Title (29 chars)</p>
-                                    <p className="text-xs text-slate-400 font-medium">Fixes: Length + Includes Numbers</p>
+                                    <p className="text-[10px] font-black uppercase text-indigo-200 mb-1">Primary Keyword</p>
+                                    <p className="text-sm font-bold">Catering Automation</p>
                                 </div>
-                                <button onClick={() => handleCopy('CaterPro AI: #1 Chef Tool 2026', 'SEO Title')} className="p-3 bg-indigo-600 rounded-xl hover:scale-110 transition-transform"><Copy size={16}/></button>
-                            </div>
-                            <div className="p-4 bg-black/40 rounded-xl font-black text-lg border border-white/10">
-                                CaterPro AI: #1 Chef Tool 2026
+                                <button onClick={() => handleCopy('Catering Automation', 'Primary Keyword')} className="p-3 bg-white/20 rounded-xl hover:scale-110 transition-transform"><Copy size={16}/></button>
                             </div>
                         </div>
 
-                        {/* Headline Fix */}
-                        <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
+                        {/* Ideation: Target Audience */}
+                        <div className="p-6 bg-black/20 rounded-3xl border border-white/10 space-y-4">
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <p className="text-[10px] font-black uppercase text-indigo-400 mb-1">2. Compelling Headline (63 chars)</p>
-                                    <p className="text-xs text-slate-400 font-medium">Fixes: Social Proof + Benefit-focused</p>
+                                    <p className="text-[10px] font-black uppercase text-indigo-200 mb-1">Target Audience</p>
+                                    <p className="text-sm font-bold">Busy chefs and catering business owners.</p>
                                 </div>
-                                <button onClick={() => handleCopy('Join 500+ Chefs Automating Their Admin with CaterPro AI System', 'SEO Headline')} className="p-3 bg-indigo-600 rounded-xl hover:scale-110 transition-transform"><Copy size={16}/></button>
-                            </div>
-                            <div className="p-4 bg-black/40 rounded-xl font-black text-lg border border-white/10 leading-tight">
-                                Join 500+ Chefs Automating Their Admin with CaterPro AI System
+                                <button onClick={() => handleCopy('Professional chefs, catering business owners, and culinary students in South Africa & US.', 'Target Audience')} className="p-3 bg-white/20 rounded-xl hover:scale-110 transition-transform"><Copy size={16}/></button>
                             </div>
                         </div>
 
-                        {/* Description Fix */}
-                        <div className="md:col-span-2 p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
+                        {/* Ideation: Problem Solves */}
+                        <div className="p-6 bg-black/20 rounded-3xl border border-white/10 space-y-4">
                             <div className="flex justify-between items-start">
                                 <div>
-                                    <p className="text-[10px] font-black uppercase text-indigo-400 mb-1">3. Benefit-Focused Description</p>
-                                    <p className="text-xs text-slate-400 font-medium">Fixes: Structured Formatting + Freshness</p>
+                                    <p className="text-[10px] font-black uppercase text-indigo-200 mb-1">Problem This Solves</p>
+                                    <p className="text-xs text-slate-200 leading-tight">Wasted hours on manual menu costing and proposal typing.</p>
                                 </div>
-                                <button onClick={() => handleCopy('CaterPro AI is the #1 system built for modern chefs. Updated for 2026.\n\n• Instant Proposals: Generate 5-course menus in 30 seconds.\n• Accurate Costing: All shopping lists calculated in ZAR.\n• HACCP Ready: Automated safety protocols included.\n\nStop the Sunday admin grind. Start your 7-day free trial today.', 'SEO Description')} className="p-3 bg-indigo-600 rounded-xl hover:scale-110 transition-transform"><Copy size={16}/></button>
-                            </div>
-                            <div className="p-4 bg-black/40 rounded-xl text-xs font-medium text-slate-300 leading-relaxed border border-white/10 whitespace-pre-wrap italic">
-                                "CaterPro AI is the #1 system built for modern chefs. Updated for 2026. Stop the Sunday admin grind..."
+                                <button onClick={() => handleCopy('Chefs waste 10+ hours a week manually costing menus and typing proposals. We automate this in 30 seconds.', 'Problem Solves')} className="p-3 bg-white/20 rounded-xl hover:scale-110 transition-transform"><Copy size={16}/></button>
                             </div>
                         </div>
+
+                        {/* Ideation: What Makes This Unique */}
+                        <div className="p-6 bg-black/20 rounded-3xl border border-white/10 space-y-4">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <p className="text-[10px] font-black uppercase text-indigo-200 mb-1">What Makes This Unique</p>
+                                    <p className="text-xs text-slate-200 leading-tight">Instant ZAR costing + HACCP safety logs + Viral Marketing AI.</p>
+                                </div>
+                                <button onClick={() => handleCopy('The only system combining Google-Grade AI with local currency costing, HACCP safety logs, and a viral social media asset creator.', 'Unique Value')} className="p-3 bg-white/20 rounded-xl hover:scale-110 transition-transform"><Copy size={16}/></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="mt-8 p-6 bg-amber-500 rounded-[2rem] text-white flex items-center justify-between shadow-xl">
+                        <div className="flex items-center gap-4">
+                            <ShieldCheck size={32} />
+                            <div>
+                                <h4 className="font-black uppercase text-sm leading-none">Affiliate Desc (90 Char Limit)</h4>
+                                <p className="text-[11px] font-bold opacity-90 mt-1">Earn 30% for life. #1 AI for chefs. High conversion. Join us!</p>
+                            </div>
+                        </div>
+                        <button onClick={() => handleCopy('Earn 30% for life. #1 AI for chefs. High conversion. Viral scripts provided. Join us!', 'Affiliate Desc')} className="px-6 py-3 bg-white text-amber-600 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg">Copy Short Version</button>
                     </div>
                 </div>
             </div>
@@ -103,7 +116,7 @@ const WhopWarRoom: React.FC = () => {
                     <div className="space-y-8">
                         <div className="space-y-3">
                             <div className="flex justify-between items-center">
-                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Search Query (Tap & Hold to Select All in Whop)</label>
+                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Search Query (Cleaned)</label>
                                 <button onClick={() => handleCopy('catering menu help OR menu costing OR "chef" admin stress', 'Reddit Query')} className="flex items-center gap-2 px-6 py-4 bg-orange-500 text-white rounded-full text-[10px] font-black uppercase hover:scale-105 transition-all shadow-lg">
                                     <Copy size={14} /> COPY CLEAN QUERY
                                 </button>
@@ -115,29 +128,32 @@ const WhopWarRoom: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Affiliate Hub - SHORTENED TO 81 CHARS */}
+                {/* Affiliate Hub */}
                 <div className="p-10 bg-white dark:bg-slate-900 border-4 border-emerald-500 rounded-[3.5rem] shadow-2xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 p-10 opacity-5 text-emerald-500"><TrendingUp size={120} /></div>
                     <div className="flex items-center gap-5 mb-10">
                         <div className="p-4 bg-emerald-500 rounded-[1.5rem] text-white shadow-xl"><Users size={32} /></div>
                         <div>
                             <h4 className="text-2xl font-black uppercase text-slate-900 dark:text-white">Affiliate App</h4>
-                            <p className="text-xs font-black uppercase text-emerald-500 tracking-[0.2em]">90-Char Restricted Copy</p>
+                            <p className="text-xs font-black uppercase text-emerald-500 tracking-[0.2em]">Clipper Recruitment</p>
                         </div>
                     </div>
 
                     <div className="space-y-8">
                         <div className="space-y-3">
                             <div className="flex justify-between items-center">
-                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Affiliate Pitch (Shortened)</label>
-                                <button onClick={() => handleCopy('Earn 30% for life. #1 AI for chefs. High conversion SA/US. Viral scripts provided.', 'Affiliate Pitch')} className="flex items-center gap-2 px-6 py-4 bg-emerald-500 text-white rounded-full text-[10px] font-black uppercase hover:scale-105 transition-all shadow-lg">
-                                    <Copy size={14} /> COPY THIS
-                                </button>
+                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Commission Settings</label>
                             </div>
-                            <div className="p-6 bg-slate-50 dark:bg-slate-950 rounded-2xl border-2 border-slate-100 dark:border-slate-800 font-bold text-sm leading-tight">
-                                Earn 30% for life. #1 AI for chefs. High conversion SA/US. Viral scripts provided.
+                            <div className="p-6 bg-emerald-50 dark:bg-emerald-900/10 rounded-3xl border-2 border-emerald-100 dark:border-emerald-800 flex justify-between items-center">
+                                <div>
+                                    <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Target Payout</p>
+                                    <p className="text-xl font-black text-emerald-600">30 Days</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Commission</p>
+                                    <p className="text-xl font-black text-emerald-600">30%</p>
+                                </div>
                             </div>
-                            <p className="text-[10px] font-black text-emerald-600">81 / 90 Characters used. Guaranteed to fit.</p>
                         </div>
                     </div>
                 </div>
@@ -152,14 +168,9 @@ const WhopWarRoom: React.FC = () => {
                         Whop is flagging "0 Gallery Images." Go to the **Asset Studio** tab above, upload your app screenshots, and download the high-click thumbnails. Upload 3 to clear this check.
                     </p>
                 </div>
-                <div className="relative z-10 bg-white/20 p-6 rounded-3xl border border-white/30 backdrop-blur-md">
-                    <p className="text-[10px] font-black uppercase tracking-widest mb-2">Checklist Progress</p>
-                    <div className="flex items-center gap-2">
-                        <div className="h-2 w-24 bg-white/20 rounded-full overflow-hidden">
-                            <div className="h-full bg-white w-2/3"></div>
-                        </div>
-                        <span className="text-xs font-black">9/13</span>
-                    </div>
+                <div className="relative z-10 bg-white/20 p-6 rounded-3xl border border-white/30 backdrop-blur-md text-center">
+                    <p className="text-[10px] font-black uppercase tracking-widest mb-1">SEO Title Tip</p>
+                    <p className="text-xs font-black">Use: "CaterPro AI: #1 Chef Tool 2026"</p>
                 </div>
             </div>
         </div>
