@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail, Search, Globe, Facebook, Lightbulb, Target, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck, RefreshCw } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail, Search, Globe, Facebook, Lightbulb, Target, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck, RefreshCw, Smartphone } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -88,6 +88,7 @@ const App: React.FC = () => {
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
   const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+  const [showRetentionBanner, setShowRetentionBanner] = useState(false);
 
   const { subscription, selectPlan, recordGeneration, setShowUpgradeModal, showUpgradeModal, attemptAccess, canAccessFeature } = useAppSubscription();
 
@@ -97,6 +98,16 @@ const App: React.FC = () => {
 
   const cuisineRef = useRef<HTMLDivElement>(null);
   const eventRef = useRef<HTMLDivElement>(null);
+
+  // Standalone mode detection for retention
+  useEffect(() => {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+    if (!isStandalone) {
+        // Show retention banner after 5 seconds of browsing
+        const timer = setTimeout(() => setShowRetentionBanner(true), 5000);
+        return () => clearTimeout(timer);
+    }
+  }, []);
 
   const filteredCuisines = CUISINES.filter(c => 
     c.toLowerCase().includes((cuisineSearch || '').toLowerCase())
@@ -219,6 +230,21 @@ const App: React.FC = () => {
     <div className={`flex flex-col min-h-screen font-sans antialiased ${isDarkMode ? 'dark' : ''}`}>
       <SEOHead menu={menu} title={viewMode === 'landing' ? "The Chef's Secret Weapon" : "Generate Menu"} />
       
+      {/* Smart Retention Banner */}
+      {showRetentionBanner && (
+        <div className="no-print bg-amber-500 py-3 px-4 text-white animate-fade-in relative z-[60] flex items-center justify-center gap-3">
+             <Smartphone size={16} className="animate-bounce" />
+             <p className="text-[10px] font-black uppercase tracking-widest leading-none">Don't lose your link! Save app to home screen now.</p>
+             <button 
+                onClick={() => setIsInstallModalOpen(true)}
+                className="px-3 py-1 bg-white text-amber-600 rounded-full text-[9px] font-black uppercase hover:scale-105 transition-transform"
+             >
+                How To Save
+             </button>
+             <button onClick={() => setShowRetentionBanner(false)} className="absolute right-4 opacity-60 hover:opacity-100"><X size={14} /></button>
+        </div>
+      )}
+
       <Navbar 
         whopUrl={WHOP_STORE_URL}
         facebookUrl={FACEBOOK_PAGE_URL}
@@ -492,11 +518,16 @@ const App: React.FC = () => {
       <EmailCapture isOpen={isEmailCaptureModalOpen} onClose={() => setIsEmailCaptureModalOpen(false)} onSave={(e, w) => { localStorage.setItem('caterpro_user_email', e); localStorage.setItem('caterpro_user_whatsapp', w); setToastMessage("Contact Sync Successful!"); }} />
       <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={(p) => { selectPlan(p); setViewMode('generator'); setShowUpgradeModal(false); }} onViewPricing={() => setViewMode('pricing')} />
       <SocialMediaModal isOpen={isSocialModalOpen} onClose={() => setIsSocialModalOpen(false)} image={menu?.image} menuTitle={menu?.menuTitle || ''} menuDescription={menu?.description || ''} initialMode={socialModalMode} onImageGenerated={(b) => setMenu(p => p ? { ...p, image: b } : null)} />
+      <PwaInstallModal isOpen={isInstallModalOpen} onClose={() => setIsInstallModalOpen(false)} />
       <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
       
       {viewMode !== 'pricing' && <Footer facebookUrl={FACEBOOK_PAGE_URL} />}
     </div>
   );
 };
+
+const X: React.FC<{ size?: number }> = ({ size = 20 }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+);
 
 export default App;
