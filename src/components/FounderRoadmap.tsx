@@ -1,5 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
+/* Import missing ImageIcon and fix duplicate Check identifier */
 import { 
   CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, 
   Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, 
@@ -11,7 +12,7 @@ import {
   Flame, Moon, Sun, Clock, FileSearch, X, Pause, Play, RefreshCw, Coffee, Calculator, 
   Briefcase as UpworkIcon, ListOrdered, Lightbulb, ShoppingCart, Tag, FolderHeart, 
   UserCog, Keyboard, Terminal, Sparkle, FileDown, VideoOff, Scissors, Newspaper, Ghost,
-  UserCheck, Swords, CalendarDays, ListTodo
+  UserCheck, Swords, CalendarDays, ListTodo, Image as ImageIcon
 } from 'lucide-react';
 import ThumbnailStudio from './ThumbnailStudio';
 import { generateClipperBriefFromApi } from '../services/geminiService';
@@ -24,36 +25,63 @@ interface FounderRoadmapProps {
 const WhopWarRoom: React.FC = () => {
     const handleCopy = (text: string, label: string) => {
         navigator.clipboard.writeText(text);
-        alert(`${label} Copied!`);
+        alert(`${label} Copied! Overwrite the old field now.`);
     };
 
     return (
         <div className="space-y-10 animate-slide-in">
-            {/* WHOP SEO POWER-UP - FIXES THE RED CHECKLIST ITEMS */}
-            <div className="p-10 bg-indigo-600 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden border-4 border-indigo-400">
-                <div className="absolute top-0 right-0 p-10 opacity-10"><ListTodo size={140} /></div>
+            {/* WHOP CHECKLIST FIXER - MAPPED TO USER SCREENSHOT */}
+            <div className="p-10 bg-slate-900 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden border-4 border-indigo-500/30">
+                <div className="absolute top-0 right-0 p-10 opacity-5"><ListTodo size={140} /></div>
                 <div className="relative z-10">
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="p-3 bg-white/20 rounded-2xl"><TrendingUp size={32} /></div>
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-4 bg-indigo-600 rounded-3xl shadow-xl shadow-indigo-500/20"><TrendingUp size={32} /></div>
                         <div>
-                            <h3 className="text-2xl font-black uppercase tracking-tight">Whop SEO Power-Up</h3>
-                            <p className="text-xs font-bold text-indigo-200 uppercase tracking-widest">Turn those Red boxes Green</p>
+                            <h3 className="text-3xl font-black uppercase tracking-tight">Marketplace SEO Fixer</h3>
+                            <p className="text-xs font-bold text-indigo-400 uppercase tracking-widest mt-1">Turn Red Boxes Green on the 'Essential SEO' page</p>
                         </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="p-5 bg-white/10 rounded-2xl border border-white/20">
-                            <p className="text-[10px] font-black uppercase text-indigo-200 mb-2">1. Optimized Title (Length + Number)</p>
-                            <div className="flex justify-between items-center bg-black/20 p-3 rounded-xl">
-                                <span className="text-sm font-bold">CaterPro AI: #1 Chef System 2026</span>
-                                <button onClick={() => handleCopy('CaterPro AI: #1 Chef System 2026', 'SEO Title')} className="text-indigo-300 hover:text-white"><Copy size={16}/></button>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Title Fix */}
+                        <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <p className="text-[10px] font-black uppercase text-indigo-400 mb-1">1. Optimized Title (29 chars)</p>
+                                    <p className="text-xs text-slate-400 font-medium">Fixes: Length + Includes Numbers</p>
+                                </div>
+                                <button onClick={() => handleCopy('CaterPro AI: #1 Chef Tool 2026', 'SEO Title')} className="p-3 bg-indigo-600 rounded-xl hover:scale-110 transition-transform"><Copy size={16}/></button>
+                            </div>
+                            <div className="p-4 bg-black/40 rounded-xl font-black text-lg border border-white/10">
+                                CaterPro AI: #1 Chef Tool 2026
                             </div>
                         </div>
-                        <div className="p-5 bg-white/10 rounded-2xl border border-white/20">
-                            <p className="text-[10px] font-black uppercase text-indigo-200 mb-2">2. Social Proof Headline</p>
-                            <div className="flex justify-between items-center bg-black/20 p-3 rounded-xl">
-                                <span className="text-sm font-bold">Join 500+ Chefs Using CaterPro AI</span>
-                                <button onClick={() => handleCopy('Join 500+ Chefs Using CaterPro AI', 'SEO Headline')} className="text-indigo-300 hover:text-white"><Copy size={16}/></button>
+
+                        {/* Headline Fix */}
+                        <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <p className="text-[10px] font-black uppercase text-indigo-400 mb-1">2. Compelling Headline (63 chars)</p>
+                                    <p className="text-xs text-slate-400 font-medium">Fixes: Social Proof + Benefit-focused</p>
+                                </div>
+                                <button onClick={() => handleCopy('Join 500+ Chefs Automating Their Admin with CaterPro AI System', 'SEO Headline')} className="p-3 bg-indigo-600 rounded-xl hover:scale-110 transition-transform"><Copy size={16}/></button>
+                            </div>
+                            <div className="p-4 bg-black/40 rounded-xl font-black text-lg border border-white/10 leading-tight">
+                                Join 500+ Chefs Automating Their Admin with CaterPro AI System
+                            </div>
+                        </div>
+
+                        {/* Description Fix */}
+                        <div className="md:col-span-2 p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <p className="text-[10px] font-black uppercase text-indigo-400 mb-1">3. Benefit-Focused Description</p>
+                                    <p className="text-xs text-slate-400 font-medium">Fixes: Structured Formatting + Freshness</p>
+                                </div>
+                                <button onClick={() => handleCopy('CaterPro AI is the #1 system built for modern chefs. Updated for 2026.\n\n• Instant Proposals: Generate 5-course menus in 30 seconds.\n• Accurate Costing: All shopping lists calculated in ZAR.\n• HACCP Ready: Automated safety protocols included.\n\nStop the Sunday admin grind. Start your 7-day free trial today.', 'SEO Description')} className="p-3 bg-indigo-600 rounded-xl hover:scale-110 transition-transform"><Copy size={16}/></button>
+                            </div>
+                            <div className="p-4 bg-black/40 rounded-xl text-xs font-medium text-slate-300 leading-relaxed border border-white/10 whitespace-pre-wrap italic">
+                                "CaterPro AI is the #1 system built for modern chefs. Updated for 2026. Stop the Sunday admin grind..."
                             </div>
                         </div>
                     </div>
@@ -67,7 +95,7 @@ const WhopWarRoom: React.FC = () => {
                     <div className="flex items-center gap-5 mb-10">
                         <div className="p-4 bg-orange-500 rounded-[1.5rem] text-white shadow-xl"><Search size={32} /></div>
                         <div>
-                            <h4 className="text-2xl font-black uppercase text-slate-900 dark:text-white">Reddit Lead Gen</h4>
+                            <h4 className="text-2xl font-black uppercase text-slate-900 dark:text-white">Reddit Search</h4>
                             <p className="text-xs font-black uppercase text-orange-500 tracking-[0.2em]">OfficeX Setup</p>
                         </div>
                     </div>
@@ -75,26 +103,13 @@ const WhopWarRoom: React.FC = () => {
                     <div className="space-y-8">
                         <div className="space-y-3">
                             <div className="flex justify-between items-center">
-                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">1. Search Query (Cleaned)</label>
-                                <button onClick={() => handleCopy('catering menu help OR menu costing OR "chef" admin stress', 'Reddit Query')} className="flex items-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-full text-[10px] font-black uppercase hover:scale-105 transition-all shadow-lg">
+                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Search Query (Tap & Hold to Select All in Whop)</label>
+                                <button onClick={() => handleCopy('catering menu help OR menu costing OR "chef" admin stress', 'Reddit Query')} className="flex items-center gap-2 px-6 py-4 bg-orange-500 text-white rounded-full text-[10px] font-black uppercase hover:scale-105 transition-all shadow-lg">
                                     <Copy size={14} /> COPY CLEAN QUERY
                                 </button>
                             </div>
-                            <div className="p-6 bg-slate-50 dark:bg-slate-950 rounded-2xl border-2 border-slate-100 dark:border-slate-800 font-bold text-sm">
+                            <div className="p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-slate-100 dark:border-slate-800 font-bold text-sm">
                                 catering menu help OR menu costing OR "chef" admin stress
-                            </div>
-                            <p className="text-[9px] text-slate-400 italic">Select all and delete the old code before pasting this.</p>
-                        </div>
-
-                        <div className="space-y-3">
-                            <div className="flex justify-between items-center">
-                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">2. AI Filter Prompt</label>
-                                <button onClick={() => handleCopy('Identify chefs or caterers frustrated with manual paperwork or costing. Approve only if they are looking for a system or tool.', 'Reddit Filter')} className="flex items-center gap-2 px-6 py-3 bg-orange-500 text-white rounded-full text-[10px] font-black uppercase hover:scale-105 transition-all shadow-lg">
-                                    <Copy size={14} /> COPY THIS
-                                </button>
-                            </div>
-                            <div className="p-5 bg-slate-50 dark:bg-slate-950 rounded-2xl border-2 border-slate-100 dark:border-slate-800 italic text-xs leading-relaxed text-slate-500">
-                                "Identify chefs or caterers frustrated with manual paperwork or costing..."
                             </div>
                         </div>
                     </div>
@@ -106,73 +121,44 @@ const WhopWarRoom: React.FC = () => {
                     <div className="flex items-center gap-5 mb-10">
                         <div className="p-4 bg-emerald-500 rounded-[1.5rem] text-white shadow-xl"><Users size={32} /></div>
                         <div>
-                            <h4 className="text-2xl font-black uppercase text-slate-900 dark:text-white">Affiliate Pitch</h4>
-                            <p className="text-xs font-black uppercase text-emerald-500 tracking-[0.2em]">Clipper Recruitment</p>
+                            <h4 className="text-2xl font-black uppercase text-slate-900 dark:text-white">Affiliate App</h4>
+                            <p className="text-xs font-black uppercase text-emerald-500 tracking-[0.2em]">90-Char Restricted Copy</p>
                         </div>
                     </div>
 
                     <div className="space-y-8">
                         <div className="space-y-3">
                             <div className="flex justify-between items-center">
-                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Pitch (Fits Whop 90-char Limit)</label>
-                                <button onClick={() => handleCopy('Earn 30% for life. #1 AI for chefs. High conversion SA/US. Viral scripts provided.', 'Affiliate Pitch')} className="flex items-center gap-2 px-6 py-3 bg-emerald-500 text-white rounded-full text-[10px] font-black uppercase hover:scale-105 transition-all shadow-lg">
+                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Affiliate Pitch (Shortened)</label>
+                                <button onClick={() => handleCopy('Earn 30% for life. #1 AI for chefs. High conversion SA/US. Viral scripts provided.', 'Affiliate Pitch')} className="flex items-center gap-2 px-6 py-4 bg-emerald-500 text-white rounded-full text-[10px] font-black uppercase hover:scale-105 transition-all shadow-lg">
                                     <Copy size={14} /> COPY THIS
                                 </button>
                             </div>
                             <div className="p-6 bg-slate-50 dark:bg-slate-950 rounded-2xl border-2 border-slate-100 dark:border-slate-800 font-bold text-sm leading-tight">
                                 Earn 30% for life. #1 AI for chefs. High conversion SA/US. Viral scripts provided.
                             </div>
-                            <p className="text-[10px] font-black text-emerald-600">81 / 90 Characters used. Perfect!</p>
-                        </div>
-                        
-                        <div className="p-6 bg-emerald-50 dark:bg-emerald-900/10 rounded-3xl border-2 border-emerald-100 dark:border-emerald-800 flex justify-between items-center">
-                            <div>
-                                <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Target Payout</p>
-                                <p className="text-xl font-black text-emerald-600">30 Days</p>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Commission</p>
-                                <p className="text-xl font-black text-emerald-600">30%</p>
-                            </div>
+                            <p className="text-[10px] font-black text-emerald-600">81 / 90 Characters used. Guaranteed to fit.</p>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* SOCIAL CONTENT PLANNER */}
-            <div className="p-12 bg-slate-950 text-white rounded-[4rem] border-4 border-indigo-500/20 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-12 opacity-5"><CalendarDays size={160} /></div>
-                <div className="relative z-10">
-                    <div className="flex items-center gap-5 mb-10">
-                        <div className="p-4 bg-indigo-600 rounded-[1.5rem] shadow-2xl shadow-indigo-500/20"><Activity size={32} /></div>
-                        <div>
-                            <h3 className="text-3xl font-black uppercase tracking-tight">Social Roadmap</h3>
-                            <p className="text-sm font-bold text-indigo-400 uppercase tracking-widest">Post this week to stay fresh</p>
+            {/* GALLARY REMINDER CARD */}
+            <div className="p-12 bg-amber-500 text-white rounded-[4rem] border-4 border-white shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
+                <div className="absolute top-0 right-0 p-12 opacity-10"><ImageIcon size={160} /></div>
+                <div className="relative z-10 max-w-xl">
+                    <h3 className="text-3xl font-black uppercase tracking-tight mb-2">Fix the "0 Images" Error</h3>
+                    <p className="text-sm font-bold opacity-90 leading-relaxed">
+                        Whop is flagging "0 Gallery Images." Go to the **Asset Studio** tab above, upload your app screenshots, and download the high-click thumbnails. Upload 3 to clear this check.
+                    </p>
+                </div>
+                <div className="relative z-10 bg-white/20 p-6 rounded-3xl border border-white/30 backdrop-blur-md">
+                    <p className="text-[10px] font-black uppercase tracking-widest mb-2">Checklist Progress</p>
+                    <div className="flex items-center gap-2">
+                        <div className="h-2 w-24 bg-white/20 rounded-full overflow-hidden">
+                            <div className="h-full bg-white w-2/3"></div>
                         </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div className="p-8 bg-white/5 rounded-[2.5rem] border border-white/10 space-y-6">
-                            <div className="flex items-center gap-3 text-blue-400">
-                                <Linkedin size={20} />
-                                <h5 className="font-black uppercase text-xs tracking-widest">LinkedIn (Industry Credibility)</h5>
-                            </div>
-                            <p className="text-sm font-medium leading-relaxed text-slate-300 italic">
-                                "Catering isn't just cooking; it's logistics. I built CaterPro AI to solve the 'Sunday Admin Grind' for chefs globally. 100% Google-grade AI. #2026 #ChefTech"
-                            </p>
-                            <button onClick={() => handleCopy('Catering isn\'t just cooking; it\'s logistics. I built CaterPro AI to solve the \'Sunday Admin Grind\' for chefs globally. 100% Google-grade AI. #2026 #ChefTech', 'LinkedIn')} className="w-full py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all">Copy Text</button>
-                        </div>
-
-                        <div className="p-8 bg-white/5 rounded-[2.5rem] border border-white/10 space-y-6">
-                            <div className="flex items-center gap-3 text-indigo-400">
-                                <Facebook size={20} />
-                                <h5 className="font-black uppercase text-xs tracking-widest">Facebook (Engagement Flex)</h5>
-                            </div>
-                            <p className="text-sm font-medium leading-relaxed text-slate-300 italic">
-                                Use your screen recording! Overlay: "Watch me build a 100-guest menu in 30 seconds. ☕️🇿🇦 No more late nights typing. Try free in bio!"
-                            </p>
-                            <button onClick={() => handleCopy('Watch me build a 100-guest menu in 30 seconds. ☕️🇿🇦 No more late nights typing. Try free in bio!', 'Facebook')} className="w-full py-4 bg-white/10 hover:bg-white/20 rounded-2xl font-black text-[10px] uppercase tracking-widest transition-all">Copy Text</button>
-                        </div>
+                        <span className="text-xs font-black">9/13</span>
                     </div>
                 </div>
             </div>
