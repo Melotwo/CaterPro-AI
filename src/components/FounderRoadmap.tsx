@@ -12,7 +12,8 @@ import {
   Flame, Moon, Sun, Clock, FileSearch, X, Pause, Play, RefreshCw, Coffee, Calculator, 
   Briefcase as UpworkIcon, ListOrdered, Lightbulb, ShoppingCart, Tag, FolderHeart, 
   UserCog, Keyboard, Terminal, Sparkle, FileDown, VideoOff, Scissors, Newspaper, Ghost,
-  UserCheck, Swords, CalendarDays, ListTodo, Image as ImageIcon, Box, HelpCircle as QuestionIcon
+  UserCheck, Swords, CalendarDays, ListTodo, Image as ImageIcon, Box, HelpCircle as QuestionIcon,
+  UserPlus2, FileSignature
 } from 'lucide-react';
 import ThumbnailStudio from './ThumbnailStudio';
 import { generateClipperBriefFromApi } from '../services/geminiService';
@@ -121,7 +122,7 @@ const WhopWarRoom: React.FC = () => {
                                     <Copy size={14} /> COPY CLEAN QUERY
                                 </button>
                             </div>
-                            <div className="p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-slate-100 dark:border-slate-800 font-bold text-sm">
+                            <div className="p-6 bg-slate-50 dark:bg-slate-950 rounded-2xl border-2 border-slate-100 dark:border-slate-800 font-bold text-sm">
                                 catering menu help OR menu costing OR "chef" admin stress
                             </div>
                         </div>
@@ -171,6 +172,73 @@ const WhopWarRoom: React.FC = () => {
                 <div className="relative z-10 bg-white/20 p-6 rounded-3xl border border-white/30 backdrop-blur-md text-center">
                     <p className="text-[10px] font-black uppercase tracking-widest mb-1">SEO Title Tip</p>
                     <p className="text-xs font-black">Use: "CaterPro AI: #1 Chef Tool 2026"</p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const HighTicketPitch: React.FC = () => {
+    const handleCopy = (text: string) => {
+        navigator.clipboard.writeText(text);
+        alert("Pitch Text Copied!");
+    };
+
+    const applicationText = `I am a South Africa-based founder currently scaling a B2B AI SaaS platform. I own the entire content engine, from video tutorial production to technical SEO. My strength lies in taking complex AI workflows and turning them into simple, educational content that drives user adoption. I'm ready to bring this founder-level ownership to your product's education strategy.`;
+
+    const loomScript = `Hi! I'm applying for the Marketing Manager role. I'm actually based in South Africa and I'm currently the founder of CaterPro AI—a SaaS I built using Gemini. I understand B2B complexity because I've had to turn intricate catering logistics into simple educational tutorials for my own users. I'm both strategic about the roadmap and hands-on with the content. Let's talk!`;
+
+    return (
+        <div className="space-y-10 animate-slide-in">
+            <div className="p-10 bg-blue-600 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden border-4 border-blue-400">
+                <div className="absolute top-0 right-0 p-10 opacity-10"><FileSignature size={140} /></div>
+                <div className="relative z-10">
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-3 bg-white/20 rounded-2xl"><Users size={32} /></div>
+                        <div>
+                            <h3 className="text-2xl font-black uppercase tracking-tight">The "Remote SA" Pitch</h3>
+                            <p className="text-xs font-bold text-blue-200 uppercase tracking-widest">For the $3k Remote Content Role</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-4">
+                            <label className="text-[10px] font-black uppercase text-blue-200 tracking-widest">LinkedIn Easy Apply Text</label>
+                            <div className="p-6 bg-black/20 rounded-3xl border border-white/10 text-sm font-medium leading-relaxed italic">
+                                "{applicationText}"
+                            </div>
+                            <button onClick={() => handleCopy(applicationText)} className="w-full py-4 bg-white text-blue-600 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
+                                Copy Application
+                            </button>
+                        </div>
+                        <div className="space-y-4">
+                            <label className="text-[10px] font-black uppercase text-blue-200 tracking-widest">1-Min Video Script</label>
+                            <div className="p-6 bg-white rounded-3xl text-slate-900 text-sm font-bold leading-relaxed border-4 border-blue-300">
+                                "{loomScript}"
+                            </div>
+                            <button onClick={() => handleCopy(loomScript)} className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
+                                Copy Script
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div className="p-8 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border-2 border-slate-200 dark:border-slate-800">
+                <h4 className="text-sm font-black uppercase mb-4 flex items-center gap-2">
+                    <ShieldCheck size={18} className="text-emerald-500" /> Why you win this role:
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {[
+                        { t: "Location", d: "You are in SA, they want SA." },
+                        { t: "Proof", d: "CaterPro AI is your SaaS portfolio." },
+                        { t: "Skillset", d: "You build the AI tools they need." }
+                    ].map((item, i) => (
+                        <div key={i} className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                            <p className="text-[10px] font-black text-indigo-500 uppercase mb-1">{item.t}</p>
+                            <p className="text-xs font-bold">{item.d}</p>
+                        </div>
+                    ))}
                 </div>
             </div>
         </div>
@@ -382,7 +450,7 @@ const Teleprompter: React.FC<{ script: string; isOpen: boolean; onClose: () => v
 };
 
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }) => {
-  const [activeTab, setActiveTab] = useState<'assets' | 'whop_war_room' | 'morning' | 'profile' | 'clipping'>('whop_war_room');
+  const [activeTab, setActiveTab] = useState<'assets' | 'whop_war_room' | 'morning' | 'profile' | 'clipping' | 'pitch'>('whop_war_room');
   const [isTeleprompterOpen, setIsTeleprompterOpen] = useState(false);
   const [isSelfieBubbleOpen, setIsSelfieBubbleOpen] = useState(false);
   const [currentScript, setCurrentScript] = useState('');
@@ -419,6 +487,7 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
                 { id: 'whop_war_room', label: 'Whop War Room', icon: Swords },
                 { id: 'assets', label: 'Asset Studio', icon: Layout },
                 { id: 'clipping', label: 'Clipping Hub', icon: Scissors },
+                { id: 'pitch', label: 'High-Ticket Pitch', icon: UserPlus2 },
                 { id: 'morning', label: 'Video Script', icon: Video },
                 { id: 'profile', label: 'Fiverr Meta', icon: Briefcase }
             ].map(tab => (
@@ -439,6 +508,8 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
         {activeTab === 'assets' && <ThumbnailStudio />}
         
         {activeTab === 'clipping' && <ClippingHub />}
+
+        {activeTab === 'pitch' && <HighTicketPitch />}
 
         {activeTab === 'morning' && (
             <div className="space-y-12 animate-fade-in">
