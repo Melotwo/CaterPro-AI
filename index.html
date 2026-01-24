@@ -7,32 +7,31 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
+    
+    <!-- Primary Meta Tags -->
+    <title>CaterPro AI - #1 Professional Menu System 2026</title>
+    <meta name="title" content="CaterPro AI - Professional Menu Generator">
     <meta name="description" content="AI-powered assistant for chefs. Generate professional menu proposals, shopping lists, and service notes instantly." />
     <meta name="theme-color" content="#10b981" />
     
-    <!-- PWA Manifest - Using a timestamp to force PWA refresh -->
-    <link rel="manifest" href="/manifest.json?v=20241230_1020" />
+    <!-- Favicon / Logo (Bust cache with timestamp) -->
+    <link rel="icon" type="image/svg+xml" href="/logo.svg?v=2026_01_24" />
+    <link rel="icon" type="image/png" href="/logo.svg?v=2026_01_24" />
+    <link rel="shortcut icon" href="/logo.svg?v=2026_01_24" />
     
-    <!-- iOS Web App Capable -->
+    <!-- PWA / iOS Specific -->
+    <link rel="manifest" href="/manifest.json?v=2026_01_24" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="CaterPro AI" />
-    
-    <!-- Force iOS icon refresh with versioning -->
-    <link rel="apple-touch-icon" href="/logo.svg?v=20241230_1020" />
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/logo.svg?v=20241230_1020" />
-    <link rel="shortcut icon" href="/logo.svg?v=20241230_1020" />
-    
-    <title>CaterPro AI - Professional Menu Generator</title>
+    <link rel="apple-touch-icon" href="/logo.svg?v=2026_01_24" />
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
-
+  
 </head>
-  <body class="bg-slate-50 dark:bg-slate-950">
+  <body class="bg-slate-50 dark:bg-slate-950 antialiased overflow-x-hidden">
     <div id="root"></div>
     <script type="module" src="/src/index.tsx"></script>
   </body>
