@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail, Search, Globe, Facebook, Lightbulb, Target, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck, RefreshCw, Smartphone } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail, Search, Globe, Facebook, Lightbulb, Target, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck, RefreshCw, Smartphone, X } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -11,6 +11,7 @@ import SavedChecklistsModal from './components/SavedChecklistsModal';
 import Toast from './components/Toast';
 import AiChatBot from './components/AiChatBot';
 import QrCodeModal from './components/QrCodeModal';
+import ShareModal from './components/ShareModal';
 import SocialMediaModal, { Mode as SocialMode } from './components/SocialMediaModal';
 import MultiSelectDropdown from './components/MultiSelectDropdown';
 import GenerationHistory from './components/GenerationHistory';
@@ -84,6 +85,7 @@ const App: React.FC = () => {
   const [savedMenus, setSavedMenus] = useState<SavedMenu[]>([]);
   const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
@@ -367,7 +369,7 @@ const App: React.FC = () => {
                             <HelpCircle size={14} />
                         </button>
                       </div>
-                      {/* Hidden for users, only visible for Founder/Business plans */}
+                      {/* Only visible for Founder/Business plans */}
                       {(isFounderMode || canAccessFeature('reelsMode')) && (
                         <div className="flex flex-wrap gap-2">
                             {STRATEGY_PRESETS.map(preset => (
@@ -498,6 +500,7 @@ const App: React.FC = () => {
                   calculatedFee={null} 
                   preferredCurrency={currency} 
                   onOpenSocialModal={handleOpenSocial}
+                  onOpenShareModal={() => setIsShareModalOpen(true)}
                 />
                 
                 {/* Gated Founder Sections (Duplicate for Result View) */}
@@ -515,6 +518,7 @@ const App: React.FC = () => {
       <AiChatBot onAttemptAccess={() => attemptAccess('aiChatBot')} isPro={canAccessFeature('aiChatBot')} />
       <SavedChecklistsModal isOpen={isSavedModalOpen} onClose={() => setIsSavedModalOpen(false)} savedMenus={savedMenus} onDelete={(id) => setSavedMenus(prev => prev.filter(m => m.id !== id))} />
       <QrCodeModal isOpen={isQrModalOpen} onClose={() => setIsQrModalOpen(false)} />
+      <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} shareUrl={window.location.href} menuTitle={menu?.menuTitle} />
       <EmailCapture isOpen={isEmailCaptureModalOpen} onClose={() => setIsEmailCaptureModalOpen(false)} onSave={(e, w) => { localStorage.setItem('caterpro_user_email', e); localStorage.setItem('caterpro_user_whatsapp', w); setToastMessage("Contact Sync Successful!"); }} />
       <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={(p) => { selectPlan(p); setViewMode('generator'); setShowUpgradeModal(false); }} onViewPricing={() => setViewMode('pricing')} />
       <SocialMediaModal isOpen={isSocialModalOpen} onClose={() => setIsSocialModalOpen(false)} image={menu?.image} menuTitle={menu?.menuTitle || ''} menuDescription={menu?.description || ''} initialMode={socialModalMode} onImageGenerated={(b) => setMenu(p => p ? { ...p, image: b } : null)} />
@@ -525,9 +529,5 @@ const App: React.FC = () => {
     </div>
   );
 };
-
-const X: React.FC<{ size?: number }> = ({ size = 20 }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-);
 
 export default App;
