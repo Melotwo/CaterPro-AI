@@ -13,7 +13,7 @@ import {
   Briefcase as UpworkIcon, ListOrdered, Lightbulb, ShoppingCart, Tag, FolderHeart, 
   UserCog, Keyboard, Terminal, Sparkle, FileDown, VideoOff, Scissors, Newspaper, Ghost,
   UserCheck, Swords, CalendarDays, ListTodo, Image as ImageIcon, Box, HelpCircle as QuestionIcon,
-  UserPlus2, FileSignature
+  UserPlus2, FileSignature as LucideFileSignature
 } from 'lucide-react';
 import ThumbnailStudio from './ThumbnailStudio';
 import { generateClipperBriefFromApi } from '../services/geminiService';
@@ -181,12 +181,14 @@ const WhopWarRoom: React.FC = () => {
 const HighTicketPitch: React.FC = () => {
     const handleCopy = (text: string) => {
         navigator.clipboard.writeText(text);
-        alert("Pitch Text Copied!");
+        alert("Text Copied!");
     };
 
     const applicationText = `I am a South Africa-based founder currently scaling a B2B AI SaaS platform. I own the entire content engine, from video tutorial production to technical SEO. My strength lies in taking complex AI workflows and turning them into simple, educational content that drives user adoption. I'm ready to bring this founder-level ownership to your product's education strategy.`;
 
-    const loomScript = `Hi! I'm applying for the Marketing Manager role. I'm actually based in South Africa and I'm currently the founder of CaterPro AI—a SaaS I built using Gemini. I understand B2B complexity because I've had to turn intricate catering logistics into simple educational tutorials for my own users. I'm both strategic about the roadmap and hands-on with the content. Let's talk!`;
+    const q1 = "3+ years of technical operations and founder-led content generation.";
+    const q2 = "Yes. As founder of CaterPro AI, I own the entire education engine. I architected the UI/UX tooltips and produced the full video tutorial series for our menu engineering dashboard, ensuring complex culinary logistics are simple for users.";
+    const q3 = "I defined the 'Lifecycle Marketing' roadmap for my own SaaS, then personally wrote the technical logic for the AI-generated proposals and the marketing status scripts used by our community to drive engagement.";
 
     return (
         <div className="space-y-10 animate-slide-in">
@@ -196,29 +198,34 @@ const HighTicketPitch: React.FC = () => {
                     <div className="flex items-center gap-4 mb-8">
                         <div className="p-3 bg-white/20 rounded-2xl"><Users size={32} /></div>
                         <div>
-                            <h3 className="text-2xl font-black uppercase tracking-tight">The "Remote SA" Pitch</h3>
-                            <p className="text-xs font-bold text-blue-200 uppercase tracking-widest">For the $3k Remote Content Role</p>
+                            <h3 className="text-2xl font-black uppercase tracking-tight">LinkedIn Application Kit</h3>
+                            <p className="text-xs font-bold text-blue-200 uppercase tracking-widest">For Marketing Manager (Remote)</p>
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div className="space-y-4">
-                            <label className="text-[10px] font-black uppercase text-blue-200 tracking-widest">LinkedIn Easy Apply Text</label>
+                            <label className="text-[10px] font-black uppercase text-blue-200 tracking-widest">About Me Section</label>
                             <div className="p-6 bg-black/20 rounded-3xl border border-white/10 text-sm font-medium leading-relaxed italic">
                                 "{applicationText}"
                             </div>
-                            <button onClick={() => handleCopy(applicationText)} className="w-full py-4 bg-white text-blue-600 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
-                                Copy Application
+                            <button onClick={() => handleCopy(applicationText)} className="w-full py-4 bg-white text-blue-600 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl">
+                                Copy Main Intro
                             </button>
                         </div>
-                        <div className="space-y-4">
-                            <label className="text-[10px] font-black uppercase text-blue-200 tracking-widest">1-Min Video Script</label>
-                            <div className="p-6 bg-white rounded-3xl text-slate-900 text-sm font-bold leading-relaxed border-4 border-blue-300">
-                                "{loomScript}"
-                            </div>
-                            <button onClick={() => handleCopy(loomScript)} className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl hover:scale-105 transition-all">
-                                Copy Script
-                            </button>
+
+                        <div className="space-y-6">
+                            {[
+                                { l: "Years of SaaS Content", v: q1 },
+                                { l: "Concrete Example", v: q2 },
+                                { l: "Strategic & Hands-on", v: q3 }
+                            ].map((item, idx) => (
+                                <div key={idx} className="p-5 bg-white rounded-3xl border-4 border-blue-300 relative group">
+                                    <p className="text-[9px] font-black uppercase text-blue-600 mb-2">{item.l}</p>
+                                    <p className="text-xs font-bold text-slate-800 leading-relaxed pr-8">{item.v}</p>
+                                    <button onClick={() => handleCopy(item.v)} className="absolute top-4 right-4 text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity"><Copy size={16} /></button>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
@@ -226,13 +233,13 @@ const HighTicketPitch: React.FC = () => {
             
             <div className="p-8 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border-2 border-slate-200 dark:border-slate-800">
                 <h4 className="text-sm font-black uppercase mb-4 flex items-center gap-2">
-                    <ShieldCheck size={18} className="text-emerald-500" /> Why you win this role:
+                    <ShieldCheck size={18} className="text-emerald-500" /> Recruitment Logic
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {[
-                        { t: "Location", d: "You are in SA, they want SA." },
-                        { t: "Proof", d: "CaterPro AI is your SaaS portfolio." },
-                        { t: "Skillset", d: "You build the AI tools they need." }
+                        { t: "Availability", d: "Immediate Start / No Notice Period" },
+                        { t: "Compensation", d: "$2,800 USD (Competitive Mid-Point)" },
+                        { t: "Location", d: "Confirm: Yes (South Africa Based)" }
                     ].map((item, i) => (
                         <div key={i} className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
                             <p className="text-[10px] font-black text-indigo-500 uppercase mb-1">{item.t}</p>
@@ -595,6 +602,10 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
 
 const Maximize: React.FC<{ size?: number }> = ({ size = 20 }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
+);
+
+const FileSignature: React.FC<{ size?: number }> = ({ size = 20 }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><path d="M17 17h5"/><path d="M3 7h2"/><path d="M9 17h2"/><path d="M15 7h2"/><path d="M21 7v10"/><path d="M3 7v10"/></svg>
 );
 
 export default FounderRoadmap;
