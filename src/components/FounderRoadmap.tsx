@@ -10,7 +10,8 @@ import {
   MousePointer2, Activity, ShieldAlert, Instagram, Facebook, Link2, MessageSquareQuote, 
   Flame, Moon, Sun, Clock, FileSearch, X, Pause, Play, RefreshCw, Coffee, Calculator, 
   Briefcase as UpworkIcon, ListOrdered, Lightbulb, ShoppingCart, Tag, FolderHeart, 
-  UserCog, Keyboard, Terminal, Sparkle, FileDown, VideoOff, Scissors, Newspaper, Ghost
+  UserCog, Keyboard, Terminal, Sparkle, FileDown, VideoOff, Scissors, Newspaper, Ghost,
+  UserCheck
 } from 'lucide-react';
 import ThumbnailStudio from './ThumbnailStudio';
 import { generateClipperBriefFromApi } from '../services/geminiService';
@@ -27,7 +28,7 @@ const WhopConfig: React.FC = () => {
     };
 
     return (
-        <div className="space-y-8 animate-slide-in">
+        <div className="space-y-12 animate-slide-in">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Reddit Lead Gen Card */}
                 <div className="p-8 bg-white dark:bg-slate-900 border-4 border-orange-500/20 rounded-[3rem] shadow-xl relative overflow-hidden">
@@ -86,8 +87,44 @@ const WhopConfig: React.FC = () => {
                     </div>
                 </div>
             </div>
+
+            {/* NEW: Lead Response Architect */}
+            <div className="p-10 bg-slate-950 text-white rounded-[4rem] border-4 border-indigo-500/20 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-12 opacity-5"><UserCheck size={160} /></div>
+                <div className="relative z-10">
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-4 bg-indigo-600 rounded-[2rem] shadow-xl shadow-indigo-500/20"><MessageSquare size={32} /></div>
+                        <div>
+                            <h3 className="text-3xl font-black uppercase tracking-tight">Lead Response Architect</h3>
+                            <p className="text-sm font-bold text-indigo-400 uppercase tracking-widest">How to close the Reddit leads</p>
+                        </div>
+                    </div>
+
+                    <div className="bg-white/5 border border-white/10 p-8 rounded-[2.5rem] space-y-6">
+                        <div className="flex justify-between items-center">
+                            <h5 className="text-[10px] font-black uppercase text-slate-500 tracking-[0.3em]">The "Gift" Closing Script</h5>
+                            <button 
+                                onClick={() => handleCopy('Hey! Saw your post about [Problem]. I actually built an AI tool (CaterPro AI) to fix this exact issue for my own agency. \n\nI ran your specific event type through the system and generated a sample menu for you to see the quality. You can check it out here for free: [Your Whop Link] \n\nHope it saves you some hours tonight!', 'Closing Script')}
+                                className="px-6 py-2 bg-indigo-500 hover:bg-indigo-600 rounded-full text-[10px] font-black uppercase tracking-widest transition-all"
+                            >
+                                <Copy size={14} className="inline mr-2" /> Copy Script
+                            </button>
+                        </div>
+                        <p className="text-xl font-bold leading-relaxed text-slate-300 italic border-l-4 border-indigo-500 pl-6">
+                            "Hey! Saw your post about admin stress. I actually built an AI tool to fix this. I ran your event through it—here is a sample menu it created for you..."
+                        </p>
+                        <div className="p-5 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-start gap-4">
+                            <Zap className="text-amber-500 shrink-0 mt-1" size={18} />
+                            <p className="text-xs text-amber-200 font-medium">
+                                <span className="text-white font-black uppercase tracking-widest block mb-1">Founder Secret:</span>
+                                Don't just link to the store. Generate a menu for them first, take a screenshot, and send THAT. Once they see the quality, they will pay for the subscription to do it themselves.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
             
-            <div className="p-6 bg-slate-950 text-white rounded-3xl flex items-center gap-4 border border-white/10">
+            <div className="p-6 bg-slate-900 text-white rounded-3xl flex items-center gap-4 border border-white/10">
                 <Info className="text-indigo-400 shrink-0" />
                 <p className="text-xs font-medium text-slate-400">
                     <span className="text-white font-black uppercase tracking-widest">Tip:</span> Set your Affiliate payout to 30 days to protect against credit card chargebacks.
