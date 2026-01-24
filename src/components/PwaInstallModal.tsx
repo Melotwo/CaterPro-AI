@@ -1,5 +1,6 @@
+
 import React, { useEffect, useRef } from 'react';
-import { X, Share, Smartphone, MoreVertical, PlusSquare } from 'lucide-react';
+import { X, Share, Smartphone, MoreVertical, PlusSquare, ArrowRight, MousePointer2 } from 'lucide-react';
 
 interface PwaInstallModalProps {
   isOpen: boolean;
@@ -21,76 +22,90 @@ const PwaInstallModal: React.FC<PwaInstallModalProps> = ({ isOpen, onClose }) =>
 
   if (!isOpen) return null;
 
-  // Improve detection: iPads often say 'Macintosh' in userAgent but have touch support
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
                 (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div onClick={onClose} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm animate-[fade-in_0.2s_ease-out]"></div>
-      <div ref={modalRef} className="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-[scale-up_0.2s_ease-out]">
-        <div className="p-6">
-          <button onClick={onClose} className="absolute top-3 right-3 p-2 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700">
-            <X size={20} />
-          </button>
-
-          <div className="text-center mb-6">
-            <div className="mx-auto w-12 h-12 bg-primary-100 dark:bg-primary-900/50 rounded-full flex items-center justify-center mb-3">
-              <Smartphone className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div onClick={onClose} className="fixed inset-0 bg-slate-900/90 backdrop-blur-xl animate-fade-in"></div>
+      <div ref={modalRef} className="relative w-full max-w-xl bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl border-4 border-white dark:border-slate-800 overflow-hidden animate-scale-up">
+        
+        {/* Animated Tutorial Header */}
+        <div className="bg-indigo-600 p-8 text-white text-center relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 to-purple-700 opacity-50"></div>
+            <div className="relative z-10">
+                <div className="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
+                    <Smartphone size={32} />
+                </div>
+                <h3 className="text-2xl font-black uppercase tracking-tight">Save App to iPad</h3>
+                <p className="text-indigo-100 text-sm font-medium mt-1">Never lose your link again.</p>
             </div>
-            <h3 className="text-xl font-bold text-slate-900 dark:text-white">Install App</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-400 mt-2">
-              Save this app to your home screen for quick access.
-            </p>
-          </div>
+            
+            {/* Visual Guide Animation (Simulation of the Video the user requested) */}
+            <div className="mt-8 relative h-32 w-64 mx-auto bg-white/10 rounded-2xl border border-white/20 flex flex-col justify-end p-3 overflow-hidden">
+                <div className="absolute top-2 right-2 p-1.5 bg-white/20 rounded-md animate-pulse">
+                    <Share size={12} />
+                </div>
+                <div className="space-y-1.5 opacity-50">
+                    <div className="h-1.5 w-full bg-white/20 rounded-full"></div>
+                    <div className="h-1.5 w-3/4 bg-white/20 rounded-full"></div>
+                </div>
+                <div className="mt-4 p-2 bg-indigo-500 rounded-lg flex items-center justify-between animate-bounce">
+                    <div className="flex items-center gap-2">
+                        <PlusSquare size={12} />
+                        <div className="h-1.5 w-16 bg-white/40 rounded-full"></div>
+                    </div>
+                    <ArrowRight size={10} />
+                </div>
+                {/* Simulated Cursor */}
+                <div className="absolute top-4 right-4 animate-[ping_3s_infinite] pointer-events-none">
+                    <MousePointer2 size={24} className="text-white fill-white" />
+                </div>
+            </div>
+        </div>
 
-          <div className="space-y-4 bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg">
+        <div className="p-8 space-y-6">
+          <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-[2rem] border-2 border-slate-100 dark:border-slate-800">
             {isIOS ? (
-              // iOS Instructions (iPhone/iPad)
-              <div className="space-y-4">
-                  <p className="text-sm font-semibold text-slate-800 dark:text-white mb-2 border-b border-slate-200 dark:border-slate-700 pb-2">Instructions for Safari (iPad/iPhone):</p>
-                  <ol className="space-y-3 text-sm text-slate-700 dark:text-slate-300">
-                    <li className="flex items-start gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 font-bold text-xs">1</span>
-                      <span>
-                          Tap the <strong>Share</strong> button. 
-                          <br/><span className="text-xs text-slate-500">(Top right on iPad, bottom center on iPhone)</span>
-                      </span>
-                      <Share size={20} className="text-blue-500 flex-shrink-0" />
+              <div className="space-y-5">
+                  <p className="text-[10px] font-black uppercase text-indigo-500 tracking-widest text-center">iPad & iPhone Instructions</p>
+                  <ol className="space-y-4">
+                    <li className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-xl bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 font-black text-xs">1</div>
+                      <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Tap the <span className="text-indigo-600">Share Icon</span> at the top of Safari.</p>
                     </li>
-                    <li className="flex items-start gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 font-bold text-xs">2</span>
-                      <span>Scroll down the menu and tap <strong>Add to Home Screen</strong>.</span>
-                      <PlusSquare size={20} className="text-slate-500 flex-shrink-0" />
+                    <li className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-xl bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 font-black text-xs">2</div>
+                      <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Scroll down and select <span className="text-indigo-600">"Add to Home Screen"</span>.</p>
                     </li>
-                    <li className="flex items-start gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 font-bold text-xs">3</span>
-                      <span>Tap <strong>Add</strong> in the top right corner.</span>
+                    <li className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-xl bg-white dark:bg-slate-700 shadow-sm border border-slate-200 dark:border-slate-600 font-black text-xs">3</div>
+                      <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Tap <span className="text-indigo-600">Add</span> to finish. It now looks like a real app!</p>
                     </li>
                   </ol>
               </div>
             ) : (
-              // Android / Chrome Instructions
-              <div className="space-y-4">
-                 <p className="text-sm font-semibold text-slate-800 dark:text-white mb-2 border-b border-slate-200 dark:border-slate-700 pb-2">Instructions for Chrome/Android:</p>
-                  <ol className="space-y-3 text-sm text-slate-700 dark:text-slate-300">
-                    <li className="flex items-start gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 font-bold text-xs">1</span>
-                      <span>Tap the <strong>Menu</strong> (three dots) icon in the browser bar.</span>
-                      <MoreVertical size={20} className="text-slate-500 flex-shrink-0" />
+              <div className="space-y-5">
+                 <p className="text-[10px] font-black uppercase text-indigo-500 tracking-widest text-center">Android & Chrome Instructions</p>
+                  <ol className="space-y-4">
+                    <li className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-xl bg-white dark:bg-slate-700 font-black text-xs">1</div>
+                      <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Tap the <span className="text-indigo-600">Menu Icon</span> (three dots).</p>
                     </li>
-                    <li className="flex items-start gap-3">
-                      <span className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-slate-200 dark:bg-slate-700 font-bold text-xs">2</span>
-                      <span>Select <strong>Install App</strong> or <strong>Add to Home screen</strong>.</span>
-                      <Smartphone size={20} className="text-slate-500 flex-shrink-0" />
+                    <li className="flex items-start gap-4">
+                      <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-xl bg-white dark:bg-slate-700 font-black text-xs">2</div>
+                      <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Select <span className="text-indigo-600">"Install App"</span> or <span className="text-indigo-600">"Add to Home screen"</span>.</p>
                     </li>
                   </ol>
               </div>
             )}
           </div>
           
-          <button onClick={onClose} className="mt-6 w-full py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg font-semibold transition-colors">
-            Got it
+          <button 
+            onClick={onClose} 
+            className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl transition-all active:scale-95"
+          >
+            I've Added It
           </button>
         </div>
       </div>
