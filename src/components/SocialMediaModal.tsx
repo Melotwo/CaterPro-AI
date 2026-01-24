@@ -1,9 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Check, Facebook, Twitter, Instagram, Video, Loader2, Smartphone, MessageSquareQuote, Activity, Pin, Flame } from 'lucide-react';
+import { X, Copy, Check, Facebook, Twitter, Instagram, Video, Loader2, Smartphone, MessageSquareQuote, Activity, Pin, Flame, Rocket } from 'lucide-react';
 import { generateSocialCaption, generateVideoFromApi, generateWhatsAppStatus } from '../services/geminiService';
 
-export type Mode = 'create' | 'pitch' | 'video' | 'status' | 'reel' | 'formula';
+export type Mode = 'create' | 'pitch' | 'video' | 'status' | 'reel' | 'formula' | 'flex';
 
 interface SocialMediaModalProps {
   isOpen: boolean;
@@ -43,12 +42,18 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
       if (activeMode === 'create') {
         const caption = await generateSocialCaption(menuTitle || "CaterPro AI System", menuDescription || "Automating catering for 2026.", platform);
         setEditedContent(caption);
+      } else if (activeMode === 'flex') {
+        const flexPost = `[FOUNDER LOG: DAY 12]\n\n"I stopped typing and started building. This is CaterPro AI."\n\nI just rendered a full ${menuTitle || 'Wedding'} Proposal in 30 seconds. In Rands. With HACCP safety checks ready for the health inspector.\n\nMost chefs are stuck in the office. I'm back in the kitchen because I built the office into an AI.\n\nWant to see the walkthrough? Comment "CHEF" below. 👇\n\n#ProofOfWork #ChefLife #CaterProAI`;
+        setEditedContent(flexPost);
       } else if (activeMode === 'status') {
         const status = await generateWhatsAppStatus(menuTitle || "CaterPro AI");
         setEditedContent(status);
       } else if (activeMode === 'formula') {
         const formulaScript = `[HOOK]\n"Stop wasting time on ${menuTitle || 'admin'}. It's 2026."\n\n[VALUE]\n"I built an AI that generates full catering proposals in 30 seconds."\n\n[PROOF]\n"It's saved me 15 hours of typing this week."\n\n[OFFER]\n"Comment 'CHEF' below for the link."`;
         setEditedContent(formulaScript);
+      } else if (activeMode === 'reel' || activeMode === 'video') {
+        const videoUrl = await generateVideoFromApi(`A professional high-quality video for a catering business showcasing: ${menuTitle}. ${menuDescription}. Cinematic style, professional editing.`);
+        setEditedContent(`Video Rendered Successfully!\n\nAccess your marketing asset here:\n${videoUrl}\n\nNote: This link includes your temporary access key. Please download the file immediately for your social media channels.`);
       }
     } catch (e: any) {
        setEditedContent("Strategy session timed out. Please try again.");
@@ -72,6 +77,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
         <div className="flex bg-white dark:bg-slate-950 p-3 border-b border-slate-100 dark:border-slate-800 overflow-x-auto no-scrollbar gap-3">
             {[
                 { id: 'create', icon: MessageSquareQuote, label: 'Captions' },
+                { id: 'flex', icon: Rocket, label: 'Founder Flex' },
                 { id: 'formula', icon: Activity, label: 'Formula' },
                 { id: 'status', icon: Smartphone, label: 'WhatsApp' },
                 { id: 'reel', icon: Video, label: 'Reel Render' }
@@ -87,7 +93,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
         </div>
 
         <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
-            {activeMode === 'create' && (
+            {(activeMode === 'create' || activeMode === 'flex') && (
                 <div className="md:w-1/4 bg-slate-50 dark:bg-slate-950 p-4 border-r border-slate-100 dark:border-slate-800 overflow-x-auto no-scrollbar flex md:flex-col gap-3">
                     {[
                         { id: 'facebook', icon: Facebook, label: 'Facebook' },
