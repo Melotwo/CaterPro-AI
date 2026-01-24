@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 /* Import missing ImageIcon and fix duplicate Check identifier */
 import { 
@@ -13,7 +12,8 @@ import {
   Briefcase as UpworkIcon, ListOrdered, Lightbulb, ShoppingCart, Tag, FolderHeart, 
   UserCog, Keyboard, Terminal, Sparkle, FileDown, VideoOff, Scissors, Newspaper, Ghost,
   UserCheck, Swords, CalendarDays, ListTodo, Image as ImageIcon, Box, HelpCircle as QuestionIcon,
-  UserPlus2, FileSignature as LucideFileSignature
+  UserPlus2, FileSignature as FileSignatureIcon,
+  Trophy as CampaignIcon
 } from 'lucide-react';
 import ThumbnailStudio from './ThumbnailStudio';
 import { generateClipperBriefFromApi } from '../services/geminiService';
@@ -23,6 +23,81 @@ interface FounderRoadmapProps {
   onOpenSocial?: (mode: 'create' | 'reel' | 'status') => void;
 }
 
+const CampaignHunter: React.FC = () => {
+    const handleCopy = (text: string, label: string) => {
+        navigator.clipboard.writeText(text);
+        alert(`${label} Copied!`);
+    };
+
+    const campaignPitch = `Hi there! I am the founder of CaterPro AI (a SaaS for hospitality automation). I am a specialist in "Proof of Work" content. I don't just post; I build systems. I can create a professional UGC walkthrough for your campaign that demonstrates high-level utility and authority. Ready to start immediately.`;
+
+    return (
+        <div className="space-y-10 animate-slide-in">
+            {/* WHOP CAMPAIGN STRATEGY */}
+            <div className="p-10 bg-slate-950 text-white rounded-[3.5rem] border-4 border-purple-500/30 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-10 opacity-10"><CampaignIcon size={160} className="text-purple-400" /></div>
+                <div className="relative z-10">
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-4 bg-purple-600 rounded-3xl shadow-lg"><Zap size={32} /></div>
+                        <div>
+                            <h3 className="text-3xl font-black uppercase tracking-tight">Campaign Hunter</h3>
+                            <p className="text-xs font-bold text-purple-300 uppercase tracking-widest mt-1">Winning Whop Discovery Campaigns</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-6">
+                            <div className="bg-white/5 p-6 rounded-3xl border border-white/10">
+                                <h5 className="text-[10px] font-black uppercase text-purple-400 mb-2">The "Founder Pitch" (Copy this into forms)</h5>
+                                <p className="text-sm font-medium leading-relaxed italic text-slate-300">
+                                    "{campaignPitch}"
+                                </p>
+                                <button 
+                                    onClick={() => handleCopy(campaignPitch, 'Founder Pitch')}
+                                    className="mt-4 w-full py-3 bg-purple-600 text-white rounded-2xl text-[10px] font-black uppercase tracking-widest hover:scale-105 transition-transform"
+                                >
+                                    Copy Pitch Template
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <h5 className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Active Whop Checklist</h5>
+                            {[
+                                "Filter by 'CPM' for high payouts",
+                                "Look for 'Product' tag (Matches CaterPro style)",
+                                "Toggle 'Verified' to hide low-quality gigs",
+                                "Join 'Clip Farm Chat' for internal leaks"
+                            ].map((item, i) => (
+                                <div key={i} className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/10">
+                                    <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center font-black text-[10px] text-white">{i+1}</div>
+                                    <p className="text-xs font-bold text-slate-300">{item}</p>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div className="p-8 bg-purple-50 dark:bg-purple-900/10 rounded-[3rem] border-2 border-purple-200 dark:border-purple-800 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-white dark:bg-slate-800 rounded-2xl shadow-sm text-purple-600"><Target size={24} /></div>
+                    <div>
+                        <h4 className="font-black uppercase text-sm">Target: Slideshow Campaigns</h4>
+                        <p className="text-xs text-slate-500">Fastest to produce. Zero face-recording required.</p>
+                    </div>
+                </div>
+                <button 
+                    onClick={() => window.open('https://whop.com/discover/campaigns/', '_blank')}
+                    className="px-8 py-4 bg-purple-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2 shadow-xl hover:scale-105 active:scale-95 transition-all"
+                >
+                    Open Whop Discover <ExternalLink size={14} />
+                </button>
+            </div>
+        </div>
+    );
+};
+
 const WhopWarRoom: React.FC = () => {
     const handleCopy = (text: string, label: string) => {
         navigator.clipboard.writeText(text);
@@ -31,6 +106,35 @@ const WhopWarRoom: React.FC = () => {
 
     return (
         <div className="space-y-10 animate-slide-in">
+            {/* NEW: WAITING ROOM STRATEGY CARD */}
+            <div className="p-10 bg-slate-900 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden border-4 border-slate-800">
+                <div className="absolute top-0 right-0 p-10 opacity-10"><Clock size={140} className="animate-spin-slow" /></div>
+                <div className="relative z-10">
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-4 bg-amber-500 rounded-3xl shadow-lg animate-pulse"><Activity size={32} /></div>
+                        <div>
+                            <h3 className="text-3xl font-black uppercase tracking-tight">The Waiting Room</h3>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">What to do while your application is pending</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
+                            <h5 className="text-[10px] font-black uppercase text-amber-500 tracking-widest">1. Monitor Submission Forms</h5>
+                            <p className="text-xs text-slate-300 leading-relaxed">In the Whop sidebar, keep an eye on the <strong>Submission Forms</strong> link. This is where active campaign requirements usually update.</p>
+                        </div>
+                        <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
+                            <h5 className="text-[10px] font-black uppercase text-indigo-500 tracking-widest">2. Join "Clip Farm Chat"</h5>
+                            <p className="text-xs text-slate-300 leading-relaxed">Engagement is everything. Introduce yourself in the chat as a "CaterPro AI Systems Founder." It builds massive authority.</p>
+                        </div>
+                        <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
+                            <h5 className="text-[10px] font-black uppercase text-emerald-500 tracking-widest">3. Proof of Work</h5>
+                            <p className="text-xs text-slate-300 leading-relaxed">Don't just wait. Go to the <strong>Asset Studio</strong> tab and render 3 more thumbnails. Have your portfolio ready for the moment they reply.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {/* WHOP FIELD GUIDE - MAPPED TO USER SCREENSHOTS */}
             <div className="p-10 bg-indigo-600 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden border-4 border-indigo-400">
                 <div className="absolute top-0 right-0 p-10 opacity-10"><Box size={140} /></div>
@@ -65,187 +169,7 @@ const WhopWarRoom: React.FC = () => {
                                 <button onClick={() => handleCopy('Professional chefs, catering business owners, and culinary students in South Africa & US.', 'Target Audience')} className="p-3 bg-white/20 rounded-xl hover:scale-110 transition-transform"><Copy size={16}/></button>
                             </div>
                         </div>
-
-                        {/* Ideation: Problem Solves */}
-                        <div className="p-6 bg-black/20 rounded-3xl border border-white/10 space-y-4">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <p className="text-[10px] font-black uppercase text-indigo-200 mb-1">Problem This Solves</p>
-                                    <p className="text-xs text-slate-200 leading-tight">Wasted hours on manual menu costing and proposal typing.</p>
-                                </div>
-                                <button onClick={() => handleCopy('Chefs waste 10+ hours a week manually costing menus and typing proposals. We automate this in 30 seconds.', 'Problem Solves')} className="p-3 bg-white/20 rounded-xl hover:scale-110 transition-transform"><Copy size={16}/></button>
-                            </div>
-                        </div>
-
-                        {/* Ideation: What Makes This Unique */}
-                        <div className="p-6 bg-black/20 rounded-3xl border border-white/10 space-y-4">
-                            <div className="flex justify-between items-start">
-                                <div>
-                                    <p className="text-[10px] font-black uppercase text-indigo-200 mb-1">What Makes This Unique</p>
-                                    <p className="text-xs text-slate-200 leading-tight">Instant ZAR costing + HACCP safety logs + Viral Marketing AI.</p>
-                                </div>
-                                <button onClick={() => handleCopy('The only system combining Google-Grade AI with local currency costing, HACCP safety logs, and a viral social media asset creator.', 'Unique Value')} className="p-3 bg-white/20 rounded-xl hover:scale-110 transition-transform"><Copy size={16}/></button>
-                            </div>
-                        </div>
                     </div>
-
-                    <div className="mt-8 p-6 bg-amber-500 rounded-[2rem] text-white flex items-center justify-between shadow-xl">
-                        <div className="flex items-center gap-4">
-                            <ShieldCheck size={32} />
-                            <div>
-                                <h4 className="font-black uppercase text-sm leading-none">Affiliate Desc (90 Char Limit)</h4>
-                                <p className="text-[11px] font-bold opacity-90 mt-1">Earn 30% for life. #1 AI for chefs. High conversion. Join us!</p>
-                            </div>
-                        </div>
-                        <button onClick={() => handleCopy('Earn 30% for life. #1 AI for chefs. High conversion. Viral scripts provided. Join us!', 'Affiliate Desc')} className="px-6 py-3 bg-white text-amber-600 rounded-xl font-black text-[10px] uppercase tracking-widest shadow-lg">Copy Short Version</button>
-                    </div>
-                </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Reddit Lead Gen Card */}
-                <div className="p-10 bg-white dark:bg-slate-900 border-4 border-orange-500 rounded-[3.5rem] shadow-2xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-10 opacity-5 text-orange-500"><Ghost size={120} /></div>
-                    <div className="flex items-center gap-5 mb-10">
-                        <div className="p-4 bg-orange-500 rounded-[1.5rem] text-white shadow-xl"><Search size={32} /></div>
-                        <div>
-                            <h4 className="text-2xl font-black uppercase text-slate-900 dark:text-white">Reddit Search</h4>
-                            <p className="text-xs font-black uppercase text-orange-500 tracking-[0.2em]">OfficeX Setup</p>
-                        </div>
-                    </div>
-
-                    <div className="space-y-8">
-                        <div className="space-y-3">
-                            <div className="flex justify-between items-center">
-                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Search Query (Cleaned)</label>
-                                <button onClick={() => handleCopy('catering menu help OR menu costing OR "chef" admin stress', 'Reddit Query')} className="flex items-center gap-2 px-6 py-4 bg-orange-500 text-white rounded-full text-[10px] font-black uppercase hover:scale-105 transition-all shadow-lg">
-                                    <Copy size={14} /> COPY CLEAN QUERY
-                                </button>
-                            </div>
-                            <div className="p-6 bg-slate-50 dark:bg-slate-950 rounded-2xl border-2 border-slate-100 dark:border-slate-800 font-bold text-sm">
-                                catering menu help OR menu costing OR "chef" admin stress
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Affiliate Hub */}
-                <div className="p-10 bg-white dark:bg-slate-900 border-4 border-emerald-500 rounded-[3.5rem] shadow-2xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-10 opacity-5 text-emerald-500"><TrendingUp size={120} /></div>
-                    <div className="flex items-center gap-5 mb-10">
-                        <div className="p-4 bg-emerald-500 rounded-[1.5rem] text-white shadow-xl"><Users size={32} /></div>
-                        <div>
-                            <h4 className="text-2xl font-black uppercase text-slate-900 dark:text-white">Affiliate App</h4>
-                            <p className="text-xs font-black uppercase text-emerald-500 tracking-[0.2em]">Clipper Recruitment</p>
-                        </div>
-                    </div>
-
-                    <div className="space-y-8">
-                        <div className="space-y-3">
-                            <div className="flex justify-between items-center">
-                                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Commission Settings</label>
-                            </div>
-                            <div className="p-6 bg-emerald-50 dark:bg-emerald-900/10 rounded-3xl border-2 border-emerald-100 dark:border-emerald-800 flex justify-between items-center">
-                                <div>
-                                    <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Target Payout</p>
-                                    <p className="text-xl font-black text-emerald-600">30 Days</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-[10px] font-black uppercase text-slate-400 mb-1">Commission</p>
-                                    <p className="text-xl font-black text-emerald-600">30%</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* GALLARY REMINDER CARD */}
-            <div className="p-12 bg-amber-500 text-white rounded-[4rem] border-4 border-white shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8">
-                <div className="absolute top-0 right-0 p-12 opacity-10"><ImageIcon size={160} /></div>
-                <div className="relative z-10 max-w-xl">
-                    <h3 className="text-3xl font-black uppercase tracking-tight mb-2">Fix the "0 Images" Error</h3>
-                    <p className="text-sm font-bold opacity-90 leading-relaxed">
-                        Whop is flagging "0 Gallery Images." Go to the **Asset Studio** tab above, upload your app screenshots, and download the high-click thumbnails. Upload 3 to clear this check.
-                    </p>
-                </div>
-                <div className="relative z-10 bg-white/20 p-6 rounded-3xl border border-white/30 backdrop-blur-md text-center">
-                    <p className="text-[10px] font-black uppercase tracking-widest mb-1">SEO Title Tip</p>
-                    <p className="text-xs font-black">Use: "CaterPro AI: #1 Chef Tool 2026"</p>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const HighTicketPitch: React.FC = () => {
-    const handleCopy = (text: string) => {
-        navigator.clipboard.writeText(text);
-        alert("Text Copied!");
-    };
-
-    const applicationText = `I am a South Africa-based founder currently scaling a B2B AI SaaS platform. I own the entire content engine, from video tutorial production to technical SEO. My strength lies in taking complex AI workflows and turning them into simple, educational content that drives user adoption. I'm ready to bring this founder-level ownership to your product's education strategy.`;
-
-    const q1 = "3+ years of technical operations and founder-led content generation.";
-    const q2 = "Yes. As founder of CaterPro AI, I own the entire education engine. I architected the UI/UX tooltips and produced the full video tutorial series for our menu engineering dashboard, ensuring complex culinary logistics are simple for users.";
-    const q3 = "I defined the 'Lifecycle Marketing' roadmap for my own SaaS, then personally wrote the technical logic for the AI-generated proposals and the marketing status scripts used by our community to drive engagement.";
-
-    return (
-        <div className="space-y-10 animate-slide-in">
-            <div className="p-10 bg-blue-600 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden border-4 border-blue-400">
-                <div className="absolute top-0 right-0 p-10 opacity-10"><FileSignature size={140} /></div>
-                <div className="relative z-10">
-                    <div className="flex items-center gap-4 mb-8">
-                        <div className="p-3 bg-white/20 rounded-2xl"><Users size={32} /></div>
-                        <div>
-                            <h3 className="text-2xl font-black uppercase tracking-tight">LinkedIn Application Kit</h3>
-                            <p className="text-xs font-bold text-blue-200 uppercase tracking-widest">For Marketing Manager (Remote)</p>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                        <div className="space-y-4">
-                            <label className="text-[10px] font-black uppercase text-blue-200 tracking-widest">About Me Section</label>
-                            <div className="p-6 bg-black/20 rounded-3xl border border-white/10 text-sm font-medium leading-relaxed italic">
-                                "{applicationText}"
-                            </div>
-                            <button onClick={() => handleCopy(applicationText)} className="w-full py-4 bg-white text-blue-600 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl">
-                                Copy Main Intro
-                            </button>
-                        </div>
-
-                        <div className="space-y-6">
-                            {[
-                                { l: "Years of SaaS Content", v: q1 },
-                                { l: "Concrete Example", v: q2 },
-                                { l: "Strategic & Hands-on", v: q3 }
-                            ].map((item, idx) => (
-                                <div key={idx} className="p-5 bg-white rounded-3xl border-4 border-blue-300 relative group">
-                                    <p className="text-[9px] font-black uppercase text-blue-600 mb-2">{item.l}</p>
-                                    <p className="text-xs font-bold text-slate-800 leading-relaxed pr-8">{item.v}</p>
-                                    <button onClick={() => handleCopy(item.v)} className="absolute top-4 right-4 text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity"><Copy size={16} /></button>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div className="p-8 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border-2 border-slate-200 dark:border-slate-800">
-                <h4 className="text-sm font-black uppercase mb-4 flex items-center gap-2">
-                    <ShieldCheck size={18} className="text-emerald-500" /> Recruitment Logic
-                </h4>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    {[
-                        { t: "Availability", d: "Immediate Start / No Notice Period" },
-                        { t: "Compensation", d: "$2,800 USD (Competitive Mid-Point)" },
-                        { t: "Location", d: "Confirm: Yes (South Africa Based)" }
-                    ].map((item, i) => (
-                        <div key={i} className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
-                            <p className="text-[10px] font-black text-indigo-500 uppercase mb-1">{item.t}</p>
-                            <p className="text-xs font-bold">{item.d}</p>
-                        </div>
-                    ))}
                 </div>
             </div>
         </div>
@@ -272,6 +196,47 @@ const ClippingHub: React.FC = () => {
 
     return (
         <div className="space-y-8 animate-slide-in">
+            {/* NEW: V2 CONTENT REWARDS CHEAT SHEET */}
+            <div className="p-10 bg-emerald-600 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden border-4 border-emerald-400">
+                <div className="absolute top-0 right-0 p-10 opacity-10"><Trophy size={140} /></div>
+                <div className="relative z-10">
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-3 bg-white/20 rounded-2xl"><Flame size={32} /></div>
+                        <div>
+                            <h3 className="text-2xl font-black uppercase tracking-tight">V2 Discovery Guide</h3>
+                            <p className="text-xs font-bold text-emerald-100 uppercase tracking-widest">Master the Whop Discover Campaigns</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div className="space-y-4">
+                            <h5 className="text-[10px] font-black uppercase text-emerald-200 tracking-widest">Current Strategy: Discovery</h5>
+                            <p className="text-sm font-medium leading-relaxed">
+                                You are looking at the <strong>Discover Campaigns</strong> dashboard. While waiting for your submission, look for campaigns tagged with <span className="px-2 py-0.5 bg-black/30 rounded text-emerald-300">UGC</span> or <span className="px-2 py-0.5 bg-black/30 rounded text-indigo-300">PRODUCT</span>.
+                            </p>
+                            <div className="p-5 bg-black/20 rounded-3xl border border-white/10">
+                                <p className="text-xs italic text-emerald-100 leading-relaxed">"Pro Tip: Filter by 'CPM' to see which campaigns pay the most per 1k views. This is how you scale your income while waiting for responses."</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-3 p-4 bg-white/10 rounded-2xl border border-white/20">
+                                <CheckCircle2 size={20} className="text-emerald-300" />
+                                <p className="text-xs font-bold">Check "Verified" Toggle on Whop</p>
+                            </div>
+                            <div className="flex items-center gap-3 p-4 bg-white/10 rounded-2xl border border-white/20">
+                                <CheckCircle2 size={20} className="text-emerald-300" />
+                                <p className="text-xs font-bold">Look for 'Scene Society' Badges</p>
+                            </div>
+                            <div className="flex items-center gap-3 p-4 bg-white/10 rounded-2xl border border-white/20">
+                                <CheckCircle2 size={20} className="text-emerald-300" />
+                                <p className="text-xs font-bold">Sort by 'Paid Out' for Reliability</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div className="p-10 bg-slate-950 text-white rounded-[3rem] border border-white/10 shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-12 opacity-5"><Scissors size={120} /></div>
                 <div className="relative z-10">
@@ -331,6 +296,80 @@ const ClippingHub: React.FC = () => {
                     </div>
                 </div>
             )}
+        </div>
+    );
+};
+
+const HighTicketPitch: React.FC = () => {
+    const handleCopy = (text: string) => {
+        navigator.clipboard.writeText(text);
+        alert("Text Copied!");
+    };
+
+    const applicationText = `I am a South Africa-based founder currently scaling a B2B AI SaaS platform. I own the entire content engine, from video tutorial production to technical SEO. My strength lies in taking complex AI workflows and turning them into simple, educational content that drives user adoption. I'm ready to bring this founder-level ownership to your product's education strategy.`;
+
+    const q1 = "3+ years of technical operations and founder-led content generation.";
+    const q2 = "Yes. As founder of CaterPro AI, I own the entire education engine. I architected the UI/UX tooltips and produced the full video tutorial series for our menu engineering dashboard, ensuring complex culinary logistics are simple for users.";
+    const q3 = "I defined the 'Lifecycle Marketing' roadmap for my own SaaS, then personally wrote the technical logic for the AI-generated proposals and the marketing status scripts used by our community to drive engagement.";
+
+    return (
+        <div className="space-y-10 animate-slide-in">
+            <div className="p-10 bg-blue-600 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden border-4 border-blue-400">
+                <div className="absolute top-0 right-0 p-10 opacity-10"><LucideFileSignature size={140} /></div>
+                <div className="relative z-10">
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-3 bg-white/20 rounded-2xl"><Users size={32} /></div>
+                        <div>
+                            <h3 className="text-2xl font-black uppercase tracking-tight">LinkedIn Application Kit</h3>
+                            <p className="text-xs font-bold text-blue-200 uppercase tracking-widest">For Marketing Manager (Remote)</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div className="space-y-4">
+                            <label className="text-[10px] font-black uppercase text-blue-200 tracking-widest">About Me Section</label>
+                            <div className="p-6 bg-black/20 rounded-3xl border border-white/10 text-sm font-medium leading-relaxed italic">
+                                "{applicationText}"
+                            </div>
+                            <button onClick={() => handleCopy(applicationText)} className="w-full py-4 bg-white text-blue-600 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl">
+                                Copy Main Intro
+                            </button>
+                        </div>
+
+                        <div className="space-y-6">
+                            {[
+                                { l: "Years of SaaS Content", v: q1 },
+                                { l: "Concrete Example", v: q2 },
+                                { l: "Strategic & Hands-on", v: q3 }
+                            ].map((item, idx) => (
+                                <div key={idx} className="p-5 bg-white rounded-3xl border-4 border-blue-300 relative group">
+                                    <p className="text-[9px] font-black uppercase text-blue-600 mb-2">{item.l}</p>
+                                    <p className="text-xs font-bold text-slate-800 leading-relaxed pr-8">{item.v}</p>
+                                    <button onClick={() => handleCopy(item.v)} className="absolute top-4 right-4 text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity"><Copy size={16} /></button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div className="p-8 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border-2 border-slate-200 dark:border-slate-800">
+                <h4 className="text-sm font-black uppercase mb-4 flex items-center gap-2">
+                    <ShieldCheck size={18} className="text-emerald-500" /> Recruitment Logic
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {[
+                        { t: "Availability", d: "Immediate Start / No Notice Period" },
+                        { t: "Compensation", d: "$2,800 USD (Competitive Mid-Point)" },
+                        { t: "Location", d: "Confirm: Yes (South Africa Based)" }
+                    ].map((item, i) => (
+                        <div key={i} className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
+                            <p className="text-[10px] font-black text-indigo-500 uppercase mb-1">{item.t}</p>
+                            <p className="text-xs font-bold">{item.d}</p>
+                        </div>
+                    ))}
+                </div>
+            </div>
         </div>
     );
 };
@@ -457,22 +496,27 @@ const Teleprompter: React.FC<{ script: string; isOpen: boolean; onClose: () => v
 };
 
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }) => {
-  const [activeTab, setActiveTab] = useState<'assets' | 'whop_war_room' | 'morning' | 'profile' | 'clipping' | 'pitch'>('whop_war_room');
+  const [activeTab, setActiveTab] = useState<'assets' | 'whop_war_room' | 'morning' | 'profile' | 'clipping' | 'pitch' | 'campaigns'>('whop_war_room');
   const [isTeleprompterOpen, setIsTeleprompterOpen] = useState(false);
   const [isSelfieBubbleOpen, setIsSelfieBubbleOpen] = useState(false);
   const [currentScript, setCurrentScript] = useState('');
 
-  const morningScript = `[INTRO - 0:00]
-"Hi there, my name is Melo and I’m based in Limpopo."
+  const morningScript = `[SCENE: iPad Hand-held Shot - pointing at the screen]
+
+[INTRO - 0:00]
+"Hi there, my name is Melo. I'm a founder building automation systems for chefs."
+
+[STAGE DIRECTION: Scroll through a generated menu]
+"Look at this. This is real 'Proof of Work'. I'm using AI to architect full catering proposals in under 30 seconds."
 
 [THE WHY - 0:15]
-"I know how stressful catering admin is. That's why I built CaterPro AI."
+"I know how stressful the admin grind is. That's why I'm applying to these campaigns. I want to show you how to scale using these exact tools."
 
-[THE PROOF - 0:30]
-"Look at this: a full Wedding menu generated in 30 seconds, costed in Rands, with safety protocols ready to print."
+[STAGE DIRECTION: Point at the Shopping List/Costing section]
+"Instant ZAR costing. HACCP protocols. It's all built-in. I'm ready to bring this level of authority to your product."
 
 [CLOSE - 0:45]
-"I'm here to save your time. Click below and let's start your first proposal. Thank you!"`;
+"I'm currently remote-ready and looking to partner with high-level B2B brands. Click below and let's build something."`;
 
   const handleOpenTeleprompter = (script: string) => {
     setCurrentScript(script);
@@ -491,7 +535,8 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
         </div>
         <div className="flex bg-slate-100 dark:bg-slate-800 p-1.5 rounded-[2rem] border border-slate-200 dark:border-slate-700 overflow-x-auto no-scrollbar max-w-full">
             {[
-                { id: 'whop_war_room', label: 'Whop War Room', icon: Swords },
+                { id: 'whop_war_room', label: 'War Room', icon: Swords },
+                { id: 'campaigns', label: 'Campaign Hunter', icon: Target },
                 { id: 'assets', label: 'Asset Studio', icon: Layout },
                 { id: 'clipping', label: 'Clipping Hub', icon: Scissors },
                 { id: 'pitch', label: 'High-Ticket Pitch', icon: UserPlus2 },
@@ -511,6 +556,8 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
 
       <div className="grid grid-cols-1 gap-12">
         {activeTab === 'whop_war_room' && <WhopWarRoom />}
+        
+        {activeTab === 'campaigns' && <CampaignHunter />}
 
         {activeTab === 'assets' && <ThumbnailStudio />}
         
@@ -526,8 +573,8 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
                         <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center mb-8 shadow-2xl">
                             <Mic2 size={40} className="text-white" />
                         </div>
-                        <h3 className="text-4xl font-black uppercase tracking-tighter mb-4 leading-none">Fiverr Intro Script</h3>
-                        <p className="text-lg text-indigo-100 font-medium mb-12">Turn on the Face Bubble and record on your iPad.</p>
+                        <h3 className="text-4xl font-black uppercase tracking-tighter mb-4 leading-none">Proof of Work Script</h3>
+                        <p className="text-lg text-indigo-100 font-medium mb-12">Hand-held recording for Whop applications.</p>
                         
                         <div className="p-10 bg-white dark:bg-slate-900 rounded-[3rem] shadow-inner border border-white/20 mb-12 text-left">
                             <p className="text-xl sm:text-2xl font-bold text-slate-800 dark:text-slate-100 leading-relaxed italic whitespace-pre-wrap">
@@ -604,7 +651,7 @@ const Maximize: React.FC<{ size?: number }> = ({ size = 20 }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
 );
 
-const FileSignature: React.FC<{ size?: number }> = ({ size = 20 }) => (
+const LucideFileSignature: React.FC<{ size?: number }> = ({ size = 20 }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><path d="M17 17h5"/><path d="M3 7h2"/><path d="M9 17h2"/><path d="M15 7h2"/><path d="M21 7v10"/><path d="M3 7v10"/></svg>
 );
 
