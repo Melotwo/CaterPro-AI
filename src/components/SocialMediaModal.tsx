@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Check, Facebook, Twitter, Instagram, Video, Loader2, Smartphone, MessageSquareQuote, Activity, Pin, Flame, Rocket } from 'lucide-react';
+import { X, Copy, Check, Facebook, Twitter, Instagram, Video, Loader2, Smartphone, MessageSquareQuote, Activity, Pin, Flame, Rocket, MessageSquare } from 'lucide-react';
 import { generateSocialCaption, generateVideoFromApi, generateWhatsAppStatus } from '../services/geminiService';
 
 export type Mode = 'create' | 'pitch' | 'video' | 'status' | 'reel' | 'formula' | 'flex';
@@ -14,13 +14,13 @@ interface SocialMediaModalProps {
   onImageGenerated?: (base64: string) => void;
 }
 
-type Platform = 'instagram' | 'linkedin' | 'twitter' | 'facebook' | 'tiktok' | 'pinterest' | 'reddit';
+type Platform = 'instagram' | 'linkedin' | 'twitter' | 'facebook' | 'tiktok' | 'pinterest' | 'reddit' | 'whop';
 
 const SocialMediaModal: React.FC<SocialMediaModalProps> = ({ 
   isOpen, onClose, image, menuTitle, menuDescription, initialMode = 'create'
 }) => {
   const [activeMode, setActiveMode] = useState<Mode>(initialMode);
-  const [activePlatform, setActivePlatform] = useState<Platform>('facebook');
+  const [activePlatform, setActivePlatform] = useState<Platform>('whop');
   const [editedContent, setEditedContent] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [copiedText, setCopiedText] = useState(false);
@@ -29,7 +29,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
     if (isOpen) {
       setActiveMode(initialMode);
       if (initialMode !== 'reel') {
-        handleGenerate(initialMode === 'create' ? 'facebook' : undefined);
+        handleGenerate(initialMode === 'create' ? 'whop' : undefined);
       }
     }
   }, [isOpen, initialMode]);
@@ -40,8 +40,13 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
     setEditedContent('');
     try {
       if (activeMode === 'create') {
-        const caption = await generateSocialCaption(menuTitle || "CaterPro AI System", menuDescription || "Automating catering for 2026.", platform);
-        setEditedContent(caption);
+        if (platform === 'whop') {
+            const whopPost = `[COMMUNITY UPDATE: 2026 EDITION]\n\n"I didn't just build an app; I built a system for every chef in this group."\n\nI just finished the architecture for ${menuTitle || 'the new system'}. It now renders full proposals in under 30 seconds.\n\nI am currently looking for 3 ambitious clippers from this group to join my internal engine. I provide the assets, you provide the reach.\n\nDrop a 🥂 below if you are ready to scale with me.\n\n#CaterProAI #FounderLog #WhopCommunity`;
+            setEditedContent(whopPost);
+        } else {
+            const caption = await generateSocialCaption(menuTitle || "CaterPro AI System", menuDescription || "Automating catering for 2026.", platform);
+            setEditedContent(caption);
+        }
       } else if (activeMode === 'flex') {
         const flexPost = `[FOUNDER LOG: DAY 12]\n\n"I stopped typing and started building. This is CaterPro AI."\n\nI just rendered a full ${menuTitle || 'Wedding'} Proposal in 30 seconds. In Rands. With HACCP safety checks ready for the health inspector.\n\nMost chefs are stuck in the office. I'm back in the kitchen because I built the office into an AI.\n\nWant to see the walkthrough? Comment "CHEF" below. 👇\n\n#ProofOfWork #ChefLife #CaterProAI`;
         setEditedContent(flexPost);
@@ -96,11 +101,11 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
             {(activeMode === 'create' || activeMode === 'flex') && (
                 <div className="md:w-1/4 bg-slate-50 dark:bg-slate-950 p-4 border-r border-slate-100 dark:border-slate-800 overflow-x-auto no-scrollbar flex md:flex-col gap-3">
                     {[
+                        { id: 'whop', icon: MessageSquare, label: 'Whop Forum' },
                         { id: 'facebook', icon: Facebook, label: 'Facebook' },
-                        { id: 'twitter', icon: Twitter, label: 'X (Twitter)' },
+                        { id: 'linkedin', icon: Rocket, label: 'LinkedIn' },
                         { id: 'instagram', icon: Instagram, label: 'Instagram' },
-                        { id: 'pinterest', icon: Pin, label: 'Pinterest' },
-                        { id: 'reddit', icon: Flame, label: 'Reddit' }
+                        { id: 'twitter', icon: Twitter, label: 'X (Twitter)' }
                     ].map(p => (
                         <button 
                           key={p.id}
