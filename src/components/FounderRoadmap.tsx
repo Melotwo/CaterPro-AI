@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 /* Import missing ImageIcon and fix duplicate Check identifier */
 import { 
@@ -16,7 +15,10 @@ import {
   UserPlus2, FileSignature as FileSignatureIcon,
   Trophy as CampaignIcon,
   Navigation2,
-  Heart
+  Heart,
+  Cpu,
+  Share,
+  Layers
 } from 'lucide-react';
 import ThumbnailStudio from './ThumbnailStudio';
 import { generateClipperBriefFromApi } from '../services/geminiService';
@@ -25,6 +27,51 @@ interface FounderRoadmapProps {
   whopUrl: string;
   onOpenSocial?: (mode: 'create' | 'reel' | 'status') => void;
 }
+
+const AutomationLab: React.FC = () => {
+    return (
+        <div className="space-y-10 animate-slide-in">
+            <div className="p-10 bg-slate-950 text-white rounded-[3.5rem] border-4 border-indigo-500/30 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-10 opacity-10"><Cpu size={160} className="text-indigo-400" /></div>
+                <div className="relative z-10">
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-4 bg-indigo-600 rounded-3xl shadow-lg"><Layers size={32} /></div>
+                        <div>
+                            <h3 className="text-3xl font-black uppercase tracking-tight">Make.com Strategy</h3>
+                            <p className="text-xs font-bold text-indigo-300 uppercase tracking-widest mt-1">Connecting your 2026 Tech Stack</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
+                            <div className="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center text-indigo-400 font-black">01</div>
+                            <h5 className="text-sm font-black uppercase tracking-widest text-white">The Trigger</h5>
+                            <p className="text-xs text-slate-400 leading-relaxed font-medium">User enters email in <strong>CaterPro AI</strong>. We send a "Webhook" to Make.com instantly.</p>
+                        </div>
+                        <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
+                            <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center text-purple-400 font-black">02</div>
+                            <h5 className="text-sm font-black uppercase tracking-widest text-white">The Logic</h5>
+                            <p className="text-xs text-slate-400 leading-relaxed font-medium">Make.com takes that email, saves it to your <strong>Google Sheet</strong>, and creates a task in <strong>Notion</strong>.</p>
+                        </div>
+                        <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
+                            <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 font-black">03</div>
+                            <h5 className="text-sm font-black uppercase tracking-widest text-white">The Delivery</h5>
+                            <p className="text-xs text-slate-400 leading-relaxed font-medium">Finally, Make.com triggers <strong>Klaviyo</strong> to send the professional PDF proposal to the customer.</p>
+                        </div>
+                    </div>
+
+                    <div className="mt-10 p-8 bg-indigo-600 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl border-2 border-indigo-400/30">
+                        <div className="flex items-center gap-4">
+                             <div className="p-3 bg-white/20 rounded-2xl"><Zap size={24} className="animate-pulse" /></div>
+                             <p className="text-xs font-bold leading-relaxed">You have selected the right apps on Make. <br/>Next step: Connect your <strong>Gmail</strong> to notify you when a high-value lead is captured.</p>
+                        </div>
+                        <button onClick={() => window.open('https://www.make.com/', '_blank')} className="px-8 py-3 bg-white text-indigo-600 rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all">Configure Make</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const CampaignHunter: React.FC = () => {
     const handleCopy = (text: string, label: string) => {
@@ -528,7 +575,7 @@ const Teleprompter: React.FC<{ script: string; isOpen: boolean; onClose: () => v
 };
 
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }) => {
-  const [activeTab, setActiveTab] = useState<'assets' | 'whop_war_room' | 'morning' | 'profile' | 'clipping' | 'pitch' | 'campaigns'>('whop_war_room');
+  const [activeTab, setActiveTab] = useState<'assets' | 'whop_war_room' | 'morning' | 'profile' | 'clipping' | 'pitch' | 'campaigns' | 'automation'>('whop_war_room');
   const [isTeleprompterOpen, setIsTeleprompterOpen] = useState(false);
   const [isSelfieBubbleOpen, setIsSelfieBubbleOpen] = useState(false);
   const [currentScript, setCurrentScript] = useState('');
@@ -569,6 +616,7 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
             {[
                 { id: 'whop_war_room', label: 'War Room', icon: Swords },
                 { id: 'campaigns', label: 'Campaign Hunter', icon: Target },
+                { id: 'automation', label: 'Automation Lab', icon: Cpu },
                 { id: 'assets', label: 'Asset Studio', icon: Layout },
                 { id: 'clipping', label: 'Clipping Hub', icon: Scissors },
                 { id: 'pitch', label: 'High-Ticket Pitch', icon: UserPlus2 },
@@ -590,6 +638,8 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
         {activeTab === 'whop_war_room' && <WhopWarRoom />}
         
         {activeTab === 'campaigns' && <CampaignHunter />}
+
+        {activeTab === 'automation' && <AutomationLab />}
 
         {activeTab === 'assets' && <ThumbnailStudio />}
         
