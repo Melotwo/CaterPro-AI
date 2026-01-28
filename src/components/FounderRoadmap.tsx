@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react';
-/* Import missing ImageIcon and fix duplicate Check identifier */
 import { 
   CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, 
   Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, 
@@ -18,7 +17,14 @@ import {
   Heart,
   Cpu,
   Share,
-  Layers
+  Layers,
+  PhoneCall,
+  LayoutDashboard,
+  ShieldX,
+  CreditCard,
+  History,
+  Lock,
+  MousePointer
 } from 'lucide-react';
 import ThumbnailStudio from './ThumbnailStudio';
 import { generateClipperBriefFromApi } from '../services/geminiService';
@@ -28,44 +34,240 @@ interface FounderRoadmapProps {
   onOpenSocial?: (mode: 'create' | 'reel' | 'status') => void;
 }
 
+const SecurityHub: React.FC = () => {
+    return (
+        <div className="space-y-10 animate-slide-in">
+            {/* SCAM SHIELD - CRITICAL ALERT */}
+            <div className="p-10 bg-slate-950 text-white rounded-[3.5rem] border-4 border-red-500 shadow-[0_0_50px_-12px_rgba(239,68,68,0.5)] relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-10 opacity-5 -rotate-12"><ShieldX size={200} /></div>
+                <div className="relative z-10">
+                    <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mb-12">
+                        <div className="flex items-center gap-5">
+                            <div className="p-5 bg-red-600 rounded-[2rem] shadow-xl animate-pulse">
+                                <ShieldAlert size={36} />
+                            </div>
+                            <div>
+                                <h3 className="text-3xl font-black uppercase tracking-tight">Scam Shield 2026</h3>
+                                <p className="text-xs font-bold text-red-400 uppercase tracking-widest mt-1">Active Defense Protocol</p>
+                            </div>
+                        </div>
+                        <div className="px-6 py-3 bg-white/10 rounded-2xl border border-white/20">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400 flex items-center gap-2">
+                                <Activity size={14} /> Intelligence Log: Updated 1m ago
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div className="space-y-6">
+                            <h5 className="text-sm font-black uppercase text-red-500 tracking-[0.2em] flex items-center gap-2">
+                                <AlertTriangle size={18} /> High-Level Threats Detected
+                            </h5>
+                            <div className="space-y-4">
+                                {[
+                                    { t: "The 'View My Order' Link", d: "Links like 'galerymedia.com' or 'bit.ly' sent via chat. They steal your login.", icon: MousePointer },
+                                    { t: "Outside Payment Request", d: "Asking to pay via WhatsApp or direct bank transfer to 'verify'.", icon: CreditCard },
+                                    { t: "Fake PDF Attachments", d: "Files named 'Order_Details.exe' or 'Requirement.zip'. Never open these.", icon: FileDown }
+                                ].map((threat, i) => (
+                                    <div key={i} className="p-5 bg-white/5 rounded-3xl border border-white/10 flex gap-4 items-start group hover:bg-white/10 transition-all">
+                                        <div className="p-3 bg-red-500/20 rounded-xl text-red-500"><threat.icon size={20} /></div>
+                                        <div>
+                                            <p className="text-sm font-black text-white">{threat.t}</p>
+                                            <p className="text-xs text-slate-400 mt-1 leading-relaxed font-medium">{threat.d}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="bg-white text-slate-950 p-10 rounded-[3rem] shadow-2xl relative">
+                            <div className="absolute -top-4 -right-4 bg-emerald-500 text-white p-4 rounded-3xl shadow-xl">
+                                <ShieldCheck size={28} />
+                            </div>
+                            <h6 className="text-xl font-black uppercase tracking-tight mb-6">Safe Gig Workflow</h6>
+                            <ol className="space-y-6">
+                                {[
+                                    { s: "Step 1: Check the Dashboard", d: "If the order isn't in your 'Active Orders' tab, it doesn't exist." },
+                                    { s: "Step 2: Never Click External Links", d: "Real clients send requirements via the platform's internal uploader." },
+                                    { s: "Step 3: Verify the Profile", d: "Scammers usually have brand new accounts with no reviews." }
+                                ].map((step, i) => (
+                                    <li key={i} className="flex gap-4">
+                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-black text-xs">{i+1}</div>
+                                        <div>
+                                            <p className="text-sm font-black leading-none mb-1">{step.s}</p>
+                                            <p className="text-xs text-slate-500 font-medium leading-relaxed">{step.d}</p>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ol>
+                            <div className="mt-10 pt-8 border-t border-slate-100">
+                                <button onClick={() => window.open('https://www.fiverr.com/support/articles/360010978617-Safety-and-Security-Tips-for-Sellers', '_blank')} className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-800 transition-all">
+                                    <Info size={14} /> Official Platform Safety Guide
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* GIG MONITOR */}
+            <div className="p-10 bg-white dark:bg-slate-900 rounded-[3.5rem] border-4 border-slate-100 dark:border-slate-800 shadow-2xl">
+                <div className="flex items-center justify-between mb-8">
+                    <div className="flex items-center gap-4">
+                        <div className="p-4 bg-indigo-600 rounded-3xl text-white shadow-lg"><History size={32} /></div>
+                        <div>
+                            <h3 className="text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-white">Gig Verification Log</h3>
+                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Status: Monitoring incoming leads</p>
+                        </div>
+                    </div>
+                    <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl">
+                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
+                        <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Systems OK</span>
+                    </div>
+                </div>
+                
+                <div className="p-20 text-center border-4 border-dashed border-slate-100 dark:border-slate-800 rounded-[4rem]">
+                    <Lock className="mx-auto text-slate-200 dark:text-slate-700 mb-6" size={80} />
+                    <h5 className="text-2xl font-black text-slate-400">Secure Order Vault</h5>
+                    <p className="text-sm text-slate-500 mt-2 max-w-xs mx-auto">No verified orders found. Real client data will appear here once confirmed by the Whop/Fiverr API.</p>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 const AutomationLab: React.FC = () => {
     return (
         <div className="space-y-10 animate-slide-in">
+            {/* MAKE.COM FLOW */}
             <div className="p-10 bg-slate-950 text-white rounded-[3.5rem] border-4 border-indigo-500/30 shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-10 opacity-10"><Cpu size={160} className="text-indigo-400" /></div>
                 <div className="relative z-10">
                     <div className="flex items-center gap-4 mb-8">
                         <div className="p-4 bg-indigo-600 rounded-3xl shadow-lg"><Layers size={32} /></div>
                         <div>
-                            <h3 className="text-3xl font-black uppercase tracking-tight">Make.com Strategy</h3>
-                            <p className="text-xs font-bold text-indigo-300 uppercase tracking-widest mt-1">Connecting your 2026 Tech Stack</p>
+                            <h3 className="text-3xl font-black uppercase tracking-tight">System Workflow</h3>
+                            <p className="text-xs font-bold text-indigo-300 uppercase tracking-widest mt-1">Your 2026 Tech Stack Logic</p>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
                             <div className="w-10 h-10 bg-indigo-500/20 rounded-xl flex items-center justify-center text-indigo-400 font-black">01</div>
-                            <h5 className="text-sm font-black uppercase tracking-widest text-white">The Trigger</h5>
-                            <p className="text-xs text-slate-400 leading-relaxed font-medium">User enters email in <strong>CaterPro AI</strong>. We send a "Webhook" to Make.com instantly.</p>
+                            <h5 className="text-sm font-black uppercase tracking-widest text-white">Capture (The App)</h5>
+                            <p className="text-xs text-slate-400 leading-relaxed font-medium">Chef enters email in <strong>CaterPro AI</strong>. This is the "Trigger."</p>
                         </div>
                         <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
                             <div className="w-10 h-10 bg-purple-500/20 rounded-xl flex items-center justify-center text-purple-400 font-black">02</div>
-                            <h5 className="text-sm font-black uppercase tracking-widest text-white">The Logic</h5>
-                            <p className="text-xs text-slate-400 leading-relaxed font-medium">Make.com takes that email, saves it to your <strong>Google Sheet</strong>, and creates a task in <strong>Notion</strong>.</p>
+                            <h5 className="text-sm font-black uppercase tracking-widest text-white">Distribute (Make)</h5>
+                            <p className="text-xs text-slate-400 leading-relaxed font-medium">Make.com sends data to <strong>Google Sheets</strong> and your <strong>CRM</strong>.</p>
                         </div>
                         <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
                             <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 font-black">03</div>
-                            <h5 className="text-sm font-black uppercase tracking-widest text-white">The Delivery</h5>
-                            <p className="text-xs text-slate-400 leading-relaxed font-medium">Finally, Make.com triggers <strong>Klaviyo</strong> to send the professional PDF proposal to the customer.</p>
+                            <h5 className="text-sm font-black uppercase tracking-widest text-white">Nurture (Klaviyo)</h5>
+                            <p className="text-xs text-slate-400 leading-relaxed font-medium">Customer gets an automated <strong>"Welcome"</strong> email with their menu PDF.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* CRM STRATEGY CARD */}
+            <div className="p-10 bg-white dark:bg-slate-900 rounded-[3.5rem] border-4 border-slate-100 dark:border-slate-800 shadow-2xl relative overflow-hidden">
+                <div className="flex items-center gap-4 mb-8">
+                    <div className="p-4 bg-emerald-500 rounded-3xl text-white shadow-lg"><LayoutDashboard size={32} /></div>
+                    <div>
+                        <h3 className="text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-white">CRM Selection: HubSpot</h3>
+                        <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest mt-1">Recommended for Catering Sales</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div className="space-y-6">
+                        <h5 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Why HubSpot?</h5>
+                        <ul className="space-y-4">
+                            {[
+                                "Free mobile app to manage leads on the go",
+                                "One-click email tracking (know when they open the menu)",
+                                "Simple 'Pipeline' view to drag and drop deals",
+                                "Integrates perfectly with Make.com"
+                            ].map((f, i) => (
+                                <li key={i} className="flex gap-3 text-sm font-medium text-slate-600 dark:text-slate-400">
+                                    <CheckCircle2 className="text-emerald-500 shrink-0" size={18} /> {f}
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                    <div className="bg-slate-50 dark:bg-slate-800/50 p-8 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-700 text-center">
+                        <PhoneCall className="mx-auto text-indigo-500 mb-4" size={48} />
+                        <h6 className="font-black uppercase text-sm mb-2">The 2026 Sales Move</h6>
+                        <p className="text-xs text-slate-500 leading-relaxed">When a lead hits your sheet via Make, use the HubSpot app to <strong>WhatsApp them immediately</strong> while they are still in 'Aha!' mode.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const GigArchitect: React.FC = () => {
+    const handleCopy = (text: string) => {
+        navigator.clipboard.writeText(text);
+        alert("Gig Text Copied!");
+    };
+
+    const gigDescription = `I am a Hospitality Systems Architect specializing in AI-driven procurement and menu logic. 
+
+I will build you a custom AI system that:
+- Renders 5-course proposals in <30 seconds
+- Calculates ZAR/USD food costing instantly
+- Organizes shopping lists by store category
+- Integrates with your CRM for lead capture
+
+Stop wasting 15+ hours a week on office admin. Let me architect your digital kitchen.`;
+
+    return (
+        <div className="space-y-10 animate-slide-in">
+            <div className="p-10 bg-indigo-600 rounded-[3.5rem] text-white shadow-2xl relative overflow-hidden border-4 border-indigo-400/30">
+                <div className="absolute top-0 right-0 p-10 opacity-10"><Briefcase size={160} /></div>
+                <div className="relative z-10">
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-3 bg-white/20 rounded-2xl"><Award size={32} /></div>
+                        <div>
+                            <h3 className="text-3xl font-black uppercase tracking-tight">Fiverr Gig Architect</h3>
+                            <p className="text-xs font-bold text-indigo-100 uppercase tracking-widest mt-1">Convert your profile into orders</p>
                         </div>
                     </div>
 
-                    <div className="mt-10 p-8 bg-indigo-600 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl border-2 border-indigo-400/30">
-                        <div className="flex items-center gap-4">
-                             <div className="p-3 bg-white/20 rounded-2xl"><Zap size={24} className="animate-pulse" /></div>
-                             <p className="text-xs font-bold leading-relaxed">You have selected the right apps on Make. <br/>Next step: Connect your <strong>Gmail</strong> to notify you when a high-value lead is captured.</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-6">
+                            <div className="bg-black/20 p-6 rounded-3xl border border-white/10">
+                                <h5 className="text-[10px] font-black uppercase text-indigo-200 mb-4">Recommended Gig Title</h5>
+                                <p className="text-xl font-black leading-tight italic">
+                                    "I will build a custom AI menu automation system for your catering business"
+                                </p>
+                            </div>
+                            <div className="bg-black/20 p-6 rounded-3xl border border-white/10">
+                                <h5 className="text-[10px] font-black uppercase text-indigo-200 mb-4">Gig Description (Copy/Paste)</h5>
+                                <p className="text-xs font-medium leading-relaxed italic text-indigo-50">
+                                    {gigDescription}
+                                </p>
+                                <button onClick={() => handleCopy(gigDescription)} className="mt-4 w-full py-3 bg-white text-indigo-600 rounded-xl font-black text-[10px] uppercase tracking-widest">Copy Description</button>
+                            </div>
                         </div>
-                        <button onClick={() => window.open('https://www.make.com/', '_blank')} className="px-8 py-3 bg-white text-indigo-600 rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all">Configure Make</button>
+
+                        <div className="space-y-4">
+                            <h5 className="text-[10px] font-black uppercase text-indigo-200 tracking-widest">Step-by-Step Launch</h5>
+                            {[
+                                "Go to 'Asset Studio' and render Image 1 (Yellow Theme)",
+                                "Capture a video showing your app in action for the Gig Video",
+                                "Set pricing: Basic ($50), Standard ($95), Premium ($250)",
+                                "Use keywords: Catering AI, Menu Automation, Hospitality Systems"
+                            ].map((item, i) => (
+                                <div key={i} className="flex items-center gap-3 p-4 bg-white/10 rounded-2xl border border-white/20">
+                                    <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center font-black text-[10px] text-white">{i+1}</div>
+                                    <p className="text-xs font-bold text-white">{item}</p>
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
@@ -575,7 +777,7 @@ const Teleprompter: React.FC<{ script: string; isOpen: boolean; onClose: () => v
 };
 
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }) => {
-  const [activeTab, setActiveTab] = useState<'assets' | 'whop_war_room' | 'morning' | 'profile' | 'clipping' | 'pitch' | 'campaigns' | 'automation'>('whop_war_room');
+  const [activeTab, setActiveTab] = useState<'security' | 'assets' | 'whop_war_room' | 'morning' | 'profile' | 'clipping' | 'pitch' | 'campaigns' | 'automation' | 'gig_architect'>('whop_war_room');
   const [isTeleprompterOpen, setIsTeleprompterOpen] = useState(false);
   const [isSelfieBubbleOpen, setIsSelfieBubbleOpen] = useState(false);
   const [currentScript, setCurrentScript] = useState('');
@@ -615,13 +817,15 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
         <div className="flex bg-slate-100 dark:bg-slate-800 p-1.5 rounded-[2rem] border border-slate-200 dark:border-slate-700 overflow-x-auto no-scrollbar max-w-full">
             {[
                 { id: 'whop_war_room', label: 'War Room', icon: Swords },
-                { id: 'campaigns', label: 'Campaign Hunter', icon: Target },
-                { id: 'automation', label: 'Automation Lab', icon: Cpu },
+                { id: 'security', label: 'Security Hub', icon: ShieldAlert },
+                { id: 'automation', label: 'Systems Lab', icon: Cpu },
+                { id: 'gig_architect', label: 'Gig Architect', icon: Award },
                 { id: 'assets', label: 'Asset Studio', icon: Layout },
+                { id: 'campaigns', label: 'Whop Hunter', icon: Target },
                 { id: 'clipping', label: 'Clipping Hub', icon: Scissors },
-                { id: 'pitch', label: 'High-Ticket Pitch', icon: UserPlus2 },
+                { id: 'pitch', label: 'High-Ticket', icon: UserPlus2 },
                 { id: 'morning', label: 'Video Script', icon: Video },
-                { id: 'profile', label: 'Fiverr Meta', icon: Briefcase }
+                { id: 'profile', label: 'Meta Tags', icon: Briefcase }
             ].map(tab => (
                 <button 
                   key={tab.id}
@@ -636,12 +840,16 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
 
       <div className="grid grid-cols-1 gap-12">
         {activeTab === 'whop_war_room' && <WhopWarRoom />}
-        
-        {activeTab === 'campaigns' && <CampaignHunter />}
 
+        {activeTab === 'security' && <SecurityHub />}
+        
         {activeTab === 'automation' && <AutomationLab />}
 
+        {activeTab === 'gig_architect' && <GigArchitect />}
+
         {activeTab === 'assets' && <ThumbnailStudio />}
+        
+        {activeTab === 'campaigns' && <CampaignHunter />}
         
         {activeTab === 'clipping' && <ClippingHub />}
 
