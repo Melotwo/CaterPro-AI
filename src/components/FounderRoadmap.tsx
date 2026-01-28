@@ -10,7 +10,7 @@ import {
   Flame, Moon, Sun, Clock, FileSearch, X, Pause, Play, RefreshCw, Coffee, Calculator, 
   Briefcase as UpworkIcon, ListOrdered, Lightbulb, ShoppingCart, Tag, FolderHeart, 
   UserCog, Keyboard, Terminal, Sparkle, FileDown, VideoOff, Scissors, Newspaper, Ghost, 
-  UserCheck, Swords, CalendarDays, ListTodo, Image as ImageIcon, Box, HelpCircle as QuestionIcon,
+  UserCheck, Swords, CalendarDays, ListTodo, ImageIcon, Box, HelpCircle as QuestionIcon,
   UserPlus2, FileSignature as FileSignatureIcon,
   Trophy as CampaignIcon,
   Navigation2,
@@ -35,7 +35,9 @@ import {
   ArrowUpRight,
   Bell,
   MessageSquareDiff,
-  Shield
+  Shield,
+  Filter,
+  Terminal as ConsoleIcon
 } from 'lucide-react';
 import ThumbnailStudio from './ThumbnailStudio';
 import { generateClipperBriefFromApi } from '../services/geminiService';
@@ -51,28 +53,24 @@ const OutreachLab: React.FC = () => {
         alert(`${label} Copied!`);
     };
 
-    const coldEmail = `Subject: [Company Name] x 2026 Catering Strategy (Sample Attached)
+    const scrubberPrompt = `Format this data into a clean CSV-ready table with these EXACT headers:
+Full Name, Company Name, LinkedIn URL, Email, Phone Number, Context, Status
 
-Hi [Name],
-
-I noticed [Company Name] is scaling fast. I am a Hospitality Systems Architect and I’ve put together a sample catering proposal for your next team event using a new AI system I've built.
-
-I've attached the full menu and a ZAR cost breakdown.
-
-I’m looking to partner with 5 forward-thinking brands to help them automate their internal hospitality logistics. Would you be open to a 5-minute chat about how this system could save your office manager 15+ hours a month?
-
-Best regards,
-[Your Name]
-Founder, CaterPro AI`;
+Rules:
+1. If the 'Company' is just a Facebook Group, move the group name to 'Context' and leave 'Company' empty.
+2. Ensure emails are lowercase.
+3. Set the 'Status' for every row to 'Pending'.
+4. Remove any entries that don't have an email address.
+5. Return the result as a code block.`;
 
     return (
         <div className="space-y-10 animate-slide-in">
-            {/* GOOGLE SHEETS ORGANIZATION - MATCHES USER SCREENSHOT */}
+            {/* GOOGLE SHEETS ORGANIZATION */}
             <div className="p-10 bg-indigo-600 text-white rounded-[3.5rem] border-4 border-indigo-400 shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-10 opacity-10"><TableProperties size={200} /></div>
                 <div className="relative z-10">
                     <h3 className="text-3xl font-black uppercase tracking-tight mb-2">Master Scraper Sheet</h3>
-                    <p className="text-sm font-bold text-indigo-100 uppercase tracking-widest mb-8">Official Layout for Google Sheets x Make.com</p>
+                    <p className="text-sm font-bold text-indigo-100 uppercase tracking-widest mb-8">Direct Mapping for Make.com x HubSpot</p>
                     
                     <div className="bg-white/10 rounded-[2.5rem] border border-white/20 overflow-hidden">
                         <table className="w-full text-left text-xs font-bold">
@@ -80,17 +78,18 @@ Founder, CaterPro AI`;
                                 <tr>
                                     <th className="px-6 py-4">Column</th>
                                     <th className="px-6 py-4">Header Name</th>
-                                    <th className="px-6 py-4">Make.com Action</th>
+                                    <th className="px-6 py-4">Automation Role</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/10">
                                 {[
-                                    { c: "A", h: "Full Name", a: "HubSpot: Contact Name" },
-                                    { c: "B", h: "Company Name", a: "HubSpot: Create Company" },
-                                    { c: "C", h: "Website URL", a: "Scraper: Extract Logo/Industry" },
-                                    { c: "D", h: "Email", a: "Outreach: Send Value Bait" },
-                                    { c: "E", h: "Phone Number", a: "WhatsApp: Immediate Follow-up" },
-                                    { c: "F", h: "Status", a: "Set to 'Ready' to trigger Make.com" }
+                                    { c: "A", h: "Full Name", a: "HubSpot Contact Name" },
+                                    { c: "B", h: "Company Name", a: "HubSpot Company Link" },
+                                    { c: "C", h: "LinkedIn URL", a: "Founder Verification" },
+                                    { c: "D", h: "Email", a: "Trigger: Send Value Bait" },
+                                    { c: "E", h: "Phone Number", a: "WhatsApp Notification" },
+                                    { c: "F", h: "Context", a: "Personalization Hook" },
+                                    { c: "G", h: "Status", a: "IF 'Ready' THEN Sync" }
                                 ].map((row, i) => (
                                     <tr key={i} className="hover:bg-white/5 transition-colors">
                                         <td className="px-6 py-4 opacity-60">Col {row.c}</td>
@@ -103,33 +102,36 @@ Founder, CaterPro AI`;
                     </div>
                     
                     <div className="mt-8">
-                        <button onClick={() => handleCopy("Full Name, Company Name, Website URL, Email, Phone Number, Status", "Headers")} className="w-full py-4 bg-white text-indigo-600 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl">
-                            Copy Header Row for Google Sheets
+                        <button onClick={() => handleCopy("Full Name, Company Name, LinkedIn URL, Email, Phone Number, Context, Status", "Headers")} className="w-full py-4 bg-white text-indigo-600 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl">
+                            Copy Header Row for Sheet
                         </button>
                     </div>
                 </div>
             </div>
 
-            {/* EMAIL TEMPLATE CARD */}
-            <div className="p-10 bg-white dark:bg-slate-900 rounded-[3.5rem] border-4 border-slate-100 dark:border-slate-800 shadow-2xl relative overflow-hidden">
-                <div className="flex items-center gap-4 mb-8">
-                    <div className="p-4 bg-indigo-600 rounded-3xl text-white shadow-lg"><Mail size={32} /></div>
-                    <div>
-                        <h3 className="text-3xl font-black uppercase tracking-tight text-slate-900 dark:text-white">The "Value Bait" Email</h3>
-                        <p className="text-xs font-bold text-indigo-600 uppercase tracking-widest mt-1">Pitch to Lauren Smith & Cate Wineburg</p>
+            {/* CHATGPT SCRUBBER PROMPT */}
+            <div className="p-10 bg-slate-900 text-white rounded-[3.5rem] border-4 border-emerald-500/20 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-10 opacity-10"><ConsoleIcon size={160} /></div>
+                <div className="relative z-10">
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-4 bg-emerald-500 rounded-3xl text-white shadow-lg"><Filter size={32} /></div>
+                        <div>
+                            <h3 className="text-3xl font-black uppercase tracking-tight">The Scrubber Prompt</h3>
+                            <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mt-1">Add this to your ChatGPT session</p>
+                        </div>
                     </div>
-                </div>
-
-                <div className="bg-slate-50 dark:bg-slate-950 p-8 rounded-[2.5rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
-                    <p className="text-sm font-medium text-slate-700 dark:text-slate-300 italic leading-relaxed whitespace-pre-wrap">
-                        {coldEmail}
-                    </p>
-                    <button 
-                        onClick={() => handleCopy(coldEmail, 'Cold Email')}
-                        className="mt-8 w-full py-5 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-800 transition-all"
-                    >
-                        <Copy size={16} /> Copy Outreach Script
-                    </button>
+                    
+                    <div className="bg-black/40 p-8 rounded-[2.5rem] border-2 border-dashed border-white/20">
+                        <p className="text-sm font-medium text-slate-300 italic leading-relaxed whitespace-pre-wrap">
+                            "{scrubberPrompt}"
+                        </p>
+                        <button 
+                            onClick={() => handleCopy(scrubberPrompt, 'ChatGPT Prompt')}
+                            className="mt-8 w-full py-5 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-emerald-500 transition-all"
+                        >
+                            <Copy size={16} /> Copy Pro Prompt
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -149,13 +151,13 @@ const SecurityHub: React.FC = () => {
                                 <ShieldAlert size={36} />
                             </div>
                             <div>
-                                <h3 className="text-3xl font-black uppercase tracking-tight text-white">Founder Security Kit</h3>
-                                <p className="text-xs font-bold text-red-400 uppercase tracking-widest mt-1">Scam Defense Protocol 2026</p>
+                                <h3 className="text-3xl font-black uppercase tracking-tight text-white">Scam Shield 2026</h3>
+                                <p className="text-xs font-bold text-red-400 uppercase tracking-widest mt-1">Founder Active Defense Protocol</p>
                             </div>
                         </div>
                         <div className="px-6 py-3 bg-white/10 rounded-2xl border border-white/20">
                             <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400 flex items-center gap-2">
-                                <Shield size={14} /> Active Protection: Enabled
+                                <Shield size={14} /> Intelligence Log: "Sofia" Bot Variant Recognized
                             </p>
                         </div>
                     </div>
@@ -163,13 +165,13 @@ const SecurityHub: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                         <div className="space-y-6">
                             <h5 className="text-sm font-black uppercase text-red-500 tracking-[0.2em] flex items-center gap-2">
-                                <AlertTriangle size={18} /> Scammer Red Flags
+                                <AlertTriangle size={18} /> High-Level Red Flags
                             </h5>
                             <div className="space-y-4">
                                 {[
-                                    { t: "Fake 'Human Verification'", d: "Links asking you to 'verify identity' to see an order. It's a password trap.", icon: Fingerprint },
-                                    { t: "The 'Sofia' Pattern", d: "Aggressive messages like 'Did you see my order?' without an actual platform notification.", icon: Ghost },
-                                    { t: "PDF/ZIP Requirements", d: "Never open .zip or .exe files from 'customers' - they contain malware.", icon: FileDown }
+                                    { t: "Fake 'Human Verification'", d: "Links like 'leninanoga.com' asking you to 'verify' to see an order. It's a password trap.", icon: Fingerprint },
+                                    { t: "Aggressive Urgency", d: "Bots naming themselves 'Steven' or 'Sofia' asking 'Did you see my order?' without an official notification.", icon: Ghost },
+                                    { t: "The QR Code Trap", d: "Never scan a QR code sent in a Fiverr/Whop message to 'confirm a payment.'", icon: Smartphone }
                                 ].map((threat, i) => (
                                     <div key={i} className="p-5 bg-white/5 rounded-3xl border border-white/10 flex gap-4 items-start group hover:bg-white/10 transition-all">
                                         <div className="p-3 bg-red-500/20 rounded-xl text-red-500"><threat.icon size={20} /></div>
@@ -189,9 +191,9 @@ const SecurityHub: React.FC = () => {
                             <h6 className="text-xl font-black uppercase tracking-tight mb-6 text-slate-900">Zero-Trust Workflow</h6>
                             <ol className="space-y-6">
                                 {[
-                                    { s: "Official Orders Only", d: "If an order doesn't show in your actual 'Active Orders' dashboard, it does not exist." },
-                                    { s: "No Off-Platform Links", d: "Never click bit.ly or unknown domain links sent by 'customers'." },
-                                    { s: "Block Instantly", d: "Scammers rely on your politeness. If it feels weird, block and report immediately." }
+                                    { s: "Step 1: Dashboard Check", d: "If the order is not in your 'Active Orders' tab, it does not exist. Period." },
+                                    { s: "Step 2: Link Policy", d: "Never click external links sent by 'buyers' to verify your account." },
+                                    { s: "Step 3: Immediate Block", d: "Aggressive bots rely on your politeness. Don't reply—just block and report." }
                                 ].map((step, i) => (
                                     <li key={i} className="flex gap-4">
                                         <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-black text-xs text-slate-900">{i+1}</div>
@@ -204,7 +206,7 @@ const SecurityHub: React.FC = () => {
                             </ol>
                             <div className="mt-10 pt-8 border-t border-slate-100">
                                 <button onClick={() => window.open('https://www.fiverr.com/support/articles/360010978617-Safety-and-Security-Tips-for-Sellers', '_blank')} className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-800 transition-all">
-                                    <Info size={14} /> Official Safety Guide
+                                    <Info size={14} /> Official Fiverr Safety Guide
                                 </button>
                             </div>
                         </div>
@@ -221,7 +223,7 @@ const CRMArchitect: React.FC = () => {
 🏢 Company: {{1.CompanyName}}
 👤 Contact: {{1.FullName}}
 📧 Email: {{1.Email}}
-📱 WhatsApp: {{1.Phone}}
+📝 Context: {{1.Context}}
 
 Action: Send "Value Bait" Proposal now.`;
 
@@ -281,7 +283,7 @@ Action: Send "Value Bait" Proposal now.`;
                                 <div className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center font-black text-xs shrink-0">3</div>
                                 <div>
                                     <p className="text-sm font-black text-white">Automate the Ping</p>
-                                    <p className="text-xs text-purple-200 mt-1">Now every time you mark a lead as 'Ready' in your sheet, your iPad will go "Knock-Brush"!</p>
+                                    <p className="text-xs text-purple-200 mt-1">Every time you mark a lead as 'Ready' in your sheet, your iPad will go "Knock-Brush"!</p>
                                 </div>
                             </div>
                         </div>
