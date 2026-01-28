@@ -9,7 +9,7 @@ import {
   MousePointer2, Activity, ShieldAlert, Instagram, Facebook, Link2, MessageSquareQuote, 
   Flame, Moon, Sun, Clock, FileSearch, X, Pause, Play, RefreshCw, Coffee, Calculator, 
   Briefcase as UpworkIcon, ListOrdered, Lightbulb, ShoppingCart, Tag, FolderHeart, 
-  UserCog, Keyboard, Terminal, Sparkle, FileDown, VideoOff, Scissors, Newspaper, Ghost,
+  UserCog, Keyboard, Terminal, Sparkle, FileDown, VideoOff, Scissors, Newspaper, Ghost, 
   UserCheck, Swords, CalendarDays, ListTodo, Image as ImageIcon, Box, HelpCircle as QuestionIcon,
   UserPlus2, FileSignature as FileSignatureIcon,
   Trophy as CampaignIcon,
@@ -25,7 +25,14 @@ import {
   History,
   Lock,
   MousePointer,
-  Fingerprint
+  Fingerprint,
+  Database,
+  Network,
+  Slack,
+  Workflow,
+  Mail,
+  TableProperties,
+  ArrowUpRight
 } from 'lucide-react';
 import ThumbnailStudio from './ThumbnailStudio';
 import { generateClipperBriefFromApi } from '../services/geminiService';
@@ -35,54 +42,170 @@ interface FounderRoadmapProps {
   onOpenSocial?: (mode: 'create' | 'reel' | 'status') => void;
 }
 
-const CRMArchitect: React.FC = () => {
+const OutreachLab: React.FC = () => {
+    const handleCopy = (text: string, label: string) => {
+        navigator.clipboard.writeText(text);
+        alert(`${label} Copied!`);
+    };
+
+    const coldEmail = `Subject: [Company Name] x 2026 Catering Strategy (Sample Attached)
+
+Hi [Name],
+
+I noticed [Company Name] is scaling fast. I am a Hospitality Systems Architect and I’ve put together a sample catering proposal for your next team event using a new AI system I've built.
+
+I've attached the full menu and a ZAR cost breakdown.
+
+I’m looking to partner with 5 forward-thinking brands to help them automate their internal hospitality logistics. Would you be open to a 5-minute chat about how this system could save your office manager 15+ hours a month?
+
+Best regards,
+[Your Name]
+Founder, CaterPro AI`;
+
     return (
         <div className="space-y-10 animate-slide-in">
-            {/* HUBSPOT CONNECTION GUIDE */}
-            <div className="p-10 bg-white dark:bg-slate-900 rounded-[3.5rem] border-4 border-slate-100 dark:border-slate-800 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-10 opacity-5 -rotate-12 text-indigo-500"><Database size={200} /></div>
+            {/* SCRAPE TO SCALE STRATEGY */}
+            <div className="p-10 bg-indigo-600 text-white rounded-[3.5rem] border-4 border-indigo-400 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-10 opacity-10"><TableProperties size={200} /></div>
                 <div className="relative z-10">
-                    <div className="flex items-center gap-4 mb-8">
-                        <div className="p-4 bg-orange-500 rounded-3xl text-white shadow-lg"><Network size={32} /></div>
-                        <div>
-                            <h3 className="text-3xl font-black uppercase tracking-tight text-slate-900 dark:text-white">HubSpot Connection</h3>
-                            <p className="text-xs font-bold text-orange-600 uppercase tracking-widest mt-1">Live Lead Integration Strategy</p>
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                        <div className="space-y-6">
-                            <h5 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Connection Checklist</h5>
-                            <div className="space-y-4">
+                    <h3 className="text-3xl font-black uppercase tracking-tight mb-2">Scrape-to-Scale Framework</h3>
+                    <p className="text-sm font-bold text-indigo-100 uppercase tracking-widest mb-8">Google Sheets x Make.com Logic</p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div className="space-y-4">
+                            <h5 className="text-[10px] font-black uppercase tracking-widest text-indigo-200">Required Sheet Columns:</h5>
+                            <div className="space-y-2">
                                 {[
-                                    { t: "1. Create HubSpot API Key", d: "Go to Settings > Integrations > Private Apps. Create a 'CaterPro' token." },
-                                    { t: "2. Set up Make.com Module", d: "In your scenario, add a HubSpot 'Create Contact' module after the Webhook." },
-                                    { t: "3. Map Your Data", d: "Drag 'Email' from the webhook output into the 'Email' field in HubSpot." },
-                                    { t: "4. Test the Loop", d: "Open CaterPro on your iPad, enter a test email, and watch it appear in HubSpot!" }
-                                ].map((step, i) => (
-                                    <div key={i} className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 flex gap-4 items-start">
-                                        <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-[10px] font-black text-white shrink-0 mt-0.5">{i+1}</div>
-                                        <div>
-                                            <p className="text-sm font-black text-slate-900 dark:text-white">{step.t}</p>
-                                            <p className="text-xs text-slate-500 mt-1 leading-relaxed">{step.d}</p>
-                                        </div>
+                                    { c: "Column A: Company Name", d: "Used for email personalization hooks." },
+                                    { c: "Column B: Direct Email", d: "Target Office Managers or HR Heads." },
+                                    { c: "Column C: LinkedIn URL", d: "For multi-channel follow ups." },
+                                    { c: "Column D: Status", d: "Set to 'Ready' to trigger Make.com." }
+                                ].map((col, i) => (
+                                    <div key={i} className="p-4 bg-white/10 rounded-2xl border border-white/10">
+                                        <p className="text-xs font-black">{col.c}</p>
+                                        <p className="text-[10px] opacity-70 mt-1">{col.d}</p>
                                     </div>
                                 ))}
                             </div>
                         </div>
-
-                        <div className="bg-orange-50 dark:bg-orange-900/10 p-10 rounded-[3rem] border-2 border-orange-100 dark:border-orange-800">
-                            <div className="flex items-center gap-3 mb-6">
-                                <Activity className="text-orange-500 animate-pulse" />
-                                <h6 className="text-lg font-black uppercase tracking-tight text-orange-900 dark:text-orange-200">The Founder Edge</h6>
+                        <div className="bg-white/5 p-8 rounded-[2.5rem] border border-white/10 flex flex-col justify-center">
+                            <div className="flex items-center gap-3 mb-4 text-amber-400">
+                                <Zap size={24} />
+                                <h6 className="font-black uppercase text-sm">Pro Scraper Strategy</h6>
                             </div>
-                            <p className="text-sm text-orange-800 dark:text-orange-300 font-medium leading-relaxed mb-8 italic">
-                                "By automating leads into HubSpot, you are building a real Business Intelligence engine. This is exactly what high-paying SaaS companies look for in technical founders."
+                            <p className="text-xs leading-relaxed font-medium italic mb-6">
+                                "Don't scrape the generic info@ address. Scrape the business owner or office manager's first name. When HubSpot syncs the company (like you saw in your screenshot), it will automatically pull the logo and industry details for you."
                             </p>
-                            <button onClick={() => window.open('https://knowledge.hubspot.com/contacts/create-contacts', '_blank')} className="w-full py-4 bg-orange-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-orange-700 transition-all shadow-xl shadow-orange-500/20">
-                                <ExternalLink size={14} /> Official HubSpot Guide
+                            <button onClick={() => window.open('https://www.hubspot.com/products/crm/email-tracking', '_blank')} className="w-full py-4 bg-white text-indigo-600 rounded-2xl font-black text-[10px] uppercase tracking-widest">
+                                Learn Email Tracking
                             </button>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* EMAIL TEMPLATE CARD */}
+            <div className="p-10 bg-white dark:bg-slate-900 rounded-[3.5rem] border-4 border-slate-100 dark:border-slate-800 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-10 opacity-5 -rotate-12"><Mail size={200} /></div>
+                <div className="relative z-10">
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-4 bg-indigo-600 rounded-3xl text-white shadow-lg"><Mail size={32} /></div>
+                        <div>
+                            <h3 className="text-3xl font-black uppercase tracking-tight text-slate-900 dark:text-white">The "Value Bait" Email</h3>
+                            <p className="text-xs font-bold text-indigo-600 uppercase tracking-widest mt-1">Convert Scraped Leads Instantly</p>
+                        </div>
+                    </div>
+
+                    <div className="bg-slate-50 dark:bg-slate-950 p-8 rounded-[2.5rem] border-2 border-dashed border-slate-200 dark:border-slate-800">
+                        <p className="text-sm font-medium text-slate-700 dark:text-slate-300 italic leading-relaxed whitespace-pre-wrap">
+                            {coldEmail}
+                        </p>
+                        <button 
+                            onClick={() => handleCopy(coldEmail, 'Cold Email')}
+                            className="mt-8 w-full py-5 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-800 transition-all"
+                        >
+                            <Copy size={16} /> Copy Outreach Script
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const CRMArchitect: React.FC = () => {
+    return (
+        <div className="space-y-10 animate-slide-in">
+            {/* MAKE.COM DATA MAPPING GUIDE */}
+            <div className="p-10 bg-slate-950 text-white rounded-[3.5rem] border-4 border-emerald-500/30 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-10 opacity-10"><Workflow size={160} className="text-emerald-400" /></div>
+                <div className="relative z-10">
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-4 bg-emerald-600 rounded-3xl shadow-lg"><Workflow size={32} /></div>
+                        <div>
+                            <h3 className="text-3xl font-black uppercase tracking-tight">Make.com Mapping Guide</h3>
+                            <p className="text-xs font-bold text-emerald-300 uppercase tracking-widest mt-1">Fixing the connection errors</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {[
+                            { t: "1. The Trigger", d: "Module: Google Sheets > Watch Rows. Select your sheet and set 'Limit' to 10." },
+                            { t: "2. The Router", d: "Add a Filter: Only proceed if Column 'Email' exists and is not empty." },
+                            { t: "3. The Action", d: "Module: HubSpot > Create Record. Map Column A to 'First Name' and Column B to 'Email'." }
+                        ].map((step, i) => (
+                            <div key={i} className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
+                                <h5 className="text-sm font-black uppercase text-emerald-400">{step.t}</h5>
+                                <p className="text-xs text-slate-400 leading-relaxed font-medium">{step.d}</p>
+                            </div>
+                        ))}
+                    </div>
+                    
+                    <div className="mt-8 p-6 bg-emerald-900/20 rounded-2xl border border-emerald-500/20 flex items-center gap-4">
+                        <AlertCircle className="text-emerald-500" size={24} />
+                        <p className="text-xs font-bold text-emerald-100 italic">
+                            "Check your 'Company Sync' in HubSpot before running the Make scenario. If HubSpot is still syncing (like in your screenshot), wait for it to finish so it can auto-match the domain names."
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {/* HUBSPOT STATUS DASHBOARD */}
+            <div className="p-10 bg-white dark:bg-slate-900 rounded-[3.5rem] border-4 border-slate-100 dark:border-slate-800 shadow-2xl">
+                <div className="flex items-center gap-4 mb-8">
+                    <div className="p-4 bg-orange-500 rounded-3xl text-white shadow-lg"><Network size={32} /></div>
+                    <div>
+                        <h3 className="text-3xl font-black uppercase tracking-tight text-slate-900 dark:text-white">HubSpot Deployment</h3>
+                        <p className="text-xs font-bold text-orange-600 uppercase tracking-widest mt-1">Next steps for segments</p>
+                    </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <div className="space-y-6">
+                        <p className="text-sm text-slate-500 leading-relaxed font-medium">
+                            Now that your segments are "Ready to Connect", you need to create a **Lead Pipeline**. This allows you to track which scraped leads have opened your emails.
+                        </p>
+                        <div className="space-y-4">
+                            {[
+                                "Create a 'Catering Sales' Pipeline in HubSpot",
+                                "Stage 1: New Scraped Lead",
+                                "Stage 2: Proposal Sent (Bait)",
+                                "Stage 3: Responded / Interested"
+                            ].map((p, i) => (
+                                <div key={i} className="flex items-center gap-3 text-xs font-black text-slate-700 dark:text-slate-300">
+                                    <div className="w-5 h-5 rounded-full bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 text-[10px]">{i+1}</div>
+                                    {p}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="bg-orange-50 dark:bg-orange-900/10 p-10 rounded-[3rem] border-2 border-orange-100 dark:border-orange-800 text-center">
+                        <PhoneCall className="mx-auto text-indigo-500 mb-4" size={48} />
+                        <h6 className="font-black uppercase text-sm mb-4 text-orange-900 dark:text-orange-200">Official Onboarding</h6>
+                        <button onClick={() => window.open('https://app.hubspot.com/onboarding/', '_blank')} className="w-full py-4 bg-orange-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl shadow-orange-500/20">
+                            <ArrowUpRight size={14} /> Resume Onboarding
+                        </button>
                     </div>
                 </div>
             </div>
@@ -449,7 +572,7 @@ const WhopWarRoom: React.FC = () => {
                 <div className="absolute top-0 right-0 p-10 opacity-10"><Clock size={140} className="animate-spin-slow" /></div>
                 <div className="relative z-10">
                     <div className="flex items-center gap-4 mb-8">
-                        <div className="p-4 bg-amber-500 rounded-3xl shadow-lg animate-pulse"><Activity size={32} /></div>
+                        <div className="p-4 bg-amber-500 rounded-3 shadow-lg animate-pulse"><Activity size={32} /></div>
                         <div>
                             <h3 className="text-3xl font-black uppercase tracking-tight text-white">The Waiting Room</h3>
                             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">What to do while your application is pending</p>
@@ -829,7 +952,7 @@ const Teleprompter: React.FC<{ script: string; isOpen: boolean; onClose: () => v
 };
 
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }) => {
-  const [activeTab, setActiveTab] = useState<'whop_war_room' | 'crm_architect' | 'security' | 'assets' | 'morning' | 'profile' | 'clipping' | 'pitch' | 'campaigns' | 'automation' | 'gig_architect'>('whop_war_room');
+  const [activeTab, setActiveTab] = useState<'whop_war_room' | 'outreach' | 'crm_architect' | 'security' | 'assets' | 'morning' | 'profile' | 'clipping' | 'pitch' | 'campaigns' | 'automation' | 'gig_architect'>('whop_war_room');
   const [isTeleprompterOpen, setIsTeleprompterOpen] = useState(false);
   const [isSelfieBubbleOpen, setIsSelfieBubbleOpen] = useState(false);
   const [currentScript, setCurrentScript] = useState('');
@@ -864,11 +987,12 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
             <ShieldCheck className="text-primary-500 w-10 h-10" />
             War Room Console
           </h2>
-          <p className="text-lg text-slate-500 font-medium mt-2">Aggressive setup for Whop, HubSpot, and Social Media.</p>
+          <p className="text-lg text-slate-500 font-medium mt-2">Aggressive setup for Whop, HubSpot, and Outreach.</p>
         </div>
         <div className="flex bg-slate-100 dark:bg-slate-800 p-1.5 rounded-[2rem] border border-slate-200 dark:border-slate-700 overflow-x-auto no-scrollbar max-w-full">
             {[
                 { id: 'whop_war_room', label: 'War Room', icon: Swords },
+                { id: 'outreach', label: 'Outreach Lab', icon: Mail },
                 { id: 'crm_architect', label: 'CRM Hub', icon: Database },
                 { id: 'security', label: 'Security', icon: ShieldAlert },
                 { id: 'automation', label: 'Systems', icon: Cpu },
@@ -893,6 +1017,8 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
 
       <div className="grid grid-cols-1 gap-12">
         {activeTab === 'whop_war_room' && <WhopWarRoom />}
+
+        {activeTab === 'outreach' && <OutreachLab />}
 
         {activeTab === 'crm_architect' && <CRMArchitect />}
 
@@ -998,14 +1124,6 @@ const Maximize: React.FC<{ size?: number }> = ({ size = 20 }) => (
 
 const LucideFileSignature: React.FC<{ size?: number }> = ({ size = 20 }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><path d="M17 17h5"/><path d="M3 7h2"/><path d="M9 17h2"/><path d="M15 7h2"/><path d="M21 7v10"/><path d="M3 7v10"/></svg>
-);
-
-const Database: React.FC<{ size?: number }> = ({ size = 20 }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>
-);
-
-const Network: React.FC<{ size?: number }> = ({ size = 20 }) => (
-    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg>
 );
 
 export default FounderRoadmap;
