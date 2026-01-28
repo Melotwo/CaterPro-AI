@@ -24,7 +24,8 @@ import {
   CreditCard,
   History,
   Lock,
-  MousePointer
+  MousePointer,
+  Fingerprint
 } from 'lucide-react';
 import ThumbnailStudio from './ThumbnailStudio';
 import { generateClipperBriefFromApi } from '../services/geminiService';
@@ -33,6 +34,61 @@ interface FounderRoadmapProps {
   whopUrl: string;
   onOpenSocial?: (mode: 'create' | 'reel' | 'status') => void;
 }
+
+const CRMArchitect: React.FC = () => {
+    return (
+        <div className="space-y-10 animate-slide-in">
+            {/* HUBSPOT CONNECTION GUIDE */}
+            <div className="p-10 bg-white dark:bg-slate-900 rounded-[3.5rem] border-4 border-slate-100 dark:border-slate-800 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-10 opacity-5 -rotate-12 text-indigo-500"><Database size={200} /></div>
+                <div className="relative z-10">
+                    <div className="flex items-center gap-4 mb-8">
+                        <div className="p-4 bg-orange-500 rounded-3xl text-white shadow-lg"><Network size={32} /></div>
+                        <div>
+                            <h3 className="text-3xl font-black uppercase tracking-tight text-slate-900 dark:text-white">HubSpot Connection</h3>
+                            <p className="text-xs font-bold text-orange-600 uppercase tracking-widest mt-1">Live Lead Integration Strategy</p>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                        <div className="space-y-6">
+                            <h5 className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Connection Checklist</h5>
+                            <div className="space-y-4">
+                                {[
+                                    { t: "1. Create HubSpot API Key", d: "Go to Settings > Integrations > Private Apps. Create a 'CaterPro' token." },
+                                    { t: "2. Set up Make.com Module", d: "In your scenario, add a HubSpot 'Create Contact' module after the Webhook." },
+                                    { t: "3. Map Your Data", d: "Drag 'Email' from the webhook output into the 'Email' field in HubSpot." },
+                                    { t: "4. Test the Loop", d: "Open CaterPro on your iPad, enter a test email, and watch it appear in HubSpot!" }
+                                ].map((step, i) => (
+                                    <div key={i} className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 flex gap-4 items-start">
+                                        <div className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center text-[10px] font-black text-white shrink-0 mt-0.5">{i+1}</div>
+                                        <div>
+                                            <p className="text-sm font-black text-slate-900 dark:text-white">{step.t}</p>
+                                            <p className="text-xs text-slate-500 mt-1 leading-relaxed">{step.d}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="bg-orange-50 dark:bg-orange-900/10 p-10 rounded-[3rem] border-2 border-orange-100 dark:border-orange-800">
+                            <div className="flex items-center gap-3 mb-6">
+                                <Activity className="text-orange-500 animate-pulse" />
+                                <h6 className="text-lg font-black uppercase tracking-tight text-orange-900 dark:text-orange-200">The Founder Edge</h6>
+                            </div>
+                            <p className="text-sm text-orange-800 dark:text-orange-300 font-medium leading-relaxed mb-8 italic">
+                                "By automating leads into HubSpot, you are building a real Business Intelligence engine. This is exactly what high-paying SaaS companies look for in technical founders."
+                            </p>
+                            <button onClick={() => window.open('https://knowledge.hubspot.com/contacts/create-contacts', '_blank')} className="w-full py-4 bg-orange-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-orange-700 transition-all shadow-xl shadow-orange-500/20">
+                                <ExternalLink size={14} /> Official HubSpot Guide
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 const SecurityHub: React.FC = () => {
     return (
@@ -47,13 +103,13 @@ const SecurityHub: React.FC = () => {
                                 <ShieldAlert size={36} />
                             </div>
                             <div>
-                                <h3 className="text-3xl font-black uppercase tracking-tight">Scam Shield 2026</h3>
+                                <h3 className="text-3xl font-black uppercase tracking-tight text-white">Scam Shield 2026</h3>
                                 <p className="text-xs font-bold text-red-400 uppercase tracking-widest mt-1">Active Defense Protocol</p>
                             </div>
                         </div>
                         <div className="px-6 py-3 bg-white/10 rounded-2xl border border-white/20">
                             <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400 flex items-center gap-2">
-                                <Activity size={14} /> Intelligence Log: Updated 1m ago
+                                <Activity size={14} /> Intelligence Log: "Verification Portal" Variant Detected
                             </p>
                         </div>
                     </div>
@@ -65,9 +121,9 @@ const SecurityHub: React.FC = () => {
                             </h5>
                             <div className="space-y-4">
                                 {[
-                                    { t: "The 'View My Order' Link", d: "Links like 'galerymedia.com' or 'bit.ly' sent via chat. They steal your login.", icon: MousePointer },
-                                    { t: "Outside Payment Request", d: "Asking to pay via WhatsApp or direct bank transfer to 'verify'.", icon: CreditCard },
-                                    { t: "Fake PDF Attachments", d: "Files named 'Order_Details.exe' or 'Requirement.zip'. Never open these.", icon: FileDown }
+                                    { t: "Fake 'Human Verification Portals'", d: "Links like 'leninanoga.com' asking you to 'verify' to see an order. It is a password trap.", icon: Fingerprint },
+                                    { t: "External 'View Order' Links", d: "Never click links from users named Sofia/Steven claiming they already paid.", icon: MousePointer },
+                                    { t: "PDF/EXE Attachments", d: "Files named 'Order_Details.exe' or 'Requirement.zip'. These install keyloggers.", icon: FileDown }
                                 ].map((threat, i) => (
                                     <div key={i} className="p-5 bg-white/5 rounded-3xl border border-white/10 flex gap-4 items-start group hover:bg-white/10 transition-all">
                                         <div className="p-3 bg-red-500/20 rounded-xl text-red-500"><threat.icon size={20} /></div>
@@ -84,17 +140,17 @@ const SecurityHub: React.FC = () => {
                             <div className="absolute -top-4 -right-4 bg-emerald-500 text-white p-4 rounded-3xl shadow-xl">
                                 <ShieldCheck size={28} />
                             </div>
-                            <h6 className="text-xl font-black uppercase tracking-tight mb-6">Safe Gig Workflow</h6>
+                            <h6 className="text-xl font-black uppercase tracking-tight mb-6 text-slate-900">Safe Founder Workflow</h6>
                             <ol className="space-y-6">
                                 {[
-                                    { s: "Step 1: Check the Dashboard", d: "If the order isn't in your 'Active Orders' tab, it doesn't exist." },
-                                    { s: "Step 2: Never Click External Links", d: "Real clients send requirements via the platform's internal uploader." },
-                                    { s: "Step 3: Verify the Profile", d: "Scammers usually have brand new accounts with no reviews." }
+                                    { s: "Step 1: The Dashboard Rule", d: "If it's not in your official 'Active Orders' tab on Fiverr/Whop, it is NOT an order." },
+                                    { s: "Step 2: No External Verification", d: "Real platforms never require you to click a 3rd party link to 'verify' a specific order." },
+                                    { s: "Step 3: Block & Report", d: "Aggressive messages like 'Can you confirm this?' are designed to create panic. Just block." }
                                 ].map((step, i) => (
                                     <li key={i} className="flex gap-4">
-                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-black text-xs">{i+1}</div>
+                                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center font-black text-xs text-slate-900">{i+1}</div>
                                         <div>
-                                            <p className="text-sm font-black leading-none mb-1">{step.s}</p>
+                                            <p className="text-sm font-black text-slate-900 leading-none mb-1">{step.s}</p>
                                             <p className="text-xs text-slate-500 font-medium leading-relaxed">{step.d}</p>
                                         </div>
                                     </li>
@@ -102,7 +158,7 @@ const SecurityHub: React.FC = () => {
                             </ol>
                             <div className="mt-10 pt-8 border-t border-slate-100">
                                 <button onClick={() => window.open('https://www.fiverr.com/support/articles/360010978617-Safety-and-Security-Tips-for-Sellers', '_blank')} className="w-full py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-slate-800 transition-all">
-                                    <Info size={14} /> Official Platform Safety Guide
+                                    <Info size={14} /> Official Safety Guide
                                 </button>
                             </div>
                         </div>
@@ -110,26 +166,22 @@ const SecurityHub: React.FC = () => {
                 </div>
             </div>
 
-            {/* GIG MONITOR */}
-            <div className="p-10 bg-white dark:bg-slate-900 rounded-[3.5rem] border-4 border-slate-100 dark:border-slate-800 shadow-2xl">
-                <div className="flex items-center justify-between mb-8">
-                    <div className="flex items-center gap-4">
-                        <div className="p-4 bg-indigo-600 rounded-3xl text-white shadow-lg"><History size={32} /></div>
-                        <div>
-                            <h3 className="text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-white">Gig Verification Log</h3>
-                            <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">Status: Monitoring incoming leads</p>
-                        </div>
-                    </div>
-                    <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-slate-100 dark:bg-slate-800 rounded-xl">
-                        <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-                        <span className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Systems OK</span>
+            {/* BOT PATTERN DETECTOR */}
+            <div className="p-8 bg-indigo-50 dark:bg-indigo-900/10 border-4 border-indigo-100 dark:border-indigo-800 rounded-[3rem] space-y-6">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-indigo-600 rounded-2xl text-white shadow-lg"><Ghost size={24} /></div>
+                    <div>
+                        <h4 className="text-xl font-black uppercase tracking-tight text-slate-900 dark:text-white">Bot Pattern Detector</h4>
+                        <p className="text-[10px] font-black uppercase text-indigo-500 tracking-widest mt-1">Recognize the automated script</p>
                     </div>
                 </div>
-                
-                <div className="p-20 text-center border-4 border-dashed border-slate-100 dark:border-slate-800 rounded-[4rem]">
-                    <Lock className="mx-auto text-slate-200 dark:text-slate-700 mb-6" size={80} />
-                    <h5 className="text-2xl font-black text-slate-400">Secure Order Vault</h5>
-                    <p className="text-sm text-slate-500 mt-2 max-w-xs mx-auto">No verified orders found. Real client data will appear here once confirmed by the Whop/Fiverr API.</p>
+                <div className="bg-white dark:bg-slate-950 p-6 rounded-3xl border-2 border-indigo-50 dark:border-indigo-900 font-mono text-xs leading-relaxed">
+                    <p className="text-slate-400 mb-4">// Pattern: "Sofia" Bot Variant #2</p>
+                    <p className="text-indigo-600 dark:text-indigo-400 font-bold italic">"Good afternoon"</p>
+                    <p className="text-slate-500 mt-2">{"<Artificial Politeness Hook>"}</p>
+                    <p className="text-indigo-600 dark:text-indigo-400 font-bold mt-4 italic">"I have ordered! Can you confirm this? [Link]"</p>
+                    <p className="text-slate-500 mt-2">{"<Malicious Link Payload disguised as Verification>"}</p>
+                    <p className="text-red-500 font-black mt-6 tracking-widest">STATUS: 100% MALICIOUS BOT DETECTED</p>
                 </div>
             </div>
         </div>
@@ -199,8 +251,8 @@ const AutomationLab: React.FC = () => {
                     </div>
                     <div className="bg-slate-50 dark:bg-slate-800/50 p-8 rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-700 text-center">
                         <PhoneCall className="mx-auto text-indigo-500 mb-4" size={48} />
-                        <h6 className="font-black uppercase text-sm mb-2">The 2026 Sales Move</h6>
-                        <p className="text-xs text-slate-500 leading-relaxed">When a lead hits your sheet via Make, use the HubSpot app to <strong>WhatsApp them immediately</strong> while they are still in 'Aha!' mode.</p>
+                        <h6 className="font-black uppercase text-sm mb-2 text-slate-900 dark:text-white">The 2026 Sales Move</h6>
+                        <p className="text-xs text-slate-500 font-medium leading-relaxed">When a lead hits your sheet via Make, use the HubSpot app to <strong>WhatsApp them immediately</strong> while they are still in 'Aha!' mode.</p>
                     </div>
                 </div>
             </div>
@@ -232,7 +284,7 @@ Stop wasting 15+ hours a week on office admin. Let me architect your digital kit
                     <div className="flex items-center gap-4 mb-8">
                         <div className="p-3 bg-white/20 rounded-2xl"><Award size={32} /></div>
                         <div>
-                            <h3 className="text-3xl font-black uppercase tracking-tight">Fiverr Gig Architect</h3>
+                            <h3 className="text-3xl font-black uppercase tracking-tight text-white">Fiverr Gig Architect</h3>
                             <p className="text-xs font-bold text-indigo-100 uppercase tracking-widest mt-1">Convert your profile into orders</p>
                         </div>
                     </div>
@@ -292,7 +344,7 @@ const CampaignHunter: React.FC = () => {
                 <div className="flex items-center gap-4 mb-6">
                     <div className="p-3 bg-indigo-600 rounded-2xl text-white shadow-lg"><MessageSquare size={24} /></div>
                     <div>
-                        <h4 className="text-xl font-black uppercase tracking-tight">The "Clip Farm" DM Reply</h4>
+                        <h4 className="text-xl font-black uppercase tracking-tight text-slate-900 dark:text-white">The "Clip Farm" DM Reply</h4>
                         <p className="text-[10px] font-black uppercase text-indigo-500 tracking-widest mt-1">Reply to Nathan Johnson with this</p>
                     </div>
                 </div>
@@ -316,7 +368,7 @@ const CampaignHunter: React.FC = () => {
                     <div className="flex items-center gap-4 mb-8">
                         <div className="p-4 bg-purple-600 rounded-3xl shadow-lg"><Zap size={32} /></div>
                         <div>
-                            <h3 className="text-3xl font-black uppercase tracking-tight">Campaign Hunter</h3>
+                            <h3 className="text-3xl font-black uppercase tracking-tight text-white">Campaign Hunter</h3>
                             <p className="text-xs font-bold text-purple-300 uppercase tracking-widest mt-1">Winning Whop Discovery Campaigns</p>
                         </div>
                     </div>
@@ -370,7 +422,7 @@ const WhopWarRoom: React.FC = () => {
             <div className="p-8 bg-slate-900 rounded-[3rem] text-white border-4 border-slate-800 shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-10 opacity-5 rotate-12"><Navigation2 size={140} /></div>
                 <div className="relative z-10">
-                    <h3 className="text-2xl font-black uppercase tracking-tighter mb-2">The "Where to Post" Map</h3>
+                    <h3 className="text-2xl font-black uppercase tracking-tighter mb-2 text-white">The "Where to Post" Map</h3>
                     <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-8">Match your App Outputs to these Platforms</p>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -384,7 +436,7 @@ const WhopWarRoom: React.FC = () => {
                                 <item.icon className={item.color} size={28} />
                                 <div>
                                     <p className="text-[9px] font-black text-slate-500 uppercase">{item.output}</p>
-                                    <p className="text-xs font-bold">{item.platform}</p>
+                                    <p className="text-xs font-bold text-white">{item.platform}</p>
                                 </div>
                             </div>
                         ))}
@@ -399,7 +451,7 @@ const WhopWarRoom: React.FC = () => {
                     <div className="flex items-center gap-4 mb-8">
                         <div className="p-4 bg-amber-500 rounded-3xl shadow-lg animate-pulse"><Activity size={32} /></div>
                         <div>
-                            <h3 className="text-3xl font-black uppercase tracking-tight">The Waiting Room</h3>
+                            <h3 className="text-3xl font-black uppercase tracking-tight text-white">The Waiting Room</h3>
                             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">What to do while your application is pending</p>
                         </div>
                     </div>
@@ -449,9 +501,9 @@ const ClippingHub: React.FC = () => {
                 <div className="absolute top-0 right-0 p-10 opacity-5 rotate-45"><Users size={160} /></div>
                 <div className="relative z-10">
                     <div className="flex items-center gap-4 mb-8">
-                        <div className="p-3 bg-indigo-600 rounded-2xl"><Search size={32} /></div>
+                        <div className="p-3 bg-indigo-600 rounded-2xl text-white"><Search size={32} /></div>
                         <div>
-                            <h3 className="text-2xl font-black uppercase tracking-tight">Clipper Hiring Manual</h3>
+                            <h3 className="text-2xl font-black uppercase tracking-tight text-white">Clipper Hiring Manual</h3>
                             <p className="text-xs font-bold text-indigo-300 uppercase tracking-widest">Where to find world-class editors for $5-$15</p>
                         </div>
                     </div>
@@ -460,7 +512,7 @@ const ClippingHub: React.FC = () => {
                         <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
                             <h5 className="text-[10px] font-black uppercase text-emerald-500 tracking-widest">Option A: Marketplace</h5>
                             <p className="text-xs text-slate-300 leading-relaxed">Search for <strong>"Short Form Video Editor"</strong> on Fiverr or Upwork. Look for people in Pakistan, India, or Philippines for the best ROI.</p>
-                            <button onClick={() => window.open('https://www.fiverr.com/search/gigs?query=short%20form%20video%20editor', '_blank')} className="px-4 py-2 bg-emerald-600 rounded-xl text-[9px] font-black uppercase tracking-widest">Open Fiverr Search</button>
+                            <button onClick={() => window.open('https://www.fiverr.com/search/gigs?query=short%20form%20video%20editor', '_blank')} className="px-4 py-2 bg-emerald-600 rounded-xl text-[9px] font-black uppercase tracking-widest text-white">Open Fiverr Search</button>
                         </div>
                         <div className="p-6 bg-white/5 rounded-3xl border border-white/10 space-y-4">
                             <h5 className="text-[10px] font-black uppercase text-indigo-500 tracking-widest">Option B: Community</h5>
@@ -477,7 +529,7 @@ const ClippingHub: React.FC = () => {
                     <div className="flex items-center gap-4 mb-8">
                         <div className="p-3 bg-white/20 rounded-2xl"><Flame size={32} /></div>
                         <div>
-                            <h3 className="text-2xl font-black uppercase tracking-tight">V2 Discovery Guide</h3>
+                            <h3 className="text-2xl font-black uppercase tracking-tight text-white">V2 Discovery Guide</h3>
                             <p className="text-xs font-bold text-emerald-100 uppercase tracking-widest">Master the Whop Discover Campaigns</p>
                         </div>
                     </div>
@@ -493,11 +545,11 @@ const ClippingHub: React.FC = () => {
                         <div className="space-y-4">
                             <div className="flex items-center gap-3 p-4 bg-white/10 rounded-2xl border border-white/20">
                                 <CheckCircle2 size={20} className="text-emerald-300" />
-                                <p className="text-xs font-bold">Check "Verified" Toggle on Whop</p>
+                                <p className="text-xs font-bold text-white">Check "Verified" Toggle on Whop</p>
                             </div>
                             <div className="flex items-center gap-3 p-4 bg-white/10 rounded-2xl border border-white/20">
                                 <CheckCircle2 size={20} className="text-emerald-300" />
-                                <p className="text-xs font-bold">Look for 'Scene Society' Badges</p>
+                                <p className="text-xs font-bold text-white">Look for 'Scene Society' Badges</p>
                             </div>
                         </div>
                     </div>
@@ -507,7 +559,7 @@ const ClippingHub: React.FC = () => {
             <div className="p-10 bg-slate-950 text-white rounded-[3rem] border border-white/10 shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-12 opacity-5"><Scissors size={120} /></div>
                 <div className="relative z-10">
-                    <h4 className="text-2xl font-black uppercase tracking-tight mb-2">Clipping Team Command</h4>
+                    <h4 className="text-2xl font-black uppercase tracking-tight mb-2 text-white">Clipping Team Command</h4>
                     <p className="text-slate-400 text-sm font-medium mb-8">Generate the brief below and send it to your hire.</p>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
@@ -516,7 +568,7 @@ const ClippingHub: React.FC = () => {
                             <input 
                                 value={briefTopic}
                                 onChange={(e) => setBriefTopic(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:border-indigo-500 outline-none"
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:border-indigo-500 outline-none text-white"
                             />
                         </div>
                         <div className="space-y-2">
@@ -524,7 +576,7 @@ const ClippingHub: React.FC = () => {
                             <select 
                                 value={hookStyle}
                                 onChange={(e) => setHookStyle(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:border-indigo-500 outline-none"
+                                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm font-bold focus:border-indigo-500 outline-none text-white"
                             >
                                 <option>Aggressive / Call-out</option>
                                 <option>Curiosity Gap</option>
@@ -537,7 +589,7 @@ const ClippingHub: React.FC = () => {
                     <button 
                         onClick={handleGenerateBrief}
                         disabled={isGenerating}
-                        className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 transition-all"
+                        className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 transition-all text-white"
                     >
                         {isGenerating ? <Loader2 className="animate-spin" /> : <Sparkles size={18} />}
                         {isGenerating ? 'Architecting Brief...' : 'Generate Editor Brief'}
@@ -586,9 +638,9 @@ const HighTicketPitch: React.FC = () => {
                 <div className="absolute top-0 right-0 p-10 opacity-5 rotate-12"><Target size={160} /></div>
                 <div className="relative z-10">
                     <div className="flex items-center gap-4 mb-8">
-                        <div className="p-3 bg-primary-600 rounded-2xl"><Users size={32} /></div>
+                        <div className="p-3 bg-primary-600 rounded-2xl text-white"><Users size={32} /></div>
                         <div>
-                            <h3 className="text-2xl font-black uppercase tracking-tight">Customer Sourcing Hub</h3>
+                            <h3 className="text-2xl font-black uppercase tracking-tight text-white">Customer Sourcing Hub</h3>
                             <p className="text-xs font-bold text-primary-300 uppercase tracking-widest">Where to find catering clients today</p>
                         </div>
                     </div>
@@ -596,17 +648,17 @@ const HighTicketPitch: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div className="p-5 bg-white/5 rounded-2xl border border-white/10 text-center">
                             <Building2 className="text-primary-500 mx-auto mb-2" size={24} />
-                            <h5 className="text-[10px] font-black uppercase mb-1">Corporate Parks</h5>
+                            <h5 className="text-[10px] font-black uppercase mb-1 text-white">Corporate Parks</h5>
                             <p className="text-[9px] text-slate-400">Offer 'Monday Menu Prep' automation for office managers.</p>
                         </div>
                         <div className="p-5 bg-white/5 rounded-2xl border border-white/10 text-center">
                             <Heart className="text-pink-500 mx-auto mb-2" size={24} />
-                            <h5 className="text-[10px] font-black uppercase mb-1">Wedding Venues</h5>
+                            <h5 className="text-[10px] font-black uppercase mb-1 text-white">Wedding Venues</h5>
                             <p className="text-[9px] text-slate-400">Partner with venues to generate instant menus for couples.</p>
                         </div>
                         <div className="p-5 bg-white/5 rounded-2xl border border-white/10 text-center">
                             <ShoppingBag className="text-amber-500 mx-auto mb-2" size={24} />
-                            <h5 className="text-[10px] font-black uppercase mb-1">Local Delis</h5>
+                            <h5 className="text-[10px] font-black uppercase mb-1 text-white">Local Delis</h5>
                             <p className="text-[9px] text-slate-400">Help them automate their 'Daily Specials' costing.</p>
                         </div>
                     </div>
@@ -617,9 +669,9 @@ const HighTicketPitch: React.FC = () => {
                 <div className="absolute top-0 right-0 p-10 opacity-10"><LucideFileSignature size={140} /></div>
                 <div className="relative z-10">
                     <div className="flex items-center gap-4 mb-8">
-                        <div className="p-3 bg-white/20 rounded-2xl"><Users size={32} /></div>
+                        <div className="p-3 bg-white/20 rounded-2xl text-white"><Users size={32} /></div>
                         <div>
-                            <h3 className="text-2xl font-black uppercase tracking-tight">LinkedIn Application Kit</h3>
+                            <h3 className="text-2xl font-black uppercase tracking-tight text-white">LinkedIn Application Kit</h3>
                             <p className="text-xs font-bold text-blue-200 uppercase tracking-widest">For Marketing Manager (Remote)</p>
                         </div>
                     </div>
@@ -627,7 +679,7 @@ const HighTicketPitch: React.FC = () => {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                         <div className="space-y-4">
                             <label className="text-[10px] font-black uppercase text-blue-200 tracking-widest">About Me Section</label>
-                            <div className="p-6 bg-black/20 rounded-3xl border border-white/10 text-sm font-medium leading-relaxed italic">
+                            <div className="p-6 bg-black/20 rounded-3xl border border-white/10 text-sm font-medium leading-relaxed italic text-white">
                                 "{applicationText}"
                             </div>
                             <button onClick={() => handleCopy(applicationText)} className="w-full py-4 bg-white text-blue-600 rounded-2xl font-black text-[10px] uppercase tracking-widest shadow-xl">
@@ -726,7 +778,7 @@ const FiverrCheatSheet: React.FC = () => {
                     <div key={idx} className="p-4 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 flex justify-between items-center group">
                         <div>
                             <p className="text-[9px] font-black text-slate-400 uppercase mb-1">{item.label}</p>
-                            <p className="text-sm font-black">{item.value}</p>
+                            <p className="text-sm font-black text-slate-900 dark:text-white">{item.value}</p>
                         </div>
                         <button onClick={() => handleCopy(item.value)} className="p-2 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
                             <Copy size={14} className="text-indigo-500" />
@@ -777,7 +829,7 @@ const Teleprompter: React.FC<{ script: string; isOpen: boolean; onClose: () => v
 };
 
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }) => {
-  const [activeTab, setActiveTab] = useState<'security' | 'assets' | 'whop_war_room' | 'morning' | 'profile' | 'clipping' | 'pitch' | 'campaigns' | 'automation' | 'gig_architect'>('whop_war_room');
+  const [activeTab, setActiveTab] = useState<'whop_war_room' | 'crm_architect' | 'security' | 'assets' | 'morning' | 'profile' | 'clipping' | 'pitch' | 'campaigns' | 'automation' | 'gig_architect'>('whop_war_room');
   const [isTeleprompterOpen, setIsTeleprompterOpen] = useState(false);
   const [isSelfieBubbleOpen, setIsSelfieBubbleOpen] = useState(false);
   const [currentScript, setCurrentScript] = useState('');
@@ -812,19 +864,20 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
             <ShieldCheck className="text-primary-500 w-10 h-10" />
             War Room Console
           </h2>
-          <p className="text-lg text-slate-500 font-medium mt-2">Aggressive setup for Whop and Social Media.</p>
+          <p className="text-lg text-slate-500 font-medium mt-2">Aggressive setup for Whop, HubSpot, and Social Media.</p>
         </div>
         <div className="flex bg-slate-100 dark:bg-slate-800 p-1.5 rounded-[2rem] border border-slate-200 dark:border-slate-700 overflow-x-auto no-scrollbar max-w-full">
             {[
                 { id: 'whop_war_room', label: 'War Room', icon: Swords },
-                { id: 'security', label: 'Security Hub', icon: ShieldAlert },
-                { id: 'automation', label: 'Systems Lab', icon: Cpu },
+                { id: 'crm_architect', label: 'CRM Hub', icon: Database },
+                { id: 'security', label: 'Security', icon: ShieldAlert },
+                { id: 'automation', label: 'Systems', icon: Cpu },
                 { id: 'gig_architect', label: 'Gig Architect', icon: Award },
-                { id: 'assets', label: 'Asset Studio', icon: Layout },
+                { id: 'assets', label: 'Assets', icon: Layout },
                 { id: 'campaigns', label: 'Whop Hunter', icon: Target },
-                { id: 'clipping', label: 'Clipping Hub', icon: Scissors },
+                { id: 'clipping', label: 'Clipping', icon: Scissors },
                 { id: 'pitch', label: 'High-Ticket', icon: UserPlus2 },
-                { id: 'morning', label: 'Video Script', icon: Video },
+                { id: 'morning', label: 'Script', icon: Video },
                 { id: 'profile', label: 'Meta Tags', icon: Briefcase }
             ].map(tab => (
                 <button 
@@ -840,6 +893,8 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
 
       <div className="grid grid-cols-1 gap-12">
         {activeTab === 'whop_war_room' && <WhopWarRoom />}
+
+        {activeTab === 'crm_architect' && <CRMArchitect />}
 
         {activeTab === 'security' && <SecurityHub />}
         
@@ -863,7 +918,7 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
                         <div className="w-20 h-20 bg-white/20 backdrop-blur-md rounded-3xl flex items-center justify-center mb-8 shadow-2xl">
                             <Mic2 size={40} className="text-white" />
                         </div>
-                        <h3 className="text-4xl font-black uppercase tracking-tighter mb-4 leading-none">Proof of Work Script</h3>
+                        <h3 className="text-4xl font-black uppercase tracking-tighter mb-4 leading-none text-white">Proof of Work Script</h3>
                         <p className="text-lg text-indigo-100 font-medium mb-12">Hand-held recording for Whop applications.</p>
                         
                         <div className="p-10 bg-white dark:bg-slate-900 rounded-[3rem] shadow-inner border border-white/20 mb-12 text-left">
@@ -899,22 +954,22 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
                     <div className="p-10 bg-slate-900 text-white rounded-[3.5rem] relative overflow-hidden shadow-2xl border-4 border-indigo-500/20">
                         <div className="absolute top-0 right-0 p-12 opacity-5"><UserCog size={160} /></div>
                         <div className="relative z-10">
-                            <h4 className="text-2xl font-black uppercase tracking-tight mb-4">Gallery Final List</h4>
+                            <h4 className="text-2xl font-black uppercase tracking-tight mb-4 text-white">Gallery Final List</h4>
                             <p className="text-sm text-slate-400 leading-relaxed font-medium mb-8">
                                 Upload these 3 items to the Fiverr screen now:
                             </p>
                             <div className="space-y-4 mb-10">
                                 <div className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/10">
-                                    <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-black text-xs">1</div>
-                                    <p className="text-xs font-bold">Image 1: Yellow "High-Click" Thumbnail</p>
+                                    <div className="w-8 h-8 rounded-full bg-indigo-500 flex items-center justify-center font-black text-xs text-white">1</div>
+                                    <p className="text-xs font-bold text-white">Image 1: Yellow "High-Click" Thumbnail</p>
                                 </div>
                                 <div className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/10">
-                                    <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-black text-xs">2</div>
-                                    <p className="text-xs font-bold">Image 2: Screenshot of Shopping List</p>
+                                    <div className="w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center font-black text-xs text-white">2</div>
+                                    <p className="text-xs font-bold text-white">Image 2: Screenshot of Shopping List</p>
                                 </div>
                                 <div className="flex items-center gap-3 p-4 bg-white/5 rounded-2xl border border-white/10">
-                                    <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center font-black text-xs">3</div>
-                                    <p className="text-xs font-bold">Document: PDF Portfolio of Sample Menus</p>
+                                    <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center font-black text-xs text-white">3</div>
+                                    <p className="text-xs font-bold text-white">Document: PDF Portfolio of Sample Menus</p>
                                 </div>
                             </div>
                         </div>
@@ -943,6 +998,14 @@ const Maximize: React.FC<{ size?: number }> = ({ size = 20 }) => (
 
 const LucideFileSignature: React.FC<{ size?: number }> = ({ size = 20 }) => (
     <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><path d="M17 17h5"/><path d="M3 7h2"/><path d="M9 17h2"/><path d="M15 7h2"/><path d="M21 7v10"/><path d="M3 7v10"/></svg>
+);
+
+const Database: React.FC<{ size?: number }> = ({ size = 20 }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></svg>
+);
+
+const Network: React.FC<{ size?: number }> = ({ size = 20 }) => (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="16" y="16" width="6" height="6" rx="1"/><rect x="2" y="16" width="6" height="6" rx="1"/><rect x="9" y="2" width="6" height="6" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></svg>
 );
 
 export default FounderRoadmap;
