@@ -1,63 +1,42 @@
+import { ErrorState } from '../types';
 
+/**
+ * Processes an unknown error from an API call and returns a structured ErrorState object.
+ * This is a pure TypeScript file (no JSX) to ensure the build process succeeds.
+ */
+export const getApiErrorState = (err: unknown): ErrorState => {
+    console.error("API Error Trace:", err);
+    
+    let errorState: ErrorState = {
+      title: 'Action Required',
+      message: 'The AI encountered an issue generating your proposal. Please refresh and try again.',
+    };
 
-import React, { ErrorInfo, ReactNode } from 'react';
-import { AlertTriangle, RefreshCw } from 'lucide-react';
-
-interface Props {
-  children?: ReactNode;
-}
-
-interface State {
-  hasError: boolean;
-}
-
-// Fixed: Using React.Component explicitly to ensure that 'props' and 'state' are correctly inherited and recognized by the TypeScript compiler.
-export default class ErrorBoundary extends React.Component<Props, State> {
-  constructor(props: Props) {
-    super(props);
-    this.state = { hasError: false };
-  }
-
-  public static getDerivedStateFromError(_: Error): State {
-    // Update state so the next render will show the fallback UI.
-    return { hasError: true };
-  }
-
-  public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    // Log the error to an error reporting service or console.
-    console.error("Uncaught application error:", error, errorInfo);
-  }
-
-  private handleReload = () => {
-    window.location.reload();
-  };
-
-  public render() {
-    // Check if an error was caught to display the fallback UI.
-    if (this.state.hasError) {
-      return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-4 font-sans text-center">
-            <div className="max-w-md">
-                <AlertTriangle className="mx-auto h-16 w-16 text-red-500 mb-4" />
-                <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
-                    Oops! Something Went Wrong
-                </h1>
-                <p className="mt-4 text-lg text-slate-600 dark:text-slate-400">
-                    An unexpected error occurred. Please try reloading the page.
-                </p>
-                <button
-                    onClick={this.handleReload}
-                    className="mt-8 inline-flex items-center justify-center bg-primary-500 hover:bg-primary-600 text-white font-semibold py-3 px-6 rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
-                >
-                    <RefreshCw className="mr-2 h-5 w-5" />
-                    Reload Application
-                </button>
-            </div>
-        </div>
-      );
+    if (err instanceof Error) {
+      const lowerCaseMessage = err.message.toLowerCase();
+      
+      if (lowerCaseMessage.includes('api key') || lowerCaseMessage.includes('permission denied')) {
+          errorState = {
+              title: 'API Configuration Alert',
+              message: 'The AI service is unreachable. This usually means the API key is invalid or missing from the deployment environment. Please check your GitHub/Firebase secrets.',
+          };
+      } else if (lowerCaseMessage.includes('billing') || lowerCaseMessage.includes('quota')) {
+          errorState = {
+              title: 'Service Limit Reached',
+              message: "Your AI generation quota for today has been reached or your billing account is inactive. Please check your Google AI Studio status.",
+          };
+      } else {
+        errorState.message = String(err.message);
+      }
+    } else if (typeof err === 'string') {
+        errorState.message = err;
+    } else if (err && typeof err === 'object') {
+        try {
+            errorState.message = JSON.stringify(err);
+        } catch {
+            errorState.message = "A complex system error occurred. Please try again.";
+        }
     }
-
-    // Correctly return children from props when no error is caught.
-    return this.props.children;
-  }
-}
+    
+    return errorState;
+};
