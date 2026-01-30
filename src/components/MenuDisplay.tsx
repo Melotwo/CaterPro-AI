@@ -76,283 +76,102 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
     }
   };
 
-  const handleSocialAction = (mode: 'reel' | 'status' | 'create') => {
-    analytics.track({ type: 'founder_action', data: { actionName: `open_social_${mode}` } });
-    onOpenSocialModal?.(mode);
-  };
-
   return (
-    <div className={`p-4 sm:p-10 theme-container ${t.container} rounded-[3rem] shadow-2xl border border-slate-100 dark:border-slate-800 animate-fade-in relative transition-all duration-500 ${clipperMode ? 'scale-[0.98] ring-[20px] ring-indigo-600/20' : ''}`}>
+    <div className={`p-4 sm:p-10 theme-container ${t.container} rounded-[3rem] shadow-2xl border border-slate-100 dark:border-slate-800 animate-fade-in relative transition-all duration-500`}>
       
-      {!isReadOnlyView && (
-      <div className="no-print space-y-6">
-          <div className="bg-amber-500 p-6 rounded-[2rem] flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xl border-4 border-white dark:border-slate-800 animate-bounce cursor-pointer" onClick={jumpToThumbnailStudio}>
-              <div className="flex items-center gap-4 text-white">
-                  <div className="p-3 bg-white/20 rounded-2xl"><Palette size={32} /></div>
-                  <div>
-                      <h4 className="text-xl font-black uppercase tracking-tight leading-none">Ready for Fiverr?</h4>
-                      <p className="text-[10px] font-black uppercase opacity-90 tracking-widest mt-1">Create your high-click gig thumbnail now</p>
-                  </div>
-              </div>
-              <button className="px-8 py-3 bg-white text-amber-600 rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-transform active:scale-95">Open Asset Studio</button>
-          </div>
-
-          <div className="bg-slate-950 text-white p-8 sm:p-12 rounded-[2.5rem] relative overflow-hidden group border border-white/10 shadow-indigo-500/10 shadow-2xl">
-              <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:opacity-10 transition-opacity">
-                  <Sparkles size={120} />
-              </div>
-              
-              <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
-                  <div className="max-w-md">
-                      <div className="flex items-center gap-3 mb-4">
-                          <div className="p-3 bg-primary-500 rounded-2xl shadow-lg shadow-primary-500/20">
-                              <Megaphone size={24} className="text-white" />
-                          </div>
-                          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary-400">Hub Command Center</span>
-                      </div>
-                      <h4 className="text-3xl font-black tracking-tight leading-none mb-2">Lifecycle Intelligence</h4>
-                      <p className="text-slate-400 text-sm font-medium">Use Data-Driven Menu Engineering to identify high-margin 'Star' items.</p>
-                      
-                      <div className="mt-8 flex flex-wrap gap-3">
-                          <button 
-                            onClick={() => { setShowBusinessIntel(!showBusinessIntel); analytics.track({ type: 'founder_action', data: { actionName: 'toggle_intel' } }); }}
-                            className={`flex items-center gap-2 px-6 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-xl active:scale-95 ${showBusinessIntel ? 'bg-amber-500 text-white' : 'bg-white text-slate-950 hover:bg-slate-100'}`}
-                          >
-                            <BarChart4 size={18} /> 
-                            {showBusinessIntel ? 'Exit Intel Mode' : 'Profit Engineering'} 
-                          </button>
-                          <button 
-                            onClick={() => handleSocialAction('reel')}
-                            className="flex items-center gap-2 px-6 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-xl active:scale-95"
-                          >
-                            <Video size={18} /> 
-                            Render Marketing Asset 
-                          </button>
-                      </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full lg:w-1/2">
-                    <div className="p-6 bg-white/5 rounded-3xl border border-white/10">
-                       <div className="flex items-center gap-2 mb-2 text-indigo-400">
-                          <BrainCircuit size={16} />
-                          <span className="text-[10px] font-black uppercase">Lifecycle ROI</span>
-                       </div>
-                       <p className="text-xs text-slate-400 leading-relaxed font-medium">AI identifies which dishes build long-term 'Lounge' loyalty.</p>
-                    </div>
-                    <div className="p-6 bg-white/5 rounded-3xl border border-white/10">
-                       <div className="flex items-center gap-2 mb-2 text-amber-400">
-                          <Target size={16} />
-                          <span className="text-[10px] font-black uppercase">Golden Triangle</span>
-                       </div>
-                       <p className="text-xs text-slate-400 leading-relaxed font-medium">Visualizing eye-movement patterns to optimize item placement.</p>
-                    </div>
-                  </div>
-              </div>
-          </div>
-      </div>
-      )}
-
+      {/* Header Info */}
       <div className="flex flex-col sm:flex-row items-center justify-between border-b-2 border-dashed border-slate-200 dark:border-slate-700 pb-8 gap-4 mt-8">
          <div className="flex items-center gap-4">
             <ChefHat className={`w-10 h-10 ${t.title}`} />
             <div>
-                <span className={`text-xs font-black uppercase tracking-[0.4em] block ${t.description} opacity-60 mb-1`}>Lifecycle Authorized</span>
+                <span className={`text-xs font-black uppercase tracking-[0.4em] block ${t.description} opacity-60 mb-1`}>Proposal Lifecycle Verified</span>
                 <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1">
-                        <ShieldCheck size={12} /> Strategic Hub Build
-                    </span>
                     <span className={`text-sm font-bold ${t.description}`}>{new Date().toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
                 </div>
             </div>
          </div>
-         
          <div className="flex items-center gap-2 no-print">
-            <button 
-                onClick={() => onOpenShareModal?.()} 
-                className="px-6 py-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-100 transition-all flex items-center gap-2 border border-indigo-100 dark:border-indigo-800"
-                title="Share Proposal"
-            >
-                <Share2 size={16} />
-                <span className="hidden xs:inline">Share</span>
+            <button onClick={() => onOpenShareModal?.()} className="px-6 py-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center gap-2">
+                <Share2 size={16} /> Share
             </button>
-            <button onClick={() => window.print()} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:bg-slate-200 transition-colors" title="Print/Export">
+            <button onClick={() => window.print()} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl">
                 <FileDown size={20} className={t.description} />
             </button>
          </div>
       </div>
 
-      {menu.image && !isGeneratingImage && (
-         <div className="relative group overflow-hidden rounded-[3rem] shadow-2xl border-8 border-white dark:border-slate-800 transition-transform hover:scale-[1.01] duration-700 mt-8">
-             <img 
-               src={`data:image/png;base64,${menu.image}`} 
-               alt={menu.menuTitle}
-               className="w-full h-auto max-h-[600px] object-cover"
-             />
-             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
-             
-             <div className={`absolute bottom-8 left-8 right-8 text-white transition-opacity duration-500 ${hideWatermark ? 'opacity-0' : 'opacity-100'}`}>
-                <div className="flex items-center gap-3 mb-3 bg-black/20 backdrop-blur-md w-fit px-4 py-2 rounded-2xl border border-white/20">
-                    <img src="/logo.svg" alt="Logo" className="w-8 h-8 rounded-lg shadow-xl" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-90">CaterPro AI: Marketing Hub</span>
-                </div>
-                <h3 className="text-3xl font-black tracking-tight">{menu.menuTitle}</h3>
-             </div>
-         </div>
-      )}
-
       <div className="text-center max-w-4xl mx-auto space-y-6 py-12">
         <h2 className={`text-3xl sm:text-5xl lg:text-7xl font-black tracking-tighter ${t.title} leading-[0.9]`}>{menu.menuTitle}</h2>
-        <div className="flex justify-center gap-2">
-            {[1,2,3].map(i => <div key={i} className="w-2 h-2 rounded-full bg-primary-500 opacity-20"></div>)}
-        </div>
         <p className={`text-xl sm:text-2xl leading-relaxed ${t.description} font-medium italic opacity-80 px-4`}>"{menu.description}"</p>
       </div>
       
-      {/* GRID CONTAINER - ENFORCED 2 COLUMNS FOR CONSISTENCY */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 lg:gap-12 items-stretch min-h-[400px]">
+      {/* GRID START - Ensuring Sections 1, 2, 3 are visible */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-stretch min-h-[400px]">
         {MENU_SECTIONS.map(({ title, key }, catIdx) => {
-          const rawItems = menu[key as keyof Menu];
-          const items = Array.isArray(rawItems) ? rawItems : [];
-          
+          // Filter out the wide management sections to keep the 4-grid clean
           const isWideSection = ['shoppingList', 'recommendedEquipment', 'beveragePairings', 'dietaryNotes', 'miseEnPlace', 'serviceNotes', 'deliveryLogistics'].includes(key);
           if (isWideSection) return null;
 
-          // Sections 1-4: Appetizers, Mains, Sides, Dessert
-          // We guarantee rendering even if items are empty so the grid doesn't collapse
+          const rawItems = menu[key as keyof Menu];
+          // Fix: Explicitly cast to any[] to avoid union property access errors in dynamic rendering (lines 155 and 164)
+          const items = (Array.isArray(rawItems) ? rawItems : []) as any[];
+
           return (
             <div key={key} className={`${t.sectionContainer} rounded-[2.5rem] shadow-xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex flex-col`}>
-              <div className="flex justify-between items-center p-6 sm:p-10 border-b border-slate-100 dark:border-slate-800">
+              <div className="p-6 sm:p-10 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
                 <h3 className={`text-xl sm:text-2xl font-black ${t.sectionTitle} flex items-center gap-4`}>
-                  <span className={`w-10 h-10 sm:w-12 sm:h-12 ${t.sectionIcon} rounded-2xl sm:rounded-3xl flex items-center justify-center text-sm sm:text-lg font-black flex-shrink-0 shadow-xl`}>
+                  <span className={`w-10 h-10 sm:w-12 sm:h-12 ${t.sectionIcon} rounded-2xl flex items-center justify-center text-sm font-black flex-shrink-0 shadow-xl`}>
                     {catIdx + 1}
                   </span>
                   {title}
                 </h3>
               </div>
-              <ul className="p-6 sm:p-10 space-y-4 sm:space-y-6 flex-grow">
+              <div className="p-6 sm:p-10 flex-grow">
                 {items.length > 0 ? (
-                    items.filter((i): i is string => typeof i === 'string').map((item, index) => {
-                    const checkKey = `${key}-${index}`;
-                    const isChecked = checkedItems.has(checkKey);
-                    const analysis = menu.businessAnalysis?.find(a => a.name.includes(item.split(':')[0]) || item.includes(a.name));
-
-                    return (
-                        <li key={checkKey} className={`flex items-start gap-4 sm:gap-5 p-4 sm:p-6 rounded-[2rem] border-2 border-transparent transition-all ${isChecked ? 'bg-slate-100/50 dark:bg-slate-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 shadow-md'}`}>
-                        {!isReadOnlyView && (
-                            <input
-                            type="checkbox"
-                            checked={isChecked}
-                            onChange={() => onToggleItem(checkKey)}
-                            className={`mt-1 sm:mt-1.5 w-6 h-6 sm:w-8 sm:h-8 rounded-xl sm:rounded-2xl focus:ring-4 cursor-pointer transition-all ${t.checkbox}`}
-                            />
-                        )}
-                        <div className="space-y-1 sm:space-y-2">
-                            <span className={`text-lg sm:text-xl font-black tracking-tight transition-all ${isChecked ? t.checkedText : t.uncheckedText}`}>
-                                {item}
-                            </span>
-                            {analysis?.evocativeDescription && (
-                                <p className="text-xs sm:text-sm italic text-slate-500 font-medium leading-relaxed">
-                                    {analysis.evocativeDescription}
-                                </p>
-                            )}
-                        </div>
-                        </li>
-                    );
-                    })
+                    <ul className="space-y-4">
+                        {items.map((item, index) => (
+                            <li key={`${key}-${index}`} className="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
+                                <CheckSquare size={18} className="text-primary-500 mt-1 shrink-0" />
+                                <span className="text-lg font-bold tracking-tight">{String(item)}</span>
+                            </li>
+                        ))}
+                    </ul>
                 ) : (
-                    // Placeholder for missing sections (Ensures numbering 1 and 2 don't disappear)
                     <div className="py-12 px-6 text-center border-4 border-dashed border-slate-100 dark:border-slate-800 rounded-[2rem] flex flex-col items-center justify-center gap-4">
                         <AlertTriangle className="text-amber-400 w-8 h-8" />
                         <p className="text-xs font-black uppercase text-slate-400 tracking-widest leading-relaxed">
                             Section {catIdx + 1} Pending:<br/>AI Refinement Required
                         </p>
-                        <p className="text-[10px] text-slate-500 italic max-w-[200px]">The AI skipped this course. Try re-generating or simplifying the request.</p>
                     </div>
                 )}
-              </ul>
+              </div>
             </div>
           );
         })}
 
-        {/* Specialized Renderers for remaining wide sections */}
+        {/* Dynamic Wide Sections (Logistics & Prep) */}
         {['beveragePairings', 'miseEnPlace', 'serviceNotes', 'deliveryLogistics'].map(key => {
             const section = MENU_SECTIONS.find(s => s.key === key);
-            if (!section) return null;
             const items = Array.isArray(menu[key as keyof Menu]) ? menu[key as keyof Menu] : [];
-            if (!items || (Array.isArray(items) && items.length === 0)) return null;
+            if (!section || items.length === 0) return null;
 
             return (
                 <div key={key} className={`${t.sectionContainer} rounded-[2.5rem] md:col-span-2 shadow-xl overflow-hidden bg-white/50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 mt-6`}>
-                    <div className="p-8 border-b border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/30 flex items-center gap-4">
-                        <div className={`p-3 ${t.sectionIcon} rounded-2xl shadow-lg`}>
-                            {key === 'beveragePairings' ? <Wine size={24} /> : <ClipboardCheck size={24} />}
-                        </div>
+                    <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex items-center gap-4">
+                        <div className={`p-3 ${t.sectionIcon} rounded-2xl`}><ClipboardCheck size={24} /></div>
                         <h3 className="text-2xl font-black">{section.title}</h3>
                     </div>
                     <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {(items as any[]).map((item, i) => (
+                        {items.map((item, i) => (
                             <div key={i} className="p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-start gap-3">
                                 <span className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-[10px] font-black shrink-0">{i+1}</span>
-                                <p className="text-sm font-bold leading-relaxed">{typeof item === 'string' ? item : JSON.stringify(item)}</p>
+                                <p className="text-sm font-bold">{String(item)}</p>
                             </div>
                         ))}
                     </div>
                 </div>
             );
         })}
-
-        {/* Safety Protocols */}
-        {menu.safetyProtocols && menu.safetyProtocols.length > 0 && (
-            <div className="md:col-span-2 border-4 border-red-500/20 bg-red-50/20 dark:bg-red-900/10 rounded-[3rem] shadow-xl overflow-hidden mt-6">
-                <div className="p-8 sm:p-10 border-b border-red-200 dark:border-red-900 flex items-center justify-between bg-white dark:bg-slate-900/50">
-                    <div className="flex items-center gap-5">
-                        <div className="p-4 bg-red-500 rounded-3xl text-white shadow-xl"><ShieldAlert size={28} /></div>
-                        <div>
-                            <h3 className="text-2xl font-black uppercase text-red-900 dark:text-red-200 tracking-tight">HACCP Safety Command</h3>
-                            <p className="text-xs font-black text-red-600 uppercase tracking-widest mt-1">Hazard Analysis & Critical Control Points</p>
-                        </div>
-                    </div>
-                </div>
-                <div className="p-8 sm:p-10 grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-4">
-                        {menu.safetyProtocols.map((protocol, idx) => (
-                            <div key={idx} 
-                                onClick={() => onToggleItem(`haccp-${idx}`)}
-                                className={`flex gap-4 p-5 rounded-2xl border-2 transition-all cursor-pointer ${checkedItems.has(`haccp-${idx}`) ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-500/30 opacity-60' : 'bg-white dark:bg-slate-800 border-red-100 dark:border-red-800 shadow-sm hover:border-red-500/50'}`}
-                            >
-                                <input 
-                                    type="checkbox" 
-                                    checked={checkedItems.has(`haccp-${idx}`) ? true : false} 
-                                    readOnly
-                                    className="w-5 h-5 rounded-lg text-emerald-600"
-                                />
-                                <p className={`text-sm font-bold leading-relaxed ${checkedItems.has(`haccp-${idx}`) ? 'text-emerald-700 dark:text-emerald-400 line-through' : 'text-slate-700 dark:text-slate-300'}`}>{protocol}</p>
-                            </div>
-                        ))}
-                    </div>
-                    <div className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border-2 border-red-100 dark:border-red-800 space-y-6">
-                        <div className="flex items-center gap-3 text-red-600 mb-2">
-                            <Thermometer size={24} />
-                            <h5 className="font-black uppercase tracking-widest text-sm">Critical Temperature Logs</h5>
-                        </div>
-                        <div className="space-y-3">
-                            <div className="flex justify-between p-3 border-b border-slate-100 dark:border-slate-800">
-                                <span className="text-xs font-bold text-slate-500 uppercase">Reception Temp:</span>
-                                <span className="text-xs font-black">&lt; 4°C</span>
-                            </div>
-                            <div className="flex justify-between p-3 border-b border-slate-100 dark:border-slate-800">
-                                <span className="text-xs font-bold text-slate-500 uppercase">Service Temp (Hot):</span>
-                                <span className="text-xs font-black">&gt; 65°C</span>
-                            </div>
-                            <div className="flex justify-between p-3">
-                                <span className="text-xs font-bold text-slate-500 uppercase">Cooling Curve:</span>
-                                <span className="text-xs font-black">2h (60°C to 21°C)</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        )}
       </div>
     </div>
   );
