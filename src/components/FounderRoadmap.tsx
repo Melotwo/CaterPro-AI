@@ -45,7 +45,8 @@ import {
   FlameKindling
 } from 'lucide-react';
 import ThumbnailStudio from './ThumbnailStudio';
-import { generateClipperBriefFromApi } from '../services/geminiService';
+
+// Fix: Removed missing export member generateClipperBriefFromApi
 
 interface FounderRoadmapProps {
   whopUrl: string;
@@ -220,7 +221,7 @@ const CRMArchitect: React.FC = () => {
 🏢 Company: {{1.CompanyName}}
 👤 Contact: {{1.FullName}}
 📧 Email: {{1.Email}}
-📝 Context: {{1.Context}}
+密 Context: {{1.Context}}
 
 Action: Send "Value Bait" Proposal now.`;
 
