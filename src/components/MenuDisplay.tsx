@@ -1,360 +1,361 @@
-import { GoogleGenAI, Type, Modality } from "@google/genai";
-import { Menu, Supplier, EducationContent, ShoppingListItem, BeveragePairing } from "../types";
+import React, { useState } from 'react';
+import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types';
+import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock, Sparkle, EyeOff, Eye, BrainCircuit, Globe, ExternalLink, Camera, Instagram, Smartphone, BarChart4, ShieldAlert, Thermometer, Droplets, Layout, Palette, AlertTriangle } from 'lucide-react';
+import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES } from '../constants';
+import { analytics } from '../services/analyticsManager';
 
-const safeParseMenuJson = (text: string): Menu => {
-    try {
-        if (!text) throw new Error("Empty response from AI");
-        const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
-        const parsed = JSON.parse(cleaned);
-        
-        const ensureArray = (arr: any) => (Array.isArray(arr) ? arr : []);
-        const ensureObjectArray = (arr: any) => 
-            (Array.isArray(arr) ? arr.filter(i => i !== null && typeof i === 'object') : []);
-        
-        // Intelligent Mapping: AI often returns singular or shortened keys
-        const appetizers = parsed.appetizers || parsed.appetizer || parsed.starters || parsed.starter || [];
-        const mainCourses = parsed.mainCourses || parsed.mainCourse || parsed.mains || parsed.main || [];
-        const sideDishes = parsed.sideDishes || parsed.sideDish || parsed.sides || parsed.side || [];
-        const dessert = parsed.dessert || parsed.desserts || [];
-        
-        return {
-            ...parsed,
-            menuTitle: parsed.menuTitle || "New Menu Proposal",
-            description: parsed.description || "A custom catering proposal designed just for you.",
-            appetizers: ensureArray(appetizers),
-            mainCourses: ensureArray(mainCourses),
-            sideDishes: ensureArray(sideDishes),
-            dessert: ensureArray(dessert),
-            dietaryNotes: ensureArray(parsed.dietaryNotes),
-            beveragePairings: ensureObjectArray(parsed.beveragePairings),
-            miseEnPlace: ensureArray(parsed.miseEnPlace),
-            serviceNotes: ensureArray(parsed.serviceNotes),
-            deliveryLogistics: ensureArray(parsed.deliveryLogistics),
-            shoppingList: ensureObjectArray(parsed.shoppingList),
-            recommendedEquipment: ensureObjectArray(parsed.recommendedEquipment),
-            salesScripts: ensureObjectArray(parsed.salesScripts),
-            aiKeywords: ensureArray(parsed.aiKeywords),
-            businessAnalysis: ensureObjectArray(parsed.businessAnalysis),
-            safetyProtocols: ensureArray(parsed.safetyProtocols)
-        };
-    } catch (e) {
-        console.error("JSON Parse Error. Raw text:", text);
-        throw new Error("Generation interrupted. Try a simpler request.");
-    }
-};
+interface MenuDisplayProps {
+  menu: Menu;
+  checkedItems: Set<string>;
+  onToggleItem: (key: string) => void;
+  isEditable: boolean;
+  onEditItem: (section: MenuSection, index: number) => void;
+  showToast: (message: string) => void;
+  isGeneratingImage: boolean;
+  onUpdateShoppingItemQuantity: (itemIndex: number, newQuantity: string) => void;
+  bulkSelectedItems: Set<string>;
+  onToggleBulkSelect: (key: string) => void;
+  onBulkCheck: () => void;
+  onBulkUpdateQuantity: (newQuantity: string) => void;
+  onClearBulkSelection: () => void;
+  onSelectAllShoppingListItems: () => void;
+  proposalTheme: string;
+  canAccessFeature: (feature: string) => boolean;
+  onAttemptAccess: (feature: string) => boolean;
+  isReadOnlyView?: boolean;
+  deliveryRadius: string;
+  onDeliveryRadiusChange: (value: string) => void;
+  onCalculateFee: () => void;
+  calculatedFee: string | null;
+  onRegenerateImage?: () => void;
+  preferredCurrency?: string;
+  onOpenSocialModal?: (mode: 'reel' | 'status' | 'create') => void;
+  onOpenShareModal?: () => void;
+}
 
-const getApiKey = () => {
-    const key = process.env.API_KEY;
-    if (!key || key.trim() === '') {
-        throw new Error("API Key is missing.");
-    }
-    return key;
-};
-
-export const generateMenuFromApi = async (params: any): Promise<any> => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `You are a Michelin catering strategist and food cost engineer. 
+const MenuDisplay: React.FC<MenuDisplayProps> = ({ 
+    menu, checkedItems, onToggleItem, isEditable, onEditItem, showToast, 
+    isGeneratingImage, onUpdateShoppingItemQuantity, bulkSelectedItems, onToggleBulkSelect,
+    onBulkCheck, onBulkUpdateQuantity, onClearBulkSelection, onSelectAllShoppingListItems,
+    proposalTheme, canAccessFeature, onAttemptAccess, isReadOnlyView = false,
+    deliveryRadius, onDeliveryRadiusChange, onCalculateFee, calculatedFee, onRegenerateImage,
+    preferredCurrency = 'ZAR', onOpenSocialModal, onOpenShareModal
+}) => {
+  const theme = PROPOSAL_THEMES[proposalTheme as keyof typeof PROPOSAL_THEMES] || PROPOSAL_THEMES.classic;
+  const t = theme.classes;
   
-  TASK: Generate a COMPLETE menu proposal for:
-  Event: ${params.eventType}. 
-  Guests: ${params.guestCount}. 
-  Budget: ${params.budget}. 
-  Cuisine: ${params.cuisine}. 
-  Marketing Strategy: ${params.strategyHook || 'standard'}.
-  
-  STRICT VISIBILITY REQUIREMENTS:
-  1. YOU MUST POPULATE 'appetizers', 'mainCourses', AND 'sideDishes'. 
-  2. For a BRAAI or BBQ: Put the smoked/grilled meats in 'mainCourses'. Put small bites or bread in 'appetizers'. Put salads/veg in 'sideDishes'.
-  3. Minimum 3 high-quality items per section. DO NOT LEAVE SECTIONS 1 AND 2 EMPTY.
-  
-  Return JSON only. Currency: ${params.currency}.`;
-  
-  const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
-    contents: prompt,
-    config: {
-      thinkingConfig: { thinkingBudget: 0 }, 
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: Type.OBJECT,
-        properties: {
-          menuTitle: { type: Type.STRING },
-          description: { type: Type.STRING },
-          appetizers: { type: Type.ARRAY, items: { type: Type.STRING } },
-          mainCourses: { type: Type.ARRAY, items: { type: Type.STRING } },
-          sideDishes: { type: Type.ARRAY, items: { type: Type.STRING } },
-          dessert: { type: Type.ARRAY, items: { type: Type.STRING } },
-          businessAnalysis: {
-              type: Type.ARRAY,
-              items: {
-                  type: Type.OBJECT,
-                  properties: {
-                      name: { type: Type.STRING },
-                      category: { type: Type.STRING },
-                      profitMargin: { type: Type.NUMBER },
-                      popularityPotential: { type: Type.NUMBER },
-                      evocativeDescription: { type: Type.STRING }
-                  }
-              }
-          },
-          safetyProtocols: { type: Type.ARRAY, items: { type: Type.STRING } },
-          shoppingList: { 
-            type: Type.ARRAY, 
-            items: { 
-                type: Type.OBJECT, 
-                properties: { 
-                    item: { type: Type.STRING }, 
-                    quantity: { type: Type.STRING },
-                    category: { type: Type.STRING },
-                    store: { type: Type.STRING },
-                    estimatedCost: { type: Type.STRING } 
-                } 
-            } 
-          },
-          miseEnPlace: { type: Type.ARRAY, items: { type: Type.STRING } },
-          serviceNotes: { type: Type.ARRAY, items: { type: Type.STRING } },
-          deliveryLogistics: { type: Type.ARRAY, items: { type: Type.STRING } },
-          recommendedEquipment: { 
-            type: Type.ARRAY, 
-            items: { 
-                type: Type.OBJECT, 
-                properties: { item: { type: Type.STRING }, description: { type: Type.STRING } } 
-            } 
-          }
-        }
-      }
+  const [hideWatermark, setHideWatermark] = useState(false);
+  const [clipperMode, setClipperMode] = useState(false);
+  const [showBusinessIntel, setShowBusinessIntel] = useState(false);
+
+  if (!menu) return null;
+
+  const calculateTotal = (items: ShoppingListItem[]) => {
+    return items.reduce((acc, item) => {
+      if (!item.estimatedCost) return acc;
+      const numericValue = parseFloat(item.estimatedCost.replace(/[^0-9.]/g, ''));
+      return isNaN(numericValue) ? acc : acc + numericValue;
+    }, 0);
+  };
+
+  const totalCost = Array.isArray(menu.shoppingList) ? calculateTotal(menu.shoppingList) : 0;
+
+  const handleSourcingSearch = (e: React.MouseEvent | React.TouchEvent, item: string) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const query = encodeURIComponent(`buy ${item} catering supplies south africa`);
+      window.open(`https://www.google.com/search?q=${query}`, '_blank');
+      showToast(`Searching for ${item}...`);
+  };
+
+  const jumpToThumbnailStudio = () => {
+    const section = document.getElementById('founder-roadmap');
+    if (section) {
+        section.scrollIntoView({ behavior: 'smooth' });
+        showToast("Opening Asset Studio below...");
     }
-  });
-  
-  return { menu: safeParseMenuJson(response.text || "") };
+  };
+
+  const handleSocialAction = (mode: 'reel' | 'status' | 'create') => {
+    analytics.track({ type: 'founder_action', data: { actionName: `open_social_${mode}` } });
+    onOpenSocialModal?.(mode);
+  };
+
+  return (
+    <div className={`p-4 sm:p-10 theme-container ${t.container} rounded-[3rem] shadow-2xl border border-slate-100 dark:border-slate-800 animate-fade-in relative transition-all duration-500 ${clipperMode ? 'scale-[0.98] ring-[20px] ring-indigo-600/20' : ''}`}>
+      
+      {!isReadOnlyView && (
+      <div className="no-print space-y-6">
+          <div className="bg-amber-500 p-6 rounded-[2rem] flex flex-col sm:flex-row items-center justify-between gap-6 shadow-2xl border-4 border-white dark:border-slate-800 animate-bounce cursor-pointer" onClick={jumpToThumbnailStudio}>
+              <div className="flex items-center gap-4 text-white">
+                  <div className="p-3 bg-white/20 rounded-2xl"><Palette size={32} /></div>
+                  <div>
+                      <h4 className="text-xl font-black uppercase tracking-tight leading-none">Ready for Fiverr?</h4>
+                      <p className="text-[10px] font-black uppercase opacity-90 tracking-widest mt-1">Create your high-click gig thumbnail now</p>
+                  </div>
+              </div>
+              <button className="px-8 py-3 bg-white text-amber-600 rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-transform active:scale-95">Open Asset Studio</button>
+          </div>
+
+          <div className="bg-slate-950 text-white p-8 sm:p-12 rounded-[2.5rem] relative overflow-hidden group border border-white/10 shadow-indigo-500/10 shadow-2xl">
+              <div className="absolute top-0 right-0 p-12 opacity-5 group-hover:opacity-10 transition-opacity">
+                  <Sparkles size={120} />
+              </div>
+              
+              <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+                  <div className="max-w-md">
+                      <div className="flex items-center gap-3 mb-4">
+                          <div className="p-3 bg-primary-500 rounded-2xl shadow-lg shadow-primary-500/20">
+                              <Megaphone size={24} className="text-white" />
+                          </div>
+                          <span className="text-[10px] font-black uppercase tracking-[0.3em] text-primary-400">Hub Command Center</span>
+                      </div>
+                      <h4 className="text-3xl font-black tracking-tight leading-none mb-2">Lifecycle Intelligence</h4>
+                      <p className="text-slate-400 text-sm font-medium">Use Data-Driven Menu Engineering to identify high-margin 'Star' items.</p>
+                      
+                      <div className="mt-8 flex flex-wrap gap-3">
+                          <button 
+                            onClick={() => { setShowBusinessIntel(!showBusinessIntel); analytics.track({ type: 'founder_action', data: { actionName: 'toggle_intel' } }); }}
+                            className={`flex items-center gap-2 px-6 py-4 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-xl active:scale-95 ${showBusinessIntel ? 'bg-amber-500 text-white' : 'bg-white text-slate-950 hover:bg-slate-100'}`}
+                          >
+                            <BarChart4 size={18} /> 
+                            {showBusinessIntel ? 'Exit Intel Mode' : 'Profit Engineering'} 
+                          </button>
+                          <button 
+                            onClick={() => handleSocialAction('reel')}
+                            className="flex items-center gap-2 px-6 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-xl active:scale-95"
+                          >
+                            <Video size={18} /> 
+                            Render Marketing Asset 
+                          </button>
+                      </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full lg:w-1/2">
+                    <div className="p-6 bg-white/5 rounded-3xl border border-white/10">
+                       <div className="flex items-center gap-2 mb-2 text-indigo-400">
+                          <BrainCircuit size={16} />
+                          <span className="text-[10px] font-black uppercase">Lifecycle ROI</span>
+                       </div>
+                       <p className="text-xs text-slate-400 leading-relaxed font-medium">AI identifies which dishes build long-term 'Lounge' loyalty.</p>
+                    </div>
+                    <div className="p-6 bg-white/5 rounded-3xl border border-white/10">
+                       <div className="flex items-center gap-2 mb-2 text-amber-400">
+                          <Target size={16} />
+                          <span className="text-[10px] font-black uppercase">Golden Triangle</span>
+                       </div>
+                       <p className="text-xs text-slate-400 leading-relaxed font-medium">Visualizing eye-movement patterns to optimize item placement.</p>
+                    </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+      )}
+
+      <div className="flex flex-col sm:flex-row items-center justify-between border-b-2 border-dashed border-slate-200 dark:border-slate-700 pb-8 gap-4 mt-8">
+         <div className="flex items-center gap-4">
+            <ChefHat className={`w-10 h-10 ${t.title}`} />
+            <div>
+                <span className={`text-xs font-black uppercase tracking-[0.4em] block ${t.description} opacity-60 mb-1`}>Lifecycle Authorized</span>
+                <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-400 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1">
+                        <ShieldCheck size={12} /> Strategic Hub Build
+                    </span>
+                    <span className={`text-sm font-bold ${t.description}`}>{new Date().toLocaleDateString('en-ZA', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+                </div>
+            </div>
+         </div>
+         
+         <div className="flex items-center gap-2 no-print">
+            <button 
+                onClick={() => onOpenShareModal?.()} 
+                className="px-6 py-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-indigo-100 transition-all flex items-center gap-2 border border-indigo-100 dark:border-indigo-800"
+                title="Share Proposal"
+            >
+                <Share2 size={16} />
+                <span className="hidden xs:inline">Share</span>
+            </button>
+            <button onClick={() => window.print()} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-2xl hover:bg-slate-200 transition-colors" title="Print/Export">
+                <FileDown size={20} className={t.description} />
+            </button>
+         </div>
+      </div>
+
+      {menu.image && !isGeneratingImage && (
+         <div className="relative group overflow-hidden rounded-[3rem] shadow-2xl border-8 border-white dark:border-slate-800 transition-transform hover:scale-[1.01] duration-700 mt-8">
+             <img 
+               src={`data:image/png;base64,${menu.image}`} 
+               alt={menu.menuTitle}
+               className="w-full h-auto max-h-[600px] object-cover"
+             />
+             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60"></div>
+             
+             <div className={`absolute bottom-8 left-8 right-8 text-white transition-opacity duration-500 ${hideWatermark ? 'opacity-0' : 'opacity-100'}`}>
+                <div className="flex items-center gap-3 mb-3 bg-black/20 backdrop-blur-md w-fit px-4 py-2 rounded-2xl border border-white/20">
+                    <img src="/logo.svg" alt="Logo" className="w-8 h-8 rounded-lg shadow-xl" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-90">CaterPro AI: Marketing Hub</span>
+                </div>
+                <h3 className="text-3xl font-black tracking-tight">{menu.menuTitle}</h3>
+             </div>
+         </div>
+      )}
+
+      <div className="text-center max-w-4xl mx-auto space-y-6 py-12">
+        <h2 className={`text-3xl sm:text-5xl lg:text-7xl font-black tracking-tighter ${t.title} leading-[0.9]`}>{menu.menuTitle}</h2>
+        <div className="flex justify-center gap-2">
+            {[1,2,3].map(i => <div key={i} className="w-2 h-2 rounded-full bg-primary-500 opacity-20"></div>)}
+        </div>
+        <p className={`text-xl sm:text-2xl leading-relaxed ${t.description} font-medium italic opacity-80 px-4`}>"{menu.description}"</p>
+      </div>
+      
+      {/* GRID CONTAINER - ENFORCED 2 COLUMNS FOR CONSISTENCY */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 lg:gap-12 items-stretch min-h-[400px]">
+        {MENU_SECTIONS.map(({ title, key }, catIdx) => {
+          const rawItems = menu[key as keyof Menu];
+          const items = Array.isArray(rawItems) ? rawItems : [];
+          
+          const isWideSection = ['shoppingList', 'recommendedEquipment', 'beveragePairings', 'dietaryNotes', 'miseEnPlace', 'serviceNotes', 'deliveryLogistics'].includes(key);
+          if (isWideSection) return null;
+
+          // Sections 1-4: Appetizers, Mains, Sides, Dessert
+          // We guarantee rendering even if items are empty so the grid doesn't collapse
+          return (
+            <div key={key} className={`${t.sectionContainer} rounded-[2.5rem] shadow-xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex flex-col`}>
+              <div className="flex justify-between items-center p-6 sm:p-10 border-b border-slate-100 dark:border-slate-800">
+                <h3 className={`text-xl sm:text-2xl font-black ${t.sectionTitle} flex items-center gap-4`}>
+                  <span className={`w-10 h-10 sm:w-12 sm:h-12 ${t.sectionIcon} rounded-2xl sm:rounded-3xl flex items-center justify-center text-sm sm:text-lg font-black flex-shrink-0 shadow-xl`}>
+                    {catIdx + 1}
+                  </span>
+                  {title}
+                </h3>
+              </div>
+              <ul className="p-6 sm:p-10 space-y-4 sm:space-y-6 flex-grow">
+                {items.length > 0 ? (
+                    items.filter((i): i is string => typeof i === 'string').map((item, index) => {
+                    const checkKey = `${key}-${index}`;
+                    const isChecked = checkedItems.has(checkKey);
+                    const analysis = menu.businessAnalysis?.find(a => a.name.includes(item.split(':')[0]) || item.includes(a.name));
+
+                    return (
+                        <li key={checkKey} className={`flex items-start gap-4 sm:gap-5 p-4 sm:p-6 rounded-[2rem] border-2 border-transparent transition-all ${isChecked ? 'bg-slate-100/50 dark:bg-slate-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 shadow-md'}`}>
+                        {!isReadOnlyView && (
+                            <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => onToggleItem(checkKey)}
+                            className={`mt-1 sm:mt-1.5 w-6 h-6 sm:w-8 sm:h-8 rounded-xl sm:rounded-2xl focus:ring-4 cursor-pointer transition-all ${t.checkbox}`}
+                            />
+                        )}
+                        <div className="space-y-1 sm:space-y-2">
+                            <span className={`text-lg sm:text-xl font-black tracking-tight transition-all ${isChecked ? t.checkedText : t.uncheckedText}`}>
+                                {item}
+                            </span>
+                            {analysis?.evocativeDescription && (
+                                <p className="text-xs sm:text-sm italic text-slate-500 font-medium leading-relaxed">
+                                    {analysis.evocativeDescription}
+                                </p>
+                            )}
+                        </div>
+                        </li>
+                    );
+                    })
+                ) : (
+                    // Placeholder for missing sections (Ensures numbering 1 and 2 don't disappear)
+                    <div className="py-12 px-6 text-center border-4 border-dashed border-slate-100 dark:border-slate-800 rounded-[2rem] flex flex-col items-center justify-center gap-4">
+                        <AlertTriangle className="text-amber-400 w-8 h-8" />
+                        <p className="text-xs font-black uppercase text-slate-400 tracking-widest leading-relaxed">
+                            Section {catIdx + 1} Pending:<br/>AI Refinement Required
+                        </p>
+                        <p className="text-[10px] text-slate-500 italic max-w-[200px]">The AI skipped this course. Try re-generating or simplifying the request.</p>
+                    </div>
+                )}
+              </ul>
+            </div>
+          );
+        })}
+
+        {/* Specialized Renderers for remaining wide sections */}
+        {['beveragePairings', 'miseEnPlace', 'serviceNotes', 'deliveryLogistics'].map(key => {
+            const section = MENU_SECTIONS.find(s => s.key === key);
+            if (!section) return null;
+            const items = Array.isArray(menu[key as keyof Menu]) ? menu[key as keyof Menu] : [];
+            if (!items || (Array.isArray(items) && items.length === 0)) return null;
+
+            return (
+                <div key={key} className={`${t.sectionContainer} rounded-[2.5rem] md:col-span-2 shadow-xl overflow-hidden bg-white/50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 mt-6`}>
+                    <div className="p-8 border-b border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/30 flex items-center gap-4">
+                        <div className={`p-3 ${t.sectionIcon} rounded-2xl shadow-lg`}>
+                            {key === 'beveragePairings' ? <Wine size={24} /> : <ClipboardCheck size={24} />}
+                        </div>
+                        <h3 className="text-2xl font-black">{section.title}</h3>
+                    </div>
+                    <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {(items as any[]).map((item, i) => (
+                            <div key={i} className="p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-start gap-3">
+                                <span className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-[10px] font-black shrink-0">{i+1}</span>
+                                <p className="text-sm font-bold leading-relaxed">{typeof item === 'string' ? item : JSON.stringify(item)}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        })}
+
+        {/* Safety Protocols */}
+        {menu.safetyProtocols && menu.safetyProtocols.length > 0 && (
+            <div className="md:col-span-2 border-4 border-red-500/20 bg-red-50/20 dark:bg-red-900/10 rounded-[3rem] shadow-xl overflow-hidden mt-6">
+                <div className="p-8 sm:p-10 border-b border-red-200 dark:border-red-900 flex items-center justify-between bg-white dark:bg-slate-900/50">
+                    <div className="flex items-center gap-5">
+                        <div className="p-4 bg-red-500 rounded-3xl text-white shadow-xl"><ShieldAlert size={28} /></div>
+                        <div>
+                            <h3 className="text-2xl font-black uppercase text-red-900 dark:text-red-200 tracking-tight">HACCP Safety Command</h3>
+                            <p className="text-xs font-black text-red-600 uppercase tracking-widest mt-1">Hazard Analysis & Critical Control Points</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="p-8 sm:p-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-4">
+                        {menu.safetyProtocols.map((protocol, idx) => (
+                            <div key={idx} 
+                                onClick={() => onToggleItem(`haccp-${idx}`)}
+                                className={`flex gap-4 p-5 rounded-2xl border-2 transition-all cursor-pointer ${checkedItems.has(`haccp-${idx}`) ? 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-500/30 opacity-60' : 'bg-white dark:bg-slate-800 border-red-100 dark:border-red-800 shadow-sm hover:border-red-500/50'}`}
+                            >
+                                <input 
+                                    type="checkbox" 
+                                    checked={checkedItems.has(`haccp-${idx}`) ? true : false} 
+                                    readOnly
+                                    className="w-5 h-5 rounded-lg text-emerald-600"
+                                />
+                                <p className={`text-sm font-bold leading-relaxed ${checkedItems.has(`haccp-${idx}`) ? 'text-emerald-700 dark:text-emerald-400 line-through' : 'text-slate-700 dark:text-slate-300'}`}>{protocol}</p>
+                            </div>
+                        ))}
+                    </div>
+                    <div className="bg-white dark:bg-slate-900 p-8 rounded-[2rem] border-2 border-red-100 dark:border-red-800 space-y-6">
+                        <div className="flex items-center gap-3 text-red-600 mb-2">
+                            <Thermometer size={24} />
+                            <h5 className="font-black uppercase tracking-widest text-sm">Critical Temperature Logs</h5>
+                        </div>
+                        <div className="space-y-3">
+                            <div className="flex justify-between p-3 border-b border-slate-100 dark:border-slate-800">
+                                <span className="text-xs font-bold text-slate-500 uppercase">Reception Temp:</span>
+                                <span className="text-xs font-black">&lt; 4°C</span>
+                            </div>
+                            <div className="flex justify-between p-3 border-b border-slate-100 dark:border-slate-800">
+                                <span className="text-xs font-bold text-slate-500 uppercase">Service Temp (Hot):</span>
+                                <span className="text-xs font-black">&gt; 65°C</span>
+                            </div>
+                            <div className="flex justify-between p-3">
+                                <span className="text-xs font-bold text-slate-500 uppercase">Cooling Curve:</span>
+                                <span className="text-xs font-black">2h (60°C to 21°C)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        )}
+      </div>
+    </div>
+  );
 };
 
-export const generateClipperBriefFromApi = async (menuTitle: string, hookType: string): Promise<string> => {
-    const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const prompt = `Create a viral short-form video brief (TikTok/Reels) for my video editor.
-    PRODUCT: CaterPro AI (Menu automation for chefs).
-    CONTENT THEME: ${menuTitle}.
-    HOOK STYLE: ${hookType}.
-    
-    Format as:
-    1. THE HOOK (Text on screen + Voiceover)
-    2. THE VISUAL STORYBOARD (What to show on screen)
-    3. EDITING STYLE (Fast cuts, captions, emojis)
-    4. CALL TO ACTION (Bio link info)`;
-    
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt,
-        config: { thinkingConfig: { thinkingBudget: 0 } }
-    });
-    return response.text || "Brief generation failed.";
-};
-
-export const generateWhopSEO = async (niche: string): Promise<any> => {
-    const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const prompt = `Architect a WHOP Marketplace listing for: "${niche}".
-    CRITICAL CHECKLIST:
-    1. TITLE: 20-30 chars. MUST include a number (e.g. 2026, 7-Figure, +30%).
-    2. HEADLINE: 50-80 chars. Benefit-focused.
-    3. DESCRIPTION: 100-200 words. Use bullet points. Focus on outcomes, not features.
-    4. URGENCY: Include "Limited founder slots" or "Trial active".
-    5. FRESHNESS: Use "2026 Edition" or "Updated".
-    
-    Return JSON with fields: title, headline, description, tags.`;
-    
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt,
-        config: {
-            thinkingConfig: { thinkingBudget: 0 },
-            responseMimeType: "application/json",
-            responseSchema: {
-                type: Type.OBJECT,
-                properties: {
-                    title: { type: Type.STRING },
-                    headline: { type: Type.STRING },
-                    description: { type: Type.STRING },
-                    tags: { type: Type.ARRAY, items: { type: Type.STRING } }
-                }
-            }
-        }
-    });
-    return JSON.parse(response.text || "{}");
-};
-
-export const generateSocialCaption = async (menuTitle: string, description: string, platform: string = 'facebook'): Promise<string> => {
-    const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `Viral ${platform} post for: "${menuTitle}". Content: ${description}.`,
-        config: { thinkingConfig: { thinkingBudget: 0 } }
-    });
-    return response.text?.trim() || "";
-};
-
-export const generateWhatsAppStatus = async (menuTitle: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: `3 WhatsApp updates for "${menuTitle}". Emojis included.`,
-      config: { thinkingConfig: { thinkingBudget: 0 } }
-  });
-  return response.text?.trim() || "";
-};
-
-export const generateMenuImageFromApi = async (title: string, description: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash-image',
-    contents: { parts: [{ text: `A high-quality, professional food photography shot of ${title}. ${description}. Elegant plating, cinematic lighting, gourmet catering style.` }] },
-    config: {
-        imageConfig: { aspectRatio: "16:9" }
-    }
-  });
-  
-  for (const part of response.candidates?.[0]?.content?.parts || []) {
-    if (part.inlineData) {
-      return part.inlineData.data;
-    }
-  }
-  throw new Error("No image generated");
-};
-
-export const regenerateMenuItemFromApi = async (oldText: string, prompt: string): Promise<string> => {
-    const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `Update this menu item: "${oldText}" based on this request: "${prompt}". Return ONLY the updated menu item text.`,
-        config: { thinkingConfig: { thinkingBudget: 0 } }
-    });
-    return response.text?.trim() || oldText;
-};
-
-export const generateStudyGuideFromApi = async (topic: string, curriculum: string, level: string, type: 'guide' | 'curriculum'): Promise<EducationContent> => {
-    const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const prompt = `Create a professional ${type === 'guide' ? 'study guide' : 'curriculum syllabus'} for the topic "${topic}". 
-    Standard: ${curriculum}. Level: ${level}.
-    Include overview, core modules with points, key vocabulary, assessment criteria, and practical exercises.`;
-    
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: prompt,
-        config: {
-            thinkingConfig: { thinkingBudget: 0 },
-            responseMimeType: "application/json",
-            responseSchema: {
-                type: Type.OBJECT,
-                properties: {
-                    title: { type: Type.STRING },
-                    curriculum: { type: Type.STRING },
-                    level: { type: Type.STRING },
-                    overview: { type: Type.STRING },
-                    modules: {
-                        type: Type.ARRAY,
-                        items: {
-                            type: Type.OBJECT,
-                            properties: {
-                                title: { type: Type.STRING },
-                                content: { type: Type.ARRAY, items: { type: Type.STRING } }
-                            }
-                        }
-                    },
-                    keyVocabulary: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    assessmentCriteria: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    practicalExercises: { type: Type.ARRAY, items: { type: Type.STRING } }
-                }
-            }
-        }
-    });
-    return JSON.parse(response.text || "{}");
-};
-
-export const generateVideoFromApi = async (prompt: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  let operation = await ai.models.generateVideos({
-    model: 'veo-3.1-fast-generate-preview',
-    prompt: prompt,
-    config: {
-      numberOfVideos: 1,
-      resolution: '720p',
-      aspectRatio: '9:16'
-    }
-  });
-  while (!operation.done) {
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    operation = await ai.operations.getVideosOperation({operation: operation});
-  }
-  const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
-  return `${downloadLink}&key=${getApiKey()}`;
-};
-
-export const analyzeReceiptFromApi = async (base64: string): Promise<any> => {
-    const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: {
-            parts: [
-                { inlineData: { mimeType: 'image/jpeg', data: base64 } },
-                { text: 'Analyze this receipt and extract merchant name, date, total amount, and categorize the expenses. Return JSON.' }
-            ]
-        },
-        config: {
-            responseMimeType: "application/json",
-            responseSchema: {
-                type: Type.OBJECT,
-                properties: {
-                    merchant: { type: Type.STRING },
-                    date: { type: Type.STRING },
-                    total: { type: Type.STRING },
-                    categories: { type: Type.ARRAY, items: { type: Type.STRING } }
-                }
-            }
-        }
-    });
-    return JSON.parse(response.text || "{}");
-};
-
-export const analyzeLabelFromApi = async (base64: string, dietaryRestrictions: string[]): Promise<any> => {
-    const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: {
-            parts: [
-                { inlineData: { mimeType: 'image/jpeg', data: base64 } },
-                { text: `Analyze this food label for the following dietary restrictions: ${dietaryRestrictions.join(', ')}. Provide a suitability score out of 10, flag restricted ingredients, and give reasoning. Return JSON.` }
-            ]
-        },
-        config: {
-            responseMimeType: "application/json",
-            responseSchema: {
-                type: Type.OBJECT,
-                properties: {
-                    suitabilityScore: { type: Type.NUMBER },
-                    flaggedIngredients: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    reasoning: { type: Type.STRING }
-                }
-            }
-        }
-    });
-    return JSON.parse(response.text || "{}");
-};
-
-export const generateCulinaryInfographic = async (type: 'comparison' | 'meat_chart'): Promise<string> => {
-    const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const prompt = type === 'comparison' 
-        ? "Create a professional infographic comparing a 'Chef' vs a 'Cook'. High-contrast typography, minimalist design, educational layout."
-        : "Create a professional culinary meat mapping chart showing primal cuts. Elegant technical drawing style, professional catering educational asset.";
-    
-    const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: { parts: [{ text: prompt }] },
-        config: { imageConfig: { aspectRatio: "4:3" } }
-    });
-
-    for (const part of response.candidates?.[0]?.content?.parts || []) {
-        if (part.inlineData) {
-            return part.inlineData.data;
-        }
-    }
-    throw new Error("Infographic generation failed");
-};
+export default MenuDisplay;
