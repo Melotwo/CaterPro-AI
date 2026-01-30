@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types';
-import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock, Sparkle, EyeOff, Eye, BrainCircuit, Globe, ExternalLink, Camera, Instagram, Smartphone, BarChart4, ShieldAlert, Thermometer, Droplets, Layout, Palette } from 'lucide-react';
+import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock, Sparkle, EyeOff, Eye, BrainCircuit, Globe, ExternalLink, Camera, Instagram, Smartphone, BarChart4, ShieldAlert, Thermometer, Droplets, Layout, Palette, AlertTriangle } from 'lucide-react';
 import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES } from '../constants';
 import { analytics } from '../services/analyticsManager';
 
@@ -202,69 +201,105 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
       )}
 
       <div className="text-center max-w-4xl mx-auto space-y-6 py-12">
-        <h2 className={`text-5xl sm:text-7xl font-black tracking-tighter ${t.title} leading-[0.9]}`}>{menu.menuTitle}</h2>
+        <h2 className={`text-3xl sm:text-5xl lg:text-7xl font-black tracking-tighter ${t.title} leading-[0.9]`}>{menu.menuTitle}</h2>
         <div className="flex justify-center gap-2">
             {[1,2,3].map(i => <div key={i} className="w-2 h-2 rounded-full bg-primary-500 opacity-20"></div>)}
         </div>
-        <p className={`text-2xl leading-relaxed ${t.description} font-medium italic opacity-80 px-4`}>"{menu.description}"</p>
+        <p className={`text-xl sm:text-2xl leading-relaxed ${t.description} font-medium italic opacity-80 px-4`}>"{menu.description}"</p>
       </div>
       
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 lg:gap-12 items-stretch min-h-[400px]">
         {MENU_SECTIONS.map(({ title, key }, catIdx) => {
-          const rawItems = menu[key];
+          const rawItems = menu[key as keyof Menu];
           const items = Array.isArray(rawItems) ? rawItems : [];
-          if (items.length === 0) return null;
           
-          const isWideSection = ['shoppingList', 'recommendedEquipment', 'beveragePairings'].includes(key);
-          const sectionClass = isWideSection ? 'lg:col-span-2' : '';
+          const isWideSection = ['shoppingList', 'recommendedEquipment', 'beveragePairings', 'dietaryNotes', 'miseEnPlace', 'serviceNotes', 'deliveryLogistics'].includes(key);
+          if (isWideSection) return null;
 
+          // Sections 1-4: Appetizers, Mains, Sides, Dessert
           return (
-            <div key={key} className={`${t.sectionContainer} rounded-[2.5rem] ${sectionClass} shadow-xl overflow-hidden bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm border border-slate-100 dark:border-slate-800`}>
-              <div className="flex justify-between items-center p-8 sm:p-10 border-b border-slate-100 dark:border-slate-800">
-                <h3 className={`text-2xl font-black ${t.sectionTitle} flex items-center gap-5`}>
-                  <span className={`w-12 h-12 ${t.sectionIcon} rounded-3xl flex items-center justify-center text-lg font-black flex-shrink-0 shadow-xl`}>
+            <div key={key} className={`${t.sectionContainer} rounded-[2.5rem] shadow-xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 flex flex-col`}>
+              <div className="flex justify-between items-center p-6 sm:p-10 border-b border-slate-100 dark:border-slate-800">
+                <h3 className={`text-xl sm:text-2xl font-black ${t.sectionTitle} flex items-center gap-4`}>
+                  <span className={`w-10 h-10 sm:w-12 sm:h-12 ${t.sectionIcon} rounded-2xl sm:rounded-3xl flex items-center justify-center text-sm sm:text-lg font-black flex-shrink-0 shadow-xl`}>
                     {catIdx + 1}
                   </span>
                   {title}
                 </h3>
               </div>
-              <ul className="p-8 sm:p-10 space-y-6">
-                {items.filter((i): i is string => typeof i === 'string').map((item, index) => {
-                  const checkKey = `${key}-${index}`;
-                  const isChecked = checkedItems.has(checkKey);
-                  const analysis = menu.businessAnalysis?.find(a => a.name.includes(item.split(':')[0]) || item.includes(a.name));
+              <ul className="p-6 sm:p-10 space-y-4 sm:space-y-6 flex-grow">
+                {items.length > 0 ? (
+                    items.filter((i): i is string => typeof i === 'string').map((item, index) => {
+                    const checkKey = `${key}-${index}`;
+                    const isChecked = checkedItems.has(checkKey);
+                    const analysis = menu.businessAnalysis?.find(a => a.name.includes(item.split(':')[0]) || item.includes(a.name));
 
-                  return (
-                    <li key={checkKey} className={`flex items-start gap-5 p-6 rounded-[2.5rem] border-2 border-transparent transition-all ${isChecked ? 'bg-slate-100/50 dark:bg-slate-800/50' : 'hover:bg-white dark:hover:bg-slate-800 shadow-md'}`}>
-                      {!isReadOnlyView && (
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => onToggleItem(checkKey)}
-                          className={`mt-1.5 w-8 h-8 rounded-2xl focus:ring-4 cursor-pointer transition-all ${t.checkbox}`}
-                        />
-                      )}
-                      <div className="space-y-2">
-                        <span className={`text-xl sm:text-2xl font-black tracking-tight transition-all ${isChecked ? t.checkedText : t.uncheckedText}`}>
-                            {item}
-                        </span>
-                        {analysis?.evocativeDescription && (
-                            <p className="text-sm italic text-slate-500 font-medium leading-relaxed">
-                                {analysis.evocativeDescription}
-                            </p>
+                    return (
+                        <li key={checkKey} className={`flex items-start gap-4 sm:gap-5 p-4 sm:p-6 rounded-[2rem] border-2 border-transparent transition-all ${isChecked ? 'bg-slate-100/50 dark:bg-slate-800/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800/50 shadow-md'}`}>
+                        {!isReadOnlyView && (
+                            <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => onToggleItem(checkKey)}
+                            className={`mt-1 sm:mt-1.5 w-6 h-6 sm:w-8 sm:h-8 rounded-xl sm:rounded-2xl focus:ring-4 cursor-pointer transition-all ${t.checkbox}`}
+                            />
                         )}
-                      </div>
-                    </li>
-                  );
-                })}
+                        <div className="space-y-1 sm:space-y-2">
+                            <span className={`text-lg sm:text-xl font-black tracking-tight transition-all ${isChecked ? t.checkedText : t.uncheckedText}`}>
+                                {item}
+                            </span>
+                            {analysis?.evocativeDescription && (
+                                <p className="text-xs sm:text-sm italic text-slate-500 font-medium leading-relaxed">
+                                    {analysis.evocativeDescription}
+                                </p>
+                            )}
+                        </div>
+                        </li>
+                    );
+                    })
+                ) : (
+                    <div className="py-12 px-6 text-center border-4 border-dashed border-slate-100 dark:border-slate-800 rounded-[2rem] flex flex-col items-center justify-center gap-4">
+                        <AlertTriangle className="text-amber-400 w-8 h-8" />
+                        <p className="text-xs font-black uppercase text-slate-400 tracking-widest leading-relaxed">
+                            Section {catIdx + 1} Pending:<br/>AI Refinement Required
+                        </p>
+                    </div>
+                )}
               </ul>
             </div>
           );
         })}
 
+        {/* Specialized Renderers for remaining wide sections */}
+        {['beveragePairings', 'miseEnPlace', 'serviceNotes', 'deliveryLogistics'].map(key => {
+            const section = MENU_SECTIONS.find(s => s.key === key);
+            if (!section) return null;
+            const items = Array.isArray(menu[key as keyof Menu]) ? menu[key as keyof Menu] : [];
+            if (!items || (Array.isArray(items) && items.length === 0)) return null;
+
+            return (
+                <div key={key} className={`${t.sectionContainer} rounded-[2.5rem] md:col-span-2 shadow-xl overflow-hidden bg-white/50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 mt-6`}>
+                    <div className="p-8 border-b border-slate-100 dark:border-slate-800 bg-slate-50/30 dark:bg-slate-800/30 flex items-center gap-4">
+                        <div className={`p-3 ${t.sectionIcon} rounded-2xl shadow-lg`}>
+                            {key === 'beveragePairings' ? <Wine size={24} /> : <ClipboardCheck size={24} />}
+                        </div>
+                        <h3 className="text-2xl font-black">{section.title}</h3>
+                    </div>
+                    <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {(items as any[]).map((item, i) => (
+                            <div key={i} className="p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-start gap-3">
+                                <span className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-[10px] font-black shrink-0">{i+1}</span>
+                                <p className="text-sm font-bold leading-relaxed">{typeof item === 'string' ? item : JSON.stringify(item)}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        })}
+
         {menu.safetyProtocols && menu.safetyProtocols.length > 0 && (
-            <div className="lg:col-span-2 border-4 border-red-500/20 bg-red-50/20 dark:bg-red-900/10 rounded-[3rem] shadow-xl overflow-hidden mt-6">
-                <div className="p-10 border-b border-red-200 dark:border-red-900 flex items-center justify-between bg-white dark:bg-slate-900/50">
+            <div className="md:col-span-2 border-4 border-red-500/20 bg-red-50/20 dark:bg-red-900/10 rounded-[3rem] shadow-xl overflow-hidden mt-6">
+                <div className="p-8 sm:p-10 border-b border-red-200 dark:border-red-900 flex items-center justify-between bg-white dark:bg-slate-900/50">
                     <div className="flex items-center gap-5">
                         <div className="p-4 bg-red-500 rounded-3xl text-white shadow-xl"><ShieldAlert size={28} /></div>
                         <div>
@@ -273,7 +308,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                         </div>
                     </div>
                 </div>
-                <div className="p-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="p-8 sm:p-10 grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-4">
                         {menu.safetyProtocols.map((protocol, idx) => (
                             <div key={idx} 
@@ -315,8 +350,8 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
         )}
 
         {menu.shoppingList && menu.shoppingList.length > 0 && (
-            <div className={`lg:col-span-2 ${t.sectionContainer} rounded-[3rem] shadow-2xl bg-white dark:bg-slate-900 overflow-hidden border-2 border-slate-100 dark:border-slate-800 mt-6`}>
-                <div className="p-10 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+            <div className={`md:col-span-2 ${t.sectionContainer} rounded-[3rem] shadow-2xl bg-white dark:bg-slate-900 overflow-hidden border-2 border-slate-100 dark:border-slate-800 mt-6`}>
+                <div className="p-8 sm:p-10 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
                     <div className="flex items-center gap-5">
                         <div className={`p-4 ${t.sectionIcon} rounded-3xl shadow-xl`}><ShoppingCart size={28} /></div>
                         <div>
@@ -325,14 +360,14 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                         </div>
                     </div>
                 </div>
-                <div className="p-10">
-                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="p-8 sm:p-10">
+                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
                         {menu.shoppingList.map((item, idx) => (
                             <button 
                                 key={idx} 
                                 onClick={(e) => handleSourcingSearch(e, item.item)}
                                 onTouchEnd={(e) => handleSourcingSearch(e, item.item)}
-                                className={`${t.card} p-6 rounded-[2.5rem] border-2 border-transparent hover:border-primary-500 transition-all shadow-sm group text-left w-full active:scale-95 touch-manipulation`}
+                                className={`${t.card} p-5 sm:p-6 rounded-[2rem] sm:rounded-[2.5rem] border-2 border-transparent hover:border-primary-500 transition-all shadow-sm group text-left w-full active:scale-95 touch-manipulation h-full`}
                             >
                                 <div className="flex justify-between items-start mb-4">
                                     <h5 className="font-black text-sm uppercase tracking-wider text-slate-400 group-hover:text-primary-500 transition-colors">{item.item}</h5>
@@ -348,26 +383,26 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                         ))}
                      </div>
                      
-                     <div className="mt-12 p-10 bg-slate-950 rounded-[3rem] flex flex-col sm:flex-row items-center justify-between gap-8 border-4 border-primary-500/10 shadow-inner">
+                     <div className="mt-12 p-8 sm:p-10 bg-slate-950 rounded-[3rem] flex flex-col sm:flex-row items-center justify-between gap-8 border-4 border-primary-500/10 shadow-inner">
                         <div className="flex items-center gap-6">
                             <div className="p-5 bg-primary-500 rounded-[2rem] text-white shadow-2xl shadow-primary-500/30"><Wallet size={36} /></div>
                             <div>
                                 <p className="text-[11px] font-black uppercase tracking-[0.3em] text-slate-500 mb-2">Procurement Budget (est.)</p>
                                 <div className="flex items-baseline gap-2">
                                     <span className="text-sm font-black text-slate-400 uppercase">{preferredCurrency}</span>
-                                    <h4 className="text-5xl font-black text-white tracking-tighter">{totalCost.toFixed(2)}</h4>
+                                    <h4 className="text-4xl sm:text-5xl font-black text-white tracking-tighter">{totalCost.toFixed(2)}</h4>
                                 </div>
                             </div>
                         </div>
-                        <button className="px-10 py-5 bg-white text-slate-950 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl">Export List</button>
+                        <button className="w-full sm:w-auto px-10 py-5 bg-white text-slate-950 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl">Export List</button>
                      </div>
                 </div>
             </div>
         )}
         
         {menu.recommendedEquipment && menu.recommendedEquipment.length > 0 && (
-            <div className={`lg:col-span-2 ${t.sectionContainer} rounded-[3rem] shadow-2xl bg-white dark:bg-slate-900 overflow-hidden border-2 border-slate-100 dark:border-slate-800 mt-6`}>
-                 <div className="p-10 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
+            <div className={`md:col-span-2 ${t.sectionContainer} rounded-[3rem] shadow-2xl bg-white dark:bg-slate-900 overflow-hidden border-2 border-slate-100 dark:border-slate-800 mt-6`}>
+                 <div className="p-8 sm:p-10 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50/50 dark:bg-slate-800/50">
                     <div className="flex items-center gap-5">
                         <div className={`p-4 bg-indigo-500 rounded-3xl shadow-xl text-white`}><ClipboardCheck size={28} /></div>
                         <div>
@@ -376,7 +411,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                         </div>
                     </div>
                 </div>
-                <div className="p-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="p-8 sm:p-10 grid grid-cols-1 md:grid-cols-2 gap-6">
                     {menu.recommendedEquipment.map((eq, idx) => (
                         <button 
                             key={idx} 
