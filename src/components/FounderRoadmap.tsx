@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+// Add missing React and useState import
+import React, { useState } from 'react';
 import { 
   CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, 
   Linkedin, Briefcase, ExternalLink, MailOpen, FileUser, FileText, Globe, ShieldCheck, 
@@ -336,7 +337,7 @@ const WhopWarRoom: React.FC = () => {
                                 <Globe2 size={20} />
                                 <h5 className="text-[10px] font-black uppercase tracking-widest">1. Domain Connection</h5>
                             </div>
-                            <p className="text-xs font-medium text-slate-300 leading-relaxed mb-4">Buy <strong>caterproai.com</strong> on Namecheap. In Firebase Console, go to <strong>Build > Hosting</strong>. Click "Add Custom Domain" and copy the A Records to Namecheap.</p>
+                            <p className="text-xs font-medium text-slate-300 leading-relaxed mb-4">Buy <strong>caterproai.com</strong> on Namecheap. In Firebase Console, go to <strong>Build &gt; Hosting</strong>. Click "Add Custom Domain" and copy the A Records to Namecheap.</p>
                             <button onClick={() => window.open('https://console.firebase.google.com/', '_blank')} className="px-4 py-2 bg-indigo-600 rounded-xl text-[9px] font-black uppercase tracking-widest flex items-center gap-2">Firebase Console <ExternalLink size={10} /></button>
                         </div>
                         <div className="p-6 bg-white/5 rounded-3xl border border-white/10 group hover:bg-white/10 transition-all">
