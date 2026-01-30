@@ -1,4 +1,3 @@
-
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { Menu, Supplier, EducationContent, ShoppingListItem, BeveragePairing } from "../types";
 
@@ -7,18 +6,25 @@ const safeParseMenuJson = (text: string): Menu => {
         if (!text) throw new Error("Empty response from AI");
         const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
         const parsed = JSON.parse(cleaned);
+        
         const ensureArray = (arr: any) => (Array.isArray(arr) ? arr : []);
         const ensureObjectArray = (arr: any) => 
             (Array.isArray(arr) ? arr.filter(i => i !== null && typeof i === 'object') : []);
+        
+        // Intelligent Mapping: AI often returns singular or shortened keys for sections 1 & 2
+        const appetizers = parsed.appetizers || parsed.appetizer || parsed.starters || parsed.starter || [];
+        const mainCourses = parsed.mainCourses || parsed.mainCourse || parsed.mains || parsed.main || [];
+        const sideDishes = parsed.sideDishes || parsed.sideDish || parsed.sides || parsed.side || [];
+        const dessert = parsed.dessert || parsed.desserts || [];
         
         return {
             ...parsed,
             menuTitle: parsed.menuTitle || "New Menu Proposal",
             description: parsed.description || "A custom catering proposal designed just for you.",
-            appetizers: ensureArray(parsed.appetizers),
-            mainCourses: ensureArray(parsed.mainCourses),
-            sideDishes: ensureArray(parsed.sideDishes),
-            dessert: ensureArray(parsed.dessert),
+            appetizers: ensureArray(appetizers),
+            mainCourses: ensureArray(mainCourses),
+            sideDishes: ensureArray(sideDishes),
+            dessert: ensureArray(dessert),
             dietaryNotes: ensureArray(parsed.dietaryNotes),
             beveragePairings: ensureObjectArray(parsed.beveragePairings),
             miseEnPlace: ensureArray(parsed.miseEnPlace),
@@ -47,15 +53,22 @@ const getApiKey = () => {
 
 export const generateMenuFromApi = async (params: any): Promise<any> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const prompt = `Michelin catering strategist. 
-  Event: ${params.eventType}. Guests: ${params.guestCount}. Budget: ${params.budget}. Cuisine: ${params.cuisine}. 
-  STRATEGY: ${params.strategyHook || 'standard'}.
   
-  REQUIREMENTS:
-  1. MENU ENGINEERING: Itemize 'Star', 'Plow Horse', etc.
-  2. HACCP: Precise safety checkpoints.
+  // STRICT PROMPT: Enforces filling all sections for the UI grid
+  const prompt = `You are a Michelin catering strategist.
   
-  Return JSON only. Currency: ${params.currency}.`;
+  TASK: Generate a COMPLETE menu proposal for:
+  Event: ${params.eventType}. 
+  Guests: ${params.guestCount}. 
+  Budget: ${params.budget}. 
+  Cuisine: ${params.cuisine}. 
+  Marketing Strategy: ${params.strategyHook || 'standard'}.
+  
+  STRICT COMPLIANCE RULES:
+  1. You MUST populate 'appetizers' (Section 1), 'mainCourses' (Section 2), and 'sideDishes' (Section 3).
+  2. For a BRAAI/BBQ: Put grilled proteins in 'mainCourses'. Put biltong/breads in 'appetizers'. Put salads in 'sideDishes'.
+  3. Minimum 3 high-quality items per section. DO NOT SKIP SECTIONS 1 OR 2.
+  4. Currency: ${params.currency || 'ZAR'}.`;
   
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
