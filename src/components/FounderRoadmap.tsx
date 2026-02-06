@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, 
@@ -43,7 +44,8 @@ import {
   Scale,
   FlameKindling,
   Calendar,
-  ZapIcon
+  ZapIcon,
+  HeartOff
 } from 'lucide-react';
 import ThumbnailStudio from './ThumbnailStudio';
 
@@ -52,88 +54,41 @@ interface FounderRoadmapProps {
   onOpenSocial?: (mode: 'create' | 'reel' | 'status') => void;
 }
 
-const WeekendSprint: React.FC = () => {
-    const [day, setDay] = useState(1);
-    
-    const schedule = [
+const ValentineSprint: React.FC = () => {
+    const scripts = [
         {
-            time: "Morning (8:00 AM)",
-            type: "The 'Pain' Hook",
-            platform: "TikTok / Reels",
-            script: "Script: 'Chef, stop spending your weekends on a laptop. If you are still manually typing catering proposals in 2026, you are losing money. I built an AI that does it in 30 seconds. Link in bio.'",
-            advice: "Use InVideo AI. Prompt: 'Create a 15s video of a stressed chef typing on a laptop, then a transition to a sleek AI dashboard. High energy music.'"
+            title: "The 'Date Night' Hook",
+            script: "Caption: 'Valentine’s Day is coming. Don’t spend it in the office doing admin. I just generated a 3-course Romantic Menu for 20 clients in 60 seconds. In Rands. Link in bio to save your love life. ❤️'",
+            advice: "Post a high-quality photo of a dessert from the app on Instagram Reels."
         },
         {
-            time: "Afternoon (1:00 PM)",
-            type: "The 'Product' Walkthrough",
-            platform: "Facebook / TikTok",
-            script: "Caption: 'Just generated a full Braai Wedding menu for 150 guests. Portions, shopping list, and HACCP safety notes—all in Rands. No more guessing.'",
-            advice: "Do a screen recording on your iPad of the app generating a menu. Use CapCut to add captions."
-        },
-        {
-            time: "Evening (7:00 PM)",
-            type: "The 'Founder' Story",
-            platform: "Facebook Group",
-            script: "Post: 'I didn’t build this to be a tech founder. I built this because I’m a chef who was tired of the office grind. CaterPro AI is by chefs, for chefs. 🥂'",
-            advice: "Post a photo of yourself in a chef coat or a high-quality food shot from the app."
+            title: "The 'Pricing' Truth",
+            script: "Post: 'Chefs: Are you charging enough for Valentine's? Most caterers lose money because they don't cost the micro-ingredients. My AI Scanner just identified a 15% margin leak in a standard menu. 🤯'",
+            advice: "Record a TikTok using the new 'Menu Vision' scanner in the Productivity Lab."
         }
     ];
 
-    const handleCopy = (text: string) => {
-        navigator.clipboard.writeText(text);
-        alert("Script Copied!");
-    };
-
     return (
-        <div className="space-y-8 animate-fade-in">
-            <div className="p-8 bg-gradient-to-br from-indigo-600 to-purple-700 text-white rounded-[3rem] shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-10 opacity-10 rotate-12"><Flame size={200} /></div>
+        <div className="space-y-6 animate-fade-in">
+            <div className="p-10 bg-gradient-to-br from-pink-500 to-rose-600 text-white rounded-[3.5rem] shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-12 opacity-10 rotate-12"><Heart size={200} /></div>
                 <div className="relative z-10">
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="p-3 bg-white/20 backdrop-blur-md rounded-2xl">
-                            <ZapIcon size={24} />
-                        </div>
-                        <div>
-                            <h3 className="text-2xl font-black uppercase tracking-tight">Recovery Sprint: Day {day}</h3>
-                            <p className="text-indigo-100 text-xs font-bold uppercase tracking-widest">3 Posts / Day Goal</p>
-                        </div>
-                    </div>
+                    <h3 className="text-3xl font-black uppercase tracking-tight mb-4">Valentine's Growth Sprint</h3>
+                    <p className="text-rose-100 text-sm font-medium max-w-lg mb-8">February is the highest search-volume month for 'Private Chefs'. Use these hooks to capture the 2026 romantic rush.</p>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        {schedule.map((item, i) => (
-                            <div key={i} className="bg-white/10 backdrop-blur-xl p-6 rounded-[2rem] border border-white/20 flex flex-col justify-between">
-                                <div>
-                                    <span className="text-[10px] font-black uppercase text-indigo-200 tracking-widest">{item.time}</span>
-                                    <h4 className="text-lg font-black mt-1">{item.type}</h4>
-                                    <p className="text-xs text-indigo-100 mt-3 italic leading-relaxed">"{item.script}"</p>
-                                </div>
-                                <div className="mt-6 pt-4 border-t border-white/10">
-                                    <p className="text-[9px] font-black uppercase text-amber-300 mb-2">AI Video Prompt:</p>
-                                    <p className="text-[10px] text-white/70 mb-4">{item.advice}</p>
-                                    <button onClick={() => handleCopy(item.script)} className="w-full py-3 bg-white text-indigo-600 rounded-xl font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all">Copy Script</button>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {scripts.map((s, i) => (
+                            <div key={i} className="bg-white/10 backdrop-blur-xl p-6 rounded-3xl border border-white/20">
+                                <h4 className="text-lg font-black mb-2">{s.title}</h4>
+                                <p className="text-xs text-rose-50 mt-2 italic">"{s.script}"</p>
+                                <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
+                                    <span className="text-[9px] font-black uppercase tracking-widest text-rose-200">Tip: {s.advice}</span>
+                                    <button onClick={() => { navigator.clipboard.writeText(s.script); alert("Valentine Script Copied!"); }} className="p-2 bg-white text-rose-600 rounded-lg"><Copy size={14}/></button>
                                 </div>
                             </div>
                         ))}
                     </div>
                 </div>
-            </div>
-            
-            <div className="bg-white dark:bg-slate-900 p-8 rounded-[3rem] border-2 border-slate-100 dark:border-slate-800 shadow-xl">
-                 <div className="flex items-center gap-3 mb-6">
-                    <Monitor size={24} className="text-indigo-500" />
-                    <h4 className="text-lg font-black uppercase">Where to Generate Videos?</h4>
-                 </div>
-                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                    <div className="p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
-                        <h5 className="font-black text-indigo-600 uppercase text-xs mb-2">1. InVideo AI (Desktop/Web)</h5>
-                        <p className="text-xs text-slate-500 leading-relaxed font-medium">Best for "Faceless" videos. Paste the scripts above into InVideo AI, and it will pick stock footage, add a voiceover, and sync music automatically.</p>
-                        <a href="https://invideo.io/" target="_blank" className="mt-4 inline-flex items-center text-[10px] font-black text-indigo-500 hover:underline uppercase tracking-widest">Visit invideo.io <ExternalLink size={10} className="ml-1"/></a>
-                    </div>
-                    <div className="p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
-                        <h5 className="font-black text-emerald-600 uppercase text-xs mb-2">2. CapCut (iPad App)</h5>
-                        <p className="text-xs text-slate-500 leading-relaxed font-medium">Best for walkthroughs. Record your iPad screen using the app, then use CapCut's "Auto Captions" feature to add text overlays for TikTok.</p>
-                    </div>
-                 </div>
             </div>
         </div>
     );
@@ -150,41 +105,60 @@ const CRMArchitect: React.FC = () => {
                             <Workflow size={32} />
                         </div>
                         <div>
-                            <h3 className="text-3xl font-black uppercase tracking-tight">Make x Slack Console</h3>
-                            <p className="text-xs font-bold text-purple-200 uppercase tracking-widest mt-1">Lead Alerts for Founder iPad</p>
+                            <h3 className="text-3xl font-black uppercase tracking-tight">Lead Intelligence Hub</h3>
+                            <p className="text-xs font-bold text-purple-200 uppercase tracking-widest mt-1">Make x HubSpot Mastery</p>
                         </div>
                     </div>
+
+                    <div className="bg-white text-slate-900 p-8 rounded-[2.5rem] shadow-xl mb-10">
+                         <div className="flex items-center gap-3 mb-6">
+                            <Target size={24} className="text-purple-600" />
+                            <h4 className="text-xl font-black uppercase tracking-tight">Understanding your Segments</h4>
+                         </div>
+                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="p-6 bg-slate-50 rounded-2xl border-2 border-slate-100">
+                                <h5 className="font-black text-xs text-red-500 uppercase mb-2">Not Engaged (27)</h5>
+                                <p className="text-[11px] font-medium text-slate-500 leading-relaxed">These are people who saw your app 2 weeks ago but vanished. **Action:** Send them a Valentine's Early Bird discount code via HubSpot Email.</p>
+                            </div>
+                            <div className="p-6 bg-emerald-50 rounded-2xl border-2 border-emerald-100">
+                                <h5 className="font-black text-xs text-emerald-600 uppercase mb-2">Engaged (8)</h5>
+                                <p className="text-[11px] font-medium text-slate-500 leading-relaxed">Hot leads! They are actively clicking. **Action:** Send them a personalized Loom video showing how the Pro plan works.</p>
+                            </div>
+                            <div className="p-6 bg-indigo-50 rounded-2xl border-2 border-indigo-100">
+                                <h5 className="font-black text-xs text-indigo-600 uppercase mb-2">Unsubscribed (0)</h5>
+                                <p className="text-[11px] font-medium text-slate-500 leading-relaxed">Your content is relevant! Keep the frequency to 3 posts a week so you don't burn the list.</p>
+                            </div>
+                         </div>
+                    </div>
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                         <div className="space-y-6">
-                            <h5 className="text-sm font-black uppercase text-purple-200 tracking-widest mb-4">Current Automation Status:</h5>
+                            <h5 className="text-sm font-black uppercase text-purple-200 tracking-widest mb-4">Make.com Sync Logic:</h5>
                             <div className="bg-black/20 p-8 rounded-[2.5rem] border-2 border-dashed border-white/20">
                                 <ol className="space-y-6 text-sm">
                                     <li className="flex gap-4">
                                         <div className="w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center font-black text-xs shrink-0">1</div>
-                                        <p className="text-purple-100 font-medium"><strong>App Webhook:</strong> Every time a client enters their email in your app, it is pushed to <strong>Make.com</strong> automatically.</p>
+                                        <p className="text-purple-100 font-medium"><strong>App Webhook:</strong> Every email entered in the app is pushed to Make.com.</p>
                                     </li>
                                     <li className="flex gap-4">
                                         <div className="w-8 h-8 rounded-full bg-white/20 text-white flex items-center justify-center font-black text-xs shrink-0">2</div>
-                                        <p className="text-purple-100 font-medium"><strong>Make.com:</strong> You need to add a "Slack: Create a Message" module to your existing scenario.</p>
+                                        <p className="text-purple-100 font-medium"><strong>HubSpot Module:</strong> Add a 'HubSpot: Create/Update Contact' module in Make.</p>
                                     </li>
                                     <li className="flex gap-4">
                                         <div className="w-8 h-8 rounded-full bg-white/20 text-white flex items-center justify-center font-black text-xs shrink-0">3</div>
-                                        <p className="text-purple-100 font-medium"><strong>Result:</strong> Your iPad will ping every time a new catering lead is generated.</p>
+                                        <p className="text-purple-100 font-medium"><strong>Automation:</strong> Your HubSpot Segments will auto-update every time someone uses the app.</p>
                                     </li>
                                 </ol>
-                                <button onClick={() => window.open('https://www.make.com/', '_blank')} className="mt-8 w-full py-5 bg-white text-[#4A154B] rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-purple-50 transition-all">
-                                    Open Make.com <ExternalLink size={14} />
-                                </button>
                             </div>
                         </div>
                         <div className="flex flex-col justify-center space-y-8 bg-white/5 p-8 rounded-[3rem] border border-white/10">
                              <div className="text-center">
-                                <h4 className="text-xl font-black uppercase tracking-tight mb-2">Need Help?</h4>
-                                <p className="text-xs text-purple-200 font-medium">Don't stress the tech. This automation is 90% done. I will handle the direct integration when you are ready to launch the .COM domain.</p>
+                                <h4 className="text-xl font-black uppercase tracking-tight mb-2">Domain Launch Reminder</h4>
+                                <p className="text-xs text-purple-200 font-medium">Once you have the .COM domain, we will connect HubSpot to track every visit on your site.</p>
                              </div>
-                             <div className="p-5 bg-indigo-500/20 rounded-2xl border border-indigo-500/30 text-[10px] font-bold text-indigo-200 italic leading-relaxed">
-                                "The domain purchase (.com) is the final link. Once that is live, your professional email (e.g. hello@caterpro.com) will start sending automated proposal copies to clients."
-                             </div>
+                             <button onClick={() => window.open('https://app-eu1.hubspot.com/', '_blank')} className="w-full py-5 bg-white text-[#4A154B] rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-purple-50 transition-all">
+                                Open HubSpot Dashboard <ExternalLink size={14} />
+                             </button>
                         </div>
                     </div>
                 </div>
@@ -433,7 +407,7 @@ const WhopWarRoom: React.FC = () => {
 };
 
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }) => {
-  const [activeTab, setActiveTab] = useState<'sprint' | 'whop_war_room' | 'outreach' | 'crm_architect' | 'security' | 'assets'>('sprint');
+  const [activeTab, setActiveTab] = useState<'valentine' | 'crm_architect' | 'outreach' | 'security' | 'whop_war_room' | 'assets'>('valentine');
 
   return (
     <section id="founder-roadmap" className="mt-20 space-y-12 animate-slide-in scroll-mt-24">
@@ -447,10 +421,10 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
         </div>
         <div className="flex bg-slate-100 dark:bg-slate-800 p-1.5 rounded-[2rem] border border-slate-200 dark:border-slate-700 overflow-x-auto no-scrollbar max-w-full">
             {[
-                { id: 'sprint', label: 'Weekend Sprint', icon: Flame },
-                { id: 'whop_war_room', label: 'Domain Kit', icon: Globe },
+                { id: 'valentine', label: 'Valentine Sprint', icon: Heart },
+                { id: 'crm_architect', label: 'HubSpot Hub', icon: Target },
                 { id: 'outreach', label: 'Outreach Lab', icon: Mail },
-                { id: 'crm_architect', label: 'Make Hub', icon: Workflow },
+                { id: 'whop_war_room', label: 'Domain Kit', icon: Globe },
                 { id: 'security', label: 'Defense', icon: ShieldAlert },
                 { id: 'assets', label: 'Studio', icon: Layout }
             ].map(tab => (
@@ -466,10 +440,10 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
       </div>
 
       <div className="grid grid-cols-1 gap-12">
-        {activeTab === 'sprint' && <WeekendSprint />}
-        {activeTab === 'whop_war_room' && <WhopWarRoom />}
-        {activeTab === 'outreach' && <OutreachLab />}
+        {activeTab === 'valentine' && <ValentineSprint />}
         {activeTab === 'crm_architect' && <CRMArchitect />}
+        {activeTab === 'outreach' && <OutreachLab />}
+        {activeTab === 'whop_war_room' && <WhopWarRoom />}
         {activeTab === 'security' && <SecurityHub />}
         {activeTab === 'assets' && <ThumbnailStudio />}
       </div>
