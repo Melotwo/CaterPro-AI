@@ -1,3 +1,5 @@
+
+
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 
@@ -9,8 +11,9 @@ interface State {
   hasError: boolean;
 }
 
-// Fixed: Explicitly using Component from react and ensuring generic types are correctly applied
+// Fixed: Explicitly extending Component with generic Props and State to resolve TypeScript errors regarding 'state' and 'props' properties.
 export default class ErrorBoundary extends Component<Props, State> {
+  // Explicitly initialize state property to satisfy TypeScript compiler property detection.
   public state: State = { hasError: false };
 
   constructor(props: Props) {
@@ -18,10 +21,12 @@ export default class ErrorBoundary extends Component<Props, State> {
   }
 
   public static getDerivedStateFromError(_: Error): State {
+    // Update state so the next render will show the fallback UI.
     return { hasError: true };
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    // Log the error to an error reporting service or console.
     console.error("Uncaught application error:", error, errorInfo);
   }
 
@@ -30,7 +35,7 @@ export default class ErrorBoundary extends Component<Props, State> {
   };
 
   public render() {
-    // Fixed: this.state is now correctly typed
+    // Check if an error was caught to display the fallback UI.
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-4 font-sans text-center">
@@ -54,7 +59,7 @@ export default class ErrorBoundary extends Component<Props, State> {
       );
     }
 
-    // Fixed: this.props is now correctly typed
+    // Correctly return children from props when no error is caught.
     return this.props.children;
   }
 }
