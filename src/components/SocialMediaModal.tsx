@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Check, Facebook, Twitter, Instagram, Video, Loader2, Smartphone, MessageSquareQuote, Activity, Pin, Flame, Rocket, MessageSquare } from 'lucide-react';
+import { X, Copy, Check, Facebook, Twitter, Instagram, Video, Loader2, Smartphone, MessageSquareQuote, Activity, Pin, Flame, Rocket, MessageSquare, Mic2 } from 'lucide-react';
 import { generateSocialCaption, generateVideoFromApi, generateWhatsAppStatus } from '../services/geminiService';
 
-export type Mode = 'create' | 'pitch' | 'video' | 'status' | 'reel' | 'formula' | 'flex';
+export type Mode = 'create' | 'pitch' | 'video' | 'status' | 'reel' | 'formula' | 'flex' | 'tiktok';
 
 interface SocialMediaModalProps {
   isOpen: boolean;
@@ -39,7 +39,10 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
     setIsGenerating(true);
     setEditedContent('');
     try {
-      if (activeMode === 'create') {
+      if (activeMode === 'tiktok') {
+          const script = `[0:00-0:03] *Chef staring at a laptop looking frustrated*\n"POV: You're spending your weekend doing catering admin instead of cooking."\n\n[0:03-0:07] *Snap to your iPad showing CaterPro AI*\n"Meet CaterPro AI. I built this so you never have to type a proposal again."\n\n[0:07-0:12] *Quick cuts of the menu sections generating*\n"Portions. Costs in ZAR. HACCP safety. Done in 30 seconds."\n\n[0:12-0:15] *Final shot of a beautiful proposal*\n"Link in my bio to start for free. Let's get back in the kitchen. 🥂"`;
+          setEditedContent(script);
+      } else if (activeMode === 'create') {
         if (platform === 'whop') {
             const whopPost = `[COMMUNITY UPDATE: 2026 EDITION]\n\n"I didn't just build an app; I built a system for every chef in this group."\n\nI just finished the architecture for ${menuTitle || 'the new system'}. It now renders full proposals in under 30 seconds.\n\nI am currently looking for 3 ambitious clippers from this group to join my internal engine. I provide the assets, you provide the reach.\n\nDrop a 🥂 below if you are ready to scale with me.\n\n#CaterProAI #FounderLog #WhopCommunity`;
             setEditedContent(whopPost);
@@ -79,11 +82,11 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
             <button onClick={onClose} className="p-3 bg-white dark:bg-slate-700 rounded-full shadow-sm hover:scale-110 transition-transform"><X size={20} /></button>
         </div>
 
-        <div className="flex bg-white dark:bg-slate-950 p-3 border-b border-slate-100 dark:border-slate-800 overflow-x-auto no-scrollbar gap-3">
+        <div className="flex bg-white dark:bg-slate-900 p-3 border-b border-slate-100 dark:border-slate-800 overflow-x-auto no-scrollbar gap-3">
             {[
+                { id: 'tiktok', icon: Mic2, label: 'TikTok Script' },
                 { id: 'create', icon: MessageSquareQuote, label: 'Captions' },
                 { id: 'flex', icon: Rocket, label: 'Founder Flex' },
-                { id: 'formula', icon: Activity, label: 'Formula' },
                 { id: 'status', icon: Smartphone, label: 'WhatsApp' },
                 { id: 'reel', icon: Video, label: 'Reel Render' }
             ].map(m => (
@@ -142,7 +145,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                         className="w-full py-6 bg-slate-950 dark:bg-indigo-600 text-white rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl flex items-center justify-center gap-3 active:scale-95 disabled:opacity-30 transition-all"
                     >
                         {copiedText ? <Check size={20} /> : <Copy size={20} />}
-                        {copiedText ? 'Post Copied!' : 'Copy to Clipboard'}
+                        {copiedText ? 'Script Copied!' : 'Copy to Clipboard'}
                     </button>
                 </div>
             </div>
