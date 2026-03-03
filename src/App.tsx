@@ -1,306 +1,467 @@
 
-import { GoogleGenAI, Type } from "@google/genai";
-import { Menu, ScannedMenuCosting } from "../types";
+import React, { useState, useEffect, useRef } from 'react';
+import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail, Search, Globe, Facebook, Lightbulb, Target, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck, RefreshCw, Smartphone, X, Heart } from 'lucide-react';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 
-const safeParseMenuJson = (text: string): Menu => {
-    try {
-        if (!text) throw new Error("Empty response from AI");
-        const cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
-        const parsed = JSON.parse(cleaned);
-        
-        const ensureArray = (arr: any) => (Array.isArray(arr) ? arr : []);
-        const ensureObjectArray = (arr: any) => 
-            (Array.isArray(arr) ? arr.filter(i => i !== null && typeof i === 'object') : []);
-        
-        const appetizers = parsed.appetizers || parsed.appetizer || parsed.starters || parsed.starter || parsed.firstCourse || [];
-        const mainCourses = parsed.mainCourses || parsed.mainCourse || parsed.mains || parsed.main || parsed.entrees || [];
-        const sideDishes = parsed.sideDishes || parsed.sideDish || parsed.sides || parsed.side || [];
-        const dessert = parsed.dessert || parsed.desserts || [];
-        
-        return {
-            ...parsed,
-            menuTitle: parsed.menuTitle || "New Menu Proposal",
-            description: parsed.description || "A custom catering proposal designed just for you.",
-            appetizers: ensureArray(appetizers),
-            mainCourses: ensureArray(mainCourses),
-            sideDishes: ensureArray(sideDishes),
-            dessert: ensureArray(dessert),
-            dietaryNotes: ensureArray(parsed.dietaryNotes),
-            beveragePairings: ensureObjectArray(parsed.beveragePairings),
-            miseEnPlace: ensureArray(parsed.miseEnPlace),
-            serviceNotes: ensureArray(parsed.serviceNotes),
-            deliveryLogistics: ensureArray(parsed.deliveryLogistics),
-            shoppingList: ensureObjectArray(parsed.shoppingList),
-            recommendedEquipment: ensureObjectArray(parsed.recommendedEquipment),
-            salesScripts: ensureObjectArray(parsed.salesScripts),
-            aiKeywords: ensureArray(parsed.aiKeywords),
-            businessAnalysis: ensureObjectArray(parsed.businessAnalysis),
-            safetyProtocols: ensureArray(parsed.safetyProtocols)
-        };
-    } catch (e) {
-        console.error("JSON Parse Error. Raw text:", text);
-        throw new Error("Generation interrupted. Try a simpler request.");
+import Navbar from './components/Navbar';
+import Footer from './components/Footer';
+import MenuDisplay from './components/MenuDisplay';
+import SavedChecklistsModal from './components/SavedChecklistsModal';
+import Toast from './components/Toast';
+import AiChatBot from './components/AiChatBot';
+import QrCodeModal from './components/QrCodeModal';
+import ShareModal from './components/ShareModal';
+import SocialMediaModal, { Mode as SocialMode } from './components/SocialMediaModal';
+import MultiSelectDropdown from './components/MultiSelectDropdown';
+import GenerationHistory from './components/GenerationHistory';
+import CustomizationModal from './components/CustomizationModal';
+import EmailCapture from './components/EmailCapture';
+import PricingPage from './components/PricingPage';
+import UpgradeModal from './components/UpgradeModal';
+import PwaInstallModal from './components/PwaInstallModal';
+import LandingPage from './components/LandingPage';
+import ResearchHub from './components/ResearchHub';
+import FounderRoadmap from './components/FounderRoadmap';
+import SEOHead from './components/SEOHead';
+import MarketingRoadmap from './components/MarketingRoadmap';
+import ProductivityLab from './components/ProductivityLab';
+import { useAppSubscription } from './hooks/useAppSubscription';
+import { CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS } from './constants';
+import { SavedMenu, ErrorState, ValidationErrors, Menu, MenuSection } from './types';
+import { getApiErrorState } from './services/apiErrorHandler';
+import { generateMenuFromApi, generateMenuImageFromApi } from './services/geminiService';
+import { analytics } from './services/analyticsManager';
+
+const WHOP_STORE_URL = "https://whop.com/melotwo2"; 
+const FACEBOOK_PAGE_URL = "https://facebook.com/CaterProAi"; 
+
+type AppView = 'landing' | 'generator' | 'pricing';
+
+export default function App() {
+  const [viewMode, setViewMode] = useState<AppView>('generator');
+  const [eventType, setEventType] = useState('');
+  const [eventTypeSearch, setEventTypeSearch] = useState('');
+  const [showEventResults, setShowEventResults] = useState(false);
+  const [guestCount, setGuestCount] = useState('');
+  const [budget, setBudget] = useState('$$');
+  const [currency, setCurrency] = useState('ZAR'); 
+  const [serviceStyle, setServiceStyle] = useState('Standard Catering');
+  const [cuisine, setCuisine] = useState('');
+  const [cuisineSearch, setCuisineSearch] = useState('');
+  const [strategyHook, setStrategyHook] = useState(''); 
+  const [showCuisineResults, setShowCuisineResults] = useState(false);
+  const [showStrategyGuide, setShowStrategyGuide] = useState(false);
+  const [dietaryRestrictions, setDietaryRestrictions] = useState<string[]>([]);
+  const [proposalTheme, setProposalTheme] = useState('classic');
+  
+  const [isFounderMode, setIsFounderMode] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    const mode = params.get('mode');
+    const stored = localStorage.getItem('caterpro_is_founder');
+    if (mode === 'founder' || stored === 'true') {
+        localStorage.setItem('caterpro_is_founder', 'true');
+        return true;
     }
-};
+    return false;
+  });
 
-const getApiKey = () => {
-    const key = process.env.API_KEY;
-    if (!key || key.trim() === '') {
-        throw new Error("API Key is missing.");
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingTimer, setLoadingTimer] = useState(0);
+  const [error, setError] = useState<ErrorState | null>(null);
+  const [menu, setMenu] = useState<Menu | null>(null);
+  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
+  
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const storedTheme = localStorage.getItem('theme');
+      if (storedTheme) return storedTheme === 'dark';
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
-    return key;
-};
+    return false;
+  });
 
-export const analyzeMenuForCosting = async (base64: string, suppliers: string, currency: string): Promise<ScannedMenuCosting> => {
-    const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: {
-            parts: [
-                { inlineData: { mimeType: 'image/jpeg', data: base64 } },
-                { text: `Analyze this menu image for food product costing. 
-                         Currency: ${currency}. 
-                         Supplier Context: ${suppliers || 'Standard Market Rates'}. 
-                         Return JSON with menuItems (identifiedIngredients, estimatedPortionCost, suggestedSupplier), totalEstimatedMenuCost, and marginAdvice.` }
-            ]
-        },
-        config: {
-            responseMimeType: "application/json",
-            responseSchema: {
-                type: Type.OBJECT,
-                properties: {
-                    menuItems: {
-                        type: Type.ARRAY,
-                        items: {
-                            type: Type.OBJECT,
-                            properties: {
-                                name: { type: Type.STRING },
-                                identifiedIngredients: { type: Type.ARRAY, items: { type: Type.STRING } },
-                                estimatedPortionCost: { type: Type.STRING },
-                                suggestedSupplier: { type: Type.STRING }
-                            }
-                        }
-                    },
-                    totalEstimatedMenuCost: { type: Type.STRING },
-                    marginAdvice: { type: Type.STRING }
-                }
-            }
-        }
-    });
-    return JSON.parse(response.text || "{}");
-};
+  const [savedMenus, setSavedMenus] = useState<SavedMenu[]>([]);
+  const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
+  const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+  const [showRetentionBanner, setShowRetentionBanner] = useState(false);
 
-export const generateMenuFromApi = async (params: any): Promise<any> => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  
-  const prompt = `You are a Michelin-star catering consultant.
-  
-  TASK: Generate a COMPLETE menu proposal for:
-  Event: ${params.eventType}. 
-  Guests: ${params.guestCount}. 
-  Budget: ${params.budget}. 
-  Cuisine: ${params.cuisine}. 
-  Marketing Strategy: ${params.strategyHook || 'standard'}.
-  
-  STRICT COMPLIANCE RULES:
-  1. YOU MUST populate 'appetizers' (Section 1), 'mainCourses' (Section 2), AND 'sideDishes' (Section 3).
-  2. For BBQ/Braai: Section 1 is bread/biltong/small bites. Section 2 is THE MEATS. Section 3 is salads/veg.
-  3. DO NOT LEAVE SECTIONS 1 OR 2 EMPTY.
-  4. Currency: ${params.currency || 'ZAR'}.`;
-  
-  const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
-    contents: prompt,
-    config: {
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: Type.OBJECT,
-        properties: {
-          menuTitle: { type: Type.STRING },
-          description: { type: Type.STRING },
-          appetizers: { type: Type.ARRAY, items: { type: Type.STRING } },
-          mainCourses: { type: Type.ARRAY, items: { type: Type.STRING } },
-          sideDishes: { type: Type.ARRAY, items: { type: Type.STRING } },
-          dessert: { type: Type.ARRAY, items: { type: Type.STRING } },
-          safetyProtocols: { type: Type.ARRAY, items: { type: Type.STRING } },
-          shoppingList: { 
-            type: Type.ARRAY, 
-            items: { 
-                type: Type.OBJECT, 
-                properties: { 
-                    item: { type: Type.STRING }, 
-                    quantity: { type: Type.STRING },
-                    category: { type: Type.STRING },
-                    estimatedCost: { type: Type.STRING } 
-                } 
-            } 
-          },
-          miseEnPlace: { type: Type.ARRAY, items: { type: Type.STRING } },
-          serviceNotes: { type: Type.ARRAY, items: { type: Type.STRING } }
-        }
+  const { subscription, selectPlan, recordGeneration, setShowUpgradeModal, showUpgradeModal, attemptAccess, canAccessFeature } = useAppSubscription();
+
+  const [isEmailCaptureModalOpen, setIsEmailCaptureModalOpen] = useState(false);
+  const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
+  const [socialModalMode, setSocialModalMode] = useState<SocialMode>('create');
+
+  const cuisineRef = useRef<HTMLDivElement>(null);
+  const eventRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
+    if (!isStandalone) {
+        const timer = setTimeout(() => setShowRetentionBanner(true), 5000);
+        return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const filteredCuisines = CUISINES.filter(c => 
+    c.toLowerCase().includes((cuisineSearch || '').toLowerCase())
+  );
+
+  const filteredEvents = EVENT_TYPES.filter(e => 
+    e.toLowerCase().includes((eventTypeSearch || '').toLowerCase())
+  );
+
+  useEffect(() => {
+    analytics.track({ type: 'awareness_view', data: { page: viewMode } });
+  }, [viewMode]);
+
+  useEffect(() => {
+    let interval: any;
+    if (isLoading) {
+      setLoadingTimer(0);
+      interval = setInterval(() => {
+        setLoadingTimer(prev => prev + 1);
+      }, 1000);
+    } else {
+      setLoadingTimer(0);
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [isLoading]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (cuisineRef.current && !cuisineRef.current.contains(event.target as Node)) {
+        setShowCuisineResults(false);
       }
+      if (eventRef.current && !eventRef.current.contains(event.target as Node)) {
+        setShowEventResults(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
     }
-  });
-  
-  return { menu: safeParseMenuJson(response.text || "") };
-};
+  }, [isDarkMode]);
 
-export const generateMenuImageFromApi = async (title: string, description: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const cleanTitle = title.replace(/[^\w\s]/gi, '');
-  const imagePrompt = `Professional food photography of ${cleanTitle}. Cinematic lighting, michelin-star presentation, macro shot, blurred background, elegant plating on a ceramic dish. Gourmet catering style. No people.`;
+  const STRATEGY_PRESETS = [
+    { id: 'lifecycle', label: 'Lifecycle Marketing', icon: TrendingUp, text: 'Apply Lifecycle Marketing Strategy: Guide the customer interactions strategically before, during, and after purchase to build trust.' },
+    { id: 'targeting', label: 'Hyper-Targeting', icon: Target, text: 'Apply Hyper-Targeted Content Strategy: Analyze specific segments (busy pros vs event hosts) and tailor the culinary hook to them.' },
+    { id: 'data', label: 'Data-Driven', icon: BarChart3, text: 'Apply Data-Driven Strategy: Focus on measurable metrics and systems that track conversion over simple posting.' }
+  ];
 
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash-image',
-      contents: { parts: [{ text: imagePrompt }] },
-      config: { imageConfig: { aspectRatio: "16:9" } }
-    });
-    for (const part of response.candidates?.[0]?.content?.parts || []) {
-      if (part.inlineData?.data) return part.inlineData.data;
+  const handleApplyPreset = (text: string) => {
+    setStrategyHook(text);
+    setToastMessage("Marketing Strategy Applied!");
+    analytics.track({ type: 'founder_action', data: { actionName: 'apply_strategy_preset' } });
+  };
+
+  const handleOpenSocial = (mode: SocialMode) => {
+    if (attemptAccess('socialMediaTools')) {
+        setSocialModalMode(mode);
+        setIsSocialModalOpen(true);
     }
-    throw new Error("No image part in response");
-  } catch (err) {
-    console.error("Image Gen Logic Error:", err);
-    throw err;
-  }
-};
+  };
 
-export const regenerateMenuItemFromApi = async (oldText: string, prompt: string): Promise<string> => {
-    const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `Update this menu item: "${oldText}" based on: "${prompt}". Return ONLY the text.`,
-    });
-    return response.text?.trim() || oldText;
-};
+  const regenerateImage = async () => {
+      if (!menu) return;
+      setIsGeneratingImage(true);
+      try {
+          const imageBase64 = await generateMenuImageFromApi(menu.menuTitle, menu.description);
+          setMenu(prev => prev ? { ...prev, image: imageBase64 } : null);
+          setToastMessage("Professional Visual Architected!");
+      } catch (err) {
+          console.error("Manual Image Regen failed", err);
+          setToastMessage("AI Visual Engine busy. Try in a moment.");
+      } finally {
+          setIsGeneratingImage(false);
+      }
+  };
 
-export const generateVideoFromApi = async (prompt: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  let operation = await ai.models.generateVideos({
-    model: 'veo-3.1-fast-generate-preview',
-    prompt: prompt,
-    config: { numberOfVideos: 1, resolution: '720p', aspectRatio: '9:16' }
-  });
-  while (!operation.done) {
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    operation = await ai.operations.getVideosOperation({operation: operation});
-  }
-  const downloadLink = operation.response?.generatedVideos?.[0]?.video?.uri;
-  return `${downloadLink}&key=${getApiKey()}`;
-};
+  const generateMenu = async () => {
+    if (!recordGeneration()) return;
+    
+    const newValidationErrors: ValidationErrors = {};
+    if (!eventType) newValidationErrors.eventType = "Select an event.";
+    if (!guestCount) newValidationErrors.guestCount = "Select guests.";
+    if (!cuisine) newValidationErrors.cuisine = "Search for a country or style.";
+    setValidationErrors(newValidationErrors);
+    if (Object.keys(newValidationErrors).length > 0) return;
 
-export const generateWhatsAppStatus = async (menuTitle: string): Promise<string> => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const response = await ai.models.generateContent({
-      model: 'gemini-3-flash-preview',
-      contents: `3 WhatsApp updates for "${menuTitle}". Emojis included.`,
-  });
-  return response.text?.trim() || "";
-};
+    setIsLoading(true);
+    setError(null);
+    setMenu(null);
 
-export const generateSocialCaption = async (title: string, desc: string, platform: string): Promise<string> => {
-    const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `Viral ${platform} post for: "${title}". Content: ${desc}.`,
-    });
-    return response.text?.trim() || "";
-};
+    analytics.track({ type: 'conversion_generate', data: { eventType, plan: subscription.plan } });
 
-export const analyzeReceiptFromApi = async (base64: string): Promise<any> => {
-    const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: {
-            parts: [
-                { inlineData: { mimeType: 'image/jpeg', data: base64 } },
-                { text: 'Extract merchant, date, total, and categories from this receipt. Return JSON.' }
-            ]
-        },
-        config: {
-            responseMimeType: "application/json",
-            responseSchema: {
-                type: Type.OBJECT,
-                properties: {
-                    merchant: { type: Type.STRING },
-                    date: { type: Type.STRING },
-                    total: { type: Type.STRING },
-                    categories: { type: Type.ARRAY, items: { type: Type.STRING } }
-                }
-            }
-        }
-    });
-    return JSON.parse(response.text || "{}");
-};
-
-export const analyzeLabelFromApi = async (base64: string, dietary: string[]): Promise<any> => {
-    const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: {
-            parts: [
-                { inlineData: { mimeType: 'image/jpeg', data: base64 } },
-                { text: `Analyze this label for: ${dietary.join(', ')}. Return suitability score, flagged items, and reasoning as JSON.` }
-            ]
-        },
-        config: {
-            responseMimeType: "application/json",
-            responseSchema: {
-                type: Type.OBJECT,
-                properties: {
-                    suitabilityScore: { type: Type.NUMBER },
-                    flaggedIngredients: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    reasoning: { type: Type.STRING }
-                }
-            }
-        }
-    });
-    return JSON.parse(response.text || "{}");
-};
-
-export const generateCulinaryInfographic = async (type: string): Promise<string> => {
-    const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const prompt = type === 'comparison' 
-        ? "Culinary infographic: Chef vs Cook."
-        : "Culinary infographic: Meat cuts mapping.";
-    const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash-image',
-        contents: { parts: [{ text: prompt }] },
-        config: { imageConfig: { aspectRatio: "4:3" } }
-    });
-    for (const part of response.candidates?.[0]?.content?.parts || []) {
-        if (part.inlineData?.data) return part.inlineData.data;
+    try {
+      const result = await generateMenuFromApi({
+        eventType,
+        guestCount,
+        budget,
+        serviceStyle,
+        cuisine,
+        dietaryRestrictions,
+        currency,
+        strategyHook,
+      });
+      
+      const newMenu = { ...result.menu, theme: proposalTheme };
+      setMenu(newMenu);
+      setIsLoading(false); // Stop general loading, switch to image sub-loading
+      
+      setIsGeneratingImage(true);
+      try {
+        const imageBase64 = await generateMenuImageFromApi(newMenu.menuTitle, newMenu.description);
+        setMenu(prev => prev ? { ...prev, image: imageBase64 } : null);
+      } catch (imgErr) {
+        console.warn("AI Image generation failed during auto-run", imgErr);
+      } finally {
+        setIsGeneratingImage(false);
+      }
+      
+      {/* Email capture auto-popup removed */}
+    } catch (e) {
+      setError(getApiErrorState(e));
+      setIsLoading(false);
     }
-    throw new Error("Infographic failed");
+  };
+
+  return (
+    <div className={`flex flex-col min-h-screen font-sans antialiased ${isDarkMode ? 'dark' : ''}`}>
+      <SEOHead menu={menu} title={viewMode === 'landing' ? "The Chef's Secret Weapon" : "Generate Menu"} />
+      
+      {/* Banners removed to revert to original state */}
+
+      <Navbar 
+        whopUrl={WHOP_STORE_URL}
+        facebookUrl={FACEBOOK_PAGE_URL}
+        onThemeToggle={() => setIsDarkMode(!isDarkMode)} isDarkMode={isDarkMode} 
+        onOpenSaved={() => attemptAccess('saveMenus') && setIsSavedModalOpen(true)} 
+        savedCount={savedMenus.length} 
+        onOpenQrCode={() => setIsQrModalOpen(true)}
+        onOpenInstall={() => setIsInstallModalOpen(true)}
+        onReset={() => { 
+            localStorage.removeItem('caterpro-subscription'); 
+            localStorage.removeItem('caterpro_is_founder');
+            window.location.href = window.location.pathname; 
+        }}
+        onViewLanding={() => setViewMode('landing')}
+        onViewPricing={() => setViewMode('pricing')}
+      />
+      
+      {viewMode === 'landing' && <LandingPage onGetStarted={() => setViewMode('generator')} />}
+
+      {viewMode === 'pricing' && <PricingPage whopUrl={WHOP_STORE_URL} onSelectPlan={(p) => { selectPlan(p); setViewMode('generator'); }} currency={currency} />}
+
+      {viewMode === 'generator' && (
+        <main className="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-8 py-8 sm:py-16">
+          {!menu && !isLoading && (
+            <div className="space-y-12 animate-slide-in">
+              <div className="text-center max-w-2xl mx-auto px-4">
+                <h1 className="text-4xl sm:text-7xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">Catering Command Center</h1>
+                <p className="mt-4 text-slate-600 dark:text-slate-400 font-medium text-lg">Define your culinary vision and strategy.</p>
+              </div>
+
+              {isFounderMode && (
+                  <div className="flex justify-center animate-bounce">
+                      <div className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl border-2 border-indigo-400">
+                          <ShieldCheck size={14} /> Founder Hub Active
+                      </div>
+                  </div>
+              )}
+
+              <div className="bg-white dark:bg-slate-900 p-6 sm:p-12 md:p-16 rounded-[3rem] shadow-2xl border border-slate-200 dark:border-slate-800 relative overflow-hidden">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 main-grid">
+                  
+                  <div className="space-y-1 relative" ref={eventRef}>
+                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Event Selection</label>
+                    <div className="relative">
+                      <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input 
+                        type="text" 
+                        placeholder="Type or select event (e.g. Wedding, Braai...)" 
+                        value={eventTypeSearch || eventType}
+                        onFocus={() => setShowEventResults(true)}
+                        onChange={(e) => { setEventTypeSearch(e.target.value); setEventType(e.target.value); }}
+                        className="w-full pl-12 pr-5 py-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm shadow-sm"
+                      />
+                    </div>
+                    {showEventResults && filteredEvents.length > 0 && (
+                      <div className="absolute z-50 left-0 right-0 mt-2 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-3xl shadow-2xl max-h-64 overflow-y-auto">
+                          {filteredEvents.map(e => (
+                              <button key={e} onClick={() => { setEventType(e); setEventTypeSearch(e); setShowEventResults(false); }} className="w-full text-left px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-bold flex items-center gap-3 border-b border-slate-100 dark:border-slate-700 last:border-0 dark:text-white">
+                                  <Sparkles size={16} className="text-indigo-500" /> {e}
+                              </button>
+                          ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Guest Volume</label>
+                    <select value={guestCount} onChange={(e) => setGuestCount(e.target.value)} className="w-full p-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm shadow-sm">
+                      <option value="">Select Capacity...</option>
+                      {GUEST_COUNT_OPTIONS.map(g => <option key={g} value={g}>{g}</option>)}
+                    </select>
+                  </div>
+
+                  <div className="space-y-1 relative full-width-tablet" ref={cuisineRef}>
+                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Culinary Style</label>
+                    <div className="relative">
+                      <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                      <input 
+                        type="text" 
+                        placeholder="Search country or cuisine style..." 
+                        value={cuisineSearch || cuisine}
+                        onFocus={() => setShowCuisineResults(true)}
+                        onChange={(e) => { setCuisineSearch(e.target.value); setCuisine(e.target.value); }}
+                        className="w-full pl-12 pr-5 py-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm shadow-sm"
+                      />
+                    </div>
+                    {showCuisineResults && filteredCuisines.length > 0 && (
+                      <div className="absolute z-50 left-0 right-0 mt-2 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-3xl shadow-2xl max-h-64 overflow-y-auto">
+                          {filteredCuisines.map(c => (
+                              <button key={c} onClick={() => { setCuisine(c); setCuisineSearch(c); setShowCuisineResults(false); }} className="w-full text-left px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-bold flex items-center gap-3 border-b border-slate-100 dark:border-slate-700 last:border-0 dark:text-white">
+                                  <Globe size={16} className="text-primary-500" /> {c}
+                              </button>
+                          ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Service Style</label>
+                    <select value={serviceStyle} onChange={(e) => setServiceStyle(e.target.value)} className="w-full p-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm shadow-sm">
+                      <option value="Standard Catering">Standard Catering</option>
+                      <option value="Private Chef">Private Chef Experience</option>
+                      <option value="Drop-off Only">Drop-off Only</option>
+                      <option value="Buffet Style">Buffet Style</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Budget Level</label>
+                    <div className="flex gap-2">
+                      {BUDGET_LEVELS.map(b => (
+                        <button key={b.value} onClick={() => setBudget(b.value)} className={`flex-1 py-4 rounded-2xl border-2 font-black text-sm transition-all ${budget === b.value ? 'bg-primary-600 border-primary-600 text-white shadow-lg' : 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-800 text-slate-400 hover:border-primary-500'}`}>
+                          {b.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Financial Setup</label>
+                    <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full p-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm shadow-sm">
+                       <option value="ZAR">South African Rand (R)</option>
+                       <option value="USD">US Dollar ($)</option>
+                       <option value="EUR">Euro (€)</option>
+                    </select>
+                  </div>
+
+                  <div className="md:col-span-2 full-width-tablet pt-4">
+                    <button onClick={generateMenu} className="w-full py-6 bg-primary-600 hover:bg-primary-700 text-white rounded-[2rem] font-black text-xl shadow-2xl shadow-primary-500/30 transition-all active:scale-95 flex items-center justify-center gap-3">
+                      <Sparkles className="w-7 h-7" /> Launch AI Culinary Planner
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Roadmaps and labs removed to restore professional focus */}
+            </div>
+          )}
+
+          {isLoading && (
+            <div className="flex flex-col items-center justify-center py-32 animate-pulse text-center">
+                <Loader2 className="w-20 h-20 text-primary-500 animate-spin mb-8" />
+                <h2 className="text-3xl font-black text-slate-900 dark:text-white">Generating your Menu Proposal...</h2>
+                <p className="text-slate-500 mt-2 font-medium">Crafting culinary excellence for your event.</p>
+            </div>
+          )}
+
+          {menu && !isLoading && (
+            <div className="space-y-12 animate-fade-in">
+                <div className="no-print bg-white dark:bg-slate-900 p-8 rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-8">
+                    <div className="flex items-center gap-5">
+                        <div className="p-4 bg-primary-100 dark:bg-primary-900/30 rounded-3xl"><Sparkles className="text-primary-600 w-8 h-8" /></div>
+                        <div>
+                            <h3 className="text-2xl font-black text-slate-900 dark:text-white">Menu Proposal</h3>
+                            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest mt-1">Ready for Client Delivery</p>
+                        </div>
+                    </div>
+                    <div className="flex gap-3">
+                        <button onClick={() => setMenu(null)} className="px-6 py-3.5 bg-slate-100 dark:bg-slate-800 rounded-2xl text-xs font-black uppercase text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors">← New Event</button>
+                        <button onClick={() => window.print()} className="px-8 py-3.5 bg-primary-600 text-white rounded-2xl text-xs font-black uppercase flex items-center gap-2 shadow-xl shadow-primary-500/20 active:scale-95 transition-all">
+                           <FileDown size={18} /> Export PDF
+                        </button>
+                    </div>
+                </div>
+
+                <MenuDisplay 
+                  menu={menu} 
+                  checkedItems={checkedItems} 
+                  onToggleItem={(k) => {
+                      const next = new Set(checkedItems);
+                      if (next.has(k)) next.delete(k); else next.add(k);
+                      setCheckedItems(next);
+                  }} 
+                  isEditable={canAccessFeature('reelsMode')} 
+                  onEditItem={() => {}} 
+                  showToast={setToastMessage} 
+                  isGeneratingImage={isGeneratingImage} 
+                  onUpdateShoppingItemQuantity={() => {}} 
+                  bulkSelectedItems={new Set()} 
+                  onToggleBulkSelect={() => {}} 
+                  onBulkCheck={() => {}} 
+                  onBulkUpdateQuantity={() => {}} 
+                  onClearBulkSelection={() => {}} 
+                  onSelectAllShoppingListItems={() => {}} 
+                  proposalTheme={proposalTheme} 
+                  canAccessFeature={canAccessFeature} 
+                  onAttemptAccess={attemptAccess} 
+                  deliveryRadius="10" 
+                  onDeliveryRadiusChange={() => {}} 
+                  onCalculateFee={() => {}} 
+                  calculatedFee={null} 
+                  preferredCurrency={currency} 
+                  onOpenSocialModal={handleOpenSocial}
+                  onOpenShareModal={() => setIsShareModalOpen(true)}
+                  onRegenerateImage={regenerateImage}
+                />
+                
+                {/* Roadmaps and labs removed to restore professional focus */}
+            </div>
+          )}
+        </main>
+      )}
+
+      <AiChatBot onAttemptAccess={() => attemptAccess('aiChatBot')} isPro={canAccessFeature('aiChatBot')} />
+      <SavedChecklistsModal isOpen={isSavedModalOpen} onClose={() => setIsSavedModalOpen(false)} savedMenus={savedMenus} onDelete={(id) => setSavedMenus(prev => prev.filter(m => m.id !== id))} />
+      <QrCodeModal isOpen={isQrModalOpen} onClose={() => setIsQrModalOpen(false)} />
+      <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} shareUrl={window.location.href} menuTitle={menu?.menuTitle} />
+      <EmailCapture isOpen={isEmailCaptureModalOpen} onClose={() => setIsEmailCaptureModalOpen(false)} onSave={(e, w) => { localStorage.setItem('caterpro_user_email', e); localStorage.setItem('caterpro_user_whatsapp', w); setToastMessage("Contact Sync Successful!"); }} />
+      <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={(p) => { selectPlan(p); setViewMode('generator'); setShowUpgradeModal(false); }} onViewPricing={() => setViewMode('pricing')} />
+      <SocialMediaModal isOpen={isSocialModalOpen} onClose={() => setIsSocialModalOpen(false)} image={menu?.image} menuTitle={menu?.menuTitle || ''} menuDescription={menu?.description || ''} initialMode={socialModalMode} onImageGenerated={(b) => setMenu(p => p ? { ...p, image: b } : null)} />
+      <PwaInstallModal isOpen={isInstallModalOpen} onClose={() => setIsInstallModalOpen(false)} />
+      <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
+      
+      {viewMode !== 'pricing' && <Footer facebookUrl={FACEBOOK_PAGE_URL} />}
+    </div>
+  );
 };
 
-export const generateStudyGuideFromApi = async (topic: string, curriculum: string, level: string, type: string): Promise<any> => {
-    const ai = new GoogleGenAI({ apiKey: getApiKey() });
-    const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `Create a professional ${type} for ${topic}. Standard: ${curriculum}. Level: ${level}. Return JSON.`,
-        config: {
-            responseMimeType: "application/json",
-            responseSchema: {
-                type: Type.OBJECT,
-                properties: {
-                    title: { type: Type.STRING },
-                    curriculum: { type: Type.STRING },
-                    level: { type: Type.STRING },
-                    overview: { type: Type.STRING },
-                    modules: {
-                        type: Type.ARRAY,
-                        items: {
-                            type: Type.OBJECT,
-                            properties: { title: { type: Type.STRING }, content: { type: Type.ARRAY, items: { type: Type.STRING } } }
-                        }
-                    },
-                    keyVocabulary: { type: Type.ARRAY, items: { type: Type.STRING } },
-                    practicalExercises: { type: Type.ARRAY, items: { type: Type.STRING } }
-                }
-            }
-        }
-    });
-    return JSON.parse(response.text || "{}");
-};
+
