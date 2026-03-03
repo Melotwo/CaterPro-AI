@@ -28,6 +28,7 @@ const ManyChatWidget: React.FC = () => {
     script.src = `//widget.manychat.com/${MANYCHAT_PAGE_ID}.js`;
     script.async = true;
     script.defer = true;
+    script.crossOrigin = "anonymous";
     document.head.appendChild(script);
 
     // Initializer for ManyChat
