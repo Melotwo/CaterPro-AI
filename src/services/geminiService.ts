@@ -1,5 +1,6 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
-import { Menu } from "../types";
+import { Menu, ScannedMenuCosting } from "../types";
 
 const safeParseMenuJson = (text: string): Menu => {
     try {
@@ -11,8 +12,6 @@ const safeParseMenuJson = (text: string): Menu => {
         const ensureObjectArray = (arr: any) => 
             (Array.isArray(arr) ? arr.filter(i => i !== null && typeof i === 'object') : []);
         
-        // Intelligent Mapping: Fix for missing sections 1 & 2
-        // If the AI uses different keys, we map them back to your standard keys
         const appetizers = parsed.appetizers || parsed.appetizer || parsed.starters || parsed.starter || parsed.firstCourse || [];
         const mainCourses = parsed.mainCourses || parsed.mainCourse || parsed.mains || parsed.main || parsed.entrees || [];
         const sideDishes = parsed.sideDishes || parsed.sideDish || parsed.sides || parsed.side || [];
@@ -50,6 +49,45 @@ const getApiKey = () => {
         throw new Error("API Key is missing.");
     }
     return key;
+};
+
+export const analyzeMenuForCosting = async (base64: string, suppliers: string, currency: string): Promise<ScannedMenuCosting> => {
+    const ai = new GoogleGenAI({ apiKey: getApiKey() });
+    const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: {
+            parts: [
+                { inlineData: { mimeType: 'image/jpeg', data: base64 } },
+                { text: `Analyze this menu image for food product costing. 
+                         Currency: ${currency}. 
+                         Supplier Context: ${suppliers || 'Standard Market Rates'}. 
+                         Return JSON with menuItems (identifiedIngredients, estimatedPortionCost, suggestedSupplier), totalEstimatedMenuCost, and marginAdvice.` }
+            ]
+        },
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                    menuItems: {
+                        type: Type.ARRAY,
+                        items: {
+                            type: Type.OBJECT,
+                            properties: {
+                                name: { type: Type.STRING },
+                                identifiedIngredients: { type: Type.ARRAY, items: { type: Type.STRING } },
+                                estimatedPortionCost: { type: Type.STRING },
+                                suggestedSupplier: { type: Type.STRING }
+                            }
+                        }
+                    },
+                    totalEstimatedMenuCost: { type: Type.STRING },
+                    marginAdvice: { type: Type.STRING }
+                }
+            }
+        }
+    });
+    return JSON.parse(response.text || "{}");
 };
 
 export const generateMenuFromApi = async (params: any): Promise<any> => {
@@ -109,16 +147,23 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
 
 export const generateMenuImageFromApi = async (title: string, description: string): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
-  const response = await ai.models.generateContent({
-    model: 'gemini-2.5-flash-image',
-    contents: { parts: [{ text: `A high-quality food photography shot of ${title}. ${description}.` }] },
-    config: { imageConfig: { aspectRatio: "16:9" } }
-  });
-  
-  for (const part of response.candidates?.[0]?.content?.parts || []) {
-    if (part.inlineData) return part.inlineData.data;
+  const cleanTitle = title.replace(/[^\w\s]/gi, '');
+  const imagePrompt = `Professional food photography of ${cleanTitle}. Cinematic lighting, michelin-star presentation, macro shot, blurred background, elegant plating on a ceramic dish. Gourmet catering style. No people.`;
+
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash-image',
+      contents: { parts: [{ text: imagePrompt }] },
+      config: { imageConfig: { aspectRatio: "16:9" } }
+    });
+    for (const part of response.candidates?.[0]?.content?.parts || []) {
+      if (part.inlineData?.data) return part.inlineData.data;
+    }
+    throw new Error("No image part in response");
+  } catch (err) {
+    console.error("Image Gen Logic Error:", err);
+    throw err;
   }
-  throw new Error("No image generated");
 };
 
 export const regenerateMenuItemFromApi = async (oldText: string, prompt: string): Promise<string> => {
@@ -225,7 +270,7 @@ export const generateCulinaryInfographic = async (type: string): Promise<string>
         config: { imageConfig: { aspectRatio: "4:3" } }
     });
     for (const part of response.candidates?.[0]?.content?.parts || []) {
-        if (part.inlineData) return part.inlineData.data;
+        if (part.inlineData?.data) return part.inlineData.data;
     }
     throw new Error("Infographic failed");
 };
