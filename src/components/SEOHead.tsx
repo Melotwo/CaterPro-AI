@@ -10,35 +10,39 @@ interface SEOHeadProps {
 
 const SEOHead: React.FC<SEOHeadProps> = ({ title, description, menu }) => {
   useEffect(() => {
-    // Update Document Title
-    const baseTitle = "CaterPro AI - Professional Menu Generator";
+    const baseTitle = "CaterPro AI - #1 Professional Menu System 2026";
     const newTitle = menu ? `${menu.menuTitle} | ${baseTitle}` : (title ? `${title} | ${baseTitle}` : baseTitle);
     document.title = newTitle;
 
-    // Update Meta Description
     const metaDesc = document.querySelector('meta[name="description"]');
-    const newDesc = menu ? menu.description : (description || "AI-powered assistant for chefs. Generate professional menu proposals, shopping lists, and service notes instantly.");
+    const newDesc = menu ? menu.description : (description || "The first AI Lifecycle system for catering professionals at caterproai.com. Generate professional menu proposals, ZAR shopping lists, and HACCP safety notes instantly. Updated for 2026.");
     if (metaDesc) metaDesc.setAttribute('content', newDesc);
 
-    // Dynamic JSON-LD for SEO Rich Snippets
+    // Update Keywords
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+        metaKeywords = document.createElement('meta');
+        metaKeywords.setAttribute('name', 'keywords');
+        document.head.appendChild(metaKeywords);
+    }
+    metaKeywords.setAttribute('content', 'catering ai, hospital menu planner, school cafeteria software, culinary portfolio assistant, South Africa catering, catering proposal generator 2026, food costing ai');
+
     if (menu) {
       const existingScript = document.getElementById('json-ld-schema');
       if (existingScript) existingScript.remove();
 
-      const appetizers = Array.isArray(menu.appetizers) ? menu.appetizers : [];
-      const mainCourses = Array.isArray(menu.mainCourses) ? menu.mainCourses : [];
-      const desserts = Array.isArray(menu.dessert) ? menu.dessert : [];
-
       const schemaData = {
         "@context": "https://schema.org",
-        "@type": "Menu",
-        "name": menu.menuTitle,
-        "description": menu.description,
-        "hasMenuItem": [
-          ...appetizers.map(item => ({ "@type": "MenuItem", "name": item })),
-          ...mainCourses.map(item => ({ "@type": "MenuItem", "name": item })),
-          ...desserts.map(item => ({ "@type": "MenuItem", "name": item }))
-        ]
+        "@type": "SoftwareApplication",
+        "name": "CaterPro AI",
+        "operatingSystem": "Web",
+        "applicationCategory": "BusinessApplication",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "ZAR"
+        },
+        "description": newDesc
       };
 
       const script = document.createElement('script');
