@@ -26,6 +26,7 @@ const GoogleAnalytics: React.FC = () => {
     script.id = 'google-analytics-script';
     script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
     script.async = true;
+    script.crossOrigin = "anonymous";
     document.head.appendChild(script);
 
     const inlineScript = document.createElement('script');
