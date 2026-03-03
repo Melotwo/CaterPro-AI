@@ -4,24 +4,28 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 import ErrorBoundary from './components/ErrorBoundary';
-import GoogleAnalytics from './components/GoogleAnalytics';
-import FacebookPixel from './components/FacebookPixel';
-import ManyChatWidget from './components/ManyChatWidget';
+import { AuthProvider } from './hooks/useAuth';
 
-// Register Service Worker for iPad PWA support with aggressive update check
-if ('serviceWorker' in navigator) {
+// Aggressive cache clearing for the logo fix
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+  try {
+    if (window.caches) {
+      caches.keys().then((names) => {
+        for (let name of names) caches.delete(name);
+      }).catch(err => console.warn('Cache clearing failed:', err));
+    }
+  } catch (e) {
+    console.warn('Cache API access failed:', e);
+  }
+
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').then(registration => {
-      // Check for updates every time the app is loaded
       registration.update();
-      
       registration.onupdatefound = () => {
         const installingWorker = registration.installing;
         if (installingWorker) {
           installingWorker.onstatechange = () => {
             if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              console.log('New content available; please refresh.');
-              // Force reload to get the new logo and manifest
               window.location.reload();
             }
           };
@@ -42,10 +46,9 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <ErrorBoundary>
-      <GoogleAnalytics />
-      <FacebookPixel />
-      <ManyChatWidget />
-      <App />
+      <AuthProvider>
+        <App />
+      </AuthProvider>
     </ErrorBoundary>
   </React.StrictMode>
 );
