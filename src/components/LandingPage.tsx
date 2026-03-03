@@ -21,8 +21,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   };
 
   const handleShare = (platform: 'linkedin' | 'twitter') => {
-      const url = "https://caterpro-ai.web.app/";
-      const text = encodeURIComponent("I just launched CaterPro AI! It helps chefs write catering proposals and shopping lists automatically. Check it out:");
+      const url = "https://caterproai.com";
+      const text = encodeURIComponent("I just launched CaterPro AI! It helps chefs write catering proposals and shopping lists automatically. Check it out at caterproai.com:");
       if (platform === 'linkedin') {
           window.open(`https://www.linkedin.com/feed/?shareActive=true&text=${text}%20${url}`, '_blank');
       } else {
