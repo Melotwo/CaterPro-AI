@@ -37,6 +37,7 @@ const FacebookPixel: React.FC = () => {
     const t = document.createElement('script');
     t.async = true;
     t.src = 'https://connect.facebook.net/en_US/fbevents.js';
+    t.crossOrigin = "anonymous";
     
     const s = document.getElementsByTagName('script')[0];
     if (s && s.parentNode) {
