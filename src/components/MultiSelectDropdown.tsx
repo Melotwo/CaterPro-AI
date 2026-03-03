@@ -91,14 +91,14 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
         <div className="absolute z-10 mt-1 w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md shadow-lg max-h-60 flex flex-col">
           <div className="p-2 sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
              <div className="relative">
-                <Search className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-3 h-4 w-4 text-slate-400" />
                 <input
                     type="text"
                     placeholder="Search options..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-9 pr-3 py-1.5 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-slate-700 dark:text-white sm:text-sm"
+                    className="w-full pl-3 pr-9 py-1.5 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-slate-700 dark:text-white sm:text-sm"
                 />
+                <Search className="pointer-events-none absolute top-1/2 -translate-y-1/2 right-3 h-4 w-4 text-slate-400" />
              </div>
           </div>
           <div className="overflow-y-auto">
