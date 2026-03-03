@@ -22,6 +22,13 @@ import UpgradeModal from './components/UpgradeModal';
 import PwaInstallModal from './components/PwaInstallModal';
 import LandingPage from './components/LandingPage';
 import ResearchHub from './components/ResearchHub';
+import AuthModal from './components/AuthModal';
+import CostingLibrary from './components/CostingLibrary';
+import { useAuth } from './hooks/useAuth';
+import { auth, db, storage } from './firebase';
+import { signOut } from 'firebase/auth';
+import { collection, query, where, getDocs } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import FounderRoadmap from './components/FounderRoadmap';
 import SEOHead from './components/SEOHead';
 import MarketingRoadmap from './components/MarketingRoadmap';
@@ -39,10 +46,12 @@ import { analytics } from './services/analyticsManager';
 const WHOP_STORE_URL = "https://whop.com/melotwo2"; 
 const FACEBOOK_PAGE_URL = "https://facebook.com/CaterProAi"; 
 
-type AppView = 'landing' | 'generator' | 'pricing';
+type AppView = 'landing' | 'generator' | 'pricing' | 'library';
 
 export default function App() {
+  const { user } = useAuth();
   const [viewMode, setViewMode] = useState<AppView>('generator');
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [eventType, setEventType] = useState('');
   const [eventTypeSearch, setEventTypeSearch] = useState('');
   const [showEventResults, setShowEventResults] = useState(false);
@@ -211,6 +220,13 @@ export default function App() {
     analytics.track({ type: 'conversion_generate', data: { eventType, plan: subscription.plan } });
 
     try {
+      let userIngredientCosts = null;
+      if (user) {
+        const q = query(collection(db, 'ingredientCosts'), where('userId', '==', user.uid));
+        const querySnapshot = await getDocs(q);
+        userIngredientCosts = querySnapshot.docs.map(doc => doc.data());
+      }
+
       const result = await generateMenuFromApi({
         eventType,
         guestCount,
@@ -220,6 +236,7 @@ export default function App() {
         dietaryRestrictions,
         currency,
         strategyHook,
+        userIngredientCosts: userIngredientCosts || undefined
       });
       
       const newMenu = { ...result.menu, theme: proposalTheme };
@@ -239,6 +256,28 @@ export default function App() {
       {/* Email capture auto-popup removed */}
     } catch (e) {
       setError(getApiErrorState(e));
+      setIsLoading(false);
+    }
+  };
+
+  const handleUploadDishImage = async (file: File) => {
+    if (!user || !menu) return;
+    setIsLoading(true);
+    try {
+      const storageRef = ref(storage, `dishImages/${user.uid}/${Date.now()}_${file.name}`);
+      await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(storageRef);
+      
+      setMenu(prev => {
+        if (!prev) return null;
+        const dishImages = prev.dishImages || [];
+        return { ...prev, dishImages: [...dishImages, downloadURL] };
+      });
+      setToastMessage("Dish photo uploaded successfully!");
+    } catch (err) {
+      console.error("Upload failed", err);
+      setToastMessage("Failed to upload image.");
+    } finally {
       setIsLoading(false);
     }
   };
@@ -267,11 +306,20 @@ export default function App() {
         }}
         onViewLanding={() => setViewMode('landing')}
         onViewPricing={() => setViewMode('pricing')}
+        onViewLibrary={() => setViewMode('library')}
+        onAuthClick={() => user ? signOut(auth) : setIsAuthModalOpen(true)}
+        user={user}
       />
       
       {viewMode === 'landing' && <LandingPage onGetStarted={() => setViewMode('generator')} />}
 
       {viewMode === 'pricing' && <PricingPage whopUrl={WHOP_STORE_URL} onSelectPlan={(p) => { selectPlan(p); setViewMode('generator'); }} currency={currency} />}
+
+      {viewMode === 'library' && (
+        <main className="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-8 py-8 sm:py-16">
+          <CostingLibrary />
+        </main>
+      )}
 
       {viewMode === 'generator' && (
         <main className="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-8 py-8 sm:py-16">
@@ -451,6 +499,7 @@ export default function App() {
                   onOpenSocialModal={handleOpenSocial}
                   onOpenShareModal={() => setIsShareModalOpen(true)}
                   onRegenerateImage={regenerateImage}
+                  onUploadDishImage={handleUploadDishImage}
                 />
                 
                 {/* Roadmaps and labs removed to restore professional focus */}
@@ -467,6 +516,7 @@ export default function App() {
       <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={(p) => { selectPlan(p); setViewMode('generator'); setShowUpgradeModal(false); }} onViewPricing={() => setViewMode('pricing')} />
       <SocialMediaModal isOpen={isSocialModalOpen} onClose={() => setIsSocialModalOpen(false)} image={menu?.image} menuTitle={menu?.menuTitle || ''} menuDescription={menu?.description || ''} initialMode={socialModalMode} onImageGenerated={(b) => setMenu(p => p ? { ...p, image: b } : null)} />
       <PwaInstallModal isOpen={isInstallModalOpen} onClose={() => setIsInstallModalOpen(false)} />
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
       
       {viewMode !== 'pricing' && <Footer facebookUrl={FACEBOOK_PAGE_URL} />}
