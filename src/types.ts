@@ -37,25 +37,25 @@ export interface Menu {
   recommendedEquipment: RecommendedEquipment[];
   dietaryNotes?: string[];
   image?: string;
+  dishImages?: string[];
   groundingChunks?: GroundingChunk[];
   theme?: string;
   deliveryFeeStructure?: DeliveryFeeStructure;
-  /**
-   * AI-generated business intelligence analysis for menu engineering.
-   */
   businessAnalysis?: MenuItemAnalysis[];
-  /**
-   * HACCP Safety Standards and Protocols.
-   */
   safetyProtocols?: string[];
-  /**
-   * AI-generated sales scripts based on the marketing strategy chosen.
-   */
   salesScripts?: SalesScript[];
-  /**
-   * Search intent keywords for ranking on ChatGPT/Perplexity.
-   */
   aiKeywords?: string[];
+}
+
+export interface ScannedMenuCosting {
+  menuItems: {
+    name: string;
+    identifiedIngredients: string[];
+    estimatedPortionCost: string;
+    suggestedSupplier: string;
+  }[];
+  totalEstimatedMenuCost: string;
+  marginAdvice: string;
 }
 
 export interface BeveragePairing {
