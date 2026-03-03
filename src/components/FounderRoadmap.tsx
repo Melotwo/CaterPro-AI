@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { 
   CheckCircle2, Zap, Trophy, Target, Copy, Award, Users, Crosshair, BrainCircuit, Search, 
@@ -45,7 +44,8 @@ import {
   FlameKindling,
   Calendar,
   ZapIcon,
-  HeartOff
+  HeartOff,
+  UploadCloud
 } from 'lucide-react';
 import ThumbnailStudio from './ThumbnailStudio';
 
@@ -57,14 +57,19 @@ interface FounderRoadmapProps {
 const ValentineSprint: React.FC = () => {
     const scripts = [
         {
-            title: "The 'Date Night' Hook",
-            script: "Caption: 'Valentine’s Day is coming. Don’t spend it in the office doing admin. I just generated a 3-course Romantic Menu for 20 clients in 60 seconds. In Rands. Link in bio to save your love life. ❤️'",
-            advice: "Post a high-quality photo of a dessert from the app on Instagram Reels."
+            title: "The 'High-Margin' Yacht Hook",
+            script: "Caption: 'POV: You are a Rotational Yacht Chef and the boat is docking in 2 hours. I just generated a 5-course Mediterranean menu with a ZAR shopping list while I was cleaning the galley. Link in bio to stop the stress. ⚓️'",
+            advice: "Tag @rotationalyachtchefs and use a video of water/galley."
         },
         {
-            title: "The 'Pricing' Truth",
-            script: "Post: 'Chefs: Are you charging enough for Valentine's? Most caterers lose money because they don't cost the micro-ingredients. My AI Scanner just identified a 15% margin leak in a standard menu. 🤯'",
-            advice: "Record a TikTok using the new 'Menu Vision' scanner in the Productivity Lab."
+            title: "The 'Food Photography' Partnership",
+            script: "DM to Eric Gonzalez: 'Eric, your food photography is world-class. I built an AI that generates the menus that deserve your shots. Would love to sync up and see if we can provide a package for local caterers. 🥂'",
+            advice: "Use this specifically for photography leads you just scraped."
+        },
+        {
+            title: "The 'Date Night' Conversion",
+            script: "Post: 'Valentine’s Day is coming. Don’t spend it in the office doing admin. I just generated a 3-course Romantic Menu for 20 clients in 60 seconds. In Rands. Link in bio to save your love life. ❤️'",
+            advice: "Post a high-quality photo of a dessert from the app on Instagram Reels."
         }
     ];
 
@@ -74,16 +79,18 @@ const ValentineSprint: React.FC = () => {
                 <div className="absolute top-0 right-0 p-12 opacity-10 rotate-12"><Heart size={200} /></div>
                 <div className="relative z-10">
                     <h3 className="text-3xl font-black uppercase tracking-tight mb-4">Valentine's Growth Sprint</h3>
-                    <p className="text-rose-100 text-sm font-medium max-w-lg mb-8">February is the highest search-volume month for 'Private Chefs'. Use these hooks to capture the 2026 romantic rush.</p>
+                    <p className="text-rose-100 text-sm font-medium max-w-lg mb-8">February is the peak for 'Private Chefs'. Use these niche-specific hooks to capture the Yacht and Catering leads you just scraped.</p>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         {scripts.map((s, i) => (
-                            <div key={i} className="bg-white/10 backdrop-blur-xl p-6 rounded-3xl border border-white/20">
-                                <h4 className="text-lg font-black mb-2">{s.title}</h4>
-                                <p className="text-xs text-rose-50 mt-2 italic">"{s.script}"</p>
+                            <div key={i} className="bg-white/10 backdrop-blur-xl p-6 rounded-3xl border border-white/20 flex flex-col justify-between">
+                                <div>
+                                    <h4 className="text-lg font-black mb-2 leading-tight">{s.title}</h4>
+                                    <p className="text-xs text-rose-50 mt-2 italic">"{s.script}"</p>
+                                </div>
                                 <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
                                     <span className="text-[9px] font-black uppercase tracking-widest text-rose-200">Tip: {s.advice}</span>
-                                    <button onClick={() => { navigator.clipboard.writeText(s.script); alert("Valentine Script Copied!"); }} className="p-2 bg-white text-rose-600 rounded-lg"><Copy size={14}/></button>
+                                    <button onClick={() => { navigator.clipboard.writeText(s.script); alert("Script Copied!"); }} className="p-2 bg-white text-rose-600 rounded-lg shrink-0"><Copy size={14}/></button>
                                 </div>
                             </div>
                         ))}
@@ -173,24 +180,39 @@ const OutreachLab: React.FC = () => {
         alert(`${label} Copied!`);
     };
 
-    const scrubberPrompt = `Format this data into a clean CSV-ready table with these EXACT headers:
-Full Name, Company Name, Context, Website URL, Email, Phone Number, Status
-
-Rules:
-1. 'Context' should include the Facebook group name or post context.
-2. Emails must be lowercase.
-3. Set 'Status' to 'Pending' for all rows.
-4. Clean the Company Name (remove "Inc", "Ltd", etc).
-5. Output as a clean Markdown table.`;
-
     return (
         <div className="space-y-10 animate-slide-in">
             <div className="p-10 bg-indigo-600 text-white rounded-[3.5rem] border-4 border-indigo-400 shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-10 opacity-10"><TableProperties size={200} /></div>
                 <div className="relative z-10">
                     <h3 className="text-3xl font-black uppercase tracking-tight mb-2">Master Scraper Sheet</h3>
-                    <p className="text-sm font-bold text-indigo-100 uppercase tracking-widest mb-8">Direct Mapping for Hubspot Automation</p>
+                    <p className="text-sm font-bold text-indigo-100 uppercase tracking-widest mb-8">Direct Mapping for HubSpot Automation</p>
                     
+                    <div className="bg-white text-slate-900 p-8 rounded-[2.5rem] shadow-xl mb-8">
+                         <div className="flex items-center gap-3 mb-6">
+                            <UploadCloud size={24} className="text-indigo-600" />
+                            <h4 className="text-xl font-black uppercase tracking-tight">HubSpot Import Checklist</h4>
+                         </div>
+                         <ol className="space-y-4 text-sm font-medium text-slate-600">
+                            <li className="flex items-center gap-3">
+                                <span className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-black">1</span>
+                                In HubSpot, go to **Contacts &gt; Import**.
+                            </li>
+                            <li className="flex items-center gap-3">
+                                <span className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-black">2</span>
+                                Select **Start an import &gt; File from computer &gt; One file &gt; One object &gt; Contacts**.
+                            </li>
+                            <li className="flex items-center gap-3">
+                                <span className="w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-[10px] font-black">3</span>
+                                Upload your **Feb 2026** spreadsheet. Map "Full Name" to HubSpot's "First Name/Last Name".
+                            </li>
+                            <li className="flex items-center gap-3">
+                                <span className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-black">4</span>
+                                Final step: Import and assign them to your **"Valentine Sprint"** list.
+                            </li>
+                         </ol>
+                    </div>
+
                     <div className="bg-white/10 rounded-[2.5rem] border border-white/20 overflow-hidden">
                         <table className="w-full text-left text-xs font-bold">
                             <thead className="bg-white/10 uppercase tracking-widest text-[10px]">
@@ -227,31 +249,6 @@ Rules:
                     </div>
                 </div>
             </div>
-
-            <div className="p-10 bg-slate-900 text-white rounded-[3.5rem] border-4 border-emerald-500/20 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-10 opacity-10"><ConsoleIcon size={160} /></div>
-                <div className="relative z-10">
-                    <div className="flex items-center gap-4 mb-8">
-                        <div className="p-4 bg-emerald-500 rounded-3xl text-white shadow-lg"><Filter size={32} /></div>
-                        <div>
-                            <h3 className="text-3xl font-black uppercase tracking-tight">The 2026 Scrubber</h3>
-                            <p className="text-xs font-bold text-emerald-400 uppercase tracking-widest mt-1">Paste into ChatGPT with your raw data</p>
-                        </div>
-                    </div>
-                    
-                    <div className="bg-black/40 p-8 rounded-[2.5rem] border-2 border-dashed border-white/20">
-                        <p className="text-sm font-medium text-slate-300 italic leading-relaxed whitespace-pre-wrap">
-                            "{scrubberPrompt}"
-                        </p>
-                        <button 
-                            onClick={() => handleCopy(scrubberPrompt, 'ChatGPT Prompt')}
-                            className="mt-8 w-full py-5 bg-emerald-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-emerald-500 transition-all"
-                        >
-                            <Copy size={16} /> Copy GPT Prompt
-                        </button>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 };
@@ -271,11 +268,6 @@ const SecurityHub: React.FC = () => {
                                 <h3 className="text-3xl font-black uppercase tracking-tight text-white">Scam Shield 2026</h3>
                                 <p className="text-xs font-bold text-red-400 uppercase tracking-widest mt-1">Founder Active Defense Protocol</p>
                             </div>
-                        </div>
-                        <div className="px-6 py-3 bg-white/10 rounded-2xl border border-white/20">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-emerald-400 flex items-center gap-2">
-                                <Shield size={14} /> LIVE THREAT detected
-                            </p>
                         </div>
                     </div>
 
@@ -353,17 +345,6 @@ const WhopWarRoom: React.FC = () => {
                                 <li className="flex gap-2">✅ <strong>$12/year</strong> via Namecheap</li>
                                 <li className="flex gap-2">✅ Matches High-Ticket Proposals</li>
                                 <li className="flex gap-2">✅ Standard for Global Outreach</li>
-                             </ul>
-                        </div>
-                        <div className="p-8 rounded-[2.5rem] bg-slate-50 dark:bg-slate-800/50 border-2 border-slate-100 dark:border-slate-700 opacity-60">
-                             <h4 className="text-xl font-black text-slate-500 flex items-center gap-2">
-                                <X size={20} /> Rejected: caterpro.ai
-                             </h4>
-                             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1 mb-4">High Yearly Cost</p>
-                             <ul className="space-y-3 text-sm text-slate-500 dark:text-slate-400 font-medium">
-                                <li className="flex gap-2">❌ <strong>$80+/year</strong> (Too expensive)</li>
-                                <li className="flex gap-2">❌ Purely for Tech VCs</li>
-                                <li className="flex gap-2">❌ Overkill for Client Trust</li>
                              </ul>
                         </div>
                     </div>
