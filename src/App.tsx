@@ -26,6 +26,9 @@ import FounderRoadmap from './components/FounderRoadmap';
 import SEOHead from './components/SEOHead';
 import MarketingRoadmap from './components/MarketingRoadmap';
 import ProductivityLab from './components/ProductivityLab';
+import GoogleAnalytics from './components/GoogleAnalytics';
+import FacebookPixel from './components/FacebookPixel';
+import ManyChatWidget from './components/ManyChatWidget';
 import { useAppSubscription } from './hooks/useAppSubscription';
 import { CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS } from './constants';
 import { SavedMenu, ErrorState, ValidationErrors, Menu, MenuSection } from './types';
@@ -242,6 +245,9 @@ export default function App() {
 
   return (
     <div className={`flex flex-col min-h-screen font-sans antialiased ${isDarkMode ? 'dark' : ''}`}>
+      <GoogleAnalytics />
+      <FacebookPixel />
+      <ManyChatWidget />
       <SEOHead menu={menu} title={viewMode === 'landing' ? "The Chef's Secret Weapon" : "Generate Menu"} />
       
       {/* Banners removed to revert to original state */}
@@ -288,16 +294,18 @@ export default function App() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 main-grid">
                   
                   <div className="space-y-1 relative" ref={eventRef}>
-                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Event Selection</label>
+                    <label className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">
+                      <Calendar size={12} className="text-slate-400" />
+                      Event Selection
+                    </label>
                     <div className="relative">
-                      <Calendar className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <input 
                         type="text" 
                         placeholder="Type or select event (e.g. Wedding, Braai...)" 
                         value={eventTypeSearch || eventType}
                         onFocus={() => setShowEventResults(true)}
                         onChange={(e) => { setEventTypeSearch(e.target.value); setEventType(e.target.value); }}
-                        className="w-full pl-12 pr-5 py-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm shadow-sm"
+                        className="w-full px-5 py-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm shadow-sm"
                       />
                     </div>
                     {showEventResults && filteredEvents.length > 0 && (
@@ -320,16 +328,18 @@ export default function App() {
                   </div>
 
                   <div className="space-y-1 relative full-width-tablet" ref={cuisineRef}>
-                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Culinary Style</label>
+                    <label className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">
+                      <Search size={12} className="text-slate-400" />
+                      Culinary Style
+                    </label>
                     <div className="relative">
-                      <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                       <input 
                         type="text" 
                         placeholder="Search country or cuisine style..." 
                         value={cuisineSearch || cuisine}
                         onFocus={() => setShowCuisineResults(true)}
                         onChange={(e) => { setCuisineSearch(e.target.value); setCuisine(e.target.value); }}
-                        className="w-full pl-12 pr-5 py-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm shadow-sm"
+                        className="w-full px-5 py-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm shadow-sm"
                       />
                     </div>
                     {showCuisineResults && filteredCuisines.length > 0 && (
