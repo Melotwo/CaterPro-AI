@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types';
-import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock, Sparkle, EyeOff, Eye, BrainCircuit, Globe, ExternalLink, Camera, Instagram, Smartphone, BarChart4, ShieldAlert, Thermometer, Droplets, Layout, Palette, AlertTriangle, Loader2, ImageIcon } from 'lucide-react';
+import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock, Sparkle, EyeOff, Eye, BrainCircuit, Globe, ExternalLink, Camera, Instagram, Smartphone, BarChart4, ShieldAlert, Thermometer, Droplets, Layout, Palette, AlertTriangle, Loader2, ImageIcon, Plus } from 'lucide-react';
 import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES } from '../constants';
 import { analytics } from '../services/analyticsManager';
 
@@ -28,6 +28,7 @@ interface MenuDisplayProps {
   onCalculateFee: () => void;
   calculatedFee: string | null;
   onRegenerateImage?: () => void;
+  onUploadDishImage?: (file: File) => void;
   preferredCurrency?: string;
   onOpenSocialModal?: (mode: 'reel' | 'status' | 'create') => void;
   onOpenShareModal?: () => void;
@@ -39,7 +40,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
     onBulkCheck, onBulkUpdateQuantity, onClearBulkSelection, onSelectAllShoppingListItems,
     proposalTheme, canAccessFeature, onAttemptAccess, isReadOnlyView = false,
     deliveryRadius, onDeliveryRadiusChange, onCalculateFee, calculatedFee, onRegenerateImage,
-    preferredCurrency = 'ZAR', onOpenSocialModal, onOpenShareModal
+    onUploadDishImage, preferredCurrency = 'ZAR', onOpenSocialModal, onOpenShareModal
 }) => {
   const theme = PROPOSAL_THEMES[proposalTheme as keyof typeof PROPOSAL_THEMES] || PROPOSAL_THEMES.classic;
   const t = theme.classes;
@@ -184,6 +185,54 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                   </div>
               );
           })}
+          {/* DISH GALLERY SECTION */}
+          <div className={`${t.sectionContainer} rounded-[2.5rem] md:col-span-2 shadow-xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 mt-12`}>
+              <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                      <div className={`p-3 ${t.sectionIcon} rounded-2xl`}><Camera size={24} /></div>
+                      <div>
+                          <h3 className="text-2xl font-black">Dish Gallery</h3>
+                          <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Showcase your actual creations</p>
+                      </div>
+                  </div>
+                  {onUploadDishImage && (
+                      <label className="cursor-pointer px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl text-xs font-black uppercase flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-primary-500/20">
+                          <Plus className="w-4 h-4" /> Upload Dish Photo
+                          <input 
+                              type="file" 
+                              className="hidden" 
+                              accept="image/*"
+                              onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) onUploadDishImage(file);
+                              }}
+                          />
+                      </label>
+                  )}
+              </div>
+              <div className="p-8">
+                  {menu.dishImages && menu.dishImages.length > 0 ? (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                          {menu.dishImages.map((img, idx) => (
+                              <div key={idx} className="aspect-square rounded-2xl overflow-hidden border-2 border-slate-100 dark:border-slate-800 group relative">
+                                  <img src={img} alt={`Dish ${idx + 1}`} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                      <button className="p-2 bg-white/20 backdrop-blur-md rounded-full text-white">
+                                          <Eye size={20} />
+                                      </button>
+                                  </div>
+                              </div>
+                          ))}
+                      </div>
+                  ) : (
+                      <div className="py-16 text-center border-4 border-dashed border-slate-100 dark:border-slate-800 rounded-[2rem]">
+                          <ImageIcon className="w-12 h-12 text-slate-300 mx-auto mb-4 opacity-20" />
+                          <p className="text-sm font-bold text-slate-400">No dish photos uploaded yet.</p>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-2">Upload your work to build client trust</p>
+                      </div>
+                  )}
+              </div>
+          </div>
         </div>
       </div>
     </div>
