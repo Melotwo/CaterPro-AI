@@ -49,7 +49,7 @@ const FACEBOOK_PAGE_URL = "https://facebook.com/CaterProAi";
 type AppView = 'landing' | 'generator' | 'pricing' | 'library';
 
 export default function App() {
-  const { user } = useAuth();
+  const { user, isConfigured } = useAuth();
   const [viewMode, setViewMode] = useState<AppView>('generator');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [eventType, setEventType] = useState('');
@@ -221,7 +221,7 @@ export default function App() {
 
     try {
       let userIngredientCosts = null;
-      if (user) {
+      if (user && db) {
         const q = query(collection(db, 'ingredientCosts'), where('userId', '==', user.uid));
         const querySnapshot = await getDocs(q);
         userIngredientCosts = querySnapshot.docs.map(doc => doc.data());
@@ -261,7 +261,7 @@ export default function App() {
   };
 
   const handleUploadDishImage = async (file: File) => {
-    if (!user || !menu) return;
+    if (!user || !menu || !storage) return;
     setIsLoading(true);
     try {
       const storageRef = ref(storage, `dishImages/${user.uid}/${Date.now()}_${file.name}`);
@@ -284,6 +284,11 @@ export default function App() {
 
   return (
     <div className={`flex flex-col min-h-screen font-sans antialiased ${isDarkMode ? 'dark' : ''}`}>
+      {!isConfigured && (
+        <div className="bg-amber-500 text-white px-4 py-2 text-center text-xs font-bold uppercase tracking-widest z-[100]">
+          ⚠️ Firebase Configuration Missing. Please set your API keys in the environment variables.
+        </div>
+      )}
       <GoogleAnalytics />
       <FacebookPixel />
       <ManyChatWidget />
@@ -307,7 +312,13 @@ export default function App() {
         onViewLanding={() => setViewMode('landing')}
         onViewPricing={() => setViewMode('pricing')}
         onViewLibrary={() => setViewMode('library')}
-        onAuthClick={() => user ? signOut(auth) : setIsAuthModalOpen(true)}
+        onAuthClick={() => {
+          if (user) {
+            if (auth) signOut(auth);
+          } else {
+            setIsAuthModalOpen(true);
+          }
+        }}
         user={user}
       />
       
