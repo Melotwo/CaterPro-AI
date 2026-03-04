@@ -9,6 +9,10 @@ const Footer: React.FC<{ facebookUrl?: string }> = ({ facebookUrl }) => (
       <p className="mt-1">Intelligent menu planning for catering professionals at caterproai.com</p>
       <p className="mt-2 font-bold text-slate-600 dark:text-slate-300">Contact: info@caterproai.com</p>
       
+      <div className="mt-4 flex justify-center gap-4">
+        <a href="/privacy" className="hover:underline">Privacy Policy</a>
+      </div>
+      
       {facebookUrl && (
         <a 
           href={facebookUrl} 
