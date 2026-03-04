@@ -24,6 +24,7 @@ import LandingPage from './components/LandingPage';
 import ResearchHub from './components/ResearchHub';
 import AuthModal from './components/AuthModal';
 import CostingLibrary from './components/CostingLibrary';
+import PrivacyPolicy from './components/PrivacyPolicy';
 import { useAuth } from './hooks/useAuth';
 import { auth, db, storage } from './firebase';
 import { signOut } from 'firebase/auth';
@@ -46,11 +47,14 @@ import { analytics } from './services/analyticsManager';
 const WHOP_STORE_URL = "https://whop.com/melotwo2"; 
 const FACEBOOK_PAGE_URL = "https://facebook.com/CaterProAi"; 
 
-type AppView = 'landing' | 'generator' | 'pricing' | 'library';
+type AppView = 'landing' | 'generator' | 'pricing' | 'library' | 'privacy';
 
 export default function App() {
   const { user, isConfigured } = useAuth();
-  const [viewMode, setViewMode] = useState<AppView>('generator');
+  const [viewMode, setViewMode] = useState<AppView>(() => {
+    if (window.location.pathname === '/privacy') return 'privacy';
+    return 'generator';
+  });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [eventType, setEventType] = useState('');
   const [eventTypeSearch, setEventTypeSearch] = useState('');
@@ -330,6 +334,10 @@ export default function App() {
         <main className="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-8 py-8 sm:py-16">
           <CostingLibrary />
         </main>
+      )}
+
+      {viewMode === 'privacy' && (
+        <PrivacyPolicy onBack={() => setViewMode('generator')} />
       )}
 
       {viewMode === 'generator' && (
