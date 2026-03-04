@@ -26,7 +26,10 @@ const CostingLibrary: React.FC = () => {
   });
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || !db) {
+      setLoading(false);
+      return;
+    }
 
     const q = query(collection(db, 'ingredientCosts'), where('userId', '==', user.uid));
     const unsubscribe = onSnapshot(q, (snapshot) => {
@@ -40,7 +43,7 @@ const CostingLibrary: React.FC = () => {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user || !db) return;
     setLoading(true);
     try {
       await addDoc(collection(db, 'ingredientCosts'), {
@@ -59,6 +62,7 @@ const CostingLibrary: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     if (!window.confirm('Are you sure you want to delete this ingredient?')) return;
+    if (!db) return;
     try {
       await deleteDoc(doc(db, 'ingredientCosts', id));
     } catch (err) {
