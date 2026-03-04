@@ -30,6 +30,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     setMessage('');
 
     try {
+      if (!auth) {
+        setError('Authentication service is not configured. Please check your environment variables.');
+        setLoading(false);
+        return;
+      }
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password);
       } else {
@@ -50,6 +55,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
     }
     setLoading(true);
     try {
+      if (!auth) {
+        setError('Authentication service is not configured.');
+        setLoading(false);
+        return;
+      }
       await sendPasswordResetEmail(auth, email);
       setMessage('Password reset email sent!');
     } catch (err: any) {
