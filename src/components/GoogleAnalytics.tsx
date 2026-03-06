@@ -2,7 +2,7 @@
 import React, { useEffect } from 'react';
 
 // Measurement ID from your dashboard
-const GA_MEASUREMENT_ID: string = 'G-N648RKY309'; 
+const GA_MEASUREMENT_ID: string = import.meta.env.VITE_GA_MEASUREMENT_ID || 'G-N648RKY309'; 
 
 /**
  * Global helper to track custom events in Google Analytics.
