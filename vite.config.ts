@@ -35,6 +35,5 @@ export default defineConfig({
   },
   define: {
     // Expose environment variables to the client, with a safe fallback
-    'process.env.API_KEY': JSON.stringify(process.env.API_KEY || '')
   }
 })
