@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
   <head>
@@ -9,8 +8,8 @@
     <meta http-equiv="Expires" content="0" />
     
     <!-- Primary Meta Tags -->
-    <title>CaterPro AI - #1 Professional Menu System 2026</title>
-    <meta name="title" content="CaterPro AI - Professional Menu Generator">
+    <title>CaterProAi - #1 Professional Menu System 2026</title>
+    <meta name="title" content="CaterProAi - Professional Menu Generator">
     <meta name="description" content="AI-powered assistant for chefs at caterproai.com. Generate professional menu proposals, shopping lists, and service notes instantly." />
     <meta name="theme-color" content="#10b981" />
     
@@ -23,13 +22,27 @@
     <link rel="manifest" href="/manifest.json?v=2026_01_24" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="CaterPro AI" />
+    <meta name="apple-mobile-web-app-title" content="CaterProAi" />
     <link rel="apple-touch-icon" href="/logo.svg?v=2026_01_24" />
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
     <script>
+      // Immediate title update based on path for bots
+      if (window.location.pathname === '/privacy') {
+        document.title = "Privacy Policy | CaterProAi";
+      }
+      // Frame Buster: Prevent the site from being displayed in a Namecheap "Masked" iframe
+      // This helps fix the "Content cannot be displayed" error caused by security headers.
+      if (window.top !== window.self) {
+        try {
+          window.top.location.replace(window.self.location.href);
+        } catch (e) {
+          console.warn("Frame breakout failed due to cross-origin restrictions. Please ensure 'Masking' is disabled in your domain settings.");
+        }
+      }
+
       window.onerror = function(msg, url, line, col, error) {
         // Filter out generic "Script error." which is unhelpful and usually cross-origin related
         if (msg === "Script error.") {
