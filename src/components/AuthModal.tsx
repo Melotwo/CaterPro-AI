@@ -75,7 +75,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         <div className="p-8">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-              {isLogin ? 'Welcome Back' : 'Join CaterPro AI'}
+              {isLogin ? 'Welcome Back' : 'Join CaterProAi'}
             </h2>
             <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
               <X className="w-6 h-6 text-slate-400" />
