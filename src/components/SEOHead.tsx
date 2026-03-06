@@ -10,7 +10,7 @@ interface SEOHeadProps {
 
 const SEOHead: React.FC<SEOHeadProps> = ({ title, description, menu }) => {
   useEffect(() => {
-    const baseTitle = "CaterPro AI - #1 Professional Menu System 2026";
+    const baseTitle = "CaterProAi - #1 Professional Menu System 2026";
     const newTitle = menu ? `${menu.menuTitle} | ${baseTitle}` : (title ? `${title} | ${baseTitle}` : baseTitle);
     document.title = newTitle;
 
@@ -34,7 +34,7 @@ const SEOHead: React.FC<SEOHeadProps> = ({ title, description, menu }) => {
       const schemaData = {
         "@context": "https://schema.org",
         "@type": "SoftwareApplication",
-        "name": "CaterPro AI",
+        "name": "CaterProAi",
         "operatingSystem": "Web",
         "applicationCategory": "BusinessApplication",
         "offers": {
