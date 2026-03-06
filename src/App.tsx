@@ -296,7 +296,10 @@ export default function App() {
       <GoogleAnalytics />
       <FacebookPixel />
       <ManyChatWidget />
-      <SEOHead menu={menu} title={viewMode === 'landing' ? "The Chef's Secret Weapon" : "Generate Menu"} />
+      <SEOHead 
+        menu={menu} 
+        title={viewMode === 'privacy' ? "Privacy Policy" : (viewMode === 'landing' ? "The Chef's Secret Weapon" : "Generate Menu")} 
+      />
       
       {/* Banners removed to revert to original state */}
 
