@@ -44,7 +44,7 @@ const safeParseMenuJson = (text: string): Menu => {
 };
 
 const getApiKey = () => {
-    const key = process.env.API_KEY;
+    const key = import.meta.env.VITE_GEMINI_API_KEY;
     if (!key || key.trim() === '') {
         throw new Error("API Key is missing.");
     }
@@ -93,6 +93,10 @@ export const analyzeMenuForCosting = async (base64: string, suppliers: string, c
 export const generateMenuFromApi = async (params: any): Promise<any> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
   
+  const costContext = params.userIngredientCosts 
+    ? `\nUSER SPECIFIC INGREDIENT COSTS (Use these for accurate costing): ${JSON.stringify(params.userIngredientCosts)}`
+    : '';
+
   const prompt = `You are a Michelin-star catering consultant.
   
   TASK: Generate a COMPLETE menu proposal for:
@@ -100,13 +104,14 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
   Guests: ${params.guestCount}. 
   Budget: ${params.budget}. 
   Cuisine: ${params.cuisine}. 
-  Marketing Strategy: ${params.strategyHook || 'standard'}.
+  Marketing Strategy: ${params.strategyHook || 'standard'}.${costContext}
   
   STRICT COMPLIANCE RULES:
   1. YOU MUST populate 'appetizers' (Section 1), 'mainCourses' (Section 2), AND 'sideDishes' (Section 3).
   2. For BBQ/Braai: Section 1 is bread/biltong/small bites. Section 2 is THE MEATS. Section 3 is salads/veg.
   3. DO NOT LEAVE SECTIONS 1 OR 2 EMPTY.
-  4. Currency: ${params.currency || 'ZAR'}.`;
+  4. Currency: ${params.currency || 'ZAR'}.
+  5. If USER SPECIFIC INGREDIENT COSTS are provided, prioritize using those prices in the 'estimatedCost' fields of the 'shoppingList'.`;
   
   const response = await ai.models.generateContent({
     model: "gemini-3-flash-preview",
