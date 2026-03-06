@@ -7,7 +7,7 @@ import React, { useEffect } from 'react';
 // 3. The "ID" is a long number at the top (e.g., 149284...).
 // 4. Paste it below.
 
-const PIXEL_ID: string = '105023177877998'; 
+const PIXEL_ID: string = import.meta.env.VITE_FACEBOOK_PIXEL_ID || '105023177877998'; 
 
 const FacebookPixel: React.FC = () => {
   useEffect(() => {
