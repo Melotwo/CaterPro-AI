@@ -11,7 +11,7 @@ import React, { useEffect } from 'react';
 // 3. Look for the script source in the Setup tab: //widget.manychat.com/123456.js
 // 4. That number is your ID.
 
-const MANYCHAT_PAGE_ID = 'YOUR_PAGE_ID_HERE'; 
+const MANYCHAT_PAGE_ID = import.meta.env.VITE_MANYCHAT_PAGE_ID || 'YOUR_PAGE_ID_HERE'; 
 
 const ManyChatWidget: React.FC = () => {
   useEffect(() => {
