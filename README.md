@@ -33,6 +33,16 @@ The "Founder Story" on the landing page is designed to be personalized.
 
 ---
 
+## 🛡️ Branding & Verification
+
+To verify your app and finish the branding:
+
+1.  **Custom Domain:** Ensure your domain `caterproai.com` is correctly linked in the Firebase Console under **Hosting**.
+2.  **Google Search Console:** Add your site to Google Search Console to verify ownership and improve SEO.
+3.  **Social Media Branding:** Update the `metadata.json` file in this repository with your official business description to ensure correct link previews on WhatsApp and Facebook.
+
+---
+
 ## 💻 Local Development
 
 To run CaterPro AI on your own machine:
@@ -51,13 +61,24 @@ To run CaterPro AI on your own machine:
 3.  **Set up your API Key:**
     Create a `.env` file in the root directory and add your Google Gemini API key:
     ```env
-    API_KEY=your_google_ai_studio_key_here
+    VITE_GEMINI_API_KEY=your_google_ai_studio_key_here
     ```
 
 4.  **Run the development server:**
     ```sh
     npm run dev
     ```
+
+---
+
+## 🔑 GitHub Secrets Setup
+
+For the live site to work, you **must** add these secrets in your GitHub repository (**Settings > Secrets and variables > Actions**):
+
+*   `VITE_GEMINI_API_KEY`: Your Google Gemini API Key.
+*   `VITE_FIREBASE_API_KEY`: Your Firebase Web API Key.
+*   `FIREBASE_SERVICE_ACCOUNT`: Your Firebase Service Account JSON (for deployment).
+*   *(And all other VITE_FIREBASE_* variables as listed in the deployment logs).*
 
 ---
 
