@@ -1,6 +1,6 @@
 {
   "name": "CaterProAi",
-  "description": "The #1 Professional AI Menu System for Chefs and Caterers. Generate proposals, shopping lists, and service notes at caterproai.com.",
+  "description": "The #1 Professional AI Menu System for Chefs and Caterers. Generate professional menu proposals, shopping lists, and service notes instantly at caterproai.com.",
   "requestFramePermissions": [
     "geolocation",
     "camera"
