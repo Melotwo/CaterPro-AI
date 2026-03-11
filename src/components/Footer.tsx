@@ -11,6 +11,8 @@ const Footer: React.FC<{ facebookUrl?: string }> = ({ facebookUrl }) => (
       
       <div className="mt-4 flex justify-center gap-4">
         <a href="/privacy" className="hover:underline">Privacy Policy</a>
+        <span className="text-slate-300">|</span>
+        <a href="/terms" className="hover:underline">Terms of Service</a>
       </div>
       
       {facebookUrl && (
