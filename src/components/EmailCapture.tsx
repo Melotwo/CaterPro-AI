@@ -6,12 +6,14 @@ interface EmailCaptureProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (email: string, whatsapp: string) => void;
+  eventType?: string;
+  cuisine?: string;
 }
 
 // LIVE WEBHOOK: Data flows from your app -> Make.com -> Google Sheets
 const MAKE_WEBHOOK_URL = "https://hook.us2.make.com/wphooj1hd6vms67mnehajg1jmua6lozf"; 
 
-const EmailCapture: React.FC<EmailCaptureProps> = ({ isOpen, onClose, onSave }) => {
+const EmailCapture: React.FC<EmailCaptureProps> = ({ isOpen, onClose, onSave, eventType, cuisine }) => {
   const [email, setEmail] = useState('');
   const [whatsapp, setWhatsapp] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -65,7 +67,9 @@ const EmailCapture: React.FC<EmailCaptureProps> = ({ isOpen, onClose, onSave }) 
             body: JSON.stringify({
                 email,
                 whatsapp,
-                source: 'CaterPro AI iPad App',
+                source: 'CaterPro AI Web App',
+                eventType: eventType || 'Unknown',
+                cuisine: cuisine || 'Unknown',
                 timestamp: new Date().toISOString(),
                 user_agent: navigator.userAgent,
                 platform: 'web_production'
