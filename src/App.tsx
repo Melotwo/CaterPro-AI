@@ -540,7 +540,17 @@ export default function App() {
       <SavedChecklistsModal isOpen={isSavedModalOpen} onClose={() => setIsSavedModalOpen(false)} savedMenus={savedMenus} onDelete={(id) => setSavedMenus(prev => prev.filter(m => m.id !== id))} />
       <QrCodeModal isOpen={isQrModalOpen} onClose={() => setIsQrModalOpen(false)} />
       <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} shareUrl={window.location.href} menuTitle={menu?.menuTitle} />
-      <EmailCapture isOpen={isEmailCaptureModalOpen} onClose={() => setIsEmailCaptureModalOpen(false)} onSave={(e, w) => { localStorage.setItem('caterpro_user_email', e); localStorage.setItem('caterpro_user_whatsapp', w); setToastMessage("Contact Sync Successful!"); }} />
+      <EmailCapture 
+        isOpen={isEmailCaptureModalOpen} 
+        onClose={() => setIsEmailCaptureModalOpen(false)} 
+        onSave={(e, w) => { 
+          localStorage.setItem('caterpro_user_email', e); 
+          localStorage.setItem('caterpro_user_whatsapp', w); 
+          setToastMessage("Contact Sync Successful!"); 
+        }} 
+        eventType={eventType}
+        cuisine={cuisine}
+      />
       <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={(p) => { selectPlan(p); setViewMode('generator'); setShowUpgradeModal(false); }} onViewPricing={() => setViewMode('pricing')} />
       <SocialMediaModal isOpen={isSocialModalOpen} onClose={() => setIsSocialModalOpen(false)} image={menu?.image} menuTitle={menu?.menuTitle || ''} menuDescription={menu?.description || ''} initialMode={socialModalMode} onImageGenerated={(b) => setMenu(p => p ? { ...p, image: b } : null)} />
       <PwaInstallModal isOpen={isInstallModalOpen} onClose={() => setIsInstallModalOpen(false)} />
