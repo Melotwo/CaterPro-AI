@@ -54,16 +54,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans">
       
-      {/* --- NEW YEAR 2026 FESTIVE BANNER --- */}
+      {/* --- OFFICIAL .COM LAUNCH BANNER --- */}
       <div className="bg-indigo-600 text-white py-3 px-4 relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 animate-pulse"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-emerald-500 to-indigo-600 animate-pulse"></div>
           <div className="max-w-7xl mx-auto flex items-center justify-center gap-3 relative z-10 text-center">
-              <Sparkle size={18} className="text-amber-400 animate-bounce" />
+              <Globe size={18} className="text-white animate-spin-slow" />
               <p className="text-xs sm:text-sm font-black uppercase tracking-widest">
-                  Welcome to 2026! Lock in the "Founder Lifetime" Rate today 🥂
+                  We are officially live at <span className="text-amber-300">caterproai.com</span>! 🥂
               </p>
               <button onClick={handleAction} className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-white text-indigo-700 rounded-full text-[10px] font-black hover:scale-105 transition-transform">
-                  Claim Deal <ArrowRight size={12} />
+                  Explore Now <ArrowRight size={12} />
               </button>
           </div>
       </div>
@@ -162,7 +162,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                             I built CaterPro AI to solve the #1 barrier to professional success: The admin grind. Whether you're a student or a pro, you deserve a system that works as hard as you do.
                         </p>
                     </div>
-                    <div className="pt-12 border-t border-slate-800 flex flex-wrap gap-4">
+                    <div className="pt-12 border-t border-slate-800 flex flex-wrap gap-6 items-center">
                         <button onClick={() => handleShare('linkedin')} className="flex items-center gap-3 px-8 py-4 bg-[#0077b5] text-white rounded-2xl hover:bg-[#006097] text-sm font-black transition-all active:scale-95 shadow-xl shadow-blue-500/20">
                             <Linkedin size={20} /> Share My Story
                         </button>
