@@ -17,14 +17,20 @@ const safeParseMenuJson = (text: string): Menu => {
         const sideDishes = parsed.sideDishes || parsed.sideDish || parsed.sides || parsed.side || [];
         const dessert = parsed.dessert || parsed.desserts || [];
         
+        // Ensure we have at least some content if the AI was lazy
+        const finalAppetizers = ensureArray(appetizers);
+        const finalMainCourses = ensureArray(mainCourses);
+        const finalSideDishes = ensureArray(sideDishes);
+        const finalDessert = ensureArray(dessert);
+
         return {
             ...parsed,
             menuTitle: parsed.menuTitle || "New Menu Proposal",
             description: parsed.description || "A custom catering proposal designed just for you.",
-            appetizers: ensureArray(appetizers),
-            mainCourses: ensureArray(mainCourses),
-            sideDishes: ensureArray(sideDishes),
-            dessert: ensureArray(dessert),
+            appetizers: finalAppetizers,
+            mainCourses: finalMainCourses,
+            sideDishes: finalSideDishes,
+            dessert: finalDessert,
             dietaryNotes: ensureArray(parsed.dietaryNotes),
             beveragePairings: ensureObjectArray(parsed.beveragePairings),
             miseEnPlace: ensureArray(parsed.miseEnPlace),
@@ -39,7 +45,7 @@ const safeParseMenuJson = (text: string): Menu => {
         };
     } catch (e) {
         console.error("JSON Parse Error. Raw text:", text);
-        throw new Error("Generation interrupted. Try a simpler request.");
+        throw new Error("The AI response was malformed. Please try again with a slightly different request.");
     }
 };
 
@@ -99,7 +105,7 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
 
   const prompt = `You are a Michelin-star catering consultant.
   
-  TASK: Generate a COMPLETE menu proposal for:
+  TASK: Generate a COMPLETE, high-end menu proposal for:
   Event: ${params.eventType}. 
   Guests: ${params.guestCount}. 
   Budget: ${params.budget}. 
@@ -107,47 +113,71 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
   Marketing Strategy: ${params.strategyHook || 'standard'}.${costContext}
   
   STRICT COMPLIANCE RULES:
-  1. YOU MUST populate 'appetizers' (Section 1), 'mainCourses' (Section 2), AND 'sideDishes' (Section 3).
-  2. For BBQ/Braai: Section 1 is bread/biltong/small bites. Section 2 is THE MEATS. Section 3 is salads/veg.
-  3. DO NOT LEAVE SECTIONS 1 OR 2 EMPTY.
-  4. Currency: ${params.currency || 'ZAR'}.
-  5. If USER SPECIFIC INGREDIENT COSTS are provided, prioritize using those prices in the 'estimatedCost' fields of the 'shoppingList'.`;
+  1. YOU MUST populate 'appetizers', 'mainCourses', 'sideDishes', AND 'dessert'.
+  2. Each section MUST contain at least 3-4 distinct, high-quality items.
+  3. For BBQ/Braai: Section 1 is bread/biltong/small bites. Section 2 is THE MEATS. Section 3 is salads/veg.
+  4. DO NOT LEAVE ANY SECTION EMPTY.
+  5. Currency: ${params.currency || 'ZAR'}.
+  6. If USER SPECIFIC INGREDIENT COSTS are provided, prioritize using those prices in the 'estimatedCost' fields of the 'shoppingList'.`;
   
-  const response = await ai.models.generateContent({
-    model: "gemini-3-flash-preview",
-    contents: prompt,
-    config: {
-      responseMimeType: "application/json",
-      responseSchema: {
-        type: Type.OBJECT,
-        properties: {
-          menuTitle: { type: Type.STRING },
-          description: { type: Type.STRING },
-          appetizers: { type: Type.ARRAY, items: { type: Type.STRING } },
-          mainCourses: { type: Type.ARRAY, items: { type: Type.STRING } },
-          sideDishes: { type: Type.ARRAY, items: { type: Type.STRING } },
-          dessert: { type: Type.ARRAY, items: { type: Type.STRING } },
-          safetyProtocols: { type: Type.ARRAY, items: { type: Type.STRING } },
-          shoppingList: { 
-            type: Type.ARRAY, 
-            items: { 
-                type: Type.OBJECT, 
-                properties: { 
-                    item: { type: Type.STRING }, 
-                    quantity: { type: Type.STRING },
-                    category: { type: Type.STRING },
-                    estimatedCost: { type: Type.STRING } 
+  let attempts = 0;
+  const maxAttempts = 2;
+
+  while (attempts < maxAttempts) {
+    try {
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.OBJECT,
+            properties: {
+              menuTitle: { type: Type.STRING },
+              description: { type: Type.STRING },
+              appetizers: { type: Type.ARRAY, items: { type: Type.STRING } },
+              mainCourses: { type: Type.ARRAY, items: { type: Type.STRING } },
+              sideDishes: { type: Type.ARRAY, items: { type: Type.STRING } },
+              dessert: { type: Type.ARRAY, items: { type: Type.STRING } },
+              safetyProtocols: { type: Type.ARRAY, items: { type: Type.STRING } },
+              shoppingList: { 
+                type: Type.ARRAY, 
+                items: { 
+                    type: Type.OBJECT, 
+                    properties: { 
+                        item: { type: Type.STRING }, 
+                        quantity: { type: Type.STRING },
+                        category: { type: Type.STRING },
+                        estimatedCost: { type: Type.STRING } 
+                    } 
                 } 
-            } 
-          },
-          miseEnPlace: { type: Type.ARRAY, items: { type: Type.STRING } },
-          serviceNotes: { type: Type.ARRAY, items: { type: Type.STRING } }
+              },
+              miseEnPlace: { type: Type.ARRAY, items: { type: Type.STRING } },
+              serviceNotes: { type: Type.ARRAY, items: { type: Type.STRING } }
+            },
+            required: ["menuTitle", "description", "appetizers", "mainCourses", "sideDishes", "dessert"]
+          }
         }
+      });
+      
+      const menu = safeParseMenuJson(response.text || "");
+      
+      // Basic validation to ensure sections aren't empty
+      if (menu.appetizers.length > 0 && menu.mainCourses.length > 0) {
+        return { menu };
       }
+      
+      console.warn(`Attempt ${attempts + 1} produced empty sections. Retrying...`);
+      attempts++;
+    } catch (e) {
+      console.error(`Attempt ${attempts + 1} failed:`, e);
+      attempts++;
+      if (attempts === maxAttempts) throw e;
+      await new Promise(r => setTimeout(r, 1000));
     }
-  });
+  }
   
-  return { menu: safeParseMenuJson(response.text || "") };
+  throw new Error("The AI is having trouble generating a complete menu. Please try again.");
 };
 
 export const generateMenuImageFromApi = async (title: string, description: string): Promise<string> => {
