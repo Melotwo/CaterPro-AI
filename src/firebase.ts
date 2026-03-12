@@ -16,8 +16,7 @@ const firebaseConfig = {
 const isConfigured = !!firebaseConfig.apiKey && 
                      firebaseConfig.apiKey !== 'undefined' && 
                      firebaseConfig.apiKey !== '' &&
-                     !firebaseConfig.apiKey.includes('REPLACE_ME') &&
-                     !firebaseConfig.apiKey.includes('YOUR_API_KEY');
+                     !firebaseConfig.apiKey.includes('REPLACE_ME');
 
 let app: FirebaseApp | undefined;
 let auth: Auth | undefined;
@@ -27,24 +26,18 @@ let storage: FirebaseStorage | undefined;
 if (isConfigured) {
   try {
     app = initializeApp(firebaseConfig);
-    // Only initialize services if app was successfully created
-    if (app) {
-      auth = getAuth(app);
-      db = getFirestore(app);
-      storage = getStorage(app);
-    }
+    auth = getAuth(app);
+    db = getFirestore(app);
+    storage = getStorage(app);
   } catch (error: any) {
     console.error("Firebase initialization failed:", error);
-    // If it's an invalid API key error, we should treat it as unconfigured
-    if (error?.message?.includes('invalid-api-key')) {
-      console.warn("Firebase reported an invalid API key. Disabling Firebase features.");
-      auth = undefined;
-      db = undefined;
-      storage = undefined;
-    }
+    // Fallback to unconfigured state
+    auth = undefined;
+    db = undefined;
+    storage = undefined;
   }
 } else {
-  console.warn("Firebase API Key is missing or invalid. Please set VITE_FIREBASE_API_KEY in your environment variables.");
+  console.warn("Firebase is not configured. Authentication and database features will be disabled.");
 }
 
 export { auth, db, storage, isConfigured };
