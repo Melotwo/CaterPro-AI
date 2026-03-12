@@ -144,14 +144,14 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                           {items.map((item, index) => (
                               <li key={`${key}-${index}`} className="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
                                   <CheckSquare size={18} className="text-primary-500 mt-1 shrink-0" />
-                                  <span className="text-lg font-bold tracking-tight">{String(item)}</span>
+                                  <span className={`text-lg font-bold tracking-tight ${t.uncheckedText}`}>{String(item)}</span>
                               </li>
                           ))}
                       </ul>
                   ) : (
                       <div className="py-12 px-6 text-center border-4 border-dashed border-slate-100 dark:border-slate-800 rounded-[2rem] flex flex-col items-center justify-center gap-4">
                           <AlertTriangle className="text-amber-400 w-8 h-8" />
-                          <p className="text-xs font-black uppercase text-slate-400 tracking-widest leading-relaxed">
+                          <p className="text-xs font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest leading-relaxed">
                               Section {catIdx + 1} Pending:<br/>AI Refinement Required
                           </p>
                       </div>
@@ -172,13 +172,13 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                   <div key={key} className={`${t.sectionContainer} rounded-[2.5rem] md:col-span-2 shadow-xl overflow-hidden bg-white/50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 mt-6`}>
                       <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex items-center gap-4">
                           <div className={`p-3 ${t.sectionIcon} rounded-2xl`}><ClipboardCheck size={24} /></div>
-                          <h3 className="text-2xl font-black">{section.title}</h3>
+                          <h3 className={`text-2xl font-black ${t.sectionTitle}`}>{section.title}</h3>
                       </div>
                       <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-4">
                           {items.map((item, i) => (
                               <div key={i} className="p-5 bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm flex items-start gap-3">
-                                  <span className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-[10px] font-black shrink-0">{i+1}</span>
-                                  <p className="text-sm font-bold">{String(item)}</p>
+                                  <span className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-[10px] font-black shrink-0 dark:text-white">{i+1}</span>
+                                  <p className={`text-sm font-bold ${t.uncheckedText}`}>{String(item)}</p>
                               </div>
                           ))}
                       </div>
