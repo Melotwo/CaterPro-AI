@@ -10,6 +10,32 @@
   --slate-50: #f8fafc;
 }
 
+@layer utilities {
+  /* Text Hierarchy Opacities */
+  .text-high { @apply text-slate-900 dark:text-white opacity-100; }
+  .text-medium { @apply text-slate-600 dark:text-slate-300 opacity-70; }
+  .text-low { @apply text-slate-500 dark:text-slate-400 opacity-40; }
+
+  /* Glassmorphism */
+  .glass-card {
+    @apply bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/20 dark:border-slate-800/50 shadow-xl;
+  }
+
+  /* Noise Texture */
+  .noise-overlay {
+    position: relative;
+  }
+  .noise-overlay::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    opacity: 0.05;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3%3Ffilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  }
+}
+
 @supports (font-variation-settings: normal) {
   :root { font-family: 'Inter var', sans-serif; }
 }
@@ -43,7 +69,7 @@ body {
   p { @apply text-pretty; }
 }
 
-/* Enhanced Tablet Consistency & Interactivity Fix */
+/* Enhanced Tablet Consistency Fix */
 @media (min-width: 768px) and (max-width: 1180px) {
   .main-grid {
     grid-template-columns: 1fr !important;
@@ -54,31 +80,34 @@ body {
     grid-column: span 1 !important;
   }
 
-  /* Force consistent font sizing for iPad forms */
+  /* Force consistent font sizing for iPad */
   input, select, textarea {
     font-size: 16px !important; 
     padding: 1rem !important;
-    border-radius: 1rem !important;
-  }
-
-  /* Prevent UI jumping on orientation change */
-  main {
-      padding-top: 2rem !important;
-      padding-bottom: 150px !important;
+    border-radius: 1.25rem !important;
   }
 
   h1 {
-      font-size: 3.5rem !important;
-      line-height: 1 !important;
+      font-size: 3rem !important;
+      line-height: 1.1 !important;
+  }
+
+  h2 {
+      font-size: 2.25rem !important;
   }
   
-  /* Bigger tap targets for buttons on iPad */
-  button, .clickable-item {
-      min-height: 48px;
+  /* Optimize padding for tablet forms */
+  .p-6.sm\:p-12.md\:p-16 {
+      padding: 2rem !important;
+  }
+
+  /* Ensure dashboard cards don't bleed off screen */
+  .rounded-\[3\.5rem\] {
+      border-radius: 2rem !important;
   }
 }
 
-/* Ensure images don't overflow containers on smaller iPads */
+/* Ensure images don't overflow containers */
 img {
     max-width: 100%;
     height: auto;
