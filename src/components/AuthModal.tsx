@@ -7,6 +7,7 @@ import {
   sendPasswordResetEmail
 } from 'firebase/auth';
 import { X, Mail, Lock, Loader2, LogIn, UserPlus } from 'lucide-react';
+import { automationService } from '../services/automationService';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ interface AuthModalProps {
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -38,7 +40,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       if (isLogin) {
         await signInWithEmailAndPassword(auth, email, password);
       } else {
-        await createUserWithEmailAndPassword(auth, email, password);
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        // Trigger automation webhook for new signup
+        automationService.triggerSignupWebhook({
+          email: userCredential.user.email || email,
+          name: name || 'New Chef',
+          businessType: 'Chef', // Default for signup
+        });
       }
       onClose();
     } catch (err: any) {
@@ -83,6 +91,23 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {!isLogin && (
+              <div className="space-y-2 animate-fade-in">
+                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Full Name</label>
+                <div className="relative">
+                  <UserPlus className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <input 
+                    type="text" 
+                    required
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold"
+                    placeholder="Chef John Doe"
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Email Address</label>
               <div className="relative">
