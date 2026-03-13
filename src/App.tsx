@@ -47,6 +47,7 @@ import { getApiErrorState } from './services/apiErrorHandler';
 import { generateMenuFromApi, generateMenuImageFromApi } from './services/geminiService';
 import { analytics } from './services/analyticsManager';
 import { firestoreService } from './services/firestoreService';
+import { automationService } from './services/automationService';
 
 const WHOP_STORE_URL = "https://whop.com/melotwo2"; 
 const FACEBOOK_PAGE_URL = "https://facebook.com/CaterProAi"; 
@@ -198,7 +199,17 @@ export default function App() {
     try {
       const id = await firestoreService.saveMenu(menu, parseInt(guestCount) || 50);
       if (id) {
-        setToastMessage("Menu Secured in Cloud!");
+        setToastMessage("Menu synced to Cloud. Ready for the kitchen! 👨‍🍳");
+        
+        // Trigger automation webhook
+        if (user?.email) {
+          automationService.triggerSignupWebhook({
+            email: user.email,
+            name: user.displayName || 'Chef',
+            businessType: serviceStyle.includes('Catering') ? 'Caterer' : 'Chef',
+          });
+        }
+        
         loadCloudMenus();
       }
     } catch (err) {
