@@ -1,0 +1,53 @@
+{
+  "entities": {
+    "Menu": {
+      "title": "Menu",
+      "description": "A catering menu proposal with scaling and costing logic.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Menu title" },
+        "eventDate": { "type": "string", "format": "date-time", "description": "Date of the event" },
+        "baseGuestCount": { "type": "number", "description": "Original guest count for portioning" },
+        "currentGuestCount": { "type": "number", "description": "Current guest count for scaling" },
+        "cuisine": { "type": "string" },
+        "budget": { "type": "string" },
+        "description": { "type": "string" },
+        "appetizers": { "type": "array", "items": { "type": "string" } },
+        "mainCourses": { "type": "array", "items": { "type": "string" } },
+        "sideDishes": { "type": "array", "items": { "type": "string" } },
+        "dessert": { "type": "array", "items": { "type": "string" } },
+        "ingredients": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "baseQuantity": { "type": "number" },
+              "unit": { "type": "string" },
+              "category": { "type": "string" },
+              "yieldPercentage": { "type": "number" },
+              "estimatedCost": { "type": "number" }
+            }
+          }
+        },
+        "labor": {
+          "type": "object",
+          "properties": {
+            "estimatedPrepTime": { "type": "number" },
+            "hourlyRate": { "type": "number" }
+          }
+        },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "userId", "baseGuestCount", "currentGuestCount"]
+    }
+  },
+  "firestore": {
+    "/menus/{menuId}": {
+      "schema": "Menu",
+      "description": "User catering menus"
+    }
+  }
+}
