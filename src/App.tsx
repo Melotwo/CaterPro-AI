@@ -40,10 +40,11 @@ import FacebookPixel from './components/FacebookPixel';
 import ManyChatWidget from './components/ManyChatWidget';
 import { useAppSubscription } from './hooks/useAppSubscription';
 import { CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS } from './constants';
-import { SavedMenu, ErrorState, ValidationErrors, Menu, MenuSection } from './types';
+import { SavedMenu, ErrorState, ValidationErrors, Menu, MenuSection, CloudMenu } from './types';
 import { getApiErrorState } from './services/apiErrorHandler';
 import { generateMenuFromApi, generateMenuImageFromApi } from './services/geminiService';
 import { analytics } from './services/analyticsManager';
+import { firestoreService } from './services/firestoreService';
 
 const WHOP_STORE_URL = "https://whop.com/melotwo2"; 
 const FACEBOOK_PAGE_URL = "https://facebook.com/CaterProAi"; 
@@ -100,6 +101,7 @@ export default function App() {
   });
 
   const [savedMenus, setSavedMenus] = useState<SavedMenu[]>([]);
+  const [cloudMenus, setCloudMenus] = useState<CloudMenu[]>([]);
   const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -164,6 +166,55 @@ export default function App() {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      loadCloudMenus();
+    }
+  }, [user]);
+
+  const loadCloudMenus = async () => {
+    const menus = await firestoreService.getUserMenus();
+    setCloudMenus(menus);
+    // Sync with legacy savedMenus for the modal
+    setSavedMenus(menus.map(m => ({
+      id: m.id!,
+      title: m.menuTitle,
+      content: m,
+      savedAt: m.createdAt
+    })));
+  };
+
+  const handleSaveMenu = async () => {
+    if (!menu) return;
+    if (!user) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const id = await firestoreService.saveMenu(menu, parseInt(guestCount) || 50);
+      if (id) {
+        setToastMessage("Menu Secured in Cloud!");
+        loadCloudMenus();
+      }
+    } catch (err) {
+      setToastMessage("Failed to save menu.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleDeleteMenu = async (id: string) => {
+    try {
+      await firestoreService.deleteMenu(id);
+      setToastMessage("Menu Removed.");
+      loadCloudMenus();
+    } catch (err) {
+      setToastMessage("Failed to delete.");
+    }
+  };
 
   useEffect(() => {
     if (isDarkMode) {
@@ -491,6 +542,9 @@ export default function App() {
                     </div>
                     <div className="flex gap-3">
                         <button onClick={() => setMenu(null)} className="px-6 py-3.5 bg-slate-100 dark:bg-slate-800 rounded-2xl text-xs font-black uppercase text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors">← New Event</button>
+                        <button onClick={handleSaveMenu} className="px-6 py-3.5 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase flex items-center gap-2 shadow-xl shadow-indigo-500/20 active:scale-95 transition-all">
+                           <Save size={18} /> Save to Cloud
+                        </button>
                         <button onClick={() => window.print()} className="px-8 py-3.5 bg-primary-600 text-white rounded-2xl text-xs font-black uppercase flex items-center gap-2 shadow-xl shadow-primary-500/20 active:scale-95 transition-all">
                            <FileDown size={18} /> Export PDF
                         </button>
@@ -537,7 +591,7 @@ export default function App() {
       )}
 
       <AiChatBot onAttemptAccess={() => attemptAccess('aiChatBot')} isPro={canAccessFeature('aiChatBot')} />
-      <SavedChecklistsModal isOpen={isSavedModalOpen} onClose={() => setIsSavedModalOpen(false)} savedMenus={savedMenus} onDelete={(id) => setSavedMenus(prev => prev.filter(m => m.id !== id))} />
+      <SavedChecklistsModal isOpen={isSavedModalOpen} onClose={() => setIsSavedModalOpen(false)} savedMenus={savedMenus} onDelete={(id) => handleDeleteMenu(String(id))} />
       <QrCodeModal isOpen={isQrModalOpen} onClose={() => setIsQrModalOpen(false)} />
       <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} shareUrl={window.location.href} menuTitle={menu?.menuTitle} />
       <EmailCapture 
