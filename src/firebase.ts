@@ -3,27 +3,19 @@ import { getAuth, Auth } from "firebase/auth";
 import { getFirestore, Firestore, getDocFromServer, doc } from "firebase/firestore";
 import { getStorage, FirebaseStorage } from "firebase/storage";
 
-// Load configuration from environment variables
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_DATABASE_ID,
-};
+// Load configuration
+const jsonConfigs = import.meta.glob('../*.json', { eager: true });
+const jsonConfig = (jsonConfigs['../firebase-applet-config.json'] as any)?.default || {};
 
-// Fallback to JSON config if env vars are missing (for local dev compatibility)
-if (!firebaseConfig.apiKey) {
-  try {
-    const jsonConfigs = import.meta.glob('../*.json', { eager: true });
-    const jsonConfig = (jsonConfigs['../firebase-applet-config.json'] as any)?.default || {};
-    Object.assign(firebaseConfig, jsonConfig);
-  } catch (e) {
-    // Ignore if file doesn't exist
-  }
-}
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || jsonConfig.apiKey,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || jsonConfig.authDomain,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || jsonConfig.projectId,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || jsonConfig.storageBucket,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || jsonConfig.messagingSenderId,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || jsonConfig.appId,
+  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_DATABASE_ID || jsonConfig.firestoreDatabaseId,
+};
 
 // Robust check for valid configuration
 const isConfigured = !!firebaseConfig.apiKey && 
@@ -52,7 +44,12 @@ if (isConfigured) {
         await getDocFromServer(doc(db, 'test', 'connection'));
       } catch (error) {
         if(error instanceof Error && error.message.includes('the client is offline')) {
-          console.error("Please check your Firebase configuration. The client is offline.");
+          console.error("Firebase Connection Error: The client is offline. This usually indicates an invalid Project ID or Database ID in your configuration.");
+          console.error("Current Config:", {
+            projectId: firebaseConfig.projectId,
+            databaseId: firebaseConfig.firestoreDatabaseId,
+            hasApiKey: !!firebaseConfig.apiKey
+          });
         }
       }
     };
@@ -97,3 +94,22 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
       userId: auth?.currentUser?.uid,
+      email: auth?.currentUser?.email,
+      emailVerified: auth?.currentUser?.emailVerified,
+      isAnonymous: auth?.currentUser?.isAnonymous,
+      tenantId: auth?.currentUser?.tenantId,
+      providerInfo: auth?.currentUser?.providerData.map(provider => ({
+        providerId: provider.providerId,
+        displayName: provider.displayName,
+        email: provider.email,
+        photoUrl: provider.photoURL
+      })) || []
+    },
+    operationType,
+    path
+  };
+  console.error('Firestore Error: ', JSON.stringify(errInfo));
+  throw new Error(JSON.stringify(errInfo));
+}
+
+export { auth, db, storage, isConfigured };
