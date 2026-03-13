@@ -9,7 +9,7 @@ service cloud.firestore {
     // Document ID: auto-generated
     // Fields:
     //   - title: string (required)
-    //   - eventDate: timestamp
+    //   - userId: string (required, immutable)
     //   - baseGuestCount: number (required)
     //   - currentGuestCount: number (required)
     //   - cuisine: string
@@ -21,9 +21,18 @@ service cloud.firestore {
     //   - dessert: list
     //   - ingredients: list of maps
     //   - labor: map
+    //   - createdAt: timestamp (required, immutable)
+    //   - updatedAt: timestamp (required)
+    //
+    // Collection: ingredientCosts
+    // Document ID: auto-generated
+    // Fields:
+    //   - name: string (required)
+    //   - cost: number (required)
+    //   - unit: string (required)
+    //   - category: string
     //   - userId: string (required, immutable)
-    //   - createdAt: timestamp (immutable)
-    //   - updatedAt: timestamp
+    //   - createdAt: timestamp (required, immutable)
     //
     // ===============================================================
 
@@ -39,44 +48,35 @@ service cloud.firestore {
       return isAuthenticated() && request.auth.uid == userId;
     }
 
-    function isAdmin() {
-      return isAuthenticated() &&
-        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
-          (request.auth.token.email == "turoka15@gmail.com" && request.auth.token.email_verified == true));
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.userId;
     }
+
+    function isValidString(val, min, max) {
+      return val is string && val.size() >= min && val.size() <= max;
+    }
+
+    function isValidNumber(val, min, max) {
+      return val is number && val >= min && val <= max;
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
 
     function isValidMenu(data) {
       return data.keys().hasAll(['title', 'userId', 'baseGuestCount', 'currentGuestCount']) &&
-             data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
+             isValidString(data.title, 1, 200) &&
              data.userId is string &&
-             data.baseGuestCount is number && data.baseGuestCount > 0 &&
-             data.currentGuestCount is number && data.currentGuestCount > 0 &&
-             (!('ingredients' in data) || data.ingredients is list) &&
-             (!('labor' in data) || data.labor is map);
+             isValidNumber(data.baseGuestCount, 1, 10000) &&
+             isValidNumber(data.currentGuestCount, 1, 10000);
     }
 
-    // ===============================================================
-    // Rules
-    // ===============================================================
-
-    match /menus/{menuId} {
-      allow read: if isOwner(resource.data.userId) || isAdmin();
-      
-      allow create: if isAuthenticated() && 
-                      isValidMenu(request.resource.data) && 
-                      request.resource.data.userId == request.auth.uid;
-      
-      allow update: if (isOwner(resource.data.userId) || isAdmin()) &&
-                      isValidMenu(request.resource.data) &&
-                      request.resource.data.userId == resource.data.userId &&
-                      request.resource.data.createdAt == resource.data.createdAt;
-      
-      allow delete: if isOwner(resource.data.userId) || isAdmin();
+    function isValidIngredientCost(data) {
+      return data.keys().hasAll(['name', 'cost', 'unit', 'userId']) &&
+             isValidString(data.name, 1, 100) &&
+             isValidNumber(data.cost, 0, 1000000) &&
+             isValidString(data.unit, 1, 20) &&
+             data.userId is string;
     }
 
-    match /users/{userId} {
-      allow read: if isOwner(userId) || isAdmin();
-      allow write: if isAdmin();
-    }
-  }
-}
