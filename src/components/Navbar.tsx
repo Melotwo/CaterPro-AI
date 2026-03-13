@@ -16,9 +16,10 @@ const Navbar: React.FC<{
   onViewLanding?: () => void;
   onViewPricing?: () => void;
   onViewLibrary?: () => void;
+  onViewPartner?: () => void;
   onAuthClick?: () => void;
   user?: FirebaseUser | null;
-}> = ({ whopUrl, facebookUrl, onThemeToggle, isDarkMode, onOpenSaved, savedCount, onOpenQrCode, onOpenInstall, onReset, onViewLanding, onViewPricing, onViewLibrary, onAuthClick, user }) => (
+}> = ({ whopUrl, facebookUrl, onThemeToggle, isDarkMode, onOpenSaved, savedCount, onOpenQrCode, onOpenInstall, onReset, onViewLanding, onViewPricing, onViewLibrary, onViewPartner, onAuthClick, user }) => (
   <nav role="navigation" aria-label="Main navigation" className="no-print bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200 dark:border-slate-800 pt-[env(safe-area-inset-top)]">
     <div className="max-w-4xl mx-auto px-4">
       <div className="flex justify-between items-center h-16">
@@ -46,6 +47,16 @@ const Navbar: React.FC<{
               title="Costing Library"
             >
               <Package size={20} />
+            </button>
+          )}
+
+          {onViewPartner && (
+            <button 
+              onClick={onViewPartner}
+              className="p-2.5 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all"
+              title="Partner Dashboard"
+            >
+              <Zap size={20} className="text-indigo-500" />
             </button>
           )}
 
