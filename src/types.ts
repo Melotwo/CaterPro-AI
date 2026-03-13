@@ -45,6 +45,8 @@ export interface Menu {
   safetyProtocols?: string[];
   salesScripts?: SalesScript[];
   aiKeywords?: string[];
+  ingredients?: CloudIngredient[]; // Added for scaling
+  labor?: CloudLabor; // Added for costing
 }
 
 export interface ScannedMenuCosting {
@@ -90,8 +92,34 @@ export interface GroundingChunk {
   };
 }
 
+export interface CloudMenu extends Menu {
+  id?: string;
+  userId: string;
+  baseGuestCount: number;
+  currentGuestCount: number;
+  eventDate?: string;
+  createdAt: string;
+  updatedAt: string;
+  ingredients?: CloudIngredient[];
+  labor?: CloudLabor;
+}
+
+export interface CloudIngredient {
+  name: string;
+  baseQuantity: number;
+  unit: string;
+  category?: string;
+  yieldPercentage?: number;
+  estimatedCost?: number;
+}
+
+export interface CloudLabor {
+  estimatedPrepTime: number;
+  hourlyRate: number;
+}
+
 export interface SavedMenu {
-  id: number;
+  id: string; // Changed from number to string for Firestore IDs
   title: string;
   content: Menu;
   savedAt: string;
