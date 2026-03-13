@@ -53,76 +53,63 @@ const getTiers = (currency: string = 'ZAR', whopUrl: string, period: 'monthly' |
   
   return [
     {
-      name: 'Free',
-      id: 'free',
-      price: symbol + '0',
-      icon: Star,
-      description: 'Explore the AI basics.',
-      features: [
-        '5 Generations per Day',
-        'Basic PDF Export',
-        'Global Cuisine Support',
-      ],
-      cta: 'Current Plan',
-      colorKey: 'slate' as keyof typeof TIER_STYLES,
-    },
-    {
-      name: 'Student Edition',
-      id: 'student',
+      name: 'Basic',
+      id: 'basic',
       price: isYearly 
-        ? symbol + (isZar ? '1100' : '59.90')
-        : symbol + (isZar ? '110' : '5.99'),
+        ? symbol + (isZar ? '2490' : '149.90')
+        : symbol + (isZar ? '249' : '14.99'),
       priceSuffix: isYearly ? '/yr' : '/mo',
-      icon: GraduationCap,
-      description: 'The Academy Secret Weapon.',
+      icon: Star,
+      description: 'Essential tools for the solo chef.',
       features: [
         'UNLIMITED Generations',
-        'AI Tutor (Ask any PoE question)',
-        'ADHD/Dyslexia Helper Mode',
-        'Direct Support via Whop',
+        'Basic PDF Export',
+        'Global Cuisine Support',
+        'Standard Support',
       ],
       cta: 'Start 7-Day Trial',
-      badge: isYearly ? 'Save 16%' : 'Free Trial',
-      colorKey: 'blue' as keyof typeof TIER_STYLES,
+      colorKey: 'slate' as keyof typeof TIER_STYLES,
       whopLink: whopUrl,
       hasTrial: true,
     },
     {
-      name: 'Professional',
-      id: 'professional',
+      name: 'Standard',
+      id: 'standard',
       price: isYearly 
-        ? symbol + (isZar ? '3490' : '199.90')
-        : symbol + (isZar ? '349' : '19.99'),
+        ? symbol + (isZar ? '5490' : '299.90')
+        : symbol + (isZar ? '549' : '29.99'),
       priceSuffix: isYearly ? '/yr' : '/mo',
       icon: Zap,
-      description: 'For Working Caterers.',
+      description: 'The sweet spot for professional caterers.',
       features: [
-        'Everything in Student',
+        'Everything in Basic',
+        'Dynamic Scaling Engine',
         'NO Watermarks on PDFs',
         'AI Food Photography',
         'Sommelier AI Pairings',
       ],
       cta: 'Start 7-Day Trial',
       highlight: true,
-      badge: isYearly ? '2 Months Free' : 'Free Trial',
+      badge: 'MOST POPULAR',
       colorKey: 'amber' as keyof typeof TIER_STYLES,
       whopLink: whopUrl,
       hasTrial: true,
     },
     {
-      name: 'Business',
-      id: 'business',
+      name: 'Premium',
+      id: 'premium',
       price: isYearly 
-        ? symbol + (isZar ? '5490' : '299.90')
-        : symbol + (isZar ? '549' : '29.99'),
+        ? symbol + (isZar ? '12490' : '699.90')
+        : symbol + (isZar ? '1249' : '69.99'),
       priceSuffix: isYearly ? '/yr' : '/mo',
       icon: Briefcase,
-      description: 'The Ultimate Suite.',
+      description: 'Full agency white-labeling and pro features.',
       features: [
-        'Everything in Pro',
+        'Everything in Standard',
         'Viral Video Reel Creator',
         'Magic Share Links',
         'Global Supply Hub',
+        'Priority 24/7 Support',
       ],
       cta: 'Start 7-Day Trial',
       badge: isYearly ? 'Best Value' : 'Free Trial',
@@ -204,7 +191,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
                   key={tier.id}
                   className={`relative flex flex-col rounded-[2.5rem] border p-8 shadow-sm h-full transition-all hover:shadow-xl ${
                     tier.highlight
-                      ? `${styles.highlightBorder} bg-white dark:bg-slate-900 z-10 scale-105` 
+                      ? `${styles.highlightBorder} bg-white dark:bg-slate-900 z-10 scale-105 shadow-[0_0_40px_-10px_rgba(245,158,11,0.3)] dark:shadow-[0_0_40px_-10px_rgba(245,158,11,0.2)]` 
                       : `${styles.border} bg-white dark:bg-slate-900`
                   }`}
                 >
@@ -223,13 +210,13 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
                       )}
                   </div>
 
-                  <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{tier.name}</h3>
-                  <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 min-h-[2.5rem] font-medium leading-relaxed">{tier.description}</p>
+                  <h3 className="text-2xl font-black text-slate-900 dark:text-white/100 tracking-tight">{tier.name}</h3>
+                  <p className="mt-2 text-sm text-slate-500 dark:text-white/60 min-h-[2.5rem] font-medium leading-relaxed">{tier.description}</p>
                   
                   <div className="mt-6 mb-8">
-                    <span className="text-4xl font-black text-slate-900 dark:text-white">{tier.price}</span>
+                    <span className="text-4xl font-black text-slate-900 dark:text-white/100">{tier.price}</span>
                     {tier.priceSuffix && (
-                      <span className="text-xs font-black text-slate-400 uppercase tracking-tighter ml-1">{tier.priceSuffix}</span>
+                      <span className="text-xs font-black text-slate-400 dark:text-white/40 uppercase tracking-tighter ml-1">{tier.priceSuffix}</span>
                     )}
                   </div>
 
@@ -237,7 +224,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
                     {tier.features.map((feature) => (
                       <li key={feature} className="flex items-start text-sm">
                         <Check className="h-4 w-4 text-emerald-500 flex-shrink-0 mt-0.5" />
-                        <p className="ml-3 text-slate-600 dark:text-slate-300 font-medium">{feature}</p>
+                        <p className="ml-3 text-slate-600 dark:text-white/80 font-medium">{feature}</p>
                       </li>
                     ))}
                   </ul>
