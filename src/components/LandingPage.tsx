@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
-import { ChefHat, Check, ArrowRight, Star, Zap, Quote, ChevronDown, ChevronUp, HelpCircle, AlignLeft, Linkedin, Twitter, Brain, Heart, Gift, Globe, Rocket, Sparkle } from 'lucide-react';
+import { ChefHat, Check, ArrowRight, Star, Zap, Quote, ChevronDown, ChevronUp, HelpCircle, AlignLeft, Linkedin, Twitter, Brain, Heart, Gift, Globe, Rocket, Sparkle, Award } from 'lucide-react';
+import PartnerProgram from './PartnerProgram';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -88,13 +89,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                   <span>2026 Launch Live 🚀</span>
                 </button>
             </div>
-            <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black text-slate-900 dark:text-white tracking-tighter mb-6 leading-[0.9]">
+            <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black text-high tracking-tighter mb-6 leading-[0.9]">
               Chef in the Kitchen. <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-indigo-500">
                 AI in the Office.
               </span>
             </h1>
-            <p className="text-xl text-slate-600 dark:text-slate-300 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+            <p className="text-xl text-medium mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
               Start 2026 with a system, not chaos. Generate professional menus and costing in 30 seconds.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -171,6 +172,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             </div>
         </div>
       </div>
+
+      {/* --- PARTNER PROGRAM --- */}
+      <PartnerProgram />
 
       {/* --- FAQ --- */}
       <div className="bg-white dark:bg-slate-900 py-32" id="faq">
