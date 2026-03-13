@@ -153,7 +153,28 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
                 } 
               },
               miseEnPlace: { type: Type.ARRAY, items: { type: Type.STRING } },
-              serviceNotes: { type: Type.ARRAY, items: { type: Type.STRING } }
+              serviceNotes: { type: Type.ARRAY, items: { type: Type.STRING } },
+              ingredients: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    name: { type: Type.STRING },
+                    baseQuantity: { type: Type.NUMBER },
+                    unit: { type: Type.STRING },
+                    category: { type: Type.STRING },
+                    yieldPercentage: { type: Type.NUMBER },
+                    estimatedCost: { type: Type.NUMBER }
+                  }
+                }
+              },
+              labor: {
+                type: Type.OBJECT,
+                properties: {
+                  estimatedPrepTime: { type: Type.NUMBER },
+                  hourlyRate: { type: Type.NUMBER }
+                }
+              }
             },
             required: ["menuTitle", "description", "appetizers", "mainCourses", "sideDishes", "dessert"]
           }
