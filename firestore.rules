@@ -1,0 +1,82 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: menus
+    // Document ID: auto-generated
+    // Fields:
+    //   - title: string (required)
+    //   - eventDate: timestamp
+    //   - baseGuestCount: number (required)
+    //   - currentGuestCount: number (required)
+    //   - cuisine: string
+    //   - budget: string
+    //   - description: string
+    //   - appetizers: list
+    //   - mainCourses: list
+    //   - sideDishes: list
+    //   - dessert: list
+    //   - ingredients: list of maps
+    //   - labor: map
+    //   - userId: string (required, immutable)
+    //   - createdAt: timestamp (immutable)
+    //   - updatedAt: timestamp
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+          (request.auth.token.email == "turoka15@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidMenu(data) {
+      return data.keys().hasAll(['title', 'userId', 'baseGuestCount', 'currentGuestCount']) &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
+             data.userId is string &&
+             data.baseGuestCount is number && data.baseGuestCount > 0 &&
+             data.currentGuestCount is number && data.currentGuestCount > 0 &&
+             (!('ingredients' in data) || data.ingredients is list) &&
+             (!('labor' in data) || data.labor is map);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /menus/{menuId} {
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      
+      allow create: if isAuthenticated() && 
+                      isValidMenu(request.resource.data) && 
+                      request.resource.data.userId == request.auth.uid;
+      
+      allow update: if (isOwner(resource.data.userId) || isAdmin()) &&
+                      isValidMenu(request.resource.data) &&
+                      request.resource.data.userId == resource.data.userId &&
+                      request.resource.data.createdAt == resource.data.createdAt;
+      
+      allow delete: if isOwner(resource.data.userId) || isAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if isAdmin();
+    }
+  }
+}
