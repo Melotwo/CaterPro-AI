@@ -354,8 +354,8 @@ export default function App() {
           {!menu && !isLoading && (
             <div className="space-y-12 animate-slide-in">
               <div className="text-center max-w-2xl mx-auto px-4">
-                <h1 className="text-4xl sm:text-7xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">Catering Command Center</h1>
-                <p className="mt-4 text-slate-600 dark:text-slate-400 font-medium text-lg">Define your culinary vision and strategy.</p>
+                <h1 className="text-4xl sm:text-7xl font-black text-high tracking-tight leading-tight">Catering Command Center</h1>
+                <p className="mt-4 text-medium font-medium text-lg">Define your culinary vision and strategy.</p>
               </div>
 
               {isFounderMode && (
@@ -366,12 +366,12 @@ export default function App() {
                   </div>
               )}
 
-              <div className="bg-white dark:bg-slate-900 p-6 sm:p-12 md:p-16 rounded-[3rem] shadow-2xl border border-slate-200 dark:border-slate-800 relative overflow-hidden">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 main-grid">
+              <div className="glass-card noise-overlay p-6 sm:p-12 md:p-16 rounded-[3rem] relative overflow-hidden">
+                <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 main-grid">
                   
                   <div className="space-y-1 relative" ref={eventRef}>
-                    <label className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">
-                      <Calendar size={12} className="text-slate-400" />
+                    <label className="flex items-center gap-2 text-[10px] font-black uppercase text-low tracking-[0.2em] mb-2">
+                      <Calendar size={12} className="text-low" />
                       Event Selection
                     </label>
                     <div className="relative">
@@ -396,16 +396,16 @@ export default function App() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Guest Volume</label>
-                    <select value={guestCount} onChange={(e) => setGuestCount(e.target.value)} className="w-full p-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm shadow-sm">
+                    <label className="block text-[10px] font-black uppercase text-low tracking-[0.2em] mb-2">Guest Volume</label>
+                    <select value={guestCount} onChange={(e) => setGuestCount(e.target.value)} className="w-full p-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-800/50 focus:border-primary-500 outline-none transition-all text-high font-bold text-sm shadow-sm">
                       <option value="">Select Capacity...</option>
                       {GUEST_COUNT_OPTIONS.map(g => <option key={g} value={g}>{g}</option>)}
                     </select>
                   </div>
 
                   <div className="space-y-1 relative full-width-tablet" ref={cuisineRef}>
-                    <label className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">
-                      <Search size={12} className="text-slate-400" />
+                    <label className="flex items-center gap-2 text-[10px] font-black uppercase text-low tracking-[0.2em] mb-2">
+                      <Search size={12} className="text-low" />
                       Culinary Style
                     </label>
                     <div className="relative">
@@ -415,7 +415,7 @@ export default function App() {
                         value={cuisineSearch || cuisine}
                         onFocus={() => setShowCuisineResults(true)}
                         onChange={(e) => { setCuisineSearch(e.target.value); setCuisine(e.target.value); }}
-                        className="w-full px-5 py-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm shadow-sm"
+                        className="w-full px-5 py-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-800/50 focus:border-primary-500 outline-none transition-all text-high font-bold text-sm shadow-sm"
                       />
                     </div>
                     {showCuisineResults && filteredCuisines.length > 0 && (
@@ -430,8 +430,8 @@ export default function App() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Service Style</label>
-                    <select value={serviceStyle} onChange={(e) => setServiceStyle(e.target.value)} className="w-full p-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm shadow-sm">
+                    <label className="block text-[10px] font-black uppercase text-low tracking-[0.2em] mb-2">Service Style</label>
+                    <select value={serviceStyle} onChange={(e) => setServiceStyle(e.target.value)} className="w-full p-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-800/50 focus:border-primary-500 outline-none transition-all text-high font-bold text-sm shadow-sm">
                       <option value="Standard Catering">Standard Catering</option>
                       <option value="Private Chef">Private Chef Experience</option>
                       <option value="Drop-off Only">Drop-off Only</option>
@@ -440,10 +440,10 @@ export default function App() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Budget Level</label>
+                    <label className="block text-[10px] font-black uppercase text-low tracking-[0.2em] mb-2">Budget Level</label>
                     <div className="flex gap-2">
                       {BUDGET_LEVELS.map(b => (
-                        <button key={b.value} onClick={() => setBudget(b.value)} className={`flex-1 py-4 rounded-2xl border-2 font-black text-sm transition-all ${budget === b.value ? 'bg-primary-600 border-primary-600 text-white shadow-lg' : 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-800 text-slate-400 hover:border-primary-500'}`}>
+                        <button key={b.value} onClick={() => setBudget(b.value)} className={`flex-1 py-4 rounded-2xl border-2 font-black text-sm transition-all ${budget === b.value ? 'bg-primary-600 border-primary-600 text-white shadow-lg' : 'bg-white/50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 text-low hover:border-primary-500'}`}>
                           {b.label}
                         </button>
                       ))}
@@ -451,8 +451,8 @@ export default function App() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="block text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] mb-2">Financial Setup</label>
-                    <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full p-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm shadow-sm">
+                    <label className="block text-[10px] font-black uppercase text-low tracking-[0.2em] mb-2">Financial Setup</label>
+                    <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full p-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-800/50 focus:border-primary-500 outline-none transition-all text-high font-bold text-sm shadow-sm">
                        <option value="ZAR">South African Rand (R)</option>
                        <option value="USD">US Dollar ($)</option>
                        <option value="EUR">Euro (€)</option>
