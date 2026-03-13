@@ -26,6 +26,8 @@ import AuthModal from './components/AuthModal';
 import CostingLibrary from './components/CostingLibrary';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
+import MeetTheFounder from './components/MeetTheFounder';
+import PartnerDashboard from './components/PartnerDashboard';
 import { useAuth } from './hooks/useAuth';
 import { auth, db, storage } from './firebase';
 import { signOut } from 'firebase/auth';
@@ -49,7 +51,7 @@ import { firestoreService } from './services/firestoreService';
 const WHOP_STORE_URL = "https://whop.com/melotwo2"; 
 const FACEBOOK_PAGE_URL = "https://facebook.com/CaterProAi"; 
 
-type AppView = 'landing' | 'generator' | 'pricing' | 'library' | 'privacy' | 'terms';
+type AppView = 'landing' | 'generator' | 'pricing' | 'library' | 'privacy' | 'partner' | 'terms';
 
 export default function App() {
   const { user, isConfigured } = useAuth();
@@ -372,6 +374,7 @@ export default function App() {
         onViewLanding={() => setViewMode('landing')}
         onViewPricing={() => setViewMode('pricing')}
         onViewLibrary={() => setViewMode('library')}
+        onViewPartner={() => setViewMode('partner')}
         onAuthClick={() => {
           if (user) {
             if (auth) signOut(auth);
@@ -389,6 +392,18 @@ export default function App() {
       {viewMode === 'library' && (
         <main className="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-8 py-8 sm:py-16">
           <CostingLibrary />
+        </main>
+      )}
+
+      {viewMode === 'partner' && (
+        <main className="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-8 py-8 sm:py-16">
+          <div className="space-y-12">
+            <div className="text-center">
+              <h1 className="text-4xl sm:text-6xl font-black text-white/100 tracking-tight mb-4">Partner Dashboard</h1>
+              <p className="text-lg text-white/60 font-medium">Manage your referrals and track your earnings.</p>
+            </div>
+            <PartnerDashboard />
+          </div>
         </main>
       )}
 
@@ -517,6 +532,8 @@ export default function App() {
                   </div>
                 </div>
               </div>
+
+              <MeetTheFounder />
 
               {/* Roadmaps and labs removed to restore professional focus */}
             </div>
