@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing } from '../types';
-import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock, Sparkle, EyeOff, Eye, BrainCircuit, Globe, ExternalLink, Camera, Instagram, Smartphone, BarChart4, ShieldAlert, Thermometer, Droplets, Layout, Palette, AlertTriangle, Loader2, ImageIcon, Plus } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing, CloudMenu } from '../types';
+import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock, Sparkle, EyeOff, Eye, BrainCircuit, Globe, ExternalLink, Camera, Instagram, Smartphone, BarChart4, ShieldAlert, Thermometer, Droplets, Layout, Palette, AlertTriangle, Loader2, ImageIcon, Plus, Users } from 'lucide-react';
 import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES } from '../constants';
 import { analytics } from '../services/analyticsManager';
 
@@ -44,7 +44,28 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
 }) => {
   const theme = PROPOSAL_THEMES[proposalTheme as keyof typeof PROPOSAL_THEMES] || PROPOSAL_THEMES.classic;
   const t = theme.classes;
-  
+
+  // Scaling Logic
+  const baseGuestCount = (menu as any).baseGuestCount || 50;
+  const [scaledGuestCount, setScaledGuestCount] = useState(baseGuestCount);
+
+  const scaledShoppingList = useMemo(() => {
+    if (!menu.shoppingList) return [];
+    const factor = scaledGuestCount / baseGuestCount;
+    
+    return menu.shoppingList.map(item => {
+      // Try to parse quantity if it's a number-like string
+      const match = item.quantity.match(/^(\d+\.?\d*)\s*(.*)$/);
+      if (match) {
+        const num = parseFloat(match[1]);
+        const unit = match[2];
+        const scaledNum = (num * factor).toFixed(2);
+        return { ...item, quantity: `${scaledNum} ${unit}` };
+      }
+      return item;
+    });
+  }, [menu.shoppingList, scaledGuestCount, baseGuestCount]);
+
   if (!menu) return null;
 
   return (
@@ -121,6 +142,34 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
 
         {/* GRID START - Core Menu Sections */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-stretch min-h-[400px]">
+          
+          {/* SCALING CONTROLS */}
+          <div className="md:col-span-2 glass-card p-8 rounded-[2.5rem] border border-primary-100 dark:border-primary-900/30 bg-primary-50/30 dark:bg-primary-900/10 flex flex-col sm:flex-row items-center justify-between gap-6 no-print">
+              <div className="flex items-center gap-4">
+                  <div className="p-3 bg-primary-500 text-white rounded-2xl shadow-lg">
+                      <Users size={24} />
+                  </div>
+                  <div>
+                      <h4 className="text-lg font-black text-slate-900 dark:text-white">Dynamic Scaling Engine</h4>
+                      <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Adjust guest count to scale ingredients</p>
+                  </div>
+              </div>
+              <div className="flex items-center gap-6 bg-white dark:bg-slate-800 p-4 rounded-3xl shadow-sm border border-slate-100 dark:border-slate-700 w-full sm:w-auto">
+                  <span className="text-sm font-black text-slate-400 uppercase tracking-widest">Guests:</span>
+                  <input 
+                    type="range" 
+                    min="1" 
+                    max="1000" 
+                    value={scaledGuestCount} 
+                    onChange={(e) => setScaledGuestCount(parseInt(e.target.value))}
+                    className="flex-grow sm:w-48 h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-primary-600"
+                  />
+                  <div className="px-4 py-2 bg-primary-600 text-white rounded-xl font-black text-lg min-w-[80px] text-center shadow-lg">
+                      {scaledGuestCount}
+                  </div>
+              </div>
+          </div>
+
           {MENU_SECTIONS.map(({ title, key }, catIdx) => {
             const isWideSection = ['shoppingList', 'recommendedEquipment', 'beveragePairings', 'dietaryNotes', 'miseEnPlace', 'serviceNotes', 'deliveryLogistics'].includes(key);
             if (isWideSection) return null;
@@ -185,6 +234,44 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                   </div>
               );
           })}
+          {/* SHOPPING LIST SECTION */}
+          <div className={`${t.sectionContainer} rounded-[2.5rem] md:col-span-2 shadow-xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 mt-6`}>
+              <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                      <div className={`p-3 ${t.sectionIcon} rounded-2xl`}><ShoppingCart size={24} /></div>
+                      <div>
+                          <h3 className={`text-2xl font-black ${t.sectionTitle}`}>Scaled Shopping List</h3>
+                          <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Quantities adjusted for {scaledGuestCount} guests</p>
+                      </div>
+                  </div>
+              </div>
+              <div className="p-8">
+                  {scaledShoppingList.length > 0 ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                          {scaledShoppingList.map((item, i) => (
+                              <div key={i} className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 flex flex-col gap-2">
+                                  <div className="flex justify-between items-start">
+                                      <span className="text-[10px] font-black uppercase tracking-widest text-primary-600 bg-primary-50 dark:bg-primary-900/30 px-2 py-1 rounded-md">{item.category}</span>
+                                      <span className="text-sm font-black text-slate-900 dark:text-white">{item.quantity}</span>
+                                  </div>
+                                  <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{item.item}</p>
+                                  {item.estimatedCost && (
+                                      <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
+                                          <span className="text-[10px] font-bold text-slate-400 uppercase">Est. Cost</span>
+                                          <span className="text-xs font-black text-emerald-600">{item.estimatedCost}</span>
+                                      </div>
+                                  )}
+                              </div>
+                          ))}
+                      </div>
+                  ) : (
+                      <div className="py-12 text-center border-4 border-dashed border-slate-100 dark:border-slate-800 rounded-[2rem]">
+                          <p className="text-sm font-bold text-slate-400">No shopping items generated.</p>
+                      </div>
+                  )}
+              </div>
+          </div>
+
           {/* DISH GALLERY SECTION */}
           <div className={`${t.sectionContainer} rounded-[2.5rem] md:col-span-2 shadow-xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 mt-12`}>
               <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
