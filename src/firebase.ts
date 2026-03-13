@@ -1,8 +1,29 @@
-import { initializeApp, FirebaseApp } from "firebase/app";
+import { initializeApp, getApp, getApps, FirebaseApp } from "firebase/app";
 import { getAuth, Auth } from "firebase/auth";
 import { getFirestore, Firestore, getDocFromServer, doc } from "firebase/firestore";
 import { getStorage, FirebaseStorage } from "firebase/storage";
-import firebaseConfig from '../firebase-applet-config.json';
+
+// Load configuration from environment variables
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  firestoreDatabaseId: import.meta.env.VITE_FIREBASE_DATABASE_ID,
+};
+
+// Fallback to JSON config if env vars are missing (for local dev compatibility)
+if (!firebaseConfig.apiKey) {
+  try {
+    const jsonConfigs = import.meta.glob('../*.json', { eager: true });
+    const jsonConfig = (jsonConfigs['../firebase-applet-config.json'] as any)?.default || {};
+    Object.assign(firebaseConfig, jsonConfig);
+  } catch (e) {
+    // Ignore if file doesn't exist
+  }
+}
 
 // Robust check for valid configuration
 const isConfigured = !!firebaseConfig.apiKey && 
@@ -17,10 +38,11 @@ let storage: FirebaseStorage | undefined;
 
 if (isConfigured) {
   try {
-    app = initializeApp(firebaseConfig);
+    // Prevent double initialization
+    app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
     auth = getAuth(app);
     // Respect the named database if provided in config
-    db = getFirestore(app, (firebaseConfig as any).firestoreDatabaseId);
+    db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
     storage = getStorage(app);
 
     // Validate connection to Firestore
@@ -37,9 +59,6 @@ if (isConfigured) {
     testConnection();
   } catch (error: any) {
     console.error("Firebase initialization failed:", error);
-    auth = undefined;
-    db = undefined;
-    storage = undefined;
   }
 } else {
   console.warn("Firebase is not configured. Authentication and database features will be disabled.");
@@ -78,22 +97,3 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     error: error instanceof Error ? error.message : String(error),
     authInfo: {
       userId: auth?.currentUser?.uid,
-      email: auth?.currentUser?.email,
-      emailVerified: auth?.currentUser?.emailVerified,
-      isAnonymous: auth?.currentUser?.isAnonymous,
-      tenantId: auth?.currentUser?.tenantId,
-      providerInfo: auth?.currentUser?.providerData.map(provider => ({
-        providerId: provider.providerId,
-        displayName: provider.displayName,
-        email: provider.email,
-        photoUrl: provider.photoURL
-      })) || []
-    },
-    operationType,
-    path
-  };
-  console.error('Firestore Error: ', JSON.stringify(errInfo));
-  throw new Error(JSON.stringify(errInfo));
-}
-
-export { auth, db, storage, isConfigured };
