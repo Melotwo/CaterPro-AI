@@ -7,7 +7,7 @@ const SavedChecklistsModal: React.FC<{
   isOpen: boolean;
   onClose: () => void;
   savedMenus: SavedMenu[];
-  onDelete: (id: number) => void;
+  onDelete: (id: string) => void;
 }> = ({ isOpen, onClose, savedMenus, onDelete }) => {
   const [viewingMenu, setViewingMenu] = useState<SavedMenu | null>(null);
   const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
