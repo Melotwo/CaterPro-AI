@@ -42,12 +42,30 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["title", "userId", "baseGuestCount", "currentGuestCount"]
+    },
+    "IngredientCost": {
+      "title": "Ingredient Cost",
+      "description": "A custom ingredient cost entry for a user's library.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "cost": { "type": "number" },
+        "unit": { "type": "string" },
+        "category": { "type": "string" },
+        "userId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "cost", "unit", "userId"]
     }
   },
   "firestore": {
     "/menus/{menuId}": {
       "schema": "Menu",
       "description": "User catering menus"
+    },
+    "/ingredientCosts/{costId}": {
+      "schema": "IngredientCost",
+      "description": "User custom ingredient costs"
     }
   }
 }
