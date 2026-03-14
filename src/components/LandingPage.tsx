@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { ChefHat, Check, ArrowRight, Star, Zap, Quote, ChevronDown, ChevronUp, HelpCircle, AlignLeft, Linkedin, Twitter, Brain, Heart, Gift, Globe, Rocket, Sparkle, Award, User } from 'lucide-react';
 import PartnerProgram from './PartnerProgram';
-// Import the image directly to ensure the build tool finds it
-import founderImg from '../assets/founder.jpg'; 
+
+// Import the image - this allows Vite to hash it correctly for production
+import founderImg from '../assets/founder.jpg';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -31,6 +32,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
       const target = e.currentTarget;
+      // High-quality chef fallback if founder image is missing or wrong format
       target.src = "https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=800&q=80";
   };
 
@@ -50,7 +52,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-white">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans transition-colors duration-500">
       
       {/* --- OFFICIAL .COM LAUNCH BANNER --- */}
       <div className="bg-indigo-600 text-white py-3 px-4 relative overflow-hidden group">
@@ -133,14 +135,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
       </div>
 
       {/* --- FOUNDER STORY --- */}
-      <div className="bg-white dark:bg-slate-950 py-24 sm:py-40 relative overflow-hidden">
+      <div className="bg-white dark:bg-slate-950 py-24 sm:py-40 relative overflow-hidden transition-colors duration-500">
         <div className="max-w-6xl mx-auto px-6 relative z-10">
             <div className="flex flex-col md:flex-row gap-16 items-center lg:items-start">
                 <div className="w-full md:w-2/5 order-first md:order-last">
                     <div className="relative group">
                         <div className="absolute -inset-2 bg-gradient-to-r from-primary-500 to-indigo-600 rounded-[2rem] blur-xl opacity-20 group-hover:opacity-40 transition duration-1000"></div>
                         <div className="relative rounded-[2rem] shadow-2xl w-full aspect-square md:aspect-[4/5] bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border-2 border-slate-200 dark:border-white/10">
-                            {/* The Image now uses the imported JPEG */}
+                            {/* Uses the imported image which Vite will resolve during build */}
                             <img 
                                 src={founderImg} 
                                 alt="Founder Tumi" 
