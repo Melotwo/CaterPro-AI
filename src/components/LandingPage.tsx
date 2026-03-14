@@ -10,7 +10,7 @@ interface LandingPageProps {
 const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   // Added a specific version string to force image refresh across devices
-  const imageSrc = `/founder.jpg?v=2026_PRO_BUILD_${new Date().getHours()}`;
+  const imageSrc = "/src/assets/founder.jpg";
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -95,7 +95,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 AI in the Office.
               </span>
             </h1>
-            <p className="text-xl text-medium mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+            <p className="text-xl text-slate-600 dark:text-slate-300 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
               Start 2026 with a system, not chaos. Generate professional menus and costing in 30 seconds.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -158,7 +158,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                     <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-[0.9] italic tracking-tight">
                         "Organizing the kitchen chaos for every chef."
                     </h2>
-                    <div className="space-y-8 text-slate-400 text-xl leading-relaxed font-medium">
+                    <div className="space-y-8 text-slate-200 text-xl leading-relaxed font-medium">
                         <p>
                             I built CaterPro AI to solve the #1 barrier to professional success: The admin grind. Whether you're a student or a pro, you deserve a system that works as hard as you do.
                         </p>
