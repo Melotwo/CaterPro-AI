@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ChefHat, Check, ArrowRight, Star, Zap, Quote, ChevronDown, ChevronUp, HelpCircle, AlignLeft, Linkedin, Twitter, Brain, Heart, Gift, Globe, Rocket, Sparkle, Award } from 'lucide-react';
+import { ChefHat, Check, ArrowRight, Star, Zap, Quote, ChevronDown, ChevronUp, HelpCircle, AlignLeft, Linkedin, Twitter, Brain, Heart, Gift, Globe, Rocket, Sparkle, Award, User } from 'lucide-react';
 import PartnerProgram from './PartnerProgram';
 
 interface LandingPageProps {
@@ -89,13 +89,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                   <span>2026 Launch Live 🚀</span>
                 </button>
             </div>
-            <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black text-high tracking-tighter mb-6 leading-[0.9]">
+            <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black text-slate-900 dark:text-white tracking-tighter mb-6 leading-[0.9]">
               Chef in the Kitchen. <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-indigo-500">
                 AI in the Office.
               </span>
             </h1>
-            <p className="text-xl text-slate-600 dark:text-slate-300 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+            <p className="text-xl text-slate-900 dark:text-slate-100 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
               Start 2026 with a system, not chaos. Generate professional menus and costing in 30 seconds.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -136,29 +136,32 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
       </div>
 
       {/* --- FOUNDER STORY --- */}
-      <div className="bg-slate-950 text-white py-24 sm:py-40 relative overflow-hidden">
+      <div className="bg-white dark:bg-slate-950 py-24 sm:py-40 relative overflow-hidden transition-colors duration-500">
         <div className="max-w-6xl mx-auto px-6 relative z-10">
             <div className="flex flex-col md:flex-row gap-16 items-center lg:items-start">
                 <div className="w-full md:w-2/5 order-first md:order-last">
                     <div className="relative group">
                         <div className="absolute -inset-2 bg-gradient-to-r from-primary-500 to-indigo-600 rounded-[2rem] blur-xl opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-                        <img 
-                            src={imageSrc} 
-                            alt="Founder Tumi" 
-                            className="relative rounded-[2rem] shadow-2xl w-full object-cover aspect-square md:aspect-[4/5] border-2 border-white/10" 
-                            onError={handleImageError}
-                        />
+                        <div className="relative rounded-[2rem] shadow-2xl w-full aspect-square md:aspect-[4/5] bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border-2 border-slate-200 dark:border-white/10">
+                            <User className="absolute w-20 h-20 text-slate-300 dark:text-slate-600" />
+                            <img 
+                                src={imageSrc} 
+                                alt="Founder Tumi" 
+                                className="relative z-10 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02] group-hover:rotate-1" 
+                                onError={handleImageError}
+                            />
+                        </div>
                     </div>
                 </div>
                 
                 <div className="w-full md:w-3/5 space-y-10">
                     <div className="inline-block p-4 bg-primary-500/10 rounded-2xl">
-                        <Brain className="w-10 h-10 text-primary-500" />
+                        <ChefHat className="w-10 h-10 text-primary-500" />
                     </div>
-                    <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-[0.9] italic tracking-tight">
+                    <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-[0.9] italic tracking-tight text-slate-900 dark:text-white">
                         "Organizing the kitchen chaos for every chef."
                     </h2>
-                    <div className="space-y-8 text-slate-200 text-xl leading-relaxed font-medium">
+                    <div className="space-y-8 text-slate-600 dark:text-slate-100 text-xl leading-relaxed font-medium">
                         <p>
                             I built CaterPro AI to solve the #1 barrier to professional success: The admin grind. Whether you're a student or a pro, you deserve a system that works as hard as you do.
                         </p>
