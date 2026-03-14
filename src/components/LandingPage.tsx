@@ -1,7 +1,8 @@
-
 import React, { useState } from 'react';
 import { ChefHat, Check, ArrowRight, Star, Zap, Quote, ChevronDown, ChevronUp, HelpCircle, AlignLeft, Linkedin, Twitter, Brain, Heart, Gift, Globe, Rocket, Sparkle, Award, User } from 'lucide-react';
 import PartnerProgram from './PartnerProgram';
+// Import the image directly to ensure the build tool finds it
+import founderImg from '../assets/founder.jpg'; 
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -9,15 +10,12 @@ interface LandingPageProps {
 
 const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  // Added a specific version string to force image refresh across devices
-  const imageSrc = "/src/assets/founder.jpg";
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
   };
 
   const handleAction = () => {
-    // Navigate to the conversion view (Pricing/Generator)
     onGetStarted();
   };
 
@@ -33,7 +31,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
   const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
       const target = e.currentTarget;
-      // High-quality chef fallback if founder image is missing
       target.src = "https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=800&q=80";
   };
 
@@ -53,7 +50,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-white">
       
       {/* --- OFFICIAL .COM LAUNCH BANNER --- */}
       <div className="bg-indigo-600 text-white py-3 px-4 relative overflow-hidden group">
@@ -76,7 +73,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             <div className="flex flex-wrap justify-center lg:justify-start gap-3 mb-8">
                 <button 
                   onClick={handleAction}
-                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 text-xs font-black animate-fade-in border-2 border-primary-200 dark:border-primary-700 hover:scale-105 transition-transform shadow-lg shadow-primary-500/10 cursor-pointer"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 text-xs font-black border-2 border-primary-200 dark:border-primary-700 hover:scale-105 transition-transform shadow-lg shadow-primary-500/10 cursor-pointer"
                 >
                   <Globe size={14} />
                   <span>Global AI Assistant</span>
@@ -95,7 +92,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 AI in the Office.
               </span>
             </h1>
-            <p className="text-xl text-slate-900 dark:text-slate-100 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
+            <p className="text-xl text-slate-700 dark:text-slate-100 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
               Start 2026 with a system, not chaos. Generate professional menus and costing in 30 seconds.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
@@ -136,16 +133,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
       </div>
 
       {/* --- FOUNDER STORY --- */}
-      <div className="bg-white dark:bg-slate-950 py-24 sm:py-40 relative overflow-hidden transition-colors duration-500">
+      <div className="bg-white dark:bg-slate-950 py-24 sm:py-40 relative overflow-hidden">
         <div className="max-w-6xl mx-auto px-6 relative z-10">
             <div className="flex flex-col md:flex-row gap-16 items-center lg:items-start">
                 <div className="w-full md:w-2/5 order-first md:order-last">
                     <div className="relative group">
                         <div className="absolute -inset-2 bg-gradient-to-r from-primary-500 to-indigo-600 rounded-[2rem] blur-xl opacity-20 group-hover:opacity-40 transition duration-1000"></div>
                         <div className="relative rounded-[2rem] shadow-2xl w-full aspect-square md:aspect-[4/5] bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border-2 border-slate-200 dark:border-white/10">
-                            <User className="absolute w-20 h-20 text-slate-300 dark:text-slate-600" />
+                            {/* The Image now uses the imported JPEG */}
                             <img 
-                                src={imageSrc} 
+                                src={founderImg} 
                                 alt="Founder Tumi" 
                                 className="relative z-10 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02] group-hover:rotate-1" 
                                 onError={handleImageError}
@@ -166,7 +163,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                             I built CaterPro AI to solve the #1 barrier to professional success: The admin grind. Whether you're a student or a pro, you deserve a system that works as hard as you do.
                         </p>
                     </div>
-                    <div className="pt-12 border-t border-slate-800 flex flex-wrap gap-6 items-center">
+                    <div className="pt-12 border-t border-slate-200 dark:border-slate-800 flex flex-wrap gap-6 items-center">
                         <button onClick={() => handleShare('linkedin')} className="flex items-center gap-3 px-8 py-4 bg-[#0077b5] text-white rounded-2xl hover:bg-[#006097] text-sm font-black transition-all active:scale-95 shadow-xl shadow-blue-500/20">
                             <Linkedin size={20} /> Share My Story
                         </button>
@@ -176,10 +173,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
         </div>
       </div>
 
-      {/* --- PARTNER PROGRAM --- */}
       <PartnerProgram />
 
-      {/* --- FAQ --- */}
       <div className="bg-white dark:bg-slate-900 py-32" id="faq">
          <div className="max-w-4xl mx-auto px-6">
             <div className="text-center mb-20">
