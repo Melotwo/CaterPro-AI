@@ -410,8 +410,8 @@ export default function App() {
         <main className="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-8 py-8 sm:py-16">
           <div className="space-y-12">
             <div className="text-center">
-              <h1 className="text-4xl sm:text-6xl font-black text-white/100 tracking-tight mb-4">Partner Dashboard</h1>
-              <p className="text-lg text-white/60 font-medium">Manage your referrals and track your earnings.</p>
+              <h1 className="text-4xl sm:text-6xl font-black text-slate-900 dark:text-white tracking-tight mb-4">Partner Dashboard</h1>
+              <p className="text-lg text-slate-500 dark:text-white/60 font-medium">Manage your referrals and track your earnings.</p>
             </div>
             <PartnerDashboard />
           </div>
