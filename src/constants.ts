@@ -225,6 +225,29 @@ export const RECOMMENDED_PRODUCTS: PpeProduct[] = [
   },
 ];
 
+export const PRICING_DATABASE: Record<string, { price: number; unit: string }> = {
+  'Wagyu Brisket': { price: 350.00, unit: 'kg' },
+  'Karoo Lamb': { price: 185.00, unit: 'kg' },
+  'Potbrood Flour': { price: 22.50, unit: 'kg' },
+  'Atlantic Salmon': { price: 420.00, unit: 'kg' },
+  'Free Range Chicken': { price: 85.00, unit: 'kg' },
+  'Beef Fillet': { price: 295.00, unit: 'kg' },
+  'Pork Belly': { price: 115.00, unit: 'kg' },
+  'King Prawns': { price: 380.00, unit: 'kg' },
+  'Butter': { price: 120.00, unit: 'kg' },
+  'Heavy Cream': { price: 65.00, unit: 'L' },
+  'Olive Oil': { price: 185.00, unit: 'L' },
+  'Basmati Rice': { price: 45.00, unit: 'kg' },
+  'Micro Greens': { price: 35.00, unit: 'punnet' },
+  'Truffle Oil': { price: 450.00, unit: 'unit' },
+  'Saffron': { price: 1200.00, unit: 'unit' },
+  'Potatoes': { price: 15.00, unit: 'kg' },
+  'Onions': { price: 12.00, unit: 'kg' },
+  'Garlic': { price: 140.00, unit: 'kg' },
+  'Fresh Herbs': { price: 15.00, unit: 'bunch' },
+  'Lemons': { price: 25.00, unit: 'kg' },
+};
+
 export const PROPOSAL_THEMES = {
   classic: {
     name: 'Classic Light',
