@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { ChefHat, Check, ArrowRight, Star, Zap, Quote, ChevronDown, ChevronUp, HelpCircle, AlignLeft, Linkedin, Twitter, Brain, Heart, Gift, Globe, Rocket, Sparkle, Award, User } from 'lucide-react';
 import PartnerProgram from './PartnerProgram';
 
-// Import the image - this allows Vite to hash it correctly for production
-import founderImg from '../assets/founder.jpg';
+// UPDATED PATH: Points to src/founder.jpg based on your GitHub screenshot
+import founderImg from '../founder.jpg'; 
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -28,12 +28,6 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
       } else {
           window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
       }
-  };
-
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
-      const target = e.currentTarget;
-      // High-quality chef fallback if founder image is missing or wrong format
-      target.src = "https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=800&q=80";
   };
 
   const faqs = [
@@ -142,12 +136,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                     <div className="relative group">
                         <div className="absolute -inset-2 bg-gradient-to-r from-primary-500 to-indigo-600 rounded-[2rem] blur-xl opacity-20 group-hover:opacity-40 transition duration-1000"></div>
                         <div className="relative rounded-[2rem] shadow-2xl w-full aspect-square md:aspect-[4/5] bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border-2 border-slate-200 dark:border-white/10">
-                            {/* Uses the imported image which Vite will resolve during build */}
                             <img 
                                 src={founderImg} 
                                 alt="Founder Tumi" 
                                 className="relative z-10 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02] group-hover:rotate-1" 
-                                onError={handleImageError}
+                                onError={(e) => {
+                                  e.currentTarget.src = "https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&w=800&q=80";
+                                }}
                             />
                         </div>
                     </div>
