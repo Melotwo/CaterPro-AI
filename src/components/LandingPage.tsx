@@ -111,7 +111,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
           </div>
           
           <div className="lg:w-1/2 mt-16 lg:mt-0 relative px-4">
-             <div className="relative bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border-4 border-slate-100 dark:border-slate-800 overflow-hidden transform lg:rotate-2 transition-transform hover:rotate-0 duration-700">
+             <div className="relative bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border-4 border-slate-200 dark:border-slate-800 overflow-hidden transform lg:rotate-2 transition-transform hover:rotate-0 duration-700">
                 <div className="bg-slate-50 dark:bg-slate-800 p-5 border-b-2 border-slate-100 dark:border-slate-700 flex items-center justify-between">
                     <div className="flex gap-2">
                         <div className="w-3 h-3 rounded-full bg-red-400"></div>
@@ -143,7 +143,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 <div className="w-full md:w-2/5 order-first md:order-last">
                     <div className="relative group">
                         <div className="absolute -inset-2 bg-gradient-to-r from-primary-500 to-indigo-600 rounded-[2rem] blur-xl opacity-20 group-hover:opacity-40 transition duration-1000"></div>
-                        <div className="relative rounded-[2rem] shadow-2xl w-full aspect-square md:aspect-[4/5] bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border-2 border-slate-200 dark:border-white/10">
+                        <div className="relative rounded-[2rem] shadow-2xl w-full aspect-square md:aspect-[4/5] bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border-2 border-slate-200 dark:border-slate-800">
                             <User className="absolute w-20 h-20 text-slate-300 dark:text-slate-600" />
                             <img 
                                 src={imageSrc} 
@@ -188,7 +188,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             </div>
             <div className="space-y-6">
                 {faqs.map((faq, index) => (
-                    <div key={index} className="border-4 border-slate-50 dark:border-slate-800 rounded-[2rem] overflow-hidden transition-all hover:border-primary-500/20 shadow-sm">
+                    <div key={index} className="border-4 border-slate-200 dark:border-slate-800 rounded-[2rem] overflow-hidden transition-all hover:border-primary-500/20 shadow-sm">
                         <button onClick={() => toggleFaq(index)} className="w-full flex justify-between items-center p-8 text-left font-black text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                             <span className="pr-4 text-lg">{faq.question}</span>
                             {openFaq === index ? <ChevronUp className="text-primary-500 w-6 h-6" /> : <ChevronDown className="text-slate-400 w-6 h-6" />}
