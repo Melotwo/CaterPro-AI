@@ -11,7 +11,8 @@ import {
   serverTimestamp,
   Timestamp
 } from 'firebase/firestore';
-import { db, auth, handleFirestoreError, OperationType } from '../firebase';
+import { db, handleFirestoreError, OperationType } from '../firebase';
+import { authService } from './authService';
 import { CloudMenu, Menu } from '../types';
 
 const COLLECTION_NAME = 'menus';
@@ -21,13 +22,14 @@ export const firestoreService = {
    * Save a new menu to Firestore
    */
   async saveMenu(menu: Menu, baseGuestCount: number): Promise<string> {
-    if (!db || !auth?.currentUser) {
+    const uid = authService.getCurrentUid();
+    if (!db || !uid) {
       throw new Error('Database or User not authenticated');
     }
 
     const cloudMenu: Omit<CloudMenu, 'id'> = {
       ...menu,
-      userId: auth.currentUser.uid,
+      userId: uid,
       baseGuestCount,
       currentGuestCount: baseGuestCount,
       createdAt: new Date().toISOString(),
@@ -51,11 +53,12 @@ export const firestoreService = {
    * Load all menus for the current user
    */
   async getUserMenus(): Promise<CloudMenu[]> {
-    if (!db || !auth?.currentUser) return [];
+    const uid = authService.getCurrentUid();
+    if (!db || !uid) return [];
 
     const q = query(
       collection(db, COLLECTION_NAME),
-      where('userId', '==', auth.currentUser.uid),
+      where('userId', '==', uid),
       orderBy('updatedAt', 'desc')
     );
 
