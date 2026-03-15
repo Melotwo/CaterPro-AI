@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing, CloudMenu } from '../types';
-import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock, Sparkle, EyeOff, Eye, BrainCircuit, Globe, ExternalLink, Camera, Instagram, Smartphone, BarChart4, ShieldAlert, Thermometer, Droplets, Layout, Palette, AlertTriangle, Loader2, ImageIcon, Plus, Users } from 'lucide-react';
-import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES } from '../constants';
+import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock, Sparkle, EyeOff, Eye, BrainCircuit, Globe, ExternalLink, Camera, Instagram, BarChart4, ShieldAlert, Thermometer, Droplets, Layout, Palette, AlertTriangle, Loader2, ImageIcon, Plus, Users, Tag } from 'lucide-react';
+import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES, PRICING_DATABASE } from '../constants';
 import { analytics } from '../services/analyticsManager';
 
 interface MenuDisplayProps {
@@ -48,6 +48,8 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
   // Scaling Logic
   const baseGuestCount = (menu as any).baseGuestCount || 50;
   const [scaledGuestCount, setScaledGuestCount] = useState(baseGuestCount);
+  const [priceOverrides, setPriceOverrides] = useState<Record<string, number>>({});
+  const [editingPrice, setEditingPrice] = useState<string | null>(null);
 
   const scaledShoppingList = useMemo(() => {
     if (!menu.shoppingList) return [];
@@ -56,15 +58,46 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
     return menu.shoppingList.map(item => {
       // Try to parse quantity if it's a number-like string
       const match = item.quantity.match(/^(\d+\.?\d*)\s*(.*)$/);
+      let numericQuantity = 0;
+      let unit = '';
+      let scaledQuantityStr = item.quantity;
+
       if (match) {
-        const num = parseFloat(match[1]);
-        const unit = match[2];
-        const scaledNum = (num * factor).toFixed(2);
-        return { ...item, quantity: `${scaledNum} ${unit}` };
+        numericQuantity = parseFloat(match[1]);
+        unit = match[2];
+        const scaledNum = (numericQuantity * factor).toFixed(2);
+        scaledQuantityStr = `${scaledNum} ${unit}`;
+        numericQuantity = parseFloat(scaledNum);
       }
-      return item;
+
+      // Get price from database or override
+      const dbEntry = PRICING_DATABASE[item.item];
+      const unitPrice = priceOverrides[item.item] || dbEntry?.price || 0;
+      const totalPrice = numericQuantity * unitPrice;
+
+      return { 
+        ...item, 
+        quantity: scaledQuantityStr,
+        numericQuantity,
+        unitPrice,
+        totalPrice,
+        unit: unit || dbEntry?.unit || 'unit'
+      };
     });
-  }, [menu.shoppingList, scaledGuestCount, baseGuestCount]);
+  }, [menu.shoppingList, scaledGuestCount, baseGuestCount, priceOverrides]);
+
+  const totalsByCategory = useMemo(() => {
+    const totals: Record<string, number> = {};
+    scaledShoppingList.forEach(item => {
+      const cat = item.category || 'Other';
+      totals[cat] = (totals[cat] || 0) + (item.totalPrice || 0);
+    });
+    return totals;
+  }, [scaledShoppingList]);
+
+  const grandTotal = useMemo(() => {
+    return Object.values(totalsByCategory).reduce((sum, val) => sum + val, 0);
+  }, [totalsByCategory]);
 
   if (!menu) return null;
 
@@ -247,22 +280,86 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
               </div>
               <div className="p-8">
                   {scaledShoppingList.length > 0 ? (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                          {scaledShoppingList.map((item, i) => (
-                              <div key={i} className="p-5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 flex flex-col gap-2">
-                                  <div className="flex justify-between items-start">
-                                      <span className="text-[10px] font-black uppercase tracking-widest text-primary-600 bg-primary-50 dark:bg-primary-900/30 px-2 py-1 rounded-md">{item.category}</span>
-                                      <span className="text-sm font-black text-slate-900 dark:text-white">{item.quantity}</span>
-                                  </div>
-                                  <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{item.item}</p>
-                                  {item.estimatedCost && (
-                                      <div className="mt-2 pt-2 border-t border-slate-200 dark:border-slate-700 flex justify-between items-center">
-                                          <span className="text-[10px] font-bold text-slate-400 uppercase">Est. Cost</span>
-                                          <span className="text-xs font-black text-emerald-600">{item.estimatedCost}</span>
+                      <div className="space-y-8">
+                          {Array.from(new Set(scaledShoppingList.map(i => i.category || 'Other'))).map(category => {
+                              const categoryItems = scaledShoppingList.filter(i => (i.category || 'Other') === category);
+                              return (
+                                  <div key={category} className="space-y-4">
+                                      <h4 className="text-sm font-black uppercase tracking-widest text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-2">{category}</h4>
+                                      <div className="overflow-x-auto">
+                                          <table className="w-full text-left border-collapse">
+                                              <thead>
+                                                  <tr className="text-[10px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100 dark:border-slate-800">
+                                                      <th className="py-3 px-4">Ingredient</th>
+                                                      <th className="py-3 px-4 text-right">Qty</th>
+                                                      <th className="py-3 px-4 text-right">Unit Price</th>
+                                                      <th className="py-3 px-4 text-right">Total</th>
+                                                  </tr>
+                                              </thead>
+                                              <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
+                                                  {categoryItems.map((item, i) => (
+                                                      <tr key={i} className="group hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                                                          <td className="py-4 px-4">
+                                                              <p className="text-sm font-bold text-slate-700 dark:text-slate-200">{item.item}</p>
+                                                          </td>
+                                                          <td className="py-4 px-4 text-right">
+                                                              <span className="text-sm font-black text-slate-900 dark:text-white">{item.quantity}</span>
+                                                          </td>
+                                                          <td className="py-4 px-4 text-right">
+                                                              {editingPrice === item.item ? (
+                                                                  <input 
+                                                                      type="number"
+                                                                      autoFocus
+                                                                      defaultValue={item.unitPrice}
+                                                                      onBlur={(e) => {
+                                                                          const val = parseFloat(e.target.value);
+                                                                          if (!isNaN(val)) {
+                                                                              setPriceOverrides(prev => ({ ...prev, [item.item]: val }));
+                                                                          }
+                                                                          setEditingPrice(null);
+                                                                      }}
+                                                                      onKeyDown={(e) => {
+                                                                          if (e.key === 'Enter') e.currentTarget.blur();
+                                                                      }}
+                                                                      className="w-20 px-2 py-1 bg-white dark:bg-slate-700 border border-primary-500 rounded text-right text-sm font-bold outline-none"
+                                                                  />
+                                                              ) : (
+                                                                  <button 
+                                                                      onClick={() => setEditingPrice(item.item)}
+                                                                      className="text-sm font-black text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 px-2 py-1 rounded transition-colors flex items-center gap-1 ml-auto"
+                                                                  >
+                                                                      R{item.unitPrice.toFixed(2)}
+                                                                      <Edit size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                                  </button>
+                                                              )}
+                                                          </td>
+                                                          <td className="py-4 px-4 text-right">
+                                                              <span className="text-sm font-black text-slate-900 dark:text-white">R{item.totalPrice.toFixed(2)}</span>
+                                                          </td>
+                                                      </tr>
+                                                  ))}
+                                              </tbody>
+                                              <tfoot>
+                                                  <tr className="bg-slate-50/50 dark:bg-slate-800/30">
+                                                      <td colSpan={3} className="py-3 px-4 text-right text-[10px] font-black uppercase tracking-widest text-slate-400">Sub-Total {category}</td>
+                                                      <td className="py-3 px-4 text-right text-sm font-black text-slate-900 dark:text-white">R{totalsByCategory[category].toFixed(2)}</td>
+                                                  </tr>
+                                              </tfoot>
+                                          </table>
                                       </div>
-                                  )}
+                                  </div>
+                              );
+                          })}
+
+                          <div className="mt-8 p-6 bg-primary-600 rounded-3xl flex justify-between items-center shadow-xl shadow-primary-500/20">
+                              <div className="flex items-center gap-3 text-white">
+                                  <Calculator size={24} />
+                                  <span className="text-sm font-black uppercase tracking-[0.2em]">Grand Total Estimate</span>
                               </div>
-                          ))}
+                              <div className="text-3xl font-black text-white tracking-tight">
+                                  R{grandTotal.toFixed(2)}
+                              </div>
+                          </div>
                       </div>
                   ) : (
                       <div className="py-12 text-center border-4 border-dashed border-slate-100 dark:border-slate-800 rounded-[2rem]">
