@@ -49,7 +49,7 @@ const PartnerProgram: React.FC = () => {
           ))}
         </div>
 
-        <div className="glass-card noise-overlay p-10 md:p-16 rounded-[3.5rem] flex flex-col md:flex-row items-center justify-between gap-12 relative overflow-hidden">
+        <div className="glass-card noise-overlay p-10 md:p-16 rounded-[3.5rem] flex flex-col md:flex-row items-center justify-between gap-12 relative overflow-hidden border border-slate-200 dark:border-slate-800">
           <div className="relative z-10 max-w-xl">
             <h3 className="text-3xl font-black text-high mb-6">Ready to start earning?</h3>
             <p className="text-lg text-medium mb-8">
@@ -60,7 +60,7 @@ const PartnerProgram: React.FC = () => {
                 href="https://whop.com/caterpro-ai/affiliate" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-black flex items-center gap-2 shadow-xl shadow-primary-500/20 transition-all active:scale-95"
+                className="px-8 py-4 bg-primary-600 hover:bg-primary-700 text-slate-900 dark:text-white rounded-2xl font-black flex items-center gap-2 shadow-xl shadow-primary-500/20 transition-all active:scale-95"
               >
                 Join Partner Program <ExternalLink size={18} />
               </a>
@@ -71,19 +71,19 @@ const PartnerProgram: React.FC = () => {
           </div>
           
           <div className="relative z-10 grid grid-cols-2 gap-4 w-full md:w-auto">
-            <div className="p-6 bg-white/50 dark:bg-slate-800/50 rounded-3xl border border-white/20 dark:border-slate-700/50 text-center">
+            <div className="p-6 bg-white/50 dark:bg-slate-800/50 rounded-3xl border border-slate-200 dark:border-slate-800 text-center">
               <div className="text-3xl font-black text-primary-500 mb-1">30%</div>
-              <div className="text-xs font-bold text-low uppercase tracking-widest">Commission</div>
+              <div className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest">Commission</div>
             </div>
-            <div className="p-6 bg-white/50 dark:bg-slate-800/50 rounded-3xl border border-white/20 dark:border-slate-700/50 text-center">
+            <div className="p-6 bg-white/50 dark:bg-slate-800/50 rounded-3xl border border-slate-200 dark:border-slate-800 text-center">
               <div className="text-3xl font-black text-blue-500 mb-1">90d</div>
-              <div className="text-xs font-bold text-low uppercase tracking-widest">Cookie Life</div>
+              <div className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest">Cookie Life</div>
             </div>
-            <div className="p-6 bg-white/50 dark:bg-slate-800/50 rounded-3xl border border-white/20 dark:border-slate-700/50 text-center col-span-2">
+            <div className="p-6 bg-white/50 dark:bg-slate-800/50 rounded-3xl border border-slate-200 dark:border-slate-800 text-center col-span-2">
               <div className="flex items-center justify-center gap-2 text-2xl font-black text-emerald-500 mb-1">
                 <DollarSign size={24} /> Monthly
               </div>
-              <div className="text-xs font-bold text-low uppercase tracking-widest">Payouts</div>
+              <div className="text-xs font-bold text-slate-900 dark:text-white uppercase tracking-widest">Payouts</div>
             </div>
           </div>
         </div>
