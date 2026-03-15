@@ -37,7 +37,7 @@ const PartnerProgram: React.FC = () => {
               description: "Top partners get early access to new AI features, private coaching, and branding assets."
             }
           ].map((item, index) => (
-            <div key={index} className="glass-card noise-overlay p-8 rounded-[2.5rem] relative overflow-hidden group hover:scale-[1.02] transition-all duration-300">
+            <div key={index} className="glass-card noise-overlay p-8 rounded-[2.5rem] relative overflow-hidden group hover:scale-[1.02] transition-all duration-300 border border-slate-200 dark:border-slate-800">
               <div className="relative z-10">
                 <div className="mb-6 p-4 bg-white dark:bg-slate-800 rounded-2xl w-fit shadow-sm">
                   {item.icon}
