@@ -43,10 +43,12 @@ jobs:
           if [ -n "$FOUND_IMG" ]; then
             echo "✅ Real founder image detected at: $FOUND_IMG"
             cp "$FOUND_IMG" public/founder.jpg
+            cp "$FOUND_IMG" src/founder.jpg
           else
             echo "⚠️ No founder image found or only icons detected. Using high-end chef placeholder."
             # High-end kitchen placeholder
             curl -L "https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=800&q=80" -o public/founder.jpg
+            cp public/founder.jpg src/founder.jpg
           fi
 
       - name: Build App
@@ -59,6 +61,8 @@ jobs:
           VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
           VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
           VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
+          VITE_FIREBASE_DATABASE_ID: ${{ secrets.VITE_FIREBASE_DATABASE_ID }}
+          VITE_MAKE_WEBHOOK_URL: ${{ secrets.VITE_MAKE_WEBHOOK_URL }}
           VITE_GA_MEASUREMENT_ID: ${{ secrets.VITE_GA_MEASUREMENT_ID }}
           VITE_FACEBOOK_PIXEL_ID: ${{ secrets.VITE_FACEBOOK_PIXEL_ID }}
           VITE_MANYCHAT_PAGE_ID: ${{ secrets.VITE_MANYCHAT_PAGE_ID }}
