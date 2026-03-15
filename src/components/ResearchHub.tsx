@@ -5,7 +5,7 @@ import { generateCulinaryInfographic } from '../services/geminiService';
 
 const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowToast }) => {
   // Set 'lifecycle' as the default tab so the script is visible immediately
-  const [activeTab, setActiveTab] = useState<'growth' | 'lifecycle'>('lifecycle');
+  const [activeTab, setActiveTab] = useState<'growth' | 'lifecycle' | 'automation'>('lifecycle');
   const [isGeneratingSheet, setIsGeneratingSheet] = useState(false);
   const [generatedSheet, setGeneratedSheet] = useState<string | null>(null);
   const [isScriptModalOpen, setIsScriptModalOpen] = useState(false);
@@ -80,6 +80,12 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
                   className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'lifecycle' ? 'bg-white text-indigo-600' : 'text-indigo-200 hover:text-white'}`}
                 >
                     Lifecycle Studio
+                </button>
+                <button 
+                  onClick={() => setActiveTab('automation')}
+                  className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'automation' ? 'bg-white text-indigo-600' : 'text-indigo-200 hover:text-white'}`}
+                >
+                    Automation
                 </button>
             </div>
         </div>
@@ -156,6 +162,61 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
                     </div>
                 </div>
             </div>
+          </div>
+        ) : activeTab === 'automation' ? (
+          <div className="p-8 animate-fade-in space-y-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  {/* Make.com Logic */}
+                  <div className="glass-card p-8 rounded-[2.5rem] border-2 border-slate-100 dark:border-slate-800">
+                      <div className="flex items-center gap-3 mb-6">
+                          <RefreshCw className="text-indigo-500" />
+                          <h4 className="text-lg font-black uppercase">Make.com Logic Map</h4>
+                      </div>
+                      <div className="space-y-4">
+                          {[
+                              { step: "1. Webhook", desc: "Receive signup data from caterproai.com" },
+                              { step: "2. Router", desc: "Filter for valid @ emails" },
+                              { step: "3. Klaviyo", desc: "Add to 'New Chefs' list" },
+                              { step: "4. G-Sheets", desc: "Log to 'Lead Tracker 2026'" }
+                          ].map((s, i) => (
+                              <div key={i} className="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
+                                  <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-black text-xs shrink-0">{i+1}</div>
+                                  <div>
+                                      <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">{s.step}</p>
+                                      <p className="text-[11px] font-medium text-slate-500">{s.desc}</p>
+                                  </div>
+                              </div>
+                          ))}
+                      </div>
+                  </div>
+
+                  {/* Klaviyo Sequence */}
+                  <div className="glass-card p-8 rounded-[2.5rem] border-2 border-slate-100 dark:border-slate-800">
+                      <div className="flex items-center gap-3 mb-6">
+                          <Mail className="text-emerald-500" />
+                          <h4 className="text-lg font-black uppercase">Klaviyo Welcome Sequence</h4>
+                      </div>
+                      <div className="space-y-4">
+                          {[
+                              { id: "E1", title: "Instant Value", desc: "The 'Office-in-a-Box' Delivery" },
+                              { id: "E2", title: "Founder Story", desc: "ADHD, Dyslexia & The Admin Trap" },
+                              { id: "E3", title: "Whop Affiliate", desc: "The Scaling Engine Invitation" }
+                          ].map((e, i) => (
+                              <button 
+                                  key={i}
+                                  onClick={() => { navigator.clipboard.writeText(`Subject: ${e.title}\n\n[Email Content Placeholder for ${e.title}]`); onShowToast(`${e.id} Template Copied!`); }}
+                                  className="w-full flex items-center justify-between p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 hover:scale-[1.02] transition-all group"
+                              >
+                                  <div className="text-left">
+                                      <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">{e.title}</p>
+                                      <p className="text-[10px] font-medium text-slate-500 uppercase tracking-tighter">{e.desc}</p>
+                                  </div>
+                                  <ChevronRight size={16} className="text-slate-300 group-hover:text-indigo-500" />
+                              </button>
+                          ))}
+                      </div>
+                  </div>
+              </div>
           </div>
         ) : (
           <div className="p-8 animate-fade-in space-y-8">
