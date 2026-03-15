@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { User, MapPin, ChefHat, Quote } from 'lucide-react';
+import founderImg from '../founder.jpg';
 
 const MeetTheFounder: React.FC = () => {
   return (
@@ -13,7 +14,7 @@ const MeetTheFounder: React.FC = () => {
               <User className="absolute w-20 h-20 text-slate-300 dark:text-slate-600" />
               <img 
                 id="founder-image" 
-                src="/src/assets/founder.jpg" 
+                src={founderImg} 
                 alt="Founder" 
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 relative z-10"
                 onError={(e) => {
