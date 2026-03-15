@@ -6,7 +6,7 @@ import {
   signOut,
   sendPasswordResetEmail
 } from 'firebase/auth';
-import { X, Mail, Lock, Loader2, LogIn, UserPlus } from 'lucide-react';
+import { X, Mail, Lock, Loader2, LogIn, UserPlus, Sparkles } from 'lucide-react';
 import { automationService } from '../services/automationService';
 
 interface AuthModalProps {
@@ -23,7 +23,20 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
 
+  const [founderCode, setFounderCode] = useState('');
+  const [showFounderLogin, setShowFounderLogin] = useState(false);
+
   if (!isOpen) return null;
+
+  const handleFounderLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (founderCode === 'CHEF2026') { // Example founder code
+      localStorage.setItem('caterpro_is_founder', 'true');
+      window.location.reload(); // Reload to apply authService changes
+    } else {
+      setError('Invalid Founder Code');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -83,90 +96,132 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
         <div className="p-8">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-              {isLogin ? 'Welcome Back' : 'Join CaterProAi'}
+              {showFounderLogin ? 'Founder Access' : (isLogin ? 'Welcome Back' : 'Join CaterProAi')}
             </h2>
             <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
               <X className="w-6 h-6 text-slate-400" />
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {!isLogin && (
-              <div className="space-y-2 animate-fade-in">
-                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Full Name</label>
+          {showFounderLogin ? (
+            <form onSubmit={handleFounderLogin} className="space-y-6">
+              <div className="space-y-2">
+                <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Founder Access Code</label>
                 <div className="relative">
-                  <UserPlus className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                   <input 
-                    type="text" 
+                    type="password" 
                     required
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    value={founderCode}
+                    onChange={(e) => setFounderCode(e.target.value)}
                     className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold"
-                    placeholder="Chef John Doe"
+                    placeholder="Enter Code"
                   />
                 </div>
               </div>
-            )}
-
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Email Address</label>
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                <input 
-                  type="email" 
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold"
-                  placeholder="chef@caterproai.com"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Password</label>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                <input 
-                  type="password" 
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold"
-                  placeholder="••••••••"
-                />
-              </div>
-            </div>
-
-            {error && <p className="text-red-500 text-sm font-bold">{error}</p>}
-            {message && <p className="text-emerald-500 text-sm font-bold">{message}</p>}
-
-            <button 
-              type="submit" 
-              disabled={loading}
-              className="w-full py-5 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-black text-lg shadow-xl shadow-primary-500/20 transition-all active:scale-95 flex items-center justify-center gap-3"
-            >
-              {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : (isLogin ? <LogIn className="w-6 h-6" /> : <UserPlus className="w-6 h-6" />)}
-              {isLogin ? 'Sign In' : 'Create Account'}
-            </button>
-          </form>
-
-          <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 space-y-4">
-            <button 
-              onClick={() => setIsLogin(!isLogin)}
-              className="w-full text-center text-sm font-bold text-slate-500 hover:text-primary-500 transition-colors"
-            >
-              {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
-            </button>
-            {isLogin && (
+              {error && <p className="text-red-500 text-sm font-bold">{error}</p>}
               <button 
-                onClick={handleResetPassword}
-                className="w-full text-center text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors"
+                type="submit" 
+                className="w-full py-5 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-amber-500/20 transition-all active:scale-95 flex items-center justify-center gap-3"
               >
-                Forgot your password?
+                <Sparkles className="w-6 h-6" />
+                Unlock Founder Mode
               </button>
-            )}
-          </div>
+              <button 
+                type="button"
+                onClick={() => setShowFounderLogin(false)}
+                className="w-full text-center text-sm font-bold text-slate-500 hover:text-primary-500 transition-colors"
+              >
+                Back to Standard Login
+              </button>
+            </form>
+          ) : (
+            <>
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {!isLogin && (
+                  <div className="space-y-2 animate-fade-in">
+                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Full Name</label>
+                    <div className="relative">
+                      <UserPlus className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <input 
+                        type="text" 
+                        required
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold"
+                        placeholder="Chef John Doe"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Email Address</label>
+                  <div className="relative">
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <input 
+                      type="email" 
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold"
+                      placeholder="chef@caterproai.com"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Password</label>
+                  <div className="relative">
+                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <input 
+                      type="password" 
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold"
+                      placeholder="••••••••"
+                    />
+                  </div>
+                </div>
+
+                {error && <p className="text-red-500 text-sm font-bold">{error}</p>}
+                {message && <p className="text-emerald-500 text-sm font-bold">{message}</p>}
+
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className="w-full py-5 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-black text-lg shadow-xl shadow-primary-500/20 transition-all active:scale-95 flex items-center justify-center gap-3"
+                >
+                  {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : (isLogin ? <LogIn className="w-6 h-6" /> : <UserPlus className="w-6 h-6" />)}
+                  {isLogin ? 'Sign In' : 'Create Account'}
+                </button>
+              </form>
+
+              <div className="mt-8 pt-8 border-t border-slate-100 dark:border-slate-800 space-y-4">
+                <button 
+                  onClick={() => setIsLogin(!isLogin)}
+                  className="w-full text-center text-sm font-bold text-slate-500 hover:text-primary-500 transition-colors"
+                >
+                  {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
+                </button>
+                {isLogin && (
+                  <button 
+                    onClick={handleResetPassword}
+                    className="w-full text-center text-xs font-bold text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    Forgot your password?
+                  </button>
+                )}
+                <button 
+                  onClick={() => setShowFounderLogin(true)}
+                  className="w-full text-center text-[10px] font-black uppercase tracking-widest text-slate-300 hover:text-amber-500 transition-colors pt-4"
+                >
+                  Founder Access
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>
