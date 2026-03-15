@@ -88,6 +88,22 @@ export default function App() {
     return false;
   });
 
+  const handleSignOut = async () => {
+    try {
+      if (localStorage.getItem('caterpro_is_founder') === 'true') {
+        localStorage.removeItem('caterpro_is_founder');
+        window.location.reload();
+        return;
+      }
+      if (auth) {
+        await signOut(auth);
+        setToastMessage('Signed out successfully');
+      }
+    } catch (err: any) {
+      setError({ title: 'Authentication Error', message: err.message });
+    }
+  };
+
   const [isLoading, setIsLoading] = useState(false);
   const [loadingTimer, setLoadingTimer] = useState(0);
   const [error, setError] = useState<ErrorState | null>(null);
@@ -374,7 +390,7 @@ export default function App() {
         facebookUrl={FACEBOOK_PAGE_URL}
         onThemeToggle={() => setIsDarkMode(!isDarkMode)} isDarkMode={isDarkMode} 
         onOpenSaved={() => attemptAccess('saveMenus') && setIsSavedModalOpen(true)} 
-        savedCount={savedMenus.length} 
+        savedCount={savedMenus.length + cloudMenus.length} 
         onOpenQrCode={() => setIsQrModalOpen(true)}
         onOpenInstall={() => setIsInstallModalOpen(true)}
         onReset={() => { 
@@ -388,7 +404,7 @@ export default function App() {
         onViewPartner={() => setViewMode('partner')}
         onAuthClick={() => {
           if (user) {
-            if (auth) signOut(auth);
+            handleSignOut();
           } else {
             setIsAuthModalOpen(true);
           }
