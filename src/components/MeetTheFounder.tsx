@@ -7,10 +7,10 @@ const MeetTheFounder: React.FC = () => {
   return (
     <section className="py-16 px-4">
       <div className="max-w-4xl mx-auto">
-        <div className="glass-card noise-overlay p-8 sm:p-12 rounded-[3rem] relative overflow-hidden border border-white/10 shadow-2xl">
+        <div className="glass-card noise-overlay p-8 sm:p-12 rounded-[3rem] relative overflow-hidden border border-slate-200 dark:border-slate-800 shadow-2xl">
           <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
             {/* Image Container */}
-            <div className="w-56 h-56 sm:w-72 sm:h-72 rounded-3xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center border-4 border-slate-200 dark:border-white/10 overflow-hidden shrink-0 shadow-2xl relative group">
+            <div className="w-56 h-56 sm:w-72 sm:h-72 rounded-3xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center border-4 border-slate-200 dark:border-slate-800 overflow-hidden shrink-0 shadow-2xl relative group">
               <User className="absolute w-20 h-20 text-slate-300 dark:text-slate-600" />
               <img 
                 id="founder-image" 
