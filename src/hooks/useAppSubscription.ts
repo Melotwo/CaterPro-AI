@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-export type SubscriptionPlan = 'free' | 'student' | 'starter' | 'professional' | 'business';
+export type SubscriptionPlan = 'free' | 'commis' | 'chef-de-partie' | 'sous-chef' | 'executive';
 
 export interface SubscriptionState {
   plan: SubscriptionPlan;
@@ -21,8 +21,8 @@ const getInitialState = (): SubscriptionState => {
         parsed.generationsToday = 0;
         parsed.lastGenerationDate = today;
       }
-      if (!['free', 'student', 'starter', 'professional', 'business'].includes(parsed.plan)) {
-          parsed.plan = 'free';
+      if (!['free', 'commis', 'chef-de-partie', 'sous-chef', 'executive'].includes(parsed.plan)) {
+          parsed.plan = 'chef-de-partie';
       }
       return parsed;
     }
@@ -30,7 +30,7 @@ const getInitialState = (): SubscriptionState => {
     console.error("Failed to parse subscription state", e);
   }
   return {
-    plan: 'free',
+    plan: 'chef-de-partie',
     generationsToday: 0,
     lastGenerationDate: new Date().toDateString(),
   };
@@ -51,17 +51,27 @@ export const useAppSubscription = () => {
   const canAccessFeature = useCallback((feature: string): boolean => {
     const p = subscription.plan;
     const isPaid = p !== 'free';
-    const isStudent = p === 'student';
-    const isProPlus = ['professional', 'business'].includes(p);
+    const isCommis = p === 'commis';
+    const isChef = p === 'chef-de-partie';
+    const isSous = p === 'sous-chef';
+    const isExec = p === 'executive';
+    
+    const isProPlus = ['chef-de-partie', 'sous-chef', 'executive'].includes(p);
+    const isGrowthPlus = ['sous-chef', 'executive'].includes(p);
 
     switch (feature) {
-      case 'unlimitedGenerations': return isPaid; // Both Student and Pro get unlimited
-      case 'noWatermark': return ['starter', 'professional', 'business'].includes(p); // Students get watermark
-      case 'aiChatBot': return isStudent || isProPlus; 
+      case 'unlimitedGenerations': return isPaid;
+      case 'noWatermark': return isProPlus; 
+      case 'aiChatBot': return isPaid; 
       case 'saveMenus': return isPaid;
-      case 'educationTools': return isStudent || isProPlus; 
-      case 'socialMediaTools': return isProPlus; // Students DO NOT get video reels
-      case 'reelsMode': return p === 'business';
+      case 'educationTools': return isCommis || isExec; 
+      case 'costingEngine': return isProPlus;
+      case 'shoppingLists': return isProPlus;
+      case 'multiUser': return isGrowthPlus;
+      case 'cloudStorage': return isGrowthPlus;
+      case 'clientDashboard': return isGrowthPlus;
+      case 'reelsMode': return isExec;
+      case 'viralVideoCreator': return isExec;
       case 'beveragePairings': return isProPlus;
       default: return false;
     }
