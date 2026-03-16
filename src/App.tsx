@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail, Search, Globe, Facebook, Lightbulb, Target, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck, RefreshCw, Smartphone, X, Heart } from 'lucide-react';
+import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail, Search, Globe, Facebook, Lightbulb, Target, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck, RefreshCw, Smartphone, X, Heart, Briefcase } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -22,6 +22,7 @@ import UpgradeModal from './components/UpgradeModal';
 import PwaInstallModal from './components/PwaInstallModal';
 import LandingPage from './components/LandingPage';
 import ResearchHub from './components/ResearchHub';
+import FeaturesList from './components/FeaturesList';
 import AuthModal from './components/AuthModal';
 import CostingLibrary from './components/CostingLibrary';
 import PrivacyPolicy from './components/PrivacyPolicy';
@@ -62,12 +63,19 @@ export default function App() {
     return 'generator';
   });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [showControlCenter, setShowControlCenter] = useState(false);
   const [eventType, setEventType] = useState('');
   const [eventTypeSearch, setEventTypeSearch] = useState('');
   const [showEventResults, setShowEventResults] = useState(false);
   const [guestCount, setGuestCount] = useState('');
   const [budget, setBudget] = useState('$$');
-  const [currency, setCurrency] = useState('ZAR'); 
+  const [currency, setCurrency] = useState(() => {
+    const locale = navigator.language;
+    if (locale.includes('ZA')) return 'ZAR';
+    if (locale.includes('GB')) return 'GBP';
+    if (locale.includes('EU')) return 'EUR';
+    return 'USD';
+  }); 
   const [serviceStyle, setServiceStyle] = useState('Standard Catering');
   const [cuisine, setCuisine] = useState('');
   const [cuisineSearch, setCuisineSearch] = useState('');
@@ -131,6 +139,12 @@ export default function App() {
   const [showRetentionBanner, setShowRetentionBanner] = useState(false);
 
   const { subscription, selectPlan, recordGeneration, setShowUpgradeModal, showUpgradeModal, attemptAccess, canAccessFeature } = useAppSubscription();
+
+  useEffect(() => {
+    if (isFounderMode) {
+      selectPlan('executive');
+    }
+  }, [isFounderMode, selectPlan]);
 
   const [isEmailCaptureModalOpen, setIsEmailCaptureModalOpen] = useState(false);
   const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
@@ -557,7 +571,43 @@ export default function App() {
                       <Sparkles className="w-7 h-7" /> Launch AI Culinary Planner
                     </button>
                   </div>
+
+                  <div className="md:col-span-2 flex flex-col sm:flex-row gap-4 pt-4">
+                    <button 
+                      onClick={() => setShowControlCenter(!showControlCenter)} 
+                      className={`flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${showControlCenter ? 'bg-indigo-600 text-white shadow-lg' : 'bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-indigo-500'}`}
+                    >
+                      <TrendingUp size={16} /> {showControlCenter ? 'Close Strategy Command' : 'Open Strategy Command'}
+                    </button>
+                    <button 
+                      onClick={() => setViewMode('library')} 
+                      className="flex-1 py-4 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:border-primary-500 transition-all"
+                    >
+                      <Briefcase size={16} /> Costing Library
+                    </button>
+                  </div>
                 </div>
+              </div>
+
+              {showControlCenter && <ResearchHub onShowToast={setToastMessage} />}
+
+              {isFounderMode && (
+                <div className="space-y-12 mt-12">
+                  <div className="flex items-center gap-4 border-b border-slate-100 dark:border-slate-800 pb-6">
+                    <div className="p-3 bg-amber-100 dark:bg-amber-900/30 rounded-2xl text-amber-600"><ShieldCheck size={24} /></div>
+                    <div>
+                      <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Founder Command Center</h3>
+                      <p className="text-slate-500 text-xs font-medium uppercase tracking-widest">Exclusive Roadmap & Strategy Hub</p>
+                    </div>
+                  </div>
+                  <FounderRoadmap whopUrl={WHOP_STORE_URL} onOpenSocial={handleOpenSocial} />
+                  <MarketingRoadmap />
+                  <ProductivityLab dietaryRestrictions={dietaryRestrictions} currency={currency} />
+                </div>
+              )}
+
+              <div className="mt-16">
+                <FeaturesList />
               </div>
 
               <MeetTheFounder />
