@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { X, Star, Briefcase, Check, Gift, Key, GraduationCap, Sparkles } from 'lucide-react';
+import { X, Star, Briefcase, Check, Gift, Key, GraduationCap, Sparkles, Users, Zap } from 'lucide-react';
 import { SubscriptionPlan } from '../hooks/useAppSubscription';
 
 interface UpgradeModalProps {
@@ -27,10 +27,10 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
   
   const handleApplyPromo = () => {
       const code = promoCode.trim().toUpperCase();
-      const validCodes = ['MELOTWO-FOUNDER', 'ADMIN-CHEF-2025', 'CATERPRO-VIP', 'SISTER-ACCESS', 'TVET-2026'];
+      const validCodes = ['CHEF2026', 'MELOTWO-FOUNDER', 'ADMIN-CHEF-2025', 'CATERPRO-VIP', 'SISTER-ACCESS', 'TVET-2026'];
       
       if (validCodes.includes(code)) {
-          onUpgrade('business');
+          onUpgrade('executive');
           setPromoCode('');
           setShowPromo(false);
           onClose();
@@ -44,7 +44,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
   return (
     <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div onClick={onClose} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm animate-[fade-in_0.2s_ease-out]"></div>
-      <div ref={modalRef} className="relative w-full max-w-2xl bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 transition-all animate-[scale-up_0.2s_ease-out] overflow-hidden">
+      <div ref={modalRef} className="relative w-full max-w-4xl bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 transition-all animate-[scale-up_0.2s_ease-out] overflow-hidden">
         <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 z-10">
           <X size={20} />
         </button>
@@ -58,62 +58,82 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
              <p className="mt-1 text-slate-500 text-sm">Join the pro chefs and students using AI to grow.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3">
-            <div className="p-8 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-700">
-                <div className="flex items-center gap-3 mb-6">
-                    <GraduationCap className="text-blue-500" />
-                    <h4 className="font-black text-lg">Student</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
+            <div className="p-6 border-b lg:border-b-0 lg:border-r border-slate-100 dark:border-slate-700">
+                <div className="flex items-center gap-3 mb-4">
+                    <GraduationCap className="text-slate-500" size={20} />
+                    <h4 className="font-black text-base">Commis</h4>
                 </div>
-                <ul className="space-y-3 mb-8">
-                    {['Unlimited PoE', 'AI Tutor Bot', 'Trial Included'].map(f => (
-                        <li key={f} className="flex gap-2 text-sm text-slate-600 dark:text-slate-400">
-                            <Check size={16} className="text-green-500" /> {f}
+                <ul className="space-y-2 mb-6">
+                    {['Academic PoE', 'Curriculum Map', 'Trial Included'].map(f => (
+                        <li key={f} className="flex gap-2 text-[11px] text-slate-600 dark:text-slate-400 font-bold">
+                            <Check size={14} className="text-green-500" /> {f}
                         </li>
                     ))}
                 </ul>
                 <button 
                     onClick={() => { onViewPricing(); onClose(); }}
-                    className="w-full py-3 rounded-2xl bg-blue-600 text-white font-black text-sm shadow-lg shadow-blue-500/20"
+                    className="w-full py-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white font-black text-xs uppercase tracking-widest"
                 >
                     Try Free
                 </button>
             </div>
 
-            <div className="p-8 border-b md:border-b-0 md:border-r border-slate-100 dark:border-slate-700 bg-amber-50/20 dark:bg-amber-900/10">
-                <div className="flex items-center gap-3 mb-6">
-                    <Star className="text-amber-500" />
-                    <h4 className="font-black text-lg">Professional</h4>
+            <div className="p-6 border-b lg:border-b-0 lg:border-r border-slate-100 dark:border-slate-700 bg-amber-50/20 dark:bg-amber-900/10">
+                <div className="flex items-center gap-3 mb-4">
+                    <Zap className="text-amber-500" size={20} />
+                    <h4 className="font-black text-base">Chef de Partie</h4>
                 </div>
-                <ul className="space-y-3 mb-8">
-                    {['NO Watermarks', 'AI Food Photos', 'Trial Included'].map(f => (
-                        <li key={f} className="flex gap-2 text-sm text-slate-600 dark:text-slate-400">
-                            <Check size={16} className="text-green-500" /> {f}
+                <ul className="space-y-2 mb-6">
+                    {['Costing Engine', 'Shopping Lists', 'Trial Included'].map(f => (
+                        <li key={f} className="flex gap-2 text-[11px] text-slate-600 dark:text-slate-400 font-bold">
+                            <Check size={14} className="text-green-500" /> {f}
                         </li>
                     ))}
                 </ul>
                 <button 
                     onClick={() => { onViewPricing(); onClose(); }}
-                    className="w-full py-3 rounded-2xl bg-amber-500 text-white font-black text-sm shadow-lg shadow-amber-500/20"
+                    className="w-full py-2.5 rounded-xl bg-amber-500 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-amber-500/20"
                 >
                     Try Free
                 </button>
             </div>
 
-            <div className="p-8 bg-primary-50/20 dark:bg-primary-900/10">
-                <div className="flex items-center gap-3 mb-6">
-                    <Briefcase className="text-primary-600" />
-                    <h4 className="font-black text-lg">Business</h4>
+            <div className="p-6 border-b lg:border-b-0 lg:border-r border-slate-100 dark:border-slate-700 bg-blue-50/20 dark:bg-blue-900/10">
+                <div className="flex items-center gap-3 mb-4">
+                    <Users className="text-blue-500" size={20} />
+                    <h4 className="font-black text-base">Sous Chef</h4>
                 </div>
-                <ul className="space-y-3 mb-8">
-                    {['Shareable Links', 'Video Reels', 'Trial Included'].map(f => (
-                        <li key={f} className="flex gap-2 text-sm text-slate-600 dark:text-slate-400">
-                            <Check size={16} className="text-green-500" /> {f}
+                <ul className="space-y-2 mb-6">
+                    {['Multi-user (3)', 'Cloud Storage', 'Trial Included'].map(f => (
+                        <li key={f} className="flex gap-2 text-[11px] text-slate-600 dark:text-slate-400 font-bold">
+                            <Check size={14} className="text-green-500" /> {f}
                         </li>
                     ))}
                 </ul>
                 <button 
                     onClick={() => { onViewPricing(); onClose(); }}
-                    className="w-full py-3 rounded-2xl bg-primary-600 text-white font-black text-sm shadow-lg shadow-primary-500/20"
+                    className="w-full py-2.5 rounded-xl bg-blue-600 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-500/20"
+                >
+                    Try Free
+                </button>
+            </div>
+
+            <div className="p-6 bg-primary-50/20 dark:bg-primary-900/10">
+                <div className="flex items-center gap-3 mb-4">
+                    <Briefcase className="text-primary-600" size={20} />
+                    <h4 className="font-black text-base">Executive</h4>
+                </div>
+                <ul className="space-y-2 mb-6">
+                    {['Viral Video Creator', 'Unlimited Access', 'Trial Included'].map(f => (
+                        <li key={f} className="flex gap-2 text-[11px] text-slate-600 dark:text-slate-400 font-bold">
+                            <Check size={14} className="text-green-500" /> {f}
+                        </li>
+                    ))}
+                </ul>
+                <button 
+                    onClick={() => { onViewPricing(); onClose(); }}
+                    className="w-full py-2.5 rounded-xl bg-primary-600 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-primary-500/20"
                 >
                     Try Free
                 </button>
