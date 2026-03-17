@@ -8,9 +8,15 @@ interface UpgradeModalProps {
   onClose: () => void;
   onUpgrade: (plan: SubscriptionPlan) => void;
   onViewPricing: () => void;
+  whopLinks?: {
+    commis: string;
+    chefDePartie: string;
+    sousChef: string;
+    executive: string;
+  };
 }
 
-const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade, onViewPricing }) => {
+const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade, onViewPricing, whopLinks }) => {
   const [showPromo, setShowPromo] = useState(false);
   const [promoCode, setPromoCode] = useState('');
   const [promoError, setPromoError] = useState('');
@@ -37,6 +43,15 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
       } else {
           setPromoError('Invalid access code');
       }
+  };
+
+  const handleUpgradeClick = (plan: SubscriptionPlan, link?: string) => {
+    if (link) {
+        const win = window.open(link, '_blank');
+        if (win) win.focus();
+    }
+    onUpgrade(plan);
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -72,10 +87,10 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
                     ))}
                 </ul>
                 <button 
-                    onClick={() => { onViewPricing(); onClose(); }}
+                    onClick={() => handleUpgradeClick('commis', whopLinks?.commis)}
                     className="w-full py-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white font-black text-xs uppercase tracking-widest"
                 >
-                    Try Free
+                    Start Your Journey
                 </button>
             </div>
 
@@ -92,10 +107,10 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
                     ))}
                 </ul>
                 <button 
-                    onClick={() => { onViewPricing(); onClose(); }}
+                    onClick={() => handleUpgradeClick('chef-de-partie', whopLinks?.chefDePartie)}
                     className="w-full py-2.5 rounded-xl bg-amber-500 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-amber-500/20"
                 >
-                    Try Free
+                    Upgrade Now
                 </button>
             </div>
 
@@ -112,10 +127,10 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
                     ))}
                 </ul>
                 <button 
-                    onClick={() => { onViewPricing(); onClose(); }}
+                    onClick={() => handleUpgradeClick('sous-chef', whopLinks?.sousChef)}
                     className="w-full py-2.5 rounded-xl bg-blue-600 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-500/20"
                 >
-                    Try Free
+                    Upgrade Now
                 </button>
             </div>
 
@@ -132,10 +147,10 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
                     ))}
                 </ul>
                 <button 
-                    onClick={() => { onViewPricing(); onClose(); }}
+                    onClick={() => handleUpgradeClick('executive', whopLinks?.executive)}
                     className="w-full py-2.5 rounded-xl bg-primary-600 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-primary-500/20"
                 >
-                    Try Free
+                    Upgrade Now
                 </button>
             </div>
         </div>
