@@ -13,74 +13,83 @@ interface FeatureTier {
   whopLink: string;
 }
 
-const TIERS: FeatureTier[] = [
-  {
-    name: 'The Commis',
-    id: 'commis',
-    price: 'R149/mo',
-    description: 'Student Edition - Academic PoE Automation & Curriculum Mapping.',
-    features: [
-      'Academic PoE Automation',
-      'City & Guilds Mapping',
-      'Local Curriculum Alignment',
-      'ADHD Optimized UI',
-      'Basic Menu Generation',
-    ],
-    icon: GraduationCap,
-    color: 'slate',
-    whopLink: 'https://whop.com/melotwo2',
-  },
-  {
-    name: 'The Chef de Partie',
-    id: 'chef-de-partie',
-    price: 'R449/mo',
-    description: 'Professional Edition - Interactive Costing & Shopping Lists.',
-    features: [
-      'Everything in Commis',
-      'Full Interactive Costing',
-      'Dynamic Shopping Lists',
-      'Standard AI Menus',
-      'Scaling Engine',
-    ],
-    icon: Zap,
-    color: 'amber',
-    whopLink: 'https://whop.com/melotwo2',
-  },
-  {
-    name: 'The Sous Chef',
-    id: 'sous-chef',
-    price: 'R749/mo',
-    description: 'Growth Edition - Multi-user Collaboration & Cloud Storage.',
-    features: [
-      'Everything in Professional',
-      'Multi-user (3 seats)',
-      'Cloud Storage Engine',
-      'Client Dashboard',
-      'Priority Support',
-    ],
-    icon: Users,
-    color: 'blue',
-    whopLink: 'https://whop.com/melotwo2',
-  },
-  {
-    name: 'The Executive',
-    id: 'executive',
-    price: 'R949/mo',
-    description: 'Empire Edition - Full Suite & Viral Video Creator.',
-    features: [
-      'Everything in Growth',
-      'Viral Video Creator',
-      'Unlimited Access',
-      'Custom Branding',
-      'White-label Reports',
-    ],
-    icon: Briefcase,
-    color: 'indigo',
-    whopLink: 'https://whop.com/melotwo2',
-  },
-];
+interface FeaturesListProps {
+  whopLinks?: {
+    commis: string;
+    chefDePartie: string;
+    sousChef: string;
+    executive: string;
+  };
+}
 
-const FeaturesList: React.FC = () => {
+const FeaturesList: React.FC<FeaturesListProps> = ({ whopLinks }) => {
+  const TIERS: FeatureTier[] = [
+    {
+      name: 'The Commis',
+      id: 'commis',
+      price: 'R199/mo',
+      description: 'Student Edition - Academic PoE Automation & Curriculum Mapping.',
+      features: [
+        'Academic PoE Automation',
+        'City & Guilds Mapping',
+        'Local Curriculum Alignment',
+        'ADHD Optimized UI',
+        'Basic Menu Generation',
+      ],
+      icon: GraduationCap,
+      color: 'slate',
+      whopLink: whopLinks?.commis || 'https://whop.com/melotwo2',
+    },
+    {
+      name: 'The Chef de Partie',
+      id: 'chef-de-partie',
+      price: 'R549/mo',
+      description: 'Professional Edition - Interactive Costing & Shopping Lists.',
+      features: [
+        'Everything in Commis',
+        'Full Interactive Costing',
+        'Dynamic Shopping Lists',
+        'Standard AI Menus',
+        'Scaling Engine',
+      ],
+      icon: Zap,
+      color: 'amber',
+      whopLink: whopLinks?.chefDePartie || 'https://whop.com/melotwo2',
+    },
+    {
+      name: 'The Sous Chef',
+      id: 'sous-chef',
+      price: 'R1,249/mo',
+      description: 'Growth Edition - Multi-user Collaboration & Cloud Storage.',
+      features: [
+        'Everything in Professional',
+        'Multi-user (3 seats)',
+        'Cloud Storage Engine',
+        'Client Dashboard',
+        'Priority Support',
+      ],
+      icon: Users,
+      color: 'blue',
+      whopLink: whopLinks?.sousChef || 'https://whop.com/melotwo2',
+    },
+    {
+      name: 'The Executive',
+      id: 'executive',
+      price: 'R2,499/mo',
+      description: 'Empire Edition - Full Suite & Viral Video Creator.',
+      features: [
+        'Everything in Growth',
+        'Viral Video Creator',
+        'Unlimited Access',
+        'Custom Branding',
+        'White-label Reports',
+      ],
+      icon: Briefcase,
+      color: 'indigo',
+      whopLink: whopLinks?.executive || 'https://whop.com/melotwo2',
+    },
+  ];
+
   return (
     <div className="space-y-8">
       <div className="flex items-center justify-between">
