@@ -8,7 +8,12 @@ import PaymentModal from './PaymentModal';
 interface PricingPageProps {
   onSelectPlan: (plan: SubscriptionPlan) => void;
   currency?: string;
-  whopUrl: string;
+  whopLinks: {
+    commis: string;
+    chefDePartie: string;
+    sousChef: string;
+    executive: string;
+  };
 }
 
 const TIER_STYLES = {
@@ -55,15 +60,15 @@ const formatPrice = (amount: number, currency: string) => {
   }).format(amount);
 };
 
-const getTiers = (currency: string = 'ZAR', whopUrl: string, period: 'monthly' | 'yearly') => {
+const getTiers = (currency: string = 'ZAR', whopLinks: PricingPageProps['whopLinks'], period: 'monthly' | 'yearly') => {
   const isYearly = period === 'yearly';
   const discount = isYearly ? 0.8 : 1; // 20% discount for yearly
   
   const priceMap: Record<string, Record<string, number>> = {
-    'commis': { 'ZAR': 149, 'USD': 8.99, 'GBP': 7.99, 'EUR': 8.49 },
-    'chef-de-partie': { 'ZAR': 449, 'USD': 24.99, 'GBP': 19.99, 'EUR': 22.99 },
-    'sous-chef': { 'ZAR': 749, 'USD': 44.99, 'GBP': 34.99, 'EUR': 39.99 },
-    'executive': { 'ZAR': 949, 'USD': 54.99, 'GBP': 44.99, 'EUR': 49.99 },
+    'commis': { 'ZAR': 199, 'USD': 11.99, 'GBP': 9.99, 'EUR': 10.99 },
+    'chef-de-partie': { 'ZAR': 549, 'USD': 29.99, 'GBP': 24.99, 'EUR': 27.99 },
+    'sous-chef': { 'ZAR': 1249, 'USD': 69.99, 'GBP': 54.99, 'EUR': 64.99 },
+    'executive': { 'ZAR': 2499, 'USD': 139.99, 'GBP': 109.99, 'EUR': 129.99 },
   };
 
   const getPrice = (id: string) => {
@@ -87,9 +92,9 @@ const getTiers = (currency: string = 'ZAR', whopUrl: string, period: 'monthly' |
         'ADHD & Dyslexia Optimized UI',
         'Basic Menu Generation',
       ],
-      cta: 'Start Student Trial',
+      cta: 'Start Your Journey',
       colorKey: 'slate' as keyof typeof TIER_STYLES,
-      whopLink: whopUrl,
+      whopLink: whopLinks.commis,
       hasTrial: true,
     },
     {
@@ -106,11 +111,11 @@ const getTiers = (currency: string = 'ZAR', whopUrl: string, period: 'monthly' |
         'Standard AI Menus',
         'Scaling Engine (Auto-Portion)',
       ],
-      cta: 'Go Professional',
+      cta: 'Upgrade Now',
       highlight: true,
       badge: 'MOST POPULAR',
       colorKey: 'amber' as keyof typeof TIER_STYLES,
-      whopLink: whopUrl,
+      whopLink: whopLinks.chefDePartie,
       hasTrial: true,
     },
     {
@@ -127,9 +132,9 @@ const getTiers = (currency: string = 'ZAR', whopUrl: string, period: 'monthly' |
         'Client Dashboard',
         'Priority Support',
       ],
-      cta: 'Scale Your Team',
+      cta: 'Upgrade Now',
       colorKey: 'blue' as keyof typeof TIER_STYLES,
-      whopLink: whopUrl,
+      whopLink: whopLinks.sousChef,
       hasTrial: true,
     },
     {
@@ -146,16 +151,16 @@ const getTiers = (currency: string = 'ZAR', whopUrl: string, period: 'monthly' |
         'Custom Branding',
         'White-label Reports',
       ],
-      cta: 'Build Your Empire',
+      cta: 'Upgrade Now',
       badge: isYearly ? 'Best Value' : 'Enterprise',
       colorKey: 'royal' as keyof typeof TIER_STYLES,
-      whopLink: whopUrl,
+      whopLink: whopLinks.executive,
       hasTrial: true,
     },
   ];
 };
 
-const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR', whopUrl }) => {
+const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR', whopLinks }) => {
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState<SubscriptionPlan | null>(null);
   const [selectedPrice, setSelectedPrice] = useState('');
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
@@ -184,7 +189,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
     }
   };
 
-  const tiers = getTiers(currency, whopUrl, billingPeriod);
+  const tiers = getTiers(currency, whopLinks, billingPeriod);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans">
