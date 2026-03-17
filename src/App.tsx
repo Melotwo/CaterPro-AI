@@ -51,6 +51,12 @@ import { firestoreService } from './services/firestoreService';
 import { automationService } from './services/automationService';
 
 const WHOP_STORE_URL = "https://whop.com/melotwo2"; 
+const WHOP_LINKS = {
+  commis: "https://whop.com/checkout/plan_commis", // [PASTE YOUR WHOP STUDENT LINK HERE]
+  chefDePartie: "https://whop.com/checkout/plan_chef", // [PASTE YOUR WHOP PRO LINK HERE]
+  sousChef: "https://whop.com/checkout/plan_sous", // [PASTE YOUR WHOP GROWTH LINK HERE]
+  executive: "https://whop.com/checkout/plan_exec", // [PASTE YOUR WHOP EMPIRE LINK HERE]
+};
 const FACEBOOK_PAGE_URL = "https://facebook.com/CaterProAi"; 
 
 type AppView = 'landing' | 'generator' | 'pricing' | 'library' | 'privacy' | 'partner' | 'terms';
@@ -428,7 +434,7 @@ export default function App() {
       
       {viewMode === 'landing' && <LandingPage onGetStarted={() => setViewMode('generator')} />}
 
-      {viewMode === 'pricing' && <PricingPage whopUrl={WHOP_STORE_URL} onSelectPlan={(p) => { selectPlan(p); setViewMode('generator'); }} currency={currency} />}
+      {viewMode === 'pricing' && <PricingPage whopLinks={WHOP_LINKS} onSelectPlan={(p) => { selectPlan(p); setViewMode('generator'); }} currency={currency} />}
 
       {viewMode === 'library' && (
         <main className="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-8 py-8 sm:py-16">
@@ -607,7 +613,7 @@ export default function App() {
               )}
 
               <div className="mt-16">
-                <FeaturesList />
+                <FeaturesList whopLinks={WHOP_LINKS} />
               </div>
 
               <MeetTheFounder />
@@ -699,7 +705,7 @@ export default function App() {
         eventType={eventType}
         cuisine={cuisine}
       />
-      <UpgradeModal isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={(p) => { selectPlan(p); setViewMode('generator'); setShowUpgradeModal(false); }} onViewPricing={() => setViewMode('pricing')} />
+      <UpgradeModal whopLinks={WHOP_LINKS} isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={(p) => { selectPlan(p); setViewMode('generator'); setShowUpgradeModal(false); }} onViewPricing={() => setViewMode('pricing')} />
       <SocialMediaModal isOpen={isSocialModalOpen} onClose={() => setIsSocialModalOpen(false)} image={menu?.image} menuTitle={menu?.menuTitle || ''} menuDescription={menu?.description || ''} initialMode={socialModalMode} onImageGenerated={(b) => setMenu(p => p ? { ...p, image: b } : null)} />
       <PwaInstallModal isOpen={isInstallModalOpen} onClose={() => setIsInstallModalOpen(false)} />
       <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
