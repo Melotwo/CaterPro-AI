@@ -52,10 +52,10 @@ import { automationService } from './services/automationService';
 
 const WHOP_STORE_URL = "https://whop.com/melotwo2"; 
 const WHOP_LINKS = {
-  commis: "https://whop.com/checkout/plan_commis", // [PASTE YOUR WHOP STUDENT LINK HERE]
-  chefDePartie: "https://whop.com/checkout/plan_chef", // [PASTE YOUR WHOP PRO LINK HERE]
-  sousChef: "https://whop.com/checkout/plan_sous", // [PASTE YOUR WHOP GROWTH LINK HERE]
-  executive: "https://whop.com/checkout/plan_exec", // [PASTE YOUR WHOP EMPIRE LINK HERE]
+  commis: "https://whop.com/melotwo2/student-edition/",
+  chefDePartie: "https://whop.com/melotwo2/professional-edition/",
+  sousChef: "https://whop.com/melotwo2/business-edition/",
+  executive: "https://whop.com/melotwo2/executive-f5",
 };
 const FACEBOOK_PAGE_URL = "https://facebook.com/CaterProAi"; 
 
