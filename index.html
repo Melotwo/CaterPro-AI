@@ -1,67 +1,487 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
-    
-    <!-- Primary Meta Tags -->
-    <title>CaterProAi - #1 Professional Menu System 2026</title>
-    <meta name="title" content="CaterProAi - Professional Menu Generator">
-    <meta name="description" content="AI-powered assistant for chefs at caterproai.com. Generate professional menu proposals, shopping lists, and service notes instantly." />
-    <meta name="theme-color" content="#10b981" />
-
-    <!-- Google Search Console Verification -->
-    <meta name="google-site-verification" content="cHl0reDHWXQOLc6ixlUGYPLBUUHCzUi7fbJbfC0HEdA" />
-    
-    <!-- Favicon / Logo (Bust cache with timestamp) -->
-    <link rel="icon" type="image/svg+xml" href="/logo.svg?v=2026_01_24" />
-    <link rel="icon" type="image/png" href="/logo.svg?v=2026_01_24" />
-    <link rel="shortcut icon" href="/logo.svg?v=2026_01_24" />
-    
-    <!-- PWA / iOS Specific -->
-    <link rel="manifest" href="/manifest.json?v=2026_01_24" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="CaterProAi" />
-    <link rel="apple-touch-icon" href="/logo.svg?v=2026_01_24" />
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
-    <script>
-      // Immediate title update based on path for bots
-      if (window.location.pathname === '/privacy') {
-        document.title = "Privacy Policy | CaterProAi";
-      }
-      // Frame Buster: Prevent the site from being displayed in a Namecheap "Masked" iframe
-      // This helps fix the "Content cannot be displayed" error caused by security headers.
-      if (window.top !== window.self) {
-        try {
-          window.top.location.replace(window.self.location.href);
-        } catch (e) {
-          console.warn("Frame breakout failed due to cross-origin restrictions. Please ensure 'Masking' is disabled in your domain settings.");
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CaterPro | Interactive Menu Costing Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,900;1,900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --card-bg: #141414;
+            --gold: #d4af37;
+            --gold-hover: #f1c40f;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border: #2a2a2a;
+            --accent: #d4af37;
         }
-      }
 
-      window.onerror = function(msg, url, line, col, error) {
-        // Filter out generic "Script error." which is unhelpful and usually cross-origin related
-        if (msg === "Script error.") {
-          console.warn("A cross-origin script error occurred. Details are hidden by the browser.");
-          return false;
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
-        console.error("Global Error:", msg, "at", url, ":", line, ":", col, error);
-        return false;
-      };
-      window.onunhandledrejection = function(event) {
-        console.error("Unhandled Rejection:", event.reason);
-      };
-    </script>
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            font-style: italic;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            color: var(--gold);
+            margin: 2rem 0 1rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        th {
+            background: #1a1a1a;
+            text-align: left;
+            padding: 1rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--gold);
+            border-bottom: 2px solid var(--border);
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+        }
+
+        input {
+            background: #1a1a1a;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 0.4rem;
+            border-radius: 4px;
+            width: 80px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            text-align: right;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--gold);
+        }
+
+        .total-cell {
+            font-weight: 600;
+            color: var(--gold);
+            text-align: right;
+        }
+
+        .summary-card {
+            background: var(--card-bg);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid var(--gold);
+            margin-top: 3rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .summary-row.grand-total {
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--gold);
+        }
+
+        .btn-swap {
+            background: transparent;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            padding: 0.5rem 1rem;
+            border-radius: 100px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-swap:hover {
+            background: var(--gold);
+            color: var(--bg-color);
+        }
+
+        .unit-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-left: 0.3rem;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            table { display: block; overflow-x: auto; }
+            input { width: 60px; }
+        }
+
+        .no-print {
+            margin-top: 2rem;
+            text-align: center;
+        }
+
+        .btn-print {
+            background: var(--gold);
+            color: var(--bg-color);
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            letter-spacing: 1px;
+        }
+
+        @media print {
+            .no-print, .btn-swap { display: none; }
+            body { background: white; color: black; }
+            .container { max-width: 100%; }
+            .summary-card { border: 2px solid black; }
+            h1, .section-title, .grand-total { color: black !important; }
+        }
+    </style>
 </head>
-  <body class="bg-slate-50 dark:bg-slate-950 antialiased overflow-x-hidden">
-    <div id="root"></div>
-    <script type="module" src="/src/index.tsx"></script>
-  </body>
+<body>
+
+<div class="container">
+    <header>
+        <h1>CaterPro</h1>
+        <p class="subtitle">Interactive Executive Menu Costing Portal</p>
+    </header>
+
+    <!-- APPETIZER -->
+    <div class="section-title">
+        <span>Appetizer: Pan-Seared Scallops</span>
+    </div>
+    <table id="table-appetizer">
+        <thead>
+            <tr>
+                <th>Item Name</th>
+                <th>Qty</th>
+                <th>Yield %</th>
+                <th>Unit Price (R)</th>
+                <th style="text-align: right;">Total (R)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="row">
+                <td>U10 Scallops <span class="unit-label">kg</span></td>
+                <td><input type="number" step="0.001" value="0.150" class="qty"></td>
+                <td><input type="number" step="1" value="100" class="yield"></td>
+                <td><input type="number" step="0.01" value="450.00" class="price"></td>
+                <td class="total-cell">0.00</td>
+            </tr>
+            <tr class="row">
+                <td>Frozen Petits Pois <span class="unit-label">kg</span></td>
+                <td><input type="number" step="0.001" value="0.100" class="qty"></td>
+                <td><input type="number" step="1" value="95" class="yield"></td>
+                <td><input type="number" step="0.01" value="45.00" class="price"></td>
+                <td class="total-cell">0.00</td>
+            </tr>
+            <tr class="row">
+                <td>Heavy Cream <span class="unit-label">L</span></td>
+                <td><input type="number" step="0.001" value="0.030" class="qty"></td>
+                <td><input type="number" step="1" value="100" class="yield"></td>
+                <td><input type="number" step="0.01" value="65.00" class="price"></td>
+                <td class="total-cell">0.00</td>
+            </tr>
+            <tr class="row">
+                <td>Salted Butter <span class="unit-label">kg</span></td>
+                <td><input type="number" step="0.001" value="0.020" class="qty"></td>
+                <td><input type="number" step="1" value="100" class="yield"></td>
+                <td><input type="number" step="0.01" value="140.00" class="price"></td>
+                <td class="total-cell">0.00</td>
+            </tr>
+            <tr class="row">
+                <td>Fresh Mint <span class="unit-label">bunch</span></td>
+                <td><input type="number" step="0.001" value="0.05" class="qty"></td>
+                <td><input type="number" step="1" value="80" class="yield"></td>
+                <td><input type="number" step="0.01" value="15.00" class="price"></td>
+                <td class="total-cell">0.00</td>
+            </tr>
+            <tr class="row">
+                <td>Microgreens <span class="unit-label">punnet</span></td>
+                <td><input type="number" step="0.001" value="0.10" class="qty"></td>
+                <td><input type="number" step="1" value="100" class="yield"></td>
+                <td><input type="number" step="0.01" value="25.00" class="price"></td>
+                <td class="total-cell">0.00</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- MAIN COURSE -->
+    <div class="section-title">
+        <span>Main: Herb-Crusted Rack of Lamb</span>
+        <button class="btn-swap" onclick="swapProtein()">Swap for Beef Fillet</button>
+    </div>
+    <table id="table-main">
+        <thead>
+            <tr>
+                <th>Item Name</th>
+                <th>Qty</th>
+                <th>Yield %</th>
+                <th>Unit Price (R)</th>
+                <th style="text-align: right;">Total (R)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="row protein-row">
+                <td class="protein-name">Rack of Lamb <span class="unit-label">kg</span></td>
+                <td><input type="number" step="0.001" value="0.350" class="qty"></td>
+                <td><input type="number" step="1" value="75" class="yield"></td>
+                <td><input type="number" step="0.01" value="320.00" class="price"></td>
+                <td class="total-cell">0.00</td>
+            </tr>
+            <tr class="row">
+                <td>Panko Breadcrumbs <span class="unit-label">kg</span></td>
+                <td><input type="number" step="0.001" value="0.030" class="qty"></td>
+                <td><input type="number" step="1" value="100" class="yield"></td>
+                <td><input type="number" step="0.01" value="55.00" class="price"></td>
+                <td class="total-cell">0.00</td>
+            </tr>
+            <tr class="row">
+                <td>Dijon Mustard <span class="unit-label">kg</span></td>
+                <td><input type="number" step="0.001" value="0.015" class="qty"></td>
+                <td><input type="number" step="1" value="98" class="yield"></td>
+                <td><input type="number" step="0.01" value="110.00" class="price"></td>
+                <td class="total-cell">0.00</td>
+            </tr>
+            <tr class="row">
+                <td>Fresh Herbs <span class="unit-label">kg</span></td>
+                <td><input type="number" step="0.001" value="0.010" class="qty"></td>
+                <td><input type="number" step="1" value="70" class="yield"></td>
+                <td><input type="number" step="0.01" value="180.00" class="price"></td>
+                <td class="total-cell">0.00</td>
+            </tr>
+            <tr class="row">
+                <td>Large Potatoes <span class="unit-label">kg</span></td>
+                <td><input type="number" step="0.001" value="0.200" class="qty"></td>
+                <td><input type="number" step="1" value="85" class="yield"></td>
+                <td><input type="number" step="0.01" value="18.00" class="price"></td>
+                <td class="total-cell">0.00</td>
+            </tr>
+            <tr class="row">
+                <td>Beef Jus <span class="unit-label">L</span></td>
+                <td><input type="number" step="0.001" value="0.050" class="qty"></td>
+                <td><input type="number" step="1" value="100" class="yield"></td>
+                <td><input type="number" step="0.01" value="220.00" class="price"></td>
+                <td class="total-cell">0.00</td>
+            </tr>
+            <tr class="row">
+                <td>Garlic <span class="unit-label">kg</span></td>
+                <td><input type="number" step="0.001" value="0.010" class="qty"></td>
+                <td><input type="number" step="1" value="90" class="yield"></td>
+                <td><input type="number" step="0.01" value="85.00" class="price"></td>
+                <td class="total-cell">0.00</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- DESSERT -->
+    <div class="section-title">
+        <span>Dessert: Dark Chocolate Fondant</span>
+    </div>
+    <table id="table-dessert">
+        <thead>
+            <tr>
+                <th>Item Name</th>
+                <th>Qty</th>
+                <th>Yield %</th>
+                <th>Unit Price (R)</th>
+                <th style="text-align: right;">Total (R)</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr class="row">
+                <td>70% Dark Chocolate <span class="unit-label">kg</span></td>
+                <td><input type="number" step="0.001" value="0.060" class="qty"></td>
+                <td><input type="number" step="1" value="100" class="yield"></td>
+                <td><input type="number" step="0.01" value="280.00" class="price"></td>
+                <td class="total-cell">0.00</td>
+            </tr>
+            <tr class="row">
+                <td>Unsalted Butter <span class="unit-label">kg</span></td>
+                <td><input type="number" step="0.001" value="0.050" class="qty"></td>
+                <td><input type="number" step="1" value="100" class="yield"></td>
+                <td><input type="number" step="0.01" value="160.00" class="price"></td>
+                <td class="total-cell">0.00</td>
+            </tr>
+            <tr class="row">
+                <td>Whole Eggs <span class="unit-label">unit</span></td>
+                <td><input type="number" step="1" value="2" class="qty"></td>
+                <td><input type="number" step="1" value="100" class="yield"></td>
+                <td><input type="number" step="0.01" value="2.50" class="price"></td>
+                <td class="total-cell">0.00</td>
+            </tr>
+            <tr class="row">
+                <td>Caster Sugar <span class="unit-label">kg</span></td>
+                <td><input type="number" step="0.001" value="0.040" class="qty"></td>
+                <td><input type="number" step="1" value="100" class="yield"></td>
+                <td><input type="number" step="0.01" value="28.00" class="price"></td>
+                <td class="total-cell">0.00</td>
+            </tr>
+            <tr class="row">
+                <td>Cake Flour <span class="unit-label">kg</span></td>
+                <td><input type="number" step="0.001" value="0.020" class="qty"></td>
+                <td><input type="number" step="1" value="99" class="yield"></td>
+                <td><input type="number" step="0.01" value="18.00" class="price"></td>
+                <td class="total-cell">0.00</td>
+            </tr>
+            <tr class="row">
+                <td>Vanilla Bean Gelato <span class="unit-label">L</span></td>
+                <td><input type="number" step="0.001" value="0.080" class="qty"></td>
+                <td><input type="number" step="1" value="100" class="yield"></td>
+                <td><input type="number" step="0.01" value="120.00" class="price"></td>
+                <td class="total-cell">0.00</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- SUMMARY -->
+    <div class="summary-card">
+        <div class="summary-row">
+            <span>Food Cost (Per Head)</span>
+            <span id="summary-food-cost">R 0.00</span>
+        </div>
+        <div class="summary-row">
+            <span>Markup (300%)</span>
+            <span id="summary-markup">R 0.00</span>
+        </div>
+        <div class="summary-row grand-total">
+            <span>Final Per-Head Price</span>
+            <span id="summary-grand-total">R 0.00</span>
+        </div>
+    </div>
+
+    <div class="no-print">
+        <button class="btn-print" onclick="window.print()">Print Proposal</button>
+    </div>
+</div>
+
+<script>
+    const proteinData = {
+        lamb: { name: 'Rack of Lamb', price: 320.00, yield: 75 },
+        beef: { name: 'Beef Fillet', price: 295.00, yield: 92 }
+    };
+
+    let currentProtein = 'lamb';
+
+    function calculate() {
+        const rows = document.querySelectorAll('.row');
+        let grandTotal = 0;
+
+        rows.forEach(row => {
+            const qty = parseFloat(row.querySelector('.qty').value) || 0;
+            const yieldVal = parseFloat(row.querySelector('.yield').value) || 1;
+            const price = parseFloat(row.querySelector('.price').value) || 0;
+            const totalCell = row.querySelector('.total-cell');
+
+            // Formula: Total = (Qty * Price) / (Yield / 100)
+            const total = (qty * price) / (yieldVal / 100);
+            totalCell.textContent = total.toFixed(2);
+            grandTotal += total;
+        });
+
+        const markup = grandTotal * 3;
+        const finalPrice = grandTotal + markup;
+
+        document.getElementById('summary-food-cost').textContent = 'R ' + grandTotal.toFixed(2);
+        document.getElementById('summary-markup').textContent = 'R ' + markup.toFixed(2);
+        document.getElementById('summary-grand-total').textContent = 'R ' + finalPrice.toFixed(2);
+    }
+
+    function swapProtein() {
+        const row = document.querySelector('.protein-row');
+        const nameCell = row.querySelector('.protein-name');
+        const priceInput = row.querySelector('.price');
+        const yieldInput = row.querySelector('.yield');
+        const btn = document.querySelector('.btn-swap');
+
+        if (currentProtein === 'lamb') {
+            currentProtein = 'beef';
+            nameCell.innerHTML = `Beef Fillet <span class="unit-label">kg</span>`;
+            priceInput.value = proteinData.beef.price.toFixed(2);
+            yieldInput.value = proteinData.beef.yield;
+            btn.textContent = 'Swap for Rack of Lamb';
+        } else {
+            currentProtein = 'lamb';
+            nameCell.innerHTML = `Rack of Lamb <span class="unit-label">kg</span>`;
+            priceInput.value = proteinData.lamb.price.toFixed(2);
+            yieldInput.value = proteinData.lamb.yield;
+            btn.textContent = 'Swap for Beef Fillet';
+        }
+        calculate();
+    }
+
+    // Add event listeners to all inputs
+    document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', calculate);
+    });
+
+    // Initial calculation
+    calculate();
+</script>
+
+</body>
 </html>
