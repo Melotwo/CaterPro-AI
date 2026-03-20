@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CaterProAi | Full Edition Executive Portal</title>
+    <title>CaterProAi | Executive Menu Portal</title>
     
     <!-- Social Meta Tags -->
     <meta property="og:title" content="CaterProAi | Interactive Menu Costing">
@@ -43,6 +43,19 @@
         .accent-bg { background-color: var(--accent); }
         .accent-border { border-color: var(--accent); }
 
+        /* Landing Page Styles */
+        .landing-hero {
+            background: radial-gradient(circle at center, #212F3C 0%, #1B2631 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        /* App Layout Styles */
         .glass-card {
             background: rgba(33, 47, 60, 0.8);
             backdrop-filter: blur(12px);
@@ -138,6 +151,7 @@
             align-items: center;
             gap: 8px;
             transition: all 0.2s;
+            cursor: pointer;
         }
 
         .btn-back:hover {
@@ -165,12 +179,13 @@
 <body class="antialiased">
 
 <!-- Landing Page -->
-<div id="landing-page" class="min-h-screen flex flex-col items-center justify-center text-center px-4 bg-[radial-gradient(circle_at_center,_#212F3C_0%,_#1B2631_100%)]">
+<div id="landing-page" class="landing-hero">
     <div class="max-w-4xl">
         <h1 class="font-serif text-8xl md:text-9xl accent-text mb-8 tracking-tighter animate-pulse">CaterProAi</h1>
         <p class="text-2xl md:text-3xl text-teal-400 font-light mb-12 leading-relaxed max-w-2xl mx-auto">
-            The <span class="italic font-serif">Elegance</span> Edition. 
-            Precision costing meets elite visual storytelling for executive catering.
+            Experience the <span class="italic font-serif">Elegance</span> theme. 
+            A professional executive costing portal designed for elite culinary proposals. 
+            Precision, speed, and stunning visuals in one seamless flow.
         </p>
         <button class="btn-primary text-xl px-16 py-8" onclick="showApp()">Start Planning</button>
     </div>
@@ -236,7 +251,7 @@
             </header>
 
             <!-- Premium Visuals Grid -->
-            <div class="grid grid-cols-3 gap-6 mb-16">
+            <div id="visuals-grid" class="grid grid-cols-3 gap-6 mb-16">
                 <div class="space-y-3" data-section="appetizer">
                     <div class="dish-image-slot">
                         <div class="absolute inset-0 flex items-center justify-center loading-overlay hidden">
@@ -392,7 +407,7 @@
                         <span id="summary-total-guests" class="text-2xl font-bold">R 0.00</span>
                     </div>
                     <div class="pt-6 border-t border-teal-900/30 flex justify-between items-center">
-                        <span class="accent-text font-black uppercase tracking-[0.2em] text-lg">Recommended Selling Price (300% Markup)</span>
+                        <span class="accent-text font-black uppercase tracking-[0.2em] text-lg">Final Per-Head Price (300% Markup)</span>
                         <span id="summary-grand-total" class="text-5xl font-black accent-text tracking-tighter">R 0.00</span>
                     </div>
                 </div>
@@ -498,8 +513,9 @@
         
         for (const sectionKey of sections) {
             const section = document.querySelector(`[data-section="${sectionKey}"]`);
-            const overlay = section.querySelector('.loading-overlay');
-            const img = section.querySelector('.dish-img');
+            const visualSlot = document.querySelector(`#visuals-grid [data-section="${sectionKey}"]`);
+            const overlay = visualSlot.querySelector('.loading-overlay');
+            const img = visualSlot.querySelector('.dish-img');
             const dishName = section.querySelector('.dish-title').textContent;
 
             overlay.classList.remove('hidden');
