@@ -3,438 +3,455 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CaterPro | Interactive Menu Costing Portal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,900;1,900&display=swap" rel="stylesheet">
+    <title>CaterPro | Interactive Executive Costing Portal</title>
+    
+    <!-- Social Meta Tags -->
+    <meta property="og:title" content="CaterPro | Interactive Menu Costing">
+    <meta property="og:description" content="Professional menu costing and interactive proposal portal.">
+    <meta property="og:image" content="founder.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS (via CDN for single-file simplicity) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
     <style>
         :root {
-            --bg-color: #0a0a0a;
-            --card-bg: #141414;
-            --gold: #d4af37;
-            --gold-hover: #f1c40f;
-            --text-primary: #ffffff;
-            --text-secondary: #a0a0a0;
-            --border: #2a2a2a;
-            --accent: #d4af37;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+            --accent: #2ECC71;
+            --accent-hover: #27AE60;
+            --bg-navy: #1B2631;
+            --card-navy: #212F3C;
+            --border-teal: #1ABC9C;
+            --text-teal: #1ABC9C;
         }
 
         body {
+            background-color: var(--bg-navy);
+            color: #ffffff;
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            line-height: 1.6;
-            padding: 2rem 1rem;
         }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        header {
-            text-align: center;
-            margin-bottom: 4rem;
-        }
-
-        h1 {
+        .font-serif {
             font-family: 'Playfair Display', serif;
-            font-size: 3.5rem;
-            font-weight: 900;
-            font-style: italic;
-            color: var(--gold);
-            text-transform: uppercase;
-            letter-spacing: -1px;
-            margin-bottom: 0.5rem;
         }
 
-        .subtitle {
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.3em;
-            color: var(--text-secondary);
-            font-weight: 600;
+        .accent-text {
+            color: var(--accent);
         }
 
-        .section-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.8rem;
-            color: var(--gold);
-            margin: 2rem 0 1rem;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 0.5rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .teal-text {
+            color: var(--text-teal);
         }
 
-        table {
+        .accent-border {
+            border-color: var(--accent);
+        }
+
+        .teal-border {
+            border-color: var(--border-teal);
+        }
+
+        .accent-bg {
+            background-color: var(--accent);
+        }
+
+        .glass-card {
+            background: rgba(33, 47, 60, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-teal);
+            border-radius: 24px;
+        }
+
+        .input-field {
+            background: #2E4053;
+            border: 1px solid var(--border-teal);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            width: 90px;
+            text-align: right;
+            transition: all 0.2s;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(46, 204, 113, 0.2);
+        }
+
+        .dish-image-container {
             width: 100%;
-            border-collapse: collapse;
-            background: var(--card-bg);
-            border-radius: 12px;
+            aspect-ratio: 16/9;
+            border-radius: 20px;
             overflow: hidden;
-            margin-bottom: 2rem;
-            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+            position: relative;
+            background: #1B2631;
+            border: 1px solid var(--border-teal);
         }
 
-        th {
-            background: #1a1a1a;
-            text-align: left;
-            padding: 1rem;
+        .hero-image-container {
+            width: 100%;
+            aspect-ratio: 21/9;
+            border-radius: 24px;
+            overflow: hidden;
+            margin-bottom: 3rem;
+            position: relative;
+            background: #1B2631;
+            border: 1px solid var(--border-teal);
+        }
+
+        .dish-image-container img, .hero-image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s;
+        }
+
+        .dish-image-container:hover img, .hero-image-container:hover img {
+            transform: scale(1.05);
+        }
+
+        .loader {
+            border: 3px solid #2E4053;
+            border-top: 3px solid var(--accent);
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .btn-accent {
+            background: var(--accent);
+            color: #1B2631;
+            font-weight: 800;
+            padding: 12px 24px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .btn-accent:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(46, 204, 113, 0.3);
+        }
+
+        .btn-outline-accent {
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 8px 16px;
+            border-radius: 100px;
             font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            transition: all 0.3s;
+        }
+
+        .btn-outline-accent:hover {
+            background: var(--accent);
+            color: #1B2631;
+        }
+
+        .tier-badge {
+            background: var(--accent);
+            color: #1B2631;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-size: 0.65rem;
+            font-weight: 900;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            color: var(--gold);
-            border-bottom: 2px solid var(--border);
-        }
-
-        td {
-            padding: 0.75rem 1rem;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.9rem;
-        }
-
-        input {
-            background: #1a1a1a;
-            border: 1px solid var(--border);
-            color: var(--text-primary);
-            padding: 0.4rem;
-            border-radius: 4px;
-            width: 80px;
-            font-family: inherit;
-            font-size: 0.85rem;
-            text-align: right;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: var(--gold);
-        }
-
-        .total-cell {
-            font-weight: 600;
-            color: var(--gold);
-            text-align: right;
-        }
-
-        .summary-card {
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 16px;
-            border: 1px solid var(--gold);
-            margin-top: 3rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
-        }
-
-        .summary-row.grand-total {
-            border-top: 1px solid var(--border);
-            padding-top: 1rem;
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: var(--gold);
-        }
-
-        .btn-swap {
-            background: transparent;
-            border: 1px solid var(--gold);
-            color: var(--gold);
-            padding: 0.5rem 1rem;
-            border-radius: 100px;
-            font-size: 0.7rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .btn-swap:hover {
-            background: var(--gold);
-            color: var(--bg-color);
-        }
-
-        .unit-label {
-            font-size: 0.7rem;
-            color: var(--text-secondary);
-            margin-left: 0.3rem;
-        }
-
-        @media (max-width: 768px) {
-            h1 { font-size: 2.5rem; }
-            table { display: block; overflow-x: auto; }
-            input { width: 60px; }
-        }
-
-        .no-print {
-            margin-top: 2rem;
-            text-align: center;
-        }
-
-        .btn-print {
-            background: var(--gold);
-            color: var(--bg-color);
-            padding: 1rem 2rem;
-            border: none;
-            border-radius: 8px;
-            font-weight: 800;
-            text-transform: uppercase;
-            cursor: pointer;
-            letter-spacing: 1px;
         }
 
         @media print {
-            .no-print, .btn-swap { display: none; }
+            .no-print { display: none; }
             body { background: white; color: black; }
-            .container { max-width: 100%; }
-            .summary-card { border: 2px solid black; }
-            h1, .section-title, .grand-total { color: black !important; }
+            .glass-card { border: 1px solid #ddd; background: white; }
+            .accent-text, .teal-text { color: black !important; }
+            input { border: none; background: transparent; text-align: left; width: auto; }
         }
     </style>
 </head>
-<body>
+<body class="antialiased">
 
-<div class="container">
-    <header>
-        <h1>CaterPro</h1>
-        <p class="subtitle">Interactive Executive Menu Costing Portal</p>
+<div class="max-w-5xl mx-auto px-4 py-12">
+    <!-- Header -->
+    <header class="text-center mb-16">
+        <div class="flex justify-center mb-4 no-print">
+            <select id="tier-selector" class="bg-transparent border border-teal-500 text-teal-400 text-xs rounded-full px-4 py-1 focus:outline-none" onchange="updateTier()">
+                <option value="premium">Premium Tier (3 Images)</option>
+                <option value="standard">Standard Tier (1 Hero)</option>
+            </select>
+        </div>
+        <h1 class="font-serif text-6xl md:text-8xl italic accent-text tracking-tighter mb-2">CaterPro</h1>
+        <p class="uppercase tracking-[0.4em] text-xs font-semibold text-teal-500">Interactive Executive Costing Portal</p>
     </header>
 
-    <!-- APPETIZER -->
-    <div class="section-title">
-        <span>Appetizer: Pan-Seared Scallops</span>
-    </div>
-    <table id="table-appetizer">
-        <thead>
-            <tr>
-                <th>Item Name</th>
-                <th>Qty</th>
-                <th>Yield %</th>
-                <th>Unit Price (R)</th>
-                <th style="text-align: right;">Total (R)</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr class="row">
-                <td>U10 Scallops <span class="unit-label">kg</span></td>
-                <td><input type="number" step="0.001" value="0.150" class="qty"></td>
-                <td><input type="number" step="1" value="100" class="yield"></td>
-                <td><input type="number" step="0.01" value="450.00" class="price"></td>
-                <td class="total-cell">0.00</td>
-            </tr>
-            <tr class="row">
-                <td>Frozen Petits Pois <span class="unit-label">kg</span></td>
-                <td><input type="number" step="0.001" value="0.100" class="qty"></td>
-                <td><input type="number" step="1" value="95" class="yield"></td>
-                <td><input type="number" step="0.01" value="45.00" class="price"></td>
-                <td class="total-cell">0.00</td>
-            </tr>
-            <tr class="row">
-                <td>Heavy Cream <span class="unit-label">L</span></td>
-                <td><input type="number" step="0.001" value="0.030" class="qty"></td>
-                <td><input type="number" step="1" value="100" class="yield"></td>
-                <td><input type="number" step="0.01" value="65.00" class="price"></td>
-                <td class="total-cell">0.00</td>
-            </tr>
-            <tr class="row">
-                <td>Salted Butter <span class="unit-label">kg</span></td>
-                <td><input type="number" step="0.001" value="0.020" class="qty"></td>
-                <td><input type="number" step="1" value="100" class="yield"></td>
-                <td><input type="number" step="0.01" value="140.00" class="price"></td>
-                <td class="total-cell">0.00</td>
-            </tr>
-            <tr class="row">
-                <td>Fresh Mint <span class="unit-label">bunch</span></td>
-                <td><input type="number" step="0.001" value="0.05" class="qty"></td>
-                <td><input type="number" step="1" value="80" class="yield"></td>
-                <td><input type="number" step="0.01" value="15.00" class="price"></td>
-                <td class="total-cell">0.00</td>
-            </tr>
-            <tr class="row">
-                <td>Microgreens <span class="unit-label">punnet</span></td>
-                <td><input type="number" step="0.001" value="0.10" class="qty"></td>
-                <td><input type="number" step="1" value="100" class="yield"></td>
-                <td><input type="number" step="0.01" value="25.00" class="price"></td>
-                <td class="total-cell">0.00</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <!-- MAIN COURSE -->
-    <div class="section-title">
-        <span>Main: Herb-Crusted Rack of Lamb</span>
-        <button class="btn-swap" onclick="swapProtein()">Swap for Beef Fillet</button>
-    </div>
-    <table id="table-main">
-        <thead>
-            <tr>
-                <th>Item Name</th>
-                <th>Qty</th>
-                <th>Yield %</th>
-                <th>Unit Price (R)</th>
-                <th style="text-align: right;">Total (R)</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr class="row protein-row">
-                <td class="protein-name">Rack of Lamb <span class="unit-label">kg</span></td>
-                <td><input type="number" step="0.001" value="0.350" class="qty"></td>
-                <td><input type="number" step="1" value="75" class="yield"></td>
-                <td><input type="number" step="0.01" value="320.00" class="price"></td>
-                <td class="total-cell">0.00</td>
-            </tr>
-            <tr class="row">
-                <td>Panko Breadcrumbs <span class="unit-label">kg</span></td>
-                <td><input type="number" step="0.001" value="0.030" class="qty"></td>
-                <td><input type="number" step="1" value="100" class="yield"></td>
-                <td><input type="number" step="0.01" value="55.00" class="price"></td>
-                <td class="total-cell">0.00</td>
-            </tr>
-            <tr class="row">
-                <td>Dijon Mustard <span class="unit-label">kg</span></td>
-                <td><input type="number" step="0.001" value="0.015" class="qty"></td>
-                <td><input type="number" step="1" value="98" class="yield"></td>
-                <td><input type="number" step="0.01" value="110.00" class="price"></td>
-                <td class="total-cell">0.00</td>
-            </tr>
-            <tr class="row">
-                <td>Fresh Herbs <span class="unit-label">kg</span></td>
-                <td><input type="number" step="0.001" value="0.010" class="qty"></td>
-                <td><input type="number" step="1" value="70" class="yield"></td>
-                <td><input type="number" step="0.01" value="180.00" class="price"></td>
-                <td class="total-cell">0.00</td>
-            </tr>
-            <tr class="row">
-                <td>Large Potatoes <span class="unit-label">kg</span></td>
-                <td><input type="number" step="0.001" value="0.200" class="qty"></td>
-                <td><input type="number" step="1" value="85" class="yield"></td>
-                <td><input type="number" step="0.01" value="18.00" class="price"></td>
-                <td class="total-cell">0.00</td>
-            </tr>
-            <tr class="row">
-                <td>Beef Jus <span class="unit-label">L</span></td>
-                <td><input type="number" step="0.001" value="0.050" class="qty"></td>
-                <td><input type="number" step="1" value="100" class="yield"></td>
-                <td><input type="number" step="0.01" value="220.00" class="price"></td>
-                <td class="total-cell">0.00</td>
-            </tr>
-            <tr class="row">
-                <td>Garlic <span class="unit-label">kg</span></td>
-                <td><input type="number" step="0.001" value="0.010" class="qty"></td>
-                <td><input type="number" step="1" value="90" class="yield"></td>
-                <td><input type="number" step="0.01" value="85.00" class="price"></td>
-                <td class="total-cell">0.00</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <!-- DESSERT -->
-    <div class="section-title">
-        <span>Dessert: Dark Chocolate Fondant</span>
-    </div>
-    <table id="table-dessert">
-        <thead>
-            <tr>
-                <th>Item Name</th>
-                <th>Qty</th>
-                <th>Yield %</th>
-                <th>Unit Price (R)</th>
-                <th style="text-align: right;">Total (R)</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr class="row">
-                <td>70% Dark Chocolate <span class="unit-label">kg</span></td>
-                <td><input type="number" step="0.001" value="0.060" class="qty"></td>
-                <td><input type="number" step="1" value="100" class="yield"></td>
-                <td><input type="number" step="0.01" value="280.00" class="price"></td>
-                <td class="total-cell">0.00</td>
-            </tr>
-            <tr class="row">
-                <td>Unsalted Butter <span class="unit-label">kg</span></td>
-                <td><input type="number" step="0.001" value="0.050" class="qty"></td>
-                <td><input type="number" step="1" value="100" class="yield"></td>
-                <td><input type="number" step="0.01" value="160.00" class="price"></td>
-                <td class="total-cell">0.00</td>
-            </tr>
-            <tr class="row">
-                <td>Whole Eggs <span class="unit-label">unit</span></td>
-                <td><input type="number" step="1" value="2" class="qty"></td>
-                <td><input type="number" step="1" value="100" class="yield"></td>
-                <td><input type="number" step="0.01" value="2.50" class="price"></td>
-                <td class="total-cell">0.00</td>
-            </tr>
-            <tr class="row">
-                <td>Caster Sugar <span class="unit-label">kg</span></td>
-                <td><input type="number" step="0.001" value="0.040" class="qty"></td>
-                <td><input type="number" step="1" value="100" class="yield"></td>
-                <td><input type="number" step="0.01" value="28.00" class="price"></td>
-                <td class="total-cell">0.00</td>
-            </tr>
-            <tr class="row">
-                <td>Cake Flour <span class="unit-label">kg</span></td>
-                <td><input type="number" step="0.001" value="0.020" class="qty"></td>
-                <td><input type="number" step="1" value="99" class="yield"></td>
-                <td><input type="number" step="0.01" value="18.00" class="price"></td>
-                <td class="total-cell">0.00</td>
-            </tr>
-            <tr class="row">
-                <td>Vanilla Bean Gelato <span class="unit-label">L</span></td>
-                <td><input type="number" step="0.001" value="0.080" class="qty"></td>
-                <td><input type="number" step="1" value="100" class="yield"></td>
-                <td><input type="number" step="0.01" value="120.00" class="price"></td>
-                <td class="total-cell">0.00</td>
-            </tr>
-        </tbody>
-    </table>
-
-    <!-- SUMMARY -->
-    <div class="summary-card">
-        <div class="summary-row">
-            <span>Food Cost (Per Head)</span>
-            <span id="summary-food-cost">R 0.00</span>
-        </div>
-        <div class="summary-row">
-            <span>Markup (300%)</span>
-            <span id="summary-markup">R 0.00</span>
-        </div>
-        <div class="summary-row grand-total">
-            <span>Final Per-Head Price</span>
-            <span id="summary-grand-total">R 0.00</span>
+    <!-- Hero Image (Standard Tier Only) -->
+    <div id="hero-container" class="hidden">
+        <div class="hero-image-container">
+            <div class="absolute inset-0 flex items-center justify-center loading-overlay hidden">
+                <div class="loader mr-3"></div>
+                <span class="text-xs font-bold uppercase tracking-widest accent-text">Generating Hero Visual...</span>
+            </div>
+            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80" alt="Menu Hero" class="dish-img">
+            <div class="absolute bottom-4 right-4 no-print">
+                <button class="btn-outline-accent bg-black/50 backdrop-blur-md" onclick="generateDishImage('hero')">Regenerate Hero</button>
+            </div>
         </div>
     </div>
 
-    <div class="no-print">
-        <button class="btn-print" onclick="window.print()">Print Proposal</button>
+    <!-- Menu Sections -->
+    <div id="menu-container" class="space-y-20">
+        <!-- Appetizer -->
+        <section class="dish-section" data-section="appetizer">
+            <div class="dish-image-container premium-only">
+                <div class="absolute inset-0 flex items-center justify-center loading-overlay hidden">
+                    <div class="loader mr-3"></div>
+                    <span class="text-xs font-bold uppercase tracking-widest accent-text">Generating Visual...</span>
+                </div>
+                <img src="https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?auto=format&fit=crop&w=1200&q=80" alt="Appetizer" class="dish-img">
+                <div class="absolute bottom-4 right-4 no-print">
+                    <button class="btn-outline-accent bg-black/50 backdrop-blur-md" onclick="generateDishImage('appetizer')">Regenerate Visual</button>
+                </div>
+            </div>
+            
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <h2 class="font-serif text-3xl accent-text">Pan-Seared Scallops</h2>
+                    <p class="text-gray-400 italic">With mint pea purée and microgreens</p>
+                </div>
+            </div>
+
+            <div class="glass-card overflow-hidden">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-white/5 text-[10px] uppercase tracking-widest teal-text">
+                            <th class="p-4">Item Name</th>
+                            <th class="p-4 text-right">Qty</th>
+                            <th class="p-4 text-right">Yield %</th>
+                            <th class="p-4 text-right">Unit Price (R)</th>
+                            <th class="p-4 text-right">Total (R)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        <tr class="row">
+                            <td class="p-4 text-sm font-medium">U10 Scallops <span class="text-[10px] text-gray-500 ml-1">kg</span></td>
+                            <td class="p-4 text-right"><input type="number" step="0.001" value="0.150" class="input-field qty"></td>
+                            <td class="p-4 text-right"><input type="number" step="1" value="100" class="input-field yield"></td>
+                            <td class="p-4 text-right"><input type="number" step="0.01" value="450.00" class="input-field price"></td>
+                            <td class="p-4 text-right font-bold accent-text total-cell">0.00</td>
+                        </tr>
+                        <tr class="row">
+                            <td class="p-4 text-sm font-medium">Frozen Petits Pois <span class="text-[10px] text-gray-500 ml-1">kg</span></td>
+                            <td class="p-4 text-right"><input type="number" step="0.001" value="0.100" class="input-field qty"></td>
+                            <td class="p-4 text-right"><input type="number" step="1" value="95" class="input-field yield"></td>
+                            <td class="p-4 text-right"><input type="number" step="0.01" value="45.00" class="input-field price"></td>
+                            <td class="p-4 text-right font-bold accent-text total-cell">0.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Main Course -->
+        <section class="dish-section" data-section="main">
+            <div class="dish-image-container premium-only">
+                <div class="absolute inset-0 flex items-center justify-center loading-overlay hidden">
+                    <div class="loader mr-3"></div>
+                    <span class="text-xs font-bold uppercase tracking-widest accent-text">Generating Visual...</span>
+                </div>
+                <img src="https://images.unsplash.com/photo-1603048297172-c92544798d5e?auto=format&fit=crop&w=1200&q=80" alt="Main Course" class="dish-img">
+                <div class="absolute bottom-4 right-4 no-print">
+                    <button class="btn-outline-accent bg-black/50 backdrop-blur-md" onclick="generateDishImage('main')">Regenerate Visual</button>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <h2 class="font-serif text-3xl accent-text protein-display-name">Herb-Crusted Rack of Lamb</h2>
+                    <p class="text-gray-400 italic">With fondant potatoes and red wine jus</p>
+                </div>
+                <button class="btn-outline-accent no-print" onclick="swapProtein(event)">Swap for Beef Fillet</button>
+            </div>
+
+            <div class="glass-card overflow-hidden">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-white/5 text-[10px] uppercase tracking-widest teal-text">
+                            <th class="p-4">Item Name</th>
+                            <th class="p-4 text-right">Qty</th>
+                            <th class="p-4 text-right">Yield %</th>
+                            <th class="p-4 text-right">Unit Price (R)</th>
+                            <th class="p-4 text-right">Total (R)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        <tr class="row protein-row">
+                            <td class="p-4 text-sm font-medium protein-name">Rack of Lamb <span class="text-[10px] text-gray-500 ml-1">kg</span></td>
+                            <td class="p-4 text-right"><input type="number" step="0.001" value="0.350" class="input-field qty"></td>
+                            <td class="p-4 text-right"><input type="number" step="1" value="75" class="input-field yield"></td>
+                            <td class="p-4 text-right"><input type="number" step="0.01" value="320.00" class="input-field price"></td>
+                            <td class="p-4 text-right font-bold accent-text total-cell">0.00</td>
+                        </tr>
+                        <tr class="row">
+                            <td class="p-4 text-sm font-medium">Potatoes <span class="text-[10px] text-gray-500 ml-1">kg</span></td>
+                            <td class="p-4 text-right"><input type="number" step="0.001" value="0.200" class="input-field qty"></td>
+                            <td class="p-4 text-right"><input type="number" step="1" value="85" class="input-field yield"></td>
+                            <td class="p-4 text-right"><input type="number" step="0.01" value="18.00" class="input-field price"></td>
+                            <td class="p-4 text-right font-bold accent-text total-cell">0.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Dessert -->
+        <section class="dish-section" data-section="dessert">
+            <div class="dish-image-container premium-only">
+                <div class="absolute inset-0 flex items-center justify-center loading-overlay hidden">
+                    <div class="loader mr-3"></div>
+                    <span class="text-xs font-bold uppercase tracking-widest accent-text">Generating Visual...</span>
+                </div>
+                <img src="https://images.unsplash.com/photo-1541920482244-51737127644d?auto=format&fit=crop&w=1200&q=80" alt="Dessert" class="dish-img">
+                <div class="absolute bottom-4 right-4 no-print">
+                    <button class="btn-outline-accent bg-black/50 backdrop-blur-md" onclick="generateDishImage('dessert')">Regenerate Visual</button>
+                </div>
+            </div>
+
+            <div class="flex justify-between items-end mb-6">
+                <div>
+                    <h2 class="font-serif text-3xl accent-text">Dark Chocolate Fondant</h2>
+                    <p class="text-gray-400 italic">With vanilla bean gelato</p>
+                </div>
+            </div>
+
+            <div class="glass-card overflow-hidden">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="border-b border-white/5 text-[10px] uppercase tracking-widest teal-text">
+                            <th class="p-4">Item Name</th>
+                            <th class="p-4 text-right">Qty</th>
+                            <th class="p-4 text-right">Yield %</th>
+                            <th class="p-4 text-right">Unit Price (R)</th>
+                            <th class="p-4 text-right">Total (R)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-white/5">
+                        <tr class="row">
+                            <td class="p-4 text-sm font-medium">70% Dark Chocolate <span class="text-[10px] text-gray-500 ml-1">kg</span></td>
+                            <td class="p-4 text-right"><input type="number" step="0.001" value="0.060" class="input-field qty"></td>
+                            <td class="p-4 text-right"><input type="number" step="1" value="100" class="input-field yield"></td>
+                            <td class="p-4 text-right"><input type="number" step="0.01" value="280.00" class="input-field price"></td>
+                            <td class="p-4 text-right font-bold accent-text total-cell">0.00</td>
+                        </tr>
+                        <tr class="row">
+                            <td class="p-4 text-sm font-medium">Vanilla Gelato <span class="text-[10px] text-gray-500 ml-1">L</span></td>
+                            <td class="p-4 text-right"><input type="number" step="0.001" value="0.080" class="input-field qty"></td>
+                            <td class="p-4 text-right"><input type="number" step="1" value="100" class="input-field yield"></td>
+                            <td class="p-4 text-right"><input type="number" step="0.01" value="120.00" class="input-field price"></td>
+                            <td class="p-4 text-right font-bold accent-text total-cell">0.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Final Summary -->
+    <div class="mt-20 glass-card p-10 border-2 accent-border relative">
+        <div class="absolute -top-4 left-10 px-4 bg-[#1B2631] accent-text text-xs font-black uppercase tracking-[0.3em]">Executive Summary</div>
+        
+        <div class="space-y-6">
+            <div class="flex justify-between items-center">
+                <span class="text-gray-400 font-semibold uppercase tracking-widest text-sm">Total Food Cost (Per Head)</span>
+                <span id="summary-food-cost" class="text-2xl font-bold">R 0.00</span>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-gray-400 font-semibold uppercase tracking-widest text-sm">Recommended Markup (300%)</span>
+                <span id="summary-markup" class="text-2xl font-bold">R 0.00</span>
+            </div>
+            <div class="pt-6 border-t border-white/10 flex justify-between items-center">
+                <span class="accent-text font-black uppercase tracking-[0.2em] text-lg">Final Per-Head Price</span>
+                <span id="summary-grand-total" class="text-5xl font-black accent-text tracking-tighter">R 0.00</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-12 text-center no-print">
+        <button class="btn-accent" onclick="window.print()">Print Strategic Proposal</button>
     </div>
 </div>
 
-<script>
+<!-- Scripts -->
+<script type="importmap">
+  {
+    "imports": {
+      "@google/genai": "https://esm.run/@google/genai"
+    }
+  }
+</script>
+
+<script type="module">
+    import { GoogleGenAI } from "@google/genai";
+
     const proteinData = {
-        lamb: { name: 'Rack of Lamb', price: 320.00, yield: 75 },
-        beef: { name: 'Beef Fillet', price: 295.00, yield: 92 }
+        lamb: { name: 'Rack of Lamb', displayName: 'Herb-Crusted Rack of Lamb', price: 320.00, yield: 75 },
+        beef: { name: 'Beef Fillet', displayName: 'Prime Beef Fillet Mignon', price: 295.00, yield: 92 }
     };
 
     let currentProtein = 'lamb';
+    let currentTier = 'premium';
 
+    // Tier Logic
+    window.updateTier = function() {
+        currentTier = document.getElementById('tier-selector').value;
+        const premiumOnly = document.querySelectorAll('.premium-only');
+        const heroContainer = document.getElementById('hero-container');
+
+        if (currentTier === 'premium') {
+            premiumOnly.forEach(el => el.classList.remove('hidden'));
+            heroContainer.classList.add('hidden');
+            generateAllImages();
+        } else {
+            premiumOnly.forEach(el => el.classList.add('hidden'));
+            heroContainer.classList.remove('hidden');
+            generateDishImage('hero');
+        }
+    };
+
+    async function generateAllImages() {
+        if (currentTier !== 'premium') return;
+        // Sequential generation to ensure stability
+        await generateDishImage('appetizer');
+        await generateDishImage('main');
+        await generateDishImage('dessert');
+    }
+
+    // Calculation Logic
     function calculate() {
         const rows = document.querySelectorAll('.row');
         let grandTotal = 0;
 
         rows.forEach(row => {
-            const qty = parseFloat(row.querySelector('.qty').value) || 0;
-            const yieldVal = parseFloat(row.querySelector('.yield').value) || 1;
-            const price = parseFloat(row.querySelector('.price').value) || 0;
+            const qtyInput = row.querySelector('.qty');
+            const yieldInput = row.querySelector('.yield');
+            const priceInput = row.querySelector('.price');
+            
+            if (!qtyInput || !yieldInput || !priceInput) return;
+
+            const qty = parseFloat(qtyInput.value) || 0;
+            const yieldVal = parseFloat(yieldInput.value) || 1;
+            const price = parseFloat(priceInput.value) || 0;
             const totalCell = row.querySelector('.total-cell');
 
             // Formula: Total = (Qty * Price) / (Yield / 100)
@@ -451,37 +468,100 @@
         document.getElementById('summary-grand-total').textContent = 'R ' + finalPrice.toFixed(2);
     }
 
-    function swapProtein() {
+    // Protein Swap Logic
+    window.swapProtein = function(e) {
         const row = document.querySelector('.protein-row');
         const nameCell = row.querySelector('.protein-name');
+        const displayNameCell = document.querySelector('.protein-display-name');
         const priceInput = row.querySelector('.price');
         const yieldInput = row.querySelector('.yield');
-        const btn = document.querySelector('.btn-swap');
 
         if (currentProtein === 'lamb') {
             currentProtein = 'beef';
-            nameCell.innerHTML = `Beef Fillet <span class="unit-label">kg</span>`;
+            nameCell.innerHTML = `Beef Fillet <span class="text-[10px] text-gray-500 ml-1">kg</span>`;
+            displayNameCell.textContent = proteinData.beef.displayName;
             priceInput.value = proteinData.beef.price.toFixed(2);
             yieldInput.value = proteinData.beef.yield;
-            btn.textContent = 'Swap for Rack of Lamb';
+            if (e && e.target) e.target.textContent = 'Swap for Rack of Lamb';
         } else {
             currentProtein = 'lamb';
-            nameCell.innerHTML = `Rack of Lamb <span class="unit-label">kg</span>`;
+            nameCell.innerHTML = `Rack of Lamb <span class="text-[10px] text-gray-500 ml-1">kg</span>`;
+            displayNameCell.textContent = proteinData.lamb.displayName;
             priceInput.value = proteinData.lamb.price.toFixed(2);
             yieldInput.value = proteinData.lamb.yield;
-            btn.textContent = 'Swap for Beef Fillet';
+            if (e && e.target) e.target.textContent = 'Swap for Beef Fillet';
         }
         calculate();
-    }
+    };
 
-    // Add event listeners to all inputs
-    document.querySelectorAll('input').forEach(input => {
-        input.addEventListener('input', calculate);
+    // AI Image Generation Logic
+    window.generateDishImage = async function(sectionKey) {
+        let section;
+        if (sectionKey === 'hero') {
+            section = document.getElementById('hero-container');
+        } else {
+            section = document.querySelector(`[data-section="${sectionKey}"]`);
+        }
+        
+        if (!section) return;
+
+        const overlay = section.querySelector('.loading-overlay');
+        const img = section.querySelector('.dish-img');
+        
+        let prompt;
+        if (sectionKey === 'hero') {
+            prompt = "A luxurious three-course fine dining spread on a dark table, cinematic lighting, professional food photography, high resolution.";
+        } else {
+            const dishName = section.querySelector('h2').textContent;
+            prompt = `Professional food photography of ${dishName}, elegant plating, dark background, cinematic lighting, high resolution, 16:9 aspect ratio.`;
+        }
+
+        overlay.classList.remove('hidden');
+
+        try {
+            const apiKey = process.env.GEMINI_API_KEY;
+            if (!apiKey) {
+                console.warn("GEMINI_API_KEY not found in environment.");
+                return;
+            }
+            
+            const ai = new GoogleGenAI({ apiKey });
+            
+            const response = await ai.models.generateContent({
+                model: 'gemini-2.5-flash-image',
+                contents: {
+                    parts: [{ text: prompt }]
+                }
+            });
+
+            if (response.candidates && response.candidates[0] && response.candidates[0].content) {
+                for (const part of response.candidates[0].content.parts) {
+                    if (part.inlineData) {
+                        img.src = `data:image/png;base64,${part.inlineData.data}`;
+                        break;
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Image generation failed:", error);
+        } finally {
+            overlay.classList.add('hidden');
+        }
+    };
+
+    // Event Listeners
+    document.addEventListener('input', (e) => {
+        if (e.target.classList.contains('input-field')) {
+            calculate();
+        }
     });
 
-    // Initial calculation
+    // Initial Run
     calculate();
+    // Initial Image Generation for Premium
+    generateAllImages();
 </script>
+
 
 </body>
 </html>
