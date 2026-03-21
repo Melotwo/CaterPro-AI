@@ -5,7 +5,8 @@ import {
   ClipboardList, Utensils, ArrowRight, 
   Loader2, Download, MessageSquare, X, 
   Send, Sparkles, Trophy, Package, Zap,
-  ShieldCheck, FileText, ExternalLink
+  ShieldCheck, FileText, ExternalLink,
+  Percent, Info
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -21,6 +22,7 @@ import CostingLibrary from './components/CostingLibrary';
 import PartnerDashboard from './components/PartnerDashboard';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
+import { StudentYieldCalculator } from './components/StudentYieldCalculator';
 
 // --- INITIALIZE GOOGLE AI ---
 const apiKey = process.env.GEMINI_API_KEY || "";
@@ -530,6 +532,10 @@ export default function App() {
                   </>
                 )}
               </button>
+            </div>
+
+            <div className="w-full max-w-2xl">
+              <StudentYieldCalculator />
             </div>
           </div>
         );
