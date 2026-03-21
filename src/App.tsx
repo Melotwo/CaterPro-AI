@@ -6,7 +6,7 @@ import {
   Loader2, Download, MessageSquare, X, 
   Send, Sparkles, Trophy, Package, Zap,
   ShieldCheck, FileText, ExternalLink,
-  Percent, Info
+  Percent, Info, GraduationCap, Briefcase
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -199,21 +199,117 @@ export default function App() {
     switch (viewMode) {
       case 'landing':
         return (
-          <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center p-6 text-center">
-            <h1 className="text-4xl font-bold mb-4 tracking-tighter uppercase">CaterProAi</h1>
-            <h2 className="text-5xl md:text-7xl font-black mb-8 leading-tight tracking-tighter">
-              Chef in the Kitchen.<br/>
-              <span className="bg-gradient-to-r from-[#10b981] to-[#059669] bg-clip-text text-transparent">AI in the Office.</span>
-            </h2>
-            <p className="text-slate-500 text-xl mb-12 max-w-2xl font-medium">
-              The <span className="italic">Elegance</span> edition. Precision catering intelligence for the modern executive.
-            </p>
-            <button 
-              onClick={() => setViewMode('generator')} 
-              className="bg-gradient-to-br from-[#10b981] to-[#059669] text-black px-12 py-4 rounded-full font-black text-lg hover:scale-105 transition-all shadow-[0_10px_30px_rgba(16,185,129,0.3)] uppercase tracking-widest"
-            >
-              Start Planning
-            </button>
+          <div className="min-h-screen bg-white text-black flex flex-col">
+            {/* Hero Section */}
+            <div className="flex flex-col items-center justify-center p-6 text-center pt-32 pb-20">
+              <h1 className="text-4xl font-bold mb-4 tracking-tighter uppercase">CaterProAi</h1>
+              <h2 className="text-5xl md:text-7xl font-black mb-8 leading-tight tracking-tighter">
+                Chef in the Kitchen.<br/>
+                <span className="bg-gradient-to-r from-[#10b981] to-[#059669] bg-clip-text text-transparent">AI in the Office.</span>
+              </h2>
+              <p className="text-slate-500 text-xl mb-12 max-w-2xl font-medium">
+                The <span className="italic">Elegance</span> edition. Precision catering intelligence for the modern executive.
+              </p>
+              <button 
+                onClick={() => setViewMode('generator')} 
+                className="bg-gradient-to-br from-[#10b981] to-[#059669] text-black px-12 py-4 rounded-full font-black text-lg hover:scale-105 transition-all shadow-[0_10px_30px_rgba(16,185,129,0.3)] uppercase tracking-widest"
+              >
+                Start Planning
+              </button>
+            </div>
+
+            {/* Dual-Tier Section */}
+            <div className="max-w-7xl mx-auto w-full px-6 py-20">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* For Students */}
+                <div className="bg-slate-50 p-12 rounded-[3rem] border border-slate-100 hover:shadow-2xl transition-all group">
+                  <div className="w-16 h-16 bg-[#10b981]/10 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+                    <GraduationCap className="text-[#10b981]" size={32} />
+                  </div>
+                  <h3 className="text-3xl font-black mb-4 tracking-tighter">For Students</h3>
+                  <p className="text-slate-500 font-medium mb-8 leading-relaxed">
+                    Master the art of food math and international standards with our specialized student toolkit.
+                  </p>
+                  <ul className="space-y-4 mb-10">
+                    <li className="flex items-center gap-3 text-sm font-bold text-slate-700">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
+                      Yield Sandbox for precision testing
+                    </li>
+                    <li className="flex items-center gap-3 text-sm font-bold text-slate-700">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
+                      International Curriculum Modules
+                    </li>
+                    <li className="flex items-center gap-3 text-sm font-bold text-slate-700">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
+                      PoE Admin Automation
+                    </li>
+                  </ul>
+                  <button onClick={() => setViewMode('generator')} className="flex items-center gap-2 text-[#10b981] font-black uppercase tracking-widest text-xs group-hover:gap-4 transition-all">
+                    Explore Student Tools <ArrowRight size={16} />
+                  </button>
+                </div>
+
+                {/* For Professionals */}
+                <div className="bg-slate-900 p-12 rounded-[3rem] border border-slate-800 hover:shadow-2xl transition-all group text-white">
+                  <div className="w-16 h-16 bg-[#10b981]/20 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
+                    <Briefcase className="text-[#10b981]" size={32} />
+                  </div>
+                  <h3 className="text-3xl font-black mb-4 tracking-tighter">For Professionals</h3>
+                  <p className="text-slate-400 font-medium mb-8 leading-relaxed">
+                    Scale your catering operation with enterprise-grade intelligence and automated logistics.
+                  </p>
+                  <ul className="space-y-4 mb-10">
+                    <li className="flex items-center gap-3 text-sm font-bold text-slate-300">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
+                      Live ZAR Costing & Smart Shopping
+                    </li>
+                    <li className="flex items-center gap-3 text-sm font-bold text-slate-300">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
+                      HACCP Safety Automation
+                    </li>
+                    <li className="flex items-center gap-3 text-sm font-bold text-slate-300">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
+                      One-Click PDF Proposal Exports
+                    </li>
+                  </ul>
+                  <button onClick={() => setViewMode('generator')} className="flex items-center gap-2 text-[#10b981] font-black uppercase tracking-widest text-xs group-hover:gap-4 transition-all">
+                    Launch Professional Suite <ArrowRight size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Chef's Toolkit - Lasso Integration */}
+            <div className="bg-slate-50 py-20">
+              <div className="max-w-7xl mx-auto px-6">
+                <div className="flex items-center justify-between mb-12">
+                  <h3 className="text-2xl font-black tracking-tighter uppercase">Chef’s Toolkit</h3>
+                  <div className="flex gap-2">
+                    <div className="w-2 h-2 rounded-full bg-[#10b981]" />
+                    <div className="w-2 h-2 rounded-full bg-slate-200" />
+                    <div className="w-2 h-2 rounded-full bg-slate-200" />
+                  </div>
+                </div>
+                
+                <div className="flex overflow-x-auto gap-6 pb-8 no-scrollbar">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="min-w-[300px] bg-white p-8 rounded-[2rem] border border-slate-100 shadow-xl flex flex-col items-center justify-center text-center">
+                      <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center mb-6">
+                        <Package className="text-slate-300" size={24} />
+                      </div>
+                      <div className="space-y-2 mb-6">
+                        <div className="h-4 w-32 bg-slate-100 rounded-full mx-auto" />
+                        <div className="h-3 w-24 bg-slate-50 rounded-full mx-auto" />
+                      </div>
+                      {/* Lasso Placeholder */}
+                      <div className="w-full py-4 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-400">
+                        Lasso Affiliate Script {i}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         );
 
