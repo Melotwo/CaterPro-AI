@@ -1,11 +1,11 @@
 
 import React, { useState } from 'react';
-import { BookOpen, Copy, Zap, CheckCircle2, Sparkles, Award, GraduationCap, Share2, Scale, MessageSquare, Phone, ShieldCheck, Info, Anchor, CreditCard, Mail, User, Globe, Users, Briefcase, Send, Camera, Building2, BellRing, RefreshCw, Play, PlayCircle, Layers, MousePointer2, Image as ImageIcon, Download, Loader2, ListTree, Activity, MessageSquareQuote, ChevronRight, Video, Search, TrendingUp, X, Mic2, ArrowRight, Book } from 'lucide-react';
+import { BookOpen, Copy, Zap, CheckCircle2, Sparkles, Award, GraduationCap, Share2, Scale, MessageSquare, Phone, ShieldCheck, Info, Anchor, CreditCard, Mail, User, Globe, Users, Briefcase, Send, Camera, Building2, BellRing, RefreshCw, Play, PlayCircle, Layers, MousePointer2, Image as ImageIcon, Download, Loader2, ListTree, Activity, MessageSquareQuote, ChevronRight, Video, Search, TrendingUp, X, Mic2, ArrowRight, Book, Trash2 } from 'lucide-react';
 import { generateCulinaryInfographic } from '../services/geminiService';
 
 const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowToast }) => {
   // Set 'lifecycle' as the default tab so the script is visible immediately
-  const [activeTab, setActiveTab] = useState<'growth' | 'lifecycle' | 'automation'>('lifecycle');
+  const [activeTab, setActiveTab] = useState<'growth' | 'lifecycle' | 'automation' | 'library'>('lifecycle');
   const [isGeneratingSheet, setIsGeneratingSheet] = useState(false);
   const [generatedSheet, setGeneratedSheet] = useState<string | null>(null);
   const [isScriptModalOpen, setIsScriptModalOpen] = useState(false);
@@ -86,6 +86,12 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
                   className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'automation' ? 'bg-white text-indigo-600' : 'text-indigo-200 hover:text-white'}`}
                 >
                     Automation
+                </button>
+                <button 
+                  onClick={() => setActiveTab('library')}
+                  className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${activeTab === 'library' ? 'bg-white text-indigo-600' : 'text-indigo-200 hover:text-white'}`}
+                >
+                    Library
                 </button>
             </div>
         </div>
@@ -217,6 +223,44 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
                       </div>
                   </div>
               </div>
+          </div>
+        ) : activeTab === 'library' ? (
+          <div className="p-8 animate-fade-in space-y-8">
+            <div className="flex items-center gap-3 mb-6">
+              <BookOpen className="text-indigo-500" />
+              <h4 className="text-sm font-black uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">International Study Guide</h4>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="p-8 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-[2.5rem] relative group">
+                <div className="absolute top-0 right-0 p-8 opacity-5 text-indigo-500"><Scale size={80} /></div>
+                <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-[9px] font-black uppercase tracking-widest mb-4 inline-block">Module A</span>
+                <h5 className="text-xl font-black mb-3 text-slate-900 dark:text-white">Yield Testing Standards</h5>
+                <p className="text-xs text-slate-500 font-bold leading-relaxed mb-6">Master the fundamental formula for edible portion calculation.</p>
+                <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-700">
+                  <p className="text-sm font-black text-indigo-600 dark:text-indigo-400 font-mono italic">EP = AP &times; Y</p>
+                </div>
+              </div>
+
+              <div className="p-8 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-[2.5rem] relative group">
+                <div className="absolute top-0 right-0 p-8 opacity-5 text-indigo-500"><Globe size={80} /></div>
+                <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-[9px] font-black uppercase tracking-widest mb-4 inline-block">Module B</span>
+                <h5 className="text-xl font-black mb-3 text-slate-900 dark:text-white">Unit Conversion Matrix</h5>
+                <p className="text-xs text-slate-500 font-bold leading-relaxed mb-6">Standardized metrics for international culinary operations.</p>
+                <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-700">
+                  <p className="text-sm font-black text-amber-600 dark:text-amber-400 font-mono italic">1kg = 2.2lb</p>
+                </div>
+              </div>
+
+              <div className="p-8 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-[2.5rem] relative group">
+                <div className="absolute top-0 right-0 p-8 opacity-5 text-indigo-500"><Trash2 size={80} /></div>
+                <span className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[9px] font-black uppercase tracking-widest mb-4 inline-block">Module C</span>
+                <h5 className="text-xl font-black mb-3 text-slate-900 dark:text-white">Waste Management</h5>
+                <p className="text-xs text-slate-500 font-bold leading-relaxed mb-6">Optimize your bottom line by tracking trim percentages.</p>
+                <div className="p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-700">
+                  <p className="text-sm font-black text-emerald-600 dark:text-emerald-400 font-mono italic">Trim % = Trim Weight / AP Weight</p>
+                </div>
+              </div>
+            </div>
           </div>
         ) : (
           <div className="p-8 animate-fade-in space-y-8">
