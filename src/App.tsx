@@ -1,719 +1,639 @@
-
 import React, { useState, useEffect, useRef } from 'react';
-import { Loader2, Save, AlertTriangle, FileDown, Sparkles, Megaphone, GraduationCap, Share2, Film, Mail, Search, Globe, Facebook, Lightbulb, Target, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck, RefreshCw, Smartphone, X, Heart, Briefcase } from 'lucide-react';
-import { jsPDF } from 'jspdf';
+import { GoogleGenAI } from "@google/genai";
+import { 
+  ChefHat, ShoppingCart, Calculator, 
+  ClipboardList, Utensils, ArrowRight, 
+  Loader2, Download, MessageSquare, X, 
+  Send, Sparkles, Trophy, Package, Zap,
+  ShieldCheck, FileText, ExternalLink
+} from 'lucide-react';
 import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
+// --- INFRASTRUCTURE IMPORTS (Code A) ---
+import { useAuth } from './hooks/useAuth';
+import { useAppSubscription, SubscriptionPlan } from './hooks/useAppSubscription';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import MenuDisplay from './components/MenuDisplay';
-import SavedChecklistsModal from './components/SavedChecklistsModal';
-import Toast from './components/Toast';
-import AiChatBot from './components/AiChatBot';
-import QrCodeModal from './components/QrCodeModal';
-import ShareModal from './components/ShareModal';
-import SocialMediaModal, { Mode as SocialMode } from './components/SocialMediaModal';
-import MultiSelectDropdown from './components/MultiSelectDropdown';
-import GenerationHistory from './components/GenerationHistory';
-import CustomizationModal from './components/CustomizationModal';
-import EmailCapture from './components/EmailCapture';
-import PricingPage from './components/PricingPage';
-import UpgradeModal from './components/UpgradeModal';
-import PwaInstallModal from './components/PwaInstallModal';
-import LandingPage from './components/LandingPage';
-import ResearchHub from './components/ResearchHub';
-import FeaturesList from './components/FeaturesList';
 import AuthModal from './components/AuthModal';
+import PricingPage from './components/PricingPage';
 import CostingLibrary from './components/CostingLibrary';
+import PartnerDashboard from './components/PartnerDashboard';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
-import MeetTheFounder from './components/MeetTheFounder';
-import PartnerDashboard from './components/PartnerDashboard';
-import { useAuth } from './hooks/useAuth';
-import { auth, db, storage } from './firebase';
-import { signOut } from 'firebase/auth';
-import { collection, query, where, getDocs } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import FounderRoadmap from './components/FounderRoadmap';
-import SEOHead from './components/SEOHead';
-import MarketingRoadmap from './components/MarketingRoadmap';
-import ProductivityLab from './components/ProductivityLab';
-import GoogleAnalytics from './components/GoogleAnalytics';
-import FacebookPixel from './components/FacebookPixel';
-import ManyChatWidget from './components/ManyChatWidget';
-import { useAppSubscription } from './hooks/useAppSubscription';
-import { CUISINES, DIETARY_RESTRICTIONS, EVENT_TYPES, GUEST_COUNT_OPTIONS, BUDGET_LEVELS } from './constants';
-import { SavedMenu, ErrorState, ValidationErrors, Menu, MenuSection, CloudMenu } from './types';
-import { getApiErrorState } from './services/apiErrorHandler';
-import { generateMenuFromApi, generateMenuImageFromApi } from './services/geminiService';
-import { analytics } from './services/analyticsManager';
-import { firestoreService } from './services/firestoreService';
-import { automationService } from './services/automationService';
 
-const WHOP_STORE_URL = "https://whop.com/melotwo2"; 
-const WHOP_LINKS = {
-  commis: "https://whop.com/melotwo2/student-edition/",
-  chefDePartie: "https://whop.com/melotwo2/professional-edition/",
-  sousChef: "https://whop.com/melotwo2/business-edition/",
-  executive: "https://whop.com/melotwo2/executive-f5",
+// --- INITIALIZE GOOGLE AI ---
+const apiKey = process.env.GEMINI_API_KEY || "";
+
+// --- UTILS ---
+const formatCurrency = (amount: number) => {
+  const locale = navigator.language || 'en-ZA';
+  let currency = 'USD';
+  if (locale.includes('ZA')) currency = 'ZAR';
+  else if (locale.includes('GB')) currency = 'GBP';
+  else if (locale.includes('EU') || ['de', 'fr', 'it', 'es', 'nl'].some(l => locale.startsWith(l))) currency = 'EUR';
+  
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount);
 };
-const FACEBOOK_PAGE_URL = "https://facebook.com/CaterProAi"; 
-
-type AppView = 'landing' | 'generator' | 'pricing' | 'library' | 'privacy' | 'partner' | 'terms';
 
 export default function App() {
-  const { user, isConfigured } = useAuth();
-  const [viewMode, setViewMode] = useState<AppView>(() => {
-    if (window.location.pathname === '/privacy') return 'privacy';
-    if (window.location.pathname === '/terms') return 'terms';
-    return 'generator';
-  });
+  // --- STATE & HOOKS ---
+  const { user, loading: authLoading } = useAuth();
+  const { subscription, selectPlan, canAccessFeature, recordGeneration } = useAppSubscription();
+  
+  const [viewMode, setViewMode] = useState<'landing' | 'generator' | 'pricing' | 'library' | 'privacy' | 'partner' | 'terms' | 'success'>('landing');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-  const [showControlCenter, setShowControlCenter] = useState(false);
-  const [eventType, setEventType] = useState('');
-  const [eventTypeSearch, setEventTypeSearch] = useState('');
-  const [showEventResults, setShowEventResults] = useState(false);
-  const [guestCount, setGuestCount] = useState('');
-  const [budget, setBudget] = useState('$$');
-  const [currency, setCurrency] = useState(() => {
-    const locale = navigator.language;
-    if (locale.includes('ZA')) return 'ZAR';
-    if (locale.includes('GB')) return 'GBP';
-    if (locale.includes('EU')) return 'EUR';
-    return 'USD';
-  }); 
-  const [serviceStyle, setServiceStyle] = useState('Standard Catering');
-  const [cuisine, setCuisine] = useState('');
-  const [cuisineSearch, setCuisineSearch] = useState('');
-  const [strategyHook, setStrategyHook] = useState(''); 
-  const [showCuisineResults, setShowCuisineResults] = useState(false);
-  const [showStrategyGuide, setShowStrategyGuide] = useState(false);
-  const [dietaryRestrictions, setDietaryRestrictions] = useState<string[]>([]);
-  const [proposalTheme, setProposalTheme] = useState('classic');
   
-  const [isFounderMode, setIsFounderMode] = useState(() => {
-    const params = new URLSearchParams(window.location.search);
-    const mode = params.get('mode');
-    const stored = localStorage.getItem('caterpro_is_founder');
-    if (mode === 'founder' || stored === 'true') {
-        localStorage.setItem('caterpro_is_founder', 'true');
-        return true;
-    }
-    return false;
-  });
+  // Generator State (Code B)
+  const [guests, setGuests] = useState('50');
+  const [style, setStyle] = useState('');
+  const [dietary, setDietary] = useState('');
+  const [eventType, setEventType] = useState('Corporate Event');
+  const [loading, setLoading] = useState(false);
+  const [proposal, setProposal] = useState<any>(null);
+  const [isTotalUpdating, setIsTotalUpdating] = useState(false);
+  
+  // Chat State (Code B)
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [chatInput, setChatInput] = useState('');
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [isChatLoading, setIsChatLoading] = useState(false);
+  
+  const proposalRef = useRef<HTMLDivElement>(null);
 
-  const handleSignOut = async () => {
-    try {
-      if (localStorage.getItem('caterpro_is_founder') === 'true') {
-        localStorage.removeItem('caterpro_is_founder');
-        window.location.reload();
-        return;
-      }
-      if (auth) {
-        await signOut(auth);
-        setToastMessage('Signed out successfully');
-      }
-    } catch (err: any) {
-      setError({ title: 'Authentication Error', message: err.message });
+  // Trigger animation on total change
+  useEffect(() => {
+    if (proposal) {
+      setIsTotalUpdating(true);
+      const timer = setTimeout(() => setIsTotalUpdating(false), 300);
+      return () => clearTimeout(timer);
     }
+  }, [guests, proposal?.logistics?.deliveryFee]);
+
+  // --- WHOP LINKS (Code A) ---
+  const whopLinks = {
+    commis: "https://whop.com/checkout/plan_1", // Replace with real links
+    chefDePartie: "https://whop.com/checkout/plan_2",
+    sousChef: "https://whop.com/checkout/plan_3",
+    executive: "https://whop.com/checkout/plan_4"
   };
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [loadingTimer, setLoadingTimer] = useState(0);
-  const [error, setError] = useState<ErrorState | null>(null);
-  const [menu, setMenu] = useState<Menu | null>(null);
-  const [isGeneratingImage, setIsGeneratingImage] = useState(false);
-  
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    if (typeof window !== 'undefined') {
-      const storedTheme = localStorage.getItem('theme');
-      if (storedTheme) return storedTheme === 'dark';
-      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    return false;
-  });
-
-  const [savedMenus, setSavedMenus] = useState<SavedMenu[]>([]);
-  const [cloudMenus, setCloudMenus] = useState<CloudMenu[]>([]);
-  const [isSavedModalOpen, setIsSavedModalOpen] = useState(false);
-  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
-  const [validationErrors, setValidationErrors] = useState<ValidationErrors>({});
-  const [checkedItems, setCheckedItems] = useState<Set<string>>(new Set());
-  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
-  const [showRetentionBanner, setShowRetentionBanner] = useState(false);
-
-  const { subscription, selectPlan, recordGeneration, setShowUpgradeModal, showUpgradeModal, attemptAccess, canAccessFeature } = useAppSubscription();
-
-  useEffect(() => {
-    if (isFounderMode) {
-      selectPlan('executive');
-    }
-  }, [isFounderMode, selectPlan]);
-
-  const [isEmailCaptureModalOpen, setIsEmailCaptureModalOpen] = useState(false);
-  const [isSocialModalOpen, setIsSocialModalOpen] = useState(false);
-  const [socialModalMode, setSocialModalMode] = useState<SocialMode>('create');
-
-  const cuisineRef = useRef<HTMLDivElement>(null);
-  const eventRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
-    if (!isStandalone) {
-        const timer = setTimeout(() => setShowRetentionBanner(true), 5000);
-        return () => clearTimeout(timer);
-    }
-  }, []);
-
-  const filteredCuisines = CUISINES.filter(c => 
-    c.toLowerCase().includes((cuisineSearch || '').toLowerCase())
-  );
-
-  const filteredEvents = EVENT_TYPES.filter(e => 
-    e.toLowerCase().includes((eventTypeSearch || '').toLowerCase())
-  );
-
-  useEffect(() => {
-    analytics.track({ type: 'awareness_view', data: { page: viewMode } });
-  }, [viewMode]);
-
-  useEffect(() => {
-    let interval: any;
-    if (isLoading) {
-      setLoadingTimer(0);
-      interval = setInterval(() => {
-        setLoadingTimer(prev => prev + 1);
-      }, 1000);
-    } else {
-      setLoadingTimer(0);
-      clearInterval(interval);
-    }
-    return () => clearInterval(interval);
-  }, [isLoading]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (cuisineRef.current && !cuisineRef.current.contains(event.target as Node)) {
-        setShowCuisineResults(false);
-      }
-      if (eventRef.current && !eventRef.current.contains(event.target as Node)) {
-        setShowEventResults(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  useEffect(() => {
-    if (user) {
-      loadCloudMenus();
-    }
-  }, [user]);
-
-  const loadCloudMenus = async () => {
-    const menus = await firestoreService.getUserMenus();
-    setCloudMenus(menus);
-    // Sync with legacy savedMenus for the modal
-    setSavedMenus(menus.map(m => ({
-      id: m.id!,
-      title: m.menuTitle,
-      content: m,
-      savedAt: m.createdAt
-    })));
-  };
-
-  const handleSaveMenu = async () => {
-    if (!menu) return;
-    if (!user) {
-      setIsAuthModalOpen(true);
+  // --- GENERATION LOGIC (Code B) ---
+  async function generateProposal() {
+    if (!apiKey) {
+      alert("Gemini API Key is missing. Please configure it in the settings.");
       return;
     }
 
-    setIsLoading(true);
-    try {
-      const id = await firestoreService.saveMenu(menu, parseInt(guestCount) || 50);
-      if (id) {
-        setToastMessage("Menu synced to Cloud. Ready for the kitchen! 👨‍🍳");
-        
-        // Trigger automation webhook
-        if (user?.email) {
-          automationService.triggerSignupWebhook({
-            email: user.email,
-            name: user.displayName || 'Chef',
-            businessType: serviceStyle.includes('Catering') ? 'Caterer' : 'Chef',
-          });
-        }
-        
-        loadCloudMenus();
-      }
-    } catch (err) {
-      setToastMessage("Failed to save menu.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleDeleteMenu = async (id: string) => {
-    try {
-      await firestoreService.deleteMenu(id);
-      setToastMessage("Menu Removed.");
-      loadCloudMenus();
-    } catch (err) {
-      setToastMessage("Failed to delete.");
-    }
-  };
-
-  useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [isDarkMode]);
-
-  const STRATEGY_PRESETS = [
-    { id: 'lifecycle', label: 'Lifecycle Marketing', icon: TrendingUp, text: 'Apply Lifecycle Marketing Strategy: Guide the customer interactions strategically before, during, and after purchase to build trust.' },
-    { id: 'targeting', label: 'Hyper-Targeting', icon: Target, text: 'Apply Hyper-Targeted Content Strategy: Analyze specific segments (busy pros vs event hosts) and tailor the culinary hook to them.' },
-    { id: 'data', label: 'Data-Driven', icon: BarChart3, text: 'Apply Data-Driven Strategy: Focus on measurable metrics and systems that track conversion over simple posting.' }
-  ];
-
-  const handleApplyPreset = (text: string) => {
-    setStrategyHook(text);
-    setToastMessage("Marketing Strategy Applied!");
-    analytics.track({ type: 'founder_action', data: { actionName: 'apply_strategy_preset' } });
-  };
-
-  const handleOpenSocial = (mode: SocialMode) => {
-    if (attemptAccess('socialMediaTools')) {
-        setSocialModalMode(mode);
-        setIsSocialModalOpen(true);
-    }
-  };
-
-  const regenerateImage = async () => {
-      if (!menu) return;
-      setIsGeneratingImage(true);
-      try {
-          const imageBase64 = await generateMenuImageFromApi(menu.menuTitle, menu.description);
-          setMenu(prev => prev ? { ...prev, image: imageBase64 } : null);
-          setToastMessage("Professional Visual Architected!");
-      } catch (err) {
-          console.error("Manual Image Regen failed", err);
-          setToastMessage("AI Visual Engine busy. Try in a moment.");
-      } finally {
-          setIsGeneratingImage(false);
-      }
-  };
-
-  const generateMenu = async () => {
+    // Check subscription limits (Code A integration)
     if (!recordGeneration()) return;
+
+    setLoading(true);
+    try {
+      const ai = new GoogleGenAI({ apiKey });
+      const prompt = `Act as a Chef Operations manager. Create a comprehensive culinary workspace proposal for a ${eventType}.
+      - Guests: ${guests}
+      - Culinary Style: ${style}
+      - Dietary Requirements: ${dietary || "None specified"}
+
+      Return a detailed JSON object with the following structure:
+      { 
+        "title": "string (e.g., Modern Thai Fusion Gala)", 
+        "imageQuery": "string (food item for visual search)", 
+        "menu": [{"cat": "Appetizers" | "Main Courses" | "Desserts", "dish": "string", "notes": "string"}], 
+        "miseEnPlace": ["step1", "step2"], 
+        "serviceNotes": ["note1", "note2"],
+        "haccpSafety": [
+          {"point": "Critical Control Point", "requirement": "e.g., Internal temp 75°C for poultry"}
+        ],
+        "shoppingList": {
+          "Proteins": ["item1", "item2"],
+          "Produce": ["item1", "item2"],
+          "Pantry": ["item1", "item2"]
+        },
+        "logistics": {
+          "deliveryFee": number (in ZAR),
+          "setupTime": "string",
+          "staffRequired": number
+        },
+        "winePairings": ["pairing1", "pairing2"],
+        "costPerHead": number (in ZAR)
+      }`;
+      
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: [{ role: 'user', parts: [{ text: prompt }] }],
+        config: { responseMimeType: "application/json" }
+      });
+
+      const data = JSON.parse(response.text || "{}");
+      setProposal(data);
+      setChatMessages([{ role: 'model', text: `Chef, your ${data.title} proposal is ready. I've included a HACCP safety checklist for your protein handling. What's our next move?` }]);
+      setViewMode('generator'); // Stay in generator view to show result
+    } catch (e) { 
+      console.error("Gemini Error:", e);
+      alert("Error generating proposal. Please check your connection and API key."); 
+    }
+    setLoading(false);
+  }
+
+  async function handleChat() {
+    if (!chatInput.trim() || isChatLoading) return;
     
-    const newValidationErrors: ValidationErrors = {};
-    if (!eventType) newValidationErrors.eventType = "Select an event.";
-    if (!guestCount) newValidationErrors.guestCount = "Select guests.";
-    if (!cuisine) newValidationErrors.cuisine = "Search for a country or style.";
-    setValidationErrors(newValidationErrors);
-    if (Object.keys(newValidationErrors).length > 0) return;
+    // Check if user has access to AI Chat (Code A integration)
+    if (!canAccessFeature('aiChatBot')) {
+      setViewMode('pricing');
+      return;
+    }
 
-    setIsLoading(true);
-    setError(null);
-    setMenu(null);
-
-    analytics.track({ type: 'conversion_generate', data: { eventType, plan: subscription.plan } });
+    const userMsg = { role: 'user', text: chatInput };
+    setChatMessages(prev => [...prev, userMsg]);
+    setChatInput('');
+    setIsChatLoading(true);
 
     try {
-      let userIngredientCosts = null;
-      if (user && db) {
-        const q = query(collection(db, 'ingredientCosts'), where('userId', '==', user.uid));
-        const querySnapshot = await getDocs(q);
-        userIngredientCosts = querySnapshot.docs.map(doc => doc.data());
-      }
+      const ai = new GoogleGenAI({ apiKey });
+      const chatPrompt = `You are a Chef Operations AI Consultant. The current proposal is for a ${eventType} (${style}) for ${guests} guests.
+      Proposal Details: ${JSON.stringify(proposal)}
+      User Question: ${chatInput}
+      Provide a concise, professional chef-to-chef response. Focus on operational excellence and HACCP standards.`;
 
-      const result = await generateMenuFromApi({
-        eventType,
-        guestCount,
-        budget,
-        serviceStyle,
-        cuisine,
-        dietaryRestrictions,
-        currency,
-        strategyHook,
-        userIngredientCosts: userIngredientCosts || undefined
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: [{ role: 'user', parts: [{ text: chatPrompt }] }]
       });
-      
-      const newMenu = { ...result.menu, theme: proposalTheme };
-      setMenu(newMenu);
-      setIsLoading(false); // Stop general loading, switch to image sub-loading
-      
-      setIsGeneratingImage(true);
-      try {
-        const imageBase64 = await generateMenuImageFromApi(newMenu.menuTitle, newMenu.description);
-        setMenu(prev => prev ? { ...prev, image: imageBase64 } : null);
-      } catch (imgErr) {
-        console.warn("AI Image generation failed during auto-run", imgErr);
-      } finally {
-        setIsGeneratingImage(false);
-      }
-      
-      {/* Email capture auto-popup removed */}
+
+      setChatMessages(prev => [...prev, { role: 'model', text: response.text }]);
     } catch (e) {
-      setError(getApiErrorState(e));
-      setIsLoading(false);
+      setChatMessages(prev => [...prev, { role: 'model', text: "Sorry Chef, I'm having trouble connecting to the office right now." }]);
     }
+    setIsChatLoading(false);
+  }
+
+  const downloadPDF = async () => {
+    if (!proposalRef.current) return;
+    const canvas = await html2canvas(proposalRef.current, { 
+      scale: 2,
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff'
+    });
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const imgProps = pdf.getImageProperties(imgData);
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save(`${proposal.title.replace(/\s+/g, '_')}_Proposal.pdf`);
   };
 
-  const handleUploadDishImage = async (file: File) => {
-    if (!user || !menu || !storage) return;
-    setIsLoading(true);
-    try {
-      const storageRef = ref(storage, `dishImages/${user.uid}/${Date.now()}_${file.name}`);
-      await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(storageRef);
+  // --- RENDER HELPERS ---
+  const renderView = () => {
+    switch (viewMode) {
+      case 'landing':
+        return (
+          <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center p-6 text-center">
+            <h1 className="text-4xl font-bold mb-4 tracking-tighter uppercase">CaterProAi</h1>
+            <h2 className="text-5xl md:text-7xl font-black mb-8 leading-tight tracking-tighter">
+              Chef in the Kitchen.<br/>
+              <span className="bg-gradient-to-r from-[#10b981] to-[#059669] bg-clip-text text-transparent">AI in the Office.</span>
+            </h2>
+            <p className="text-slate-500 text-xl mb-12 max-w-2xl font-medium">
+              The <span className="italic">Elegance</span> edition. Precision catering intelligence for the modern executive.
+            </p>
+            <button 
+              onClick={() => setViewMode('generator')} 
+              className="bg-gradient-to-br from-[#10b981] to-[#059669] text-black px-12 py-4 rounded-full font-black text-lg hover:scale-105 transition-all shadow-[0_10px_30px_rgba(16,185,129,0.3)] uppercase tracking-widest"
+            >
+              Start Planning
+            </button>
+          </div>
+        );
+
+      case 'generator':
+        if (proposal) {
+          return (
+            <div className="bg-slate-50 min-h-screen pb-20">
+              <div ref={proposalRef} className="bg-white">
+                <div 
+                  className="h-[60vh] w-full bg-cover bg-center flex items-end p-8 md:p-16 relative" 
+                  style={{backgroundImage: `url('https://picsum.photos/seed/${proposal?.imageQuery || 'gourmet-food'}/1920/1080')`}}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-t from-white via-white/10 to-transparent"/>
+                  <div className="relative z-10">
+                    <span className="text-[#10b981] font-black uppercase tracking-[0.4em] text-xs mb-4 block">{eventType}</span>
+                    <h2 className="text-5xl md:text-8xl font-black relative z-10 tracking-tighter leading-none text-slate-900">{proposal?.title}</h2>
+                  </div>
+                </div>
+
+                <div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-8 px-6 -mt-20 relative z-20">
+                  <div className="lg:col-span-2 space-y-8">
+                    {/* Menu Section */}
+                    <div className="backdrop-blur-md bg-white/70 p-10 rounded-[2.5rem] border border-white/20 shadow-2xl">
+                      <div className="flex items-center gap-3 mb-10 text-[#10b981]">
+                        <Utensils size={28}/>
+                        <h3 className="font-black text-3xl tracking-tighter text-slate-900">Menu Selection</h3>
+                      </div>
+                      <div className="grid md:grid-cols-2 gap-12">
+                        {['Appetizers', 'Main Courses', 'Desserts'].map(cat => (
+                          <div key={cat} className="space-y-8">
+                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] border-b border-slate-100 pb-3">{cat}</h4>
+                            {proposal?.menu.filter((m:any) => m.cat === cat).map((item:any, i:number) => (
+                              <div key={i} className="group">
+                                <h5 className="text-xl font-black group-hover:text-[#10b981] transition-colors text-slate-900 tracking-tight">{item.dish}</h5>
+                                <p className="text-slate-500 text-sm leading-relaxed mt-2 font-medium">{item.notes}</p>
+                              </div>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Mise en Place & Service Notes Grid */}
+                    <div className="grid md:grid-cols-2 gap-8">
+                      <div className="backdrop-blur-md bg-white/70 p-8 rounded-[2rem] border border-white/20 shadow-xl">
+                        <div className="flex items-center gap-3 mb-6 text-[#10b981]">
+                          <ClipboardList size={24}/>
+                          <h3 className="font-black text-xl tracking-tight text-slate-900">Mise en Place</h3>
+                        </div>
+                        <ul className="space-y-4">
+                          {proposal?.miseEnPlace?.map((step: string, i: number) => (
+                            <li key={i} className="text-sm text-slate-600 flex gap-4 font-medium">
+                              <span className="text-[#10b981] font-black">{String(i + 1).padStart(2, '0')}</span> {step}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="backdrop-blur-md bg-white/70 p-8 rounded-[2rem] border border-white/20 shadow-xl">
+                        <div className="flex items-center gap-3 mb-6 text-[#10b981]">
+                          <Sparkles size={24}/>
+                          <h3 className="font-black text-xl tracking-tight text-slate-900">Service Notes</h3>
+                        </div>
+                        <ul className="space-y-4">
+                          {proposal?.serviceNotes?.map((note: string, i: number) => (
+                            <li key={i} className="text-sm text-slate-600 flex gap-4 font-medium">
+                              <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] mt-1.5 shrink-0" /> {note}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+
+                    {/* HACCP Safety Checklist */}
+                    <div className="backdrop-blur-md bg-emerald-50/50 p-10 rounded-[2.5rem] border border-[#10b981]/10 shadow-xl">
+                      <div className="flex items-center gap-3 mb-8 text-[#10b981]">
+                        <ShieldCheck size={28}/>
+                        <h3 className="font-black text-2xl tracking-tighter text-slate-900">HACCP Safety Checklist</h3>
+                      </div>
+                      <div className="grid md:grid-cols-2 gap-6">
+                        {proposal?.haccpSafety?.map((item: any, i: number) => (
+                          <div key={i} className="bg-white/60 p-5 rounded-2xl border border-white/40">
+                            <span className="text-[10px] font-black text-[#10b981] uppercase tracking-widest block mb-1">{item.point}</span>
+                            <p className="text-sm text-slate-700 font-bold">{item.requirement}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Shopping List Section */}
+                    <div className="backdrop-blur-md bg-white/70 p-10 rounded-[2.5rem] border border-white/20 shadow-xl">
+                      <div className="flex items-center gap-3 mb-10 text-[#10b981]">
+                        <ShoppingCart size={28}/>
+                        <h3 className="font-black text-3xl tracking-tighter text-slate-900">Smart Shopping List</h3>
+                      </div>
+                      <div className="grid md:grid-cols-3 gap-8">
+                        {Object.entries(proposal?.shoppingList || {}).map(([cat, items]: [string, any]) => (
+                          <div key={cat} className="space-y-5">
+                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{cat}</h4>
+                            <ul className="space-y-3">
+                              {items.map((item: string, i: number) => (
+                                <li key={i} className="text-sm text-slate-500 flex gap-3 font-medium">
+                                  <span className="text-[#10b981]/40">•</span> {item}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-8">
+                    {/* Costing Card */}
+                    <div className="backdrop-blur-md bg-white/80 p-10 rounded-[2.5rem] border border-white/20 shadow-2xl sticky top-24">
+                      <div className="flex items-center gap-3 mb-8 text-[#10b981]">
+                        <Calculator size={28}/>
+                        <h3 className="font-black text-2xl tracking-tighter text-slate-900">Live Costing</h3>
+                      </div>
+                      <div className="space-y-6">
+                        <div className="flex justify-between items-center">
+                          <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Menu Cost</span>
+                          <span className="text-slate-900 font-black text-lg">{formatCurrency(proposal?.costPerHead * Number(guests))}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Logistics</span>
+                          <span className="text-slate-900 font-black text-lg">{formatCurrency(proposal?.logistics?.deliveryFee || 0)}</span>
+                        </div>
+                        <div className="pt-8 border-t border-slate-100">
+                          <span className="text-slate-400 text-[10px] uppercase font-black tracking-[0.2em] block mb-2">Total Proposal Value</span>
+                          <div className={`text-5xl font-black text-[#10b981] tracking-tighter transition-transform duration-300 ${isTotalUpdating ? 'scale-105' : 'scale-100'}`}>
+                            {formatCurrency((proposal?.costPerHead * Number(guests)) + (proposal?.logistics?.deliveryFee || 0))}
+                          </div>
+                        </div>
+                        <div className="bg-slate-50 p-4 rounded-2xl flex items-center justify-between">
+                          <span className="text-slate-500 text-xs font-bold uppercase">Cost Per Head</span>
+                          <span className="text-[#10b981] font-black">{formatCurrency(proposal?.costPerHead)}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Logistics Card */}
+                    <div className="backdrop-blur-md bg-white/70 p-8 rounded-[2rem] border border-white/20 shadow-xl">
+                      <div className="flex items-center gap-3 mb-6 text-[#10b981]">
+                        <Package size={24}/>
+                        <h3 className="font-black text-xl tracking-tight text-slate-900">Logistics & Prep</h3>
+                      </div>
+                      <div className="space-y-5">
+                        <div className="flex justify-between items-center">
+                          <span className="text-slate-400 uppercase text-[10px] font-black tracking-widest">Setup Time</span>
+                          <span className="text-slate-700 font-bold text-sm">{proposal?.logistics?.setupTime}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-slate-400 uppercase text-[10px] font-black tracking-widest">Staff Required</span>
+                          <span className="text-slate-700 font-bold text-sm">{proposal?.logistics?.staffRequired} Personnel</span>
+                        </div>
+                        <div className="mt-8 pt-6 border-t border-slate-100">
+                          <span className="text-slate-400 uppercase text-[10px] font-black tracking-widest block mb-4">Wine Pairings</span>
+                          <div className="flex flex-wrap gap-2">
+                            {proposal?.winePairings?.map((wine: string, i: number) => (
+                              <span key={i} className="bg-[#10b981]/10 text-[#10b981] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">{wine}</span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* AI Chat Sidebar */}
+              <div className={`fixed inset-y-0 right-0 w-96 bg-white/95 backdrop-blur-xl border-l border-slate-100 shadow-2xl transform transition-transform duration-500 ease-out z-[60] ${isChatOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+                <div className="h-full flex flex-col">
+                  <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-[#10b981]/10 rounded-xl flex items-center justify-center">
+                        <Sparkles className="text-[#10b981]" size={20} />
+                      </div>
+                      <div>
+                        <span className="font-black text-sm text-slate-900 block tracking-tight">AI Chef Consultant</span>
+                        <span className="text-[10px] text-[#10b981] font-bold uppercase tracking-widest">Online</span>
+                      </div>
+                    </div>
+                    <button onClick={() => setIsChatOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:text-slate-900 transition-colors"><X size={18} /></button>
+                  </div>
+                  
+                  <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                    {chatMessages.map((msg, i) => (
+                      <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                        <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed ${msg.role === 'user' ? 'bg-gradient-to-br from-[#10b981] to-[#059669] text-black font-bold shadow-lg' : 'bg-slate-50 text-slate-700 border border-slate-100 font-medium'}`}>
+                          {msg.text}
+                        </div>
+                      </div>
+                    ))}
+                    {isChatLoading && (
+                      <div className="flex justify-start">
+                        <div className="bg-slate-50 p-4 rounded-2xl text-sm text-slate-400 flex items-center gap-3 border border-slate-100 font-medium">
+                          <Loader2 className="animate-spin" size={16} /> Chef is thinking...
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="p-6 border-t border-slate-100 bg-white">
+                    <div className="relative">
+                      <input 
+                        type="text" 
+                        value={chatInput}
+                        onChange={e => setChatInput(e.target.value)}
+                        onKeyPress={e => e.key === 'Enter' && handleChat()}
+                        placeholder="Ask about HACCP or pairings..."
+                        className="w-full bg-slate-50 p-4 pr-14 rounded-2xl text-sm text-slate-900 outline-none border border-slate-200 focus:border-[#10b981] transition-all font-medium"
+                      />
+                      <button 
+                        onClick={handleChat}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#10b981] text-black rounded-xl flex items-center justify-center hover:brightness-110 transition-all shadow-md"
+                      >
+                        <Send size={18} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Floating Chat Button */}
+              {!isChatOpen && (
+                <button 
+                  onClick={() => setIsChatOpen(true)}
+                  className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-br from-[#10b981] to-[#059669] text-black rounded-2xl shadow-[0_10px_30px_rgba(16,185,129,0.4)] flex items-center justify-center hover:scale-110 transition-all z-50 group"
+                >
+                  <MessageSquare size={28} className="group-hover:rotate-12 transition-transform" />
+                </button>
+              )}
+            </div>
+          );
+        }
+
+        return (
+          <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 py-20">
+            <div className="w-full max-w-2xl backdrop-blur-md bg-white/70 p-12 rounded-[3rem] shadow-[0_30px_60px_rgba(0,0,0,0.1)] border border-white/20">
+              <h2 className="text-4xl font-black text-slate-900 mb-2 text-center tracking-tighter">Command Center</h2>
+              <p className="text-slate-400 text-center mb-12 uppercase tracking-[0.4em] text-[10px] font-black">Chef Operations v4.0</p>
+              
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-8">
+                  <div>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Event Selection</label>
+                    <select 
+                      value={eventType} 
+                      onChange={e => setEventType(e.target.value)} 
+                      className="w-full bg-white/50 p-5 rounded-2xl text-slate-900 mt-2 outline-none border border-slate-200 focus:border-[#10b981] transition-all appearance-none cursor-pointer font-bold text-sm"
+                    >
+                      <option>Corporate Event</option>
+                      <option>Wedding Banquet</option>
+                      <option>Private Fine Dining</option>
+                      <option>Cocktail Soirée</option>
+                      <option>Boutique Catering</option>
+                      <option>Product Launch</option>
+                      <option>Gala Dinner</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Guest Volume</label>
+                    <select 
+                      value={guests} 
+                      onChange={e => setGuests(e.target.value)} 
+                      className="w-full bg-white/50 p-5 rounded-2xl text-slate-900 mt-2 outline-none border border-slate-200 focus:border-[#10b981] transition-all appearance-none cursor-pointer font-bold text-sm"
+                    >
+                      <option value="10">1-10 Guests</option>
+                      <option value="20">11-20 Guests</option>
+                      <option value="50">21-50 Guests</option>
+                      <option value="100">51-100 Guests</option>
+                      <option value="200">101-200 Guests</option>
+                      <option value="500">200+ Guests</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-8">
+                  <div>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Culinary Style</label>
+                    <input 
+                      type="text"
+                      value={style} 
+                      onChange={e => setStyle(e.target.value)} 
+                      placeholder="e.g., Limpopo-fusion Thai"
+                      className="w-full bg-white/50 p-5 rounded-2xl text-slate-900 mt-2 outline-none border border-slate-200 focus:border-[#10b981] transition-all font-bold text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Dietary Requirements</label>
+                    <textarea 
+                      value={dietary}
+                      onChange={e => setDietary(e.target.value)}
+                      placeholder="Type specific requirements here..."
+                      className="w-full bg-white/50 p-5 rounded-2xl text-slate-900 outline-none border border-slate-200 mt-2 focus:border-[#10b981] transition-all h-[158px] resize-none font-bold text-sm"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <button 
+                onClick={generateProposal} 
+                disabled={loading} 
+                className="w-full bg-gradient-to-br from-[#10b981] to-[#059669] py-6 rounded-[2rem] font-black uppercase text-black tracking-widest hover:scale-[1.02] transition-all disabled:opacity-50 flex items-center justify-center gap-4 mt-12 shadow-[0_20px_40px_rgba(16,185,129,0.3)]"
+              >
+                {loading ? (
+                  <>
+                    <Loader2 className="animate-spin" size={24} />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <Zap size={24} />
+                    Launch AI Culinary Planner
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        );
+
+      case 'pricing':
+        return <PricingPage onSelectPlan={selectPlan} whopLinks={whopLinks} />;
       
-      setMenu(prev => {
-        if (!prev) return null;
-        const dishImages = prev.dishImages || [];
-        return { ...prev, dishImages: [...dishImages, downloadURL] };
-      });
-      setToastMessage("Dish photo uploaded successfully!");
-    } catch (err) {
-      console.error("Upload failed", err);
-      setToastMessage("Failed to upload image.");
-    } finally {
-      setIsLoading(false);
+      case 'library':
+        return <CostingLibrary />;
+      
+      case 'partner':
+        return <PartnerDashboard />;
+      
+      case 'privacy':
+        return <PrivacyPolicy onBack={() => setViewMode('landing')} />;
+      
+      case 'terms':
+        return <TermsOfService onBack={() => setViewMode('landing')} />;
+
+      case 'success':
+        return (
+          <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center p-6 text-center">
+            <div className="w-32 h-32 bg-[#10b981]/10 rounded-[2.5rem] flex items-center justify-center mb-12 border border-[#10b981]/20 rotate-12">
+              <Trophy className="text-[#10b981]" size={64} />
+            </div>
+            <h2 className="text-6xl font-black mb-6 tracking-tighter">Proposal Finalized!</h2>
+            <p className="text-slate-500 text-xl mb-16 max-w-xl font-medium">
+              Your culinary roadmap has been locked in. The kitchen is ready for your command.
+            </p>
+            <div className="flex gap-6">
+              <button 
+                onClick={() => setViewMode('generator')}
+                className="bg-gradient-to-br from-[#10b981] to-[#059669] text-black px-12 py-5 rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
+              >
+                New Proposal
+              </button>
+              <button 
+                onClick={() => setViewMode('landing')}
+                className="bg-slate-100 text-slate-900 px-12 py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-200 transition-all"
+              >
+                Exit to Office
+              </button>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
     }
   };
 
   return (
-    <div className={`flex flex-col min-h-screen font-sans antialiased ${isDarkMode ? 'dark' : ''}`}>
-      {!isConfigured && (
-        <div className="bg-amber-500 text-white px-4 py-2 text-center text-xs font-bold uppercase tracking-widest z-[100]">
-          ⚠️ Firebase Configuration Missing. Please set your API keys in the environment variables.
-        </div>
-      )}
-      <GoogleAnalytics />
-      <FacebookPixel />
-      <ManyChatWidget />
-      <SEOHead 
-        menu={menu} 
-        title={viewMode === 'privacy' ? "Privacy Policy" : (viewMode === 'landing' ? "The Chef's Secret Weapon" : "Generate Menu")} 
-      />
-      
-      {/* Banners removed to revert to original state */}
-
+    <div className="min-h-screen bg-white flex flex-col font-sans">
+      {/* Navbar Integration (Code A) */}
       <Navbar 
-        whopUrl={WHOP_STORE_URL}
-        facebookUrl={FACEBOOK_PAGE_URL}
-        onThemeToggle={() => setIsDarkMode(!isDarkMode)} isDarkMode={isDarkMode} 
-        onOpenSaved={() => attemptAccess('saveMenus') && setIsSavedModalOpen(true)} 
-        savedCount={savedMenus.length + cloudMenus.length} 
-        onOpenQrCode={() => setIsQrModalOpen(true)}
-        onOpenInstall={() => setIsInstallModalOpen(true)}
-        onReset={() => { 
-            localStorage.removeItem('caterpro-subscription'); 
-            localStorage.removeItem('caterpro_is_founder');
-            window.location.href = window.location.pathname; 
-        }}
+        whopUrl={whopLinks.executive}
+        isDarkMode={false} // Force light mode as requested
+        onThemeToggle={() => {}} // Disabled for now
+        onOpenSaved={() => {}} // Placeholder
+        savedCount={0}
+        onOpenQrCode={() => {}}
+        onOpenInstall={() => {}}
         onViewLanding={() => setViewMode('landing')}
         onViewPricing={() => setViewMode('pricing')}
         onViewLibrary={() => setViewMode('library')}
         onViewPartner={() => setViewMode('partner')}
-        onAuthClick={() => {
-          if (user) {
-            handleSignOut();
-          } else {
-            setIsAuthModalOpen(true);
-          }
-        }}
+        onAuthClick={() => setIsAuthModalOpen(true)}
         user={user}
       />
-      
-      {viewMode === 'landing' && <LandingPage onGetStarted={() => setViewMode('generator')} />}
 
-      {viewMode === 'pricing' && <PricingPage whopLinks={WHOP_LINKS} onSelectPlan={(p) => { selectPlan(p); setViewMode('generator'); }} currency={currency} />}
+      {/* Main Content */}
+      <main className="flex-grow">
+        {renderView()}
+      </main>
 
-      {viewMode === 'library' && (
-        <main className="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-8 py-8 sm:py-16">
-          <CostingLibrary />
-        </main>
-      )}
-
-      {viewMode === 'partner' && (
-        <main className="flex-grow max-w-4xl w-full mx-auto px-4 sm:px-8 py-8 sm:py-16">
-          <div className="space-y-12">
-            <div className="text-center">
-              <h1 className="text-4xl sm:text-6xl font-black text-slate-900 dark:text-white tracking-tight mb-4">Partner Dashboard</h1>
-              <p className="text-lg text-slate-500 dark:text-white/60 font-medium">Manage your referrals and track your earnings.</p>
-            </div>
-            <PartnerDashboard />
-          </div>
-        </main>
-      )}
-
-      {viewMode === 'privacy' && (
-        <PrivacyPolicy onBack={() => setViewMode('generator')} />
-      )}
-
-      {viewMode === 'terms' && (
-        <TermsOfService onBack={() => setViewMode('generator')} />
-      )}
-
-      {viewMode === 'generator' && (
-        <main className="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-8 py-8 sm:py-16">
-          {!menu && !isLoading && (
-            <div className="space-y-12 animate-slide-in">
-              <div className="text-center max-w-2xl mx-auto px-4">
-                <h1 className="text-4xl sm:text-7xl font-black text-high tracking-tight leading-tight">Catering Command Center</h1>
-                <p className="mt-4 text-medium font-medium text-lg">Define your culinary vision and strategy.</p>
-              </div>
-
-              {isFounderMode && (
-                  <div className="flex justify-center animate-bounce">
-                      <div className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl border-2 border-indigo-400">
-                          <ShieldCheck size={14} /> Founder Hub Active
-                      </div>
-                  </div>
-              )}
-
-              <div className="glass-card noise-overlay p-6 sm:p-12 md:p-16 rounded-[3rem] relative overflow-hidden">
-                <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 main-grid">
-                  
-                  <div className="space-y-1 relative" ref={eventRef}>
-                    <label className="flex items-center gap-2 text-[10px] font-black uppercase text-low tracking-[0.2em] mb-2">
-                      <Calendar size={12} className="text-low" />
-                      Event Selection
-                    </label>
-                    <div className="relative">
-                      <input 
-                        type="text" 
-                        placeholder="Type or select event (e.g. Wedding, Braai...)" 
-                        value={eventTypeSearch || eventType}
-                        onFocus={() => setShowEventResults(true)}
-                        onChange={(e) => { setEventTypeSearch(e.target.value); setEventType(e.target.value); }}
-                        className="w-full px-5 py-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800 focus:border-primary-500 outline-none transition-all dark:text-white font-bold text-sm shadow-sm"
-                      />
-                    </div>
-                    {showEventResults && filteredEvents.length > 0 && (
-                      <div className="absolute z-50 left-0 right-0 mt-2 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-3xl shadow-2xl max-h-64 overflow-y-auto">
-                          {filteredEvents.map(e => (
-                              <button key={e} onClick={() => { setEventType(e); setEventTypeSearch(e); setShowEventResults(false); }} className="w-full text-left px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-bold flex items-center gap-3 border-b border-slate-100 dark:border-slate-700 last:border-0 dark:text-white">
-                                  <Sparkles size={16} className="text-indigo-500" /> {e}
-                              </button>
-                          ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="block text-[10px] font-black uppercase text-low tracking-[0.2em] mb-2">Guest Volume</label>
-                    <select value={guestCount} onChange={(e) => setGuestCount(e.target.value)} className="w-full p-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-800/50 focus:border-primary-500 outline-none transition-all text-high font-bold text-sm shadow-sm">
-                      <option value="">Select Capacity...</option>
-                      {GUEST_COUNT_OPTIONS.map(g => <option key={g} value={g}>{g}</option>)}
-                    </select>
-                  </div>
-
-                  <div className="space-y-1 relative full-width-tablet" ref={cuisineRef}>
-                    <label className="flex items-center gap-2 text-[10px] font-black uppercase text-low tracking-[0.2em] mb-2">
-                      <Search size={12} className="text-low" />
-                      Culinary Style
-                    </label>
-                    <div className="relative">
-                      <input 
-                        type="text" 
-                        placeholder="Search country or cuisine style..." 
-                        value={cuisineSearch || cuisine}
-                        onFocus={() => setShowCuisineResults(true)}
-                        onChange={(e) => { setCuisineSearch(e.target.value); setCuisine(e.target.value); }}
-                        className="w-full px-5 py-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-800/50 focus:border-primary-500 outline-none transition-all text-high font-bold text-sm shadow-sm"
-                      />
-                    </div>
-                    {showCuisineResults && filteredCuisines.length > 0 && (
-                      <div className="absolute z-50 left-0 right-0 mt-2 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-3xl shadow-2xl max-h-64 overflow-y-auto">
-                          {filteredCuisines.map(c => (
-                              <button key={c} onClick={() => { setCuisine(c); setCuisineSearch(c); setShowCuisineResults(false); }} className="w-full text-left px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-700 text-sm font-bold flex items-center gap-3 border-b border-slate-100 dark:border-slate-700 last:border-0 dark:text-white">
-                                  <Globe size={16} className="text-primary-500" /> {c}
-                              </button>
-                          ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="block text-[10px] font-black uppercase text-low tracking-[0.2em] mb-2">Service Style</label>
-                    <select value={serviceStyle} onChange={(e) => setServiceStyle(e.target.value)} className="w-full p-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-800/50 focus:border-primary-500 outline-none transition-all text-high font-bold text-sm shadow-sm">
-                      <option value="Standard Catering">Standard Catering</option>
-                      <option value="Private Chef">Private Chef Experience</option>
-                      <option value="Drop-off Only">Drop-off Only</option>
-                      <option value="Buffet Style">Buffet Style</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="block text-[10px] font-black uppercase text-low tracking-[0.2em] mb-2">Budget Level</label>
-                    <div className="flex gap-2">
-                      {BUDGET_LEVELS.map(b => (
-                        <button key={b.value} onClick={() => setBudget(b.value)} className={`flex-1 py-4 rounded-2xl border-2 font-black text-sm transition-all ${budget === b.value ? 'bg-primary-600 border-primary-600 text-white shadow-lg' : 'bg-white/50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-800 text-low hover:border-primary-500'}`}>
-                          {b.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="block text-[10px] font-black uppercase text-low tracking-[0.2em] mb-2">Financial Setup</label>
-                    <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full p-5 rounded-2xl border-2 border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-800/50 focus:border-primary-500 outline-none transition-all text-high font-bold text-sm shadow-sm">
-                       <option value="ZAR">South African Rand (R)</option>
-                       <option value="USD">US Dollar ($)</option>
-                       <option value="EUR">Euro (€)</option>
-                    </select>
-                  </div>
-
-                  <div className="md:col-span-2 full-width-tablet pt-4">
-                    <button onClick={generateMenu} className="w-full py-6 bg-primary-600 hover:bg-primary-700 text-white rounded-[2rem] font-black text-xl shadow-2xl shadow-primary-500/30 transition-all active:scale-95 flex items-center justify-center gap-3">
-                      <Sparkles className="w-7 h-7" /> Launch AI Culinary Planner
-                    </button>
-                  </div>
-
-                  <div className="md:col-span-2 flex flex-col sm:flex-row gap-4 pt-4">
-                    <button 
-                      onClick={() => setShowControlCenter(!showControlCenter)} 
-                      className={`flex-1 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${showControlCenter ? 'bg-indigo-600 text-white shadow-lg' : 'bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:border-indigo-500'}`}
-                    >
-                      <TrendingUp size={16} /> {showControlCenter ? 'Close Strategy Command' : 'Open Strategy Command'}
-                    </button>
-                    <button 
-                      onClick={() => setViewMode('library')} 
-                      className="flex-1 py-4 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:border-primary-500 transition-all"
-                    >
-                      <Briefcase size={16} /> Costing Library
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {showControlCenter && <ResearchHub onShowToast={setToastMessage} />}
-
-              {isFounderMode && (
-                <div className="space-y-12 mt-12">
-                  <div className="flex items-center gap-4 border-b border-slate-100 dark:border-slate-800 pb-6">
-                    <div className="p-3 bg-amber-100 dark:bg-amber-900/30 rounded-2xl text-amber-600"><ShieldCheck size={24} /></div>
-                    <div>
-                      <h3 className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Founder Command Center</h3>
-                      <p className="text-slate-500 text-xs font-medium uppercase tracking-widest">Exclusive Roadmap & Strategy Hub</p>
-                    </div>
-                  </div>
-                  <FounderRoadmap whopUrl={WHOP_STORE_URL} onOpenSocial={handleOpenSocial} />
-                  <MarketingRoadmap />
-                  <ProductivityLab dietaryRestrictions={dietaryRestrictions} currency={currency} />
-                </div>
-              )}
-
-              <div className="mt-16">
-                <FeaturesList whopLinks={WHOP_LINKS} />
-              </div>
-
-              <MeetTheFounder />
-
-              {/* Roadmaps and labs removed to restore professional focus */}
-            </div>
-          )}
-
-          {isLoading && (
-            <div className="flex flex-col items-center justify-center py-32 animate-pulse text-center">
-                <Loader2 className="w-20 h-20 text-primary-500 animate-spin mb-8" />
-                <h2 className="text-3xl font-black text-slate-900 dark:text-white">Generating your Menu Proposal...</h2>
-                <p className="text-slate-500 mt-2 font-medium">Crafting culinary excellence for your event.</p>
-            </div>
-          )}
-
-          {menu && !isLoading && (
-            <div className="space-y-12 animate-fade-in">
-                <div className="no-print bg-white dark:bg-slate-900 p-8 rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-8">
-                    <div className="flex items-center gap-5">
-                        <div className="p-4 bg-primary-100 dark:bg-primary-900/30 rounded-3xl"><Sparkles className="text-primary-600 w-8 h-8" /></div>
-                        <div>
-                            <h3 className="text-2xl font-black text-slate-900 dark:text-white">Menu Proposal</h3>
-                            <p className="text-sm text-slate-500 font-bold uppercase tracking-widest mt-1">Ready for Client Delivery</p>
-                        </div>
-                    </div>
-                    <div className="flex gap-3">
-                        <button onClick={() => setMenu(null)} className="px-6 py-3.5 bg-slate-100 dark:bg-slate-800 rounded-2xl text-xs font-black uppercase text-slate-600 dark:text-slate-300 hover:bg-slate-200 transition-colors">← New Event</button>
-                        <button onClick={handleSaveMenu} className="px-6 py-3.5 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase flex items-center gap-2 shadow-xl shadow-indigo-500/20 active:scale-95 transition-all">
-                           <Save size={18} /> Save to Cloud
-                        </button>
-                        <button onClick={() => window.print()} className="px-8 py-3.5 bg-primary-600 text-white rounded-2xl text-xs font-black uppercase flex items-center gap-2 shadow-xl shadow-primary-500/20 active:scale-95 transition-all">
-                           <FileDown size={18} /> Export PDF
-                        </button>
-                    </div>
-                </div>
-
-                <MenuDisplay 
-                  menu={menu} 
-                  checkedItems={checkedItems} 
-                  onToggleItem={(k) => {
-                      const next = new Set(checkedItems);
-                      if (next.has(k)) next.delete(k); else next.add(k);
-                      setCheckedItems(next);
-                  }} 
-                  isEditable={canAccessFeature('reelsMode')} 
-                  onEditItem={() => {}} 
-                  showToast={setToastMessage} 
-                  isGeneratingImage={isGeneratingImage} 
-                  onUpdateShoppingItemQuantity={() => {}} 
-                  bulkSelectedItems={new Set()} 
-                  onToggleBulkSelect={() => {}} 
-                  onBulkCheck={() => {}} 
-                  onBulkUpdateQuantity={() => {}} 
-                  onClearBulkSelection={() => {}} 
-                  onSelectAllShoppingListItems={() => {}} 
-                  proposalTheme={proposalTheme} 
-                  canAccessFeature={canAccessFeature} 
-                  onAttemptAccess={attemptAccess} 
-                  deliveryRadius="10" 
-                  onDeliveryRadiusChange={() => {}} 
-                  onCalculateFee={() => {}} 
-                  calculatedFee={null} 
-                  preferredCurrency={currency} 
-                  onOpenSocialModal={handleOpenSocial}
-                  onOpenShareModal={() => setIsShareModalOpen(true)}
-                  onRegenerateImage={regenerateImage}
-                  onUploadDishImage={handleUploadDishImage}
-                />
-                
-                {/* Roadmaps and labs removed to restore professional focus */}
-            </div>
-          )}
-        </main>
-      )}
-
-      <AiChatBot onAttemptAccess={() => attemptAccess('aiChatBot')} isPro={canAccessFeature('aiChatBot')} />
-      <SavedChecklistsModal isOpen={isSavedModalOpen} onClose={() => setIsSavedModalOpen(false)} savedMenus={savedMenus} onDelete={(id) => handleDeleteMenu(String(id))} />
-      <QrCodeModal isOpen={isQrModalOpen} onClose={() => setIsQrModalOpen(false)} />
-      <ShareModal isOpen={isShareModalOpen} onClose={() => setIsShareModalOpen(false)} shareUrl={window.location.href} menuTitle={menu?.menuTitle} />
-      <EmailCapture 
-        isOpen={isEmailCaptureModalOpen} 
-        onClose={() => setIsEmailCaptureModalOpen(false)} 
-        onSave={(e, w) => { 
-          localStorage.setItem('caterpro_user_email', e); 
-          localStorage.setItem('caterpro_user_whatsapp', w); 
-          setToastMessage("Contact Sync Successful!"); 
-        }} 
-        eventType={eventType}
-        cuisine={cuisine}
+      {/* Footer Integration (Code A) */}
+      <Footer 
+        onViewPrivacy={() => setViewMode('privacy')}
+        onViewTerms={() => setViewMode('terms')}
       />
-      <UpgradeModal whopLinks={WHOP_LINKS} isOpen={showUpgradeModal} onClose={() => setShowUpgradeModal(false)} onUpgrade={(p) => { selectPlan(p); setViewMode('generator'); setShowUpgradeModal(false); }} onViewPricing={() => setViewMode('pricing')} />
-      <SocialMediaModal isOpen={isSocialModalOpen} onClose={() => setIsSocialModalOpen(false)} image={menu?.image} menuTitle={menu?.menuTitle || ''} menuDescription={menu?.description || ''} initialMode={socialModalMode} onImageGenerated={(b) => setMenu(p => p ? { ...p, image: b } : null)} />
-      <PwaInstallModal isOpen={isInstallModalOpen} onClose={() => setIsInstallModalOpen(false)} />
-      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
-      <Toast message={toastMessage} onDismiss={() => setToastMessage('')} />
-      
-      {viewMode !== 'pricing' && <Footer facebookUrl={FACEBOOK_PAGE_URL} />}
+
+      {/* Auth Modal (Code A) */}
+      <AuthModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+      />
+
+      {/* Result View Header (Code B) */}
+      {viewMode === 'generator' && proposal && (
+        <div className="fixed top-24 right-6 z-[55] flex gap-3">
+          <button 
+            onClick={downloadPDF}
+            className="backdrop-blur-md bg-white/80 text-slate-900 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all flex items-center gap-2 shadow-2xl border border-white/20"
+          >
+            <Download size={18} /> Export PDF
+          </button>
+          <button 
+            onClick={() => setViewMode('success')}
+            className="bg-gradient-to-br from-[#10b981] to-[#059669] text-black px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-2xl"
+          >
+            Finalize
+          </button>
+        </div>
+      )}
     </div>
   );
-};
-
-
+}
