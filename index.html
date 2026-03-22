@@ -29,7 +29,7 @@
     <script type="module" src="/src/index.tsx"></script>
     <script type="text/javascript" src="https://js.codedrink.com/snippet.min.js" defer></script>
     <script type="text/javascript" defer>
-      document.addEventListener("LSAFFEventLoaded", function(e) { e.detail.init(); });
+      document.addEventListener("LSAFFEventLoaded", function(e) { if(e.detail && e.detail.init) e.detail.init(); });
     </script>
 </body>
 </html>
