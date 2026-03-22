@@ -15,7 +15,7 @@ const SEOHead: React.FC<SEOHeadProps> = ({ title, description, menu }) => {
     document.title = newTitle;
 
     const metaDesc = document.querySelector('meta[name="description"]');
-    const newDesc = menu ? menu.description : (description || "The first AI Lifecycle system for catering professionals at caterproai.com. Generate professional menu proposals, ZAR shopping lists, and HACCP safety notes instantly. Updated for 2026.");
+    const newDesc = menu ? menu.description : (description || "CaterProAi is South Africa's leading AI-powered culinary management tool. Built with elite standards from Disney Cruise Line experience, we help professional chefs with live ZAR costing and students with yield calculations.");
     if (metaDesc) metaDesc.setAttribute('content', newDesc);
 
     // Update Keywords
@@ -25,7 +25,7 @@ const SEOHead: React.FC<SEOHeadProps> = ({ title, description, menu }) => {
         metaKeywords.setAttribute('name', 'keywords');
         document.head.appendChild(metaKeywords);
     }
-    metaKeywords.setAttribute('content', 'catering ai, hospital menu planner, school cafeteria software, culinary portfolio assistant, South Africa catering, catering proposal generator 2026, food costing ai');
+    metaKeywords.setAttribute('content', 'catering ai, South Africa catering, Disney Cruise Line standards, high seas culinary excellence, professional culinary standards, food costing ai, ZAR costing');
 
     if (menu) {
       const existingScript = document.getElementById('json-ld-schema');
