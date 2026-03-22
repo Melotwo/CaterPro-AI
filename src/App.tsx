@@ -25,7 +25,11 @@ import TermsOfService from './components/TermsOfService';
 import { StudentYieldCalculator } from './components/StudentYieldCalculator';
 
 // --- INITIALIZE GOOGLE AI ---
-const apiKey = process.env.GEMINI_API_KEY || "";
+const getApiKey = () => {
+  const key = process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || "";
+  return key;
+};
+const apiKey = getApiKey();
 
 // --- UTILS ---
 const formatCurrency = (amount: number) => {
@@ -130,7 +134,10 @@ export default function App() {
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
         contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        config: { responseMimeType: "application/json" }
+        config: { 
+          responseMimeType: "application/json",
+          maxOutputTokens: 16384
+        }
       });
 
       const data = JSON.parse(response.text || "{}");
@@ -279,32 +286,37 @@ export default function App() {
               </div>
             </div>
 
-            {/* Chef's Toolkit - Lasso Integration */}
-            <div className="bg-slate-50 py-20">
+            {/* Culinary Excellence Section */}
+            <div className="bg-slate-50 py-24">
               <div className="max-w-7xl mx-auto px-6">
-                <div className="flex items-center justify-between mb-12">
-                  <h3 className="text-2xl font-black tracking-tighter uppercase">Chef’s Toolkit</h3>
-                  <div className="flex gap-2">
-                    <div className="w-2 h-2 rounded-full bg-[#10b981]" />
-                    <div className="w-2 h-2 rounded-full bg-slate-200" />
-                    <div className="w-2 h-2 rounded-full bg-slate-200" />
+                <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-8">
+                  <div className="max-w-2xl">
+                    <h3 className="text-4xl font-black tracking-tighter uppercase mb-4">Culinary Excellence</h3>
+                    <p className="text-slate-500 font-medium text-lg leading-relaxed">
+                      Precision tools for the modern executive chef. Elevate your operations with AI-driven intelligence and Michelin-star standards.
+                    </p>
+                  </div>
+                  <div className="flex gap-4">
+                    <div className="w-3 h-3 rounded-full bg-[#10b981] animate-pulse" />
+                    <div className="w-3 h-3 rounded-full bg-slate-200" />
+                    <div className="w-3 h-3 rounded-full bg-slate-200" />
                   </div>
                 </div>
                 
-                <div className="flex overflow-x-auto gap-6 pb-8 no-scrollbar">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="min-w-[300px] bg-white p-8 rounded-[2rem] border border-slate-100 shadow-xl flex flex-col items-center justify-center text-center">
-                      <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center mb-6">
-                        <Package className="text-slate-300" size={24} />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {[
+                    { title: "Menu Intelligence", desc: "AI-driven menu engineering and profit margin analysis.", icon: <Utensils className="text-[#10b981]" /> },
+                    { title: "Operational Safety", desc: "Automated HACCP checklists and safety protocol generation.", icon: <ShieldCheck className="text-[#10b981]" /> },
+                    { title: "Costing Precision", desc: "Live ZAR costing and smart shopping list automation.", icon: <Calculator className="text-[#10b981]" /> }
+                  ].map((feature, i) => (
+                    <div key={i} className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-xl hover:shadow-2xl transition-all group">
+                      <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-[#10b981]/10 transition-colors">
+                        {feature.icon}
                       </div>
-                      <div className="space-y-2 mb-6">
-                        <div className="h-4 w-32 bg-slate-100 rounded-full mx-auto" />
-                        <div className="h-3 w-24 bg-slate-50 rounded-full mx-auto" />
-                      </div>
-                      {/* Lasso Placeholder */}
-                      <div className="w-full py-4 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-[10px] font-black uppercase tracking-widest text-slate-400">
-                        Lasso Affiliate Script {i}
-                      </div>
+                      <h4 className="text-xl font-black mb-4 tracking-tighter">{feature.title}</h4>
+                      <p className="text-slate-500 font-medium text-sm leading-relaxed">
+                        {feature.desc}
+                      </p>
                     </div>
                   ))}
                 </div>
