@@ -96,6 +96,42 @@ export const analyzeMenuForCosting = async (base64: string, suppliers: string, c
     return JSON.parse(response.text || "{}");
 };
 
+export const extractIngredientsForShift = async (miseEnPlace: string[], menuTitle: string): Promise<any[]> => {
+    const ai = new GoogleGenAI({ apiKey: getApiKey() });
+    const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: `Extract every ingredient mentioned in these Mise en Place steps for the menu "${menuTitle}". 
+        For each ingredient, estimate the quantity needed for a professional catering shift and assign a realistic South African market price in ZAR (Rand).
+        Mise en Place Steps:
+        ${miseEnPlace.join('\n')}
+        
+        Return JSON with an array of ingredients, each having: name, quantity (number), unit (string), and unitPrice (number, in ZAR).`,
+        config: {
+            responseMimeType: "application/json",
+            responseSchema: {
+                type: Type.OBJECT,
+                properties: {
+                    ingredients: {
+                        type: Type.ARRAY,
+                        items: {
+                            type: Type.OBJECT,
+                            properties: {
+                                name: { type: Type.STRING },
+                                quantity: { type: Type.NUMBER },
+                                unit: { type: Type.STRING },
+                                unitPrice: { type: Type.NUMBER }
+                            },
+                            required: ["name", "quantity", "unit", "unitPrice"]
+                        }
+                    }
+                }
+            }
+        }
+    });
+    const data = JSON.parse(response.text || "{}");
+    return data.ingredients || [];
+};
+
 export const generateMenuFromApi = async (params: any): Promise<any> => {
   const apiKey = getApiKey();
   if (!apiKey) throw new Error("Missing API Key");
@@ -215,10 +251,18 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
   throw new Error("The AI is having trouble generating a complete menu. Please try again.");
 };
 
-export const generateMenuImageFromApi = async (title: string, description: string): Promise<string> => {
+export const generateMenuImageFromApi = async (title: string, description: string, mainCourses?: string[]): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
   const cleanTitle = title.replace(/[^\w\s]/gi, '');
-  const imagePrompt = `Professional food photography of ${cleanTitle}. Cinematic lighting, michelin-star presentation, macro shot, blurred background, elegant plating on a ceramic dish. Gourmet catering style. No people.`;
+  
+  // New Prompt Structure: "Generate a high-definition, minimalist, 16:9 overhead photo of [Insert Main Course 1 text] and [Insert Main Course 2 text] for a premium corporate buffet in South Africa."
+  let imagePrompt = `Professional food photography of ${cleanTitle}. Cinematic lighting, michelin-star presentation, macro shot, blurred background, elegant plating on a ceramic dish. Gourmet catering style. No people.`;
+  
+  if (mainCourses && mainCourses.length >= 2) {
+    imagePrompt = `Generate a high-definition, minimalist, 16:9 overhead photo of ${mainCourses[0]} and ${mainCourses[1]} for a premium corporate buffet in South Africa.`;
+  } else if (mainCourses && mainCourses.length === 1) {
+    imagePrompt = `Generate a high-definition, minimalist, 16:9 overhead photo of ${mainCourses[0]} for a premium corporate buffet in South Africa.`;
+  }
 
   try {
     const response = await ai.models.generateContent({
