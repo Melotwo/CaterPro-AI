@@ -95,8 +95,18 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
       <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-slide-in">
         <div className="p-8">
           <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-              {showFounderLogin ? 'Founder Access' : (isLogin ? 'Welcome Back' : 'Join CaterProAi')}
+            <h2 className="text-3xl tracking-tight">
+              {showFounderLogin ? (
+                <span className="font-black text-slate-900 dark:text-white">Founder Access</span>
+              ) : (
+                isLogin ? (
+                  <span className="font-black text-slate-900 dark:text-white">Welcome Back</span>
+                ) : (
+                  <span className="text-slate-900 dark:text-white">
+                    Join <span className="font-bold">CaterPro</span><span className="font-medium text-[#10b981]">Ai</span>
+                  </span>
+                )
+              )}
             </h2>
             <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
               <X className="w-6 h-6 text-slate-400" />
