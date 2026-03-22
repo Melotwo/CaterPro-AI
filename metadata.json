@@ -1,6 +1,6 @@
 {
   "name": "CaterProAi",
-  "description": "The #1 Professional AI Menu System for Chefs and Caterers. Generate professional menu proposals, shopping lists, and service notes instantly at caterproai.com.",
+  "description": "CaterProAi is South Africa's leading AI-powered culinary management tool. Built with elite standards from Disney Cruise Line experience, we help professional chefs with live ZAR costing and students with yield calculations.",
   "requestFramePermissions": [
     "geolocation",
     "camera"
