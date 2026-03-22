@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ChefHat, Check, ArrowRight, Star, Zap, Quote, ChevronDown, ChevronUp, HelpCircle, AlignLeft, Linkedin, Twitter, Brain, Heart, Gift, Globe, Rocket, Sparkle, Award, User } from 'lucide-react';
+import { ChefHat, Check, ArrowRight, Star, Zap, Quote, ChevronDown, ChevronUp, HelpCircle, AlignLeft, Linkedin, Twitter, Brain, Heart, Gift, Globe, Rocket, Sparkle, Award, User, Compass } from 'lucide-react';
 import PartnerProgram from './PartnerProgram';
 import founderImg from '../founder.jpg';
 
@@ -41,10 +41,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   const faqs = [
     {
       question: "Is this for a specific country?",
-      answer: "No. CaterPro AI is global. It generates menus based on any cuisine and calculates logistics for any region with local currency support."
+      answer: "No. CaterProAi is global. It generates menus based on any cuisine and calculates logistics for any region with local currency support."
     },
     {
-      question: "Is CaterPro AI really free to try?",
+      question: "Is CaterProAi really free to try?",
       answer: "Yes! You can generate your first few menus for free. We want you to see the magic before you commit to a founder's plan."
     },
     {
@@ -159,15 +159,20 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 </div>
                 
                 <div className="w-full md:w-3/5 space-y-10">
-                    <div className="inline-block p-4 bg-primary-500/10 rounded-2xl">
-                        <ChefHat className="w-10 h-10 text-primary-500" />
+                    <div className="inline-flex items-center gap-4">
+                        <div className="p-4 bg-primary-500/10 rounded-2xl">
+                            <ChefHat className="w-10 h-10 text-primary-500" />
+                        </div>
+                        <div className="p-4 bg-emerald-500/10 rounded-2xl">
+                            <Compass className="w-10 h-10 text-emerald-500 animate-spin-slow" />
+                        </div>
                     </div>
                     <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-[0.9] italic tracking-tight text-slate-900 dark:text-white">
-                        "Organizing the kitchen chaos for every chef."
+                        "High Seas to High-Tech Culinary Excellence."
                     </h2>
                     <div className="space-y-8 text-slate-600 dark:text-slate-100 text-xl leading-relaxed font-medium">
                         <p>
-                            I built CaterPro AI to solve the #1 barrier to professional success: The admin grind. Whether you're a student or a pro, you deserve a system that works as hard as you do.
+                            My journey began in the demanding kitchens of the Disney Cruise Line, where precision and global standards were the baseline. I built <span className="font-bold text-black">CaterPro</span><span className="font-medium bg-gradient-to-br from-[#10b981] to-[#34d399] bg-clip-text text-transparent drop-shadow-[0_0_8px_rgba(16,185,129,0.2)]">Ai</span> to bring that same level of elite operational excellence to every chef's office.
                         </p>
                     </div>
                     <div className="pt-12 border-t border-slate-800 flex flex-wrap gap-6 items-center">
