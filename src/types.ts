@@ -43,6 +43,7 @@ export interface Menu {
   deliveryFeeStructure?: DeliveryFeeStructure;
   businessAnalysis?: MenuItemAnalysis[];
   safetyProtocols?: string[];
+  haccpSafety?: { point: string; requirement: string }[];
   salesScripts?: SalesScript[];
   aiKeywords?: string[];
   ingredients?: CloudIngredient[]; // Added for scaling
