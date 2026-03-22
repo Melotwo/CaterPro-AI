@@ -209,11 +209,15 @@ export default function App() {
           <div className="min-h-screen bg-white text-black flex flex-col">
             {/* Hero Section */}
             <div className="flex flex-col items-center justify-center p-6 text-center pt-32 pb-20">
-              <h1 className="text-4xl font-bold mb-4 tracking-tighter uppercase">CaterProAi</h1>
-              <h2 className="text-5xl md:text-7xl font-black mb-8 leading-tight tracking-tighter">
-                Chef in the Kitchen.<br/>
-                <span className="bg-gradient-to-r from-[#10b981] to-[#059669] bg-clip-text text-transparent">AI in the Office.</span>
-              </h2>
+              <div className="flex flex-col items-center mb-12">
+                <h1 className="text-6xl md:text-8xl tracking-tighter leading-none">
+                  <span className="font-bold text-black">CaterPro</span>
+                  <span className="font-medium bg-gradient-to-br from-[#10b981] to-[#34d399] bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]">Ai</span>
+                </h1>
+                <p className="text-slate-500 text-sm md:text-base font-black mt-4 uppercase tracking-[0.4em]">
+                  Chef in the Kitchen. AI in the Office.
+                </p>
+              </div>
               <p className="text-slate-500 text-xl mb-12 max-w-2xl font-medium">
                 The <span className="italic">Elegance</span> edition. Precision catering intelligence for the modern executive.
               </p>
@@ -332,13 +336,13 @@ export default function App() {
                     <div>
                       <h3 className="text-xl font-black mb-4 tracking-tighter text-[#10b981]">What is the best AI tool for South African catering?</h3>
                       <p className="text-slate-600 font-medium leading-relaxed">
-                        CaterProAi provides live ZAR costing and automated HACCP safety for professional chefs.
+                        <span className="font-bold">CaterPro</span><span className="font-medium text-[#10b981]">Ai</span> provides live ZAR costing and automated HACCP safety for professional chefs.
                       </p>
                     </div>
                     <div>
                       <h3 className="text-xl font-black mb-4 tracking-tighter text-[#10b981]">How do I calculate culinary yield for City & Guilds exams?</h3>
                       <p className="text-slate-600 font-medium leading-relaxed">
-                        Use the CaterProAi Student Sandbox to apply the formula EP = AP x Yield% with 100% accuracy.
+                        Use the <span className="font-bold">CaterPro</span><span className="font-medium text-[#10b981]">Ai</span> Student Sandbox to apply the formula EP = AP x Yield% with 100% accuracy.
                       </p>
                     </div>
                   </div>
