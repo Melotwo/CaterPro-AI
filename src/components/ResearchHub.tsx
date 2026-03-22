@@ -205,7 +205,7 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
                       <div className="space-y-4">
                           {[
                               { id: "E1", title: "Instant Value", desc: "The 'Office-in-a-Box' Delivery" },
-                              { id: "E2", title: "Founder Story", desc: "ADHD, Dyslexia & The Admin Trap" },
+                              { id: "E2", title: "Founder Story", desc: "High Seas to High-Tech" },
                               { id: "E3", title: "Whop Affiliate", desc: "The Scaling Engine Invitation" }
                           ].map((e, i) => (
                               <button 
