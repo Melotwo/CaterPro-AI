@@ -231,7 +231,7 @@ export default function App() {
                 {/* For Students */}
                 <div className="bg-slate-50 p-12 rounded-[3rem] border border-slate-100 hover:shadow-2xl transition-all group">
                   <div className="w-16 h-16 bg-[#10b981]/10 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
-                    <GraduationCap className="text-[#10b981]" size={32} />
+                    <GraduationCap className="text-[#10b981]" size={32} aria-label="Student Yield Calculator Icon" />
                   </div>
                   <h3 className="text-3xl font-black mb-4 tracking-tighter">For Students</h3>
                   <p className="text-slate-500 font-medium mb-8 leading-relaxed">
@@ -259,7 +259,7 @@ export default function App() {
                 {/* For Professionals */}
                 <div className="bg-slate-900 p-12 rounded-[3rem] border border-slate-800 hover:shadow-2xl transition-all group text-white">
                   <div className="w-16 h-16 bg-[#10b981]/20 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
-                    <Briefcase className="text-[#10b981]" size={32} />
+                    <Briefcase className="text-[#10b981]" size={32} aria-label="Professional Catering Dashboard Icon" />
                   </div>
                   <h3 className="text-3xl font-black mb-4 tracking-tighter">For Professionals</h3>
                   <p className="text-slate-400 font-medium mb-8 leading-relaxed">
@@ -305,9 +305,9 @@ export default function App() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                   {[
-                    { title: "Menu Intelligence", desc: "AI-driven menu engineering and profit margin analysis.", icon: <Utensils className="text-[#10b981]" /> },
-                    { title: "Operational Safety", desc: "Automated HACCP checklists and safety protocol generation.", icon: <ShieldCheck className="text-[#10b981]" /> },
-                    { title: "Costing Precision", desc: "Live ZAR costing and smart shopping list automation.", icon: <Calculator className="text-[#10b981]" /> }
+                    { title: "Menu Intelligence", desc: "AI-driven menu engineering and profit margin analysis.", icon: <Utensils className="text-[#10b981]" aria-label="Menu Intelligence Icon" /> },
+                    { title: "Operational Safety", desc: "Automated HACCP checklists and safety protocol generation.", icon: <ShieldCheck className="text-[#10b981]" aria-label="Operational Safety Icon" /> },
+                    { title: "Costing Precision", desc: "Live ZAR costing and smart shopping list automation.", icon: <Calculator className="text-[#10b981]" aria-label="Costing Precision Icon" /> }
                   ].map((feature, i) => (
                     <div key={i} className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-xl hover:shadow-2xl transition-all group">
                       <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-[#10b981]/10 transition-colors">
@@ -319,6 +319,29 @@ export default function App() {
                       </p>
                     </div>
                   ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Common Culinary Queries Section */}
+            <div className="bg-white py-24">
+              <div className="max-w-4xl mx-auto px-6">
+                <div className="backdrop-blur-md bg-white/70 p-12 rounded-[3rem] border border-slate-100 shadow-2xl">
+                  <h2 className="text-4xl font-black tracking-tighter uppercase mb-12 text-center">Common Culinary Queries</h2>
+                  <div className="space-y-12">
+                    <div>
+                      <h3 className="text-xl font-black mb-4 tracking-tighter text-[#10b981]">What is the best AI tool for South African catering?</h3>
+                      <p className="text-slate-600 font-medium leading-relaxed">
+                        CaterProAi provides live ZAR costing and automated HACCP safety for professional chefs.
+                      </p>
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-black mb-4 tracking-tighter text-[#10b981]">How do I calculate culinary yield for City & Guilds exams?</h3>
+                      <p className="text-slate-600 font-medium leading-relaxed">
+                        Use the CaterProAi Student Sandbox to apply the formula EP = AP x Yield% with 100% accuracy.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
