@@ -6,7 +6,8 @@ import {
   Loader2, Download, MessageSquare, X, 
   Send, Sparkles, Trophy, Package, Zap,
   ShieldCheck, FileText, ExternalLink,
-  Percent, Info, GraduationCap, Briefcase
+  Percent, Info, GraduationCap, Briefcase,
+  Camera
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
@@ -23,6 +24,9 @@ import PartnerDashboard from './components/PartnerDashboard';
 import PrivacyPolicy from './components/PrivacyPolicy';
 import TermsOfService from './components/TermsOfService';
 import { StudentYieldCalculator } from './components/StudentYieldCalculator';
+import { generateMenuImageFromApi, extractIngredientsForShift } from './services/geminiService';
+import { ShiftCalculatorModal } from './components/ShiftCalculatorModal';
+import { ShiftIngredient } from './types';
 
 // --- INITIALIZE GOOGLE AI ---
 const getApiKey = () => {
@@ -33,18 +37,7 @@ const apiKey = getApiKey();
 
 // --- UTILS ---
 const formatCurrency = (amount: number) => {
-  const locale = navigator.language || 'en-ZA';
-  let currency = 'USD';
-  if (locale.includes('ZA')) currency = 'ZAR';
-  else if (locale.includes('GB')) currency = 'GBP';
-  else if (locale.includes('EU') || ['de', 'fr', 'it', 'es', 'nl'].some(l => locale.startsWith(l))) currency = 'EUR';
-  
-  return new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency: currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
+  return `R${amount.toLocaleString('en-ZA', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 };
 
 export default function App() {
@@ -62,8 +55,26 @@ export default function App() {
   const [eventType, setEventType] = useState('Corporate Event');
   const [loading, setLoading] = useState(false);
   const [proposal, setProposal] = useState<any>(null);
+  const [proposalImage, setProposalImage] = useState<string | null>(null);
   const [isTotalUpdating, setIsTotalUpdating] = useState(false);
+  const [isShiftCalculatorOpen, setIsShiftCalculatorOpen] = useState(false);
+  const [shiftIngredients, setShiftIngredients] = useState<ShiftIngredient[]>([]);
+  const [isShiftLoading, setIsShiftLoading] = useState(false);
   
+  const handleOpenShiftCalculator = async () => {
+    if (!proposal?.miseEnPlace) return;
+    setIsShiftLoading(true);
+    try {
+      const ingredients = await extractIngredientsForShift(proposal.miseEnPlace, proposal.menuTitle);
+      setShiftIngredients(ingredients);
+      setIsShiftCalculatorOpen(true);
+    } catch (err) {
+      console.error("Failed to extract ingredients:", err);
+    } finally {
+      setIsShiftLoading(false);
+    }
+  };
+
   // Chat State (Code B)
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatInput, setChatInput] = useState('');
@@ -142,6 +153,19 @@ export default function App() {
 
       const data = JSON.parse(response.text || "{}");
       setProposal(data);
+      
+      // Generate Synchronized Banner Image
+      try {
+        const mainCourses = data.menu
+          .filter((m: any) => m.cat === 'Main Courses')
+          .map((m: any) => m.dish);
+        
+        const imageBase64 = await generateMenuImageFromApi(data.title, data.description, mainCourses);
+        setProposalImage(imageBase64);
+      } catch (err) {
+        console.error("Image generation failed", err);
+      }
+      
       setChatMessages([{ role: 'model', text: `Chef, your ${data.title} proposal is ready. I've included a HACCP safety checklist for your protein handling. What's our next move?` }]);
       setViewMode('generator'); // Stay in generator view to show result
     } catch (e) { 
@@ -359,7 +383,7 @@ export default function App() {
               <div ref={proposalRef} className="bg-white">
                 <div 
                   className="h-[60vh] w-full bg-cover bg-center flex items-end p-8 md:p-16 relative" 
-                  style={{backgroundImage: `url('https://picsum.photos/seed/${proposal?.imageQuery || 'gourmet-food'}/1920/1080')`}}
+                  style={{backgroundImage: proposalImage ? `url('data:image/png;base64,${proposalImage}')` : `url('https://picsum.photos/seed/${proposal?.imageQuery || 'gourmet-food'}/1920/1080')`}}
                 >
                   <div className="absolute inset-0 bg-gradient-to-t from-white via-white/10 to-transparent"/>
                   <div className="relative z-10">
@@ -762,6 +786,14 @@ export default function App() {
       {viewMode === 'generator' && proposal && (
         <div className="fixed top-24 right-6 z-[55] flex gap-3">
           <button 
+            onClick={handleOpenShiftCalculator}
+            disabled={isShiftLoading}
+            className="backdrop-blur-md bg-emerald-500/10 text-emerald-400 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-emerald-500/20 transition-all flex items-center gap-2 shadow-2xl border border-emerald-500/20 disabled:opacity-50"
+          >
+            {isShiftLoading ? <Loader2 className="animate-spin" size={18} /> : <Calculator size={18} />}
+            Open Shift Calculator
+          </button>
+          <button 
             onClick={downloadPDF}
             className="backdrop-blur-md bg-white/80 text-slate-900 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all flex items-center gap-2 shadow-2xl border border-white/20"
           >
@@ -775,6 +807,13 @@ export default function App() {
           </button>
         </div>
       )}
+
+      <ShiftCalculatorModal 
+        isOpen={isShiftCalculatorOpen}
+        onClose={() => setIsShiftCalculatorOpen(false)}
+        initialIngredients={shiftIngredients}
+        menuTitle={proposal?.menuTitle || ''}
+      />
     </div>
   );
 }
