@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { User, MapPin, ChefHat, Quote } from 'lucide-react';
+import { User, MapPin, ChefHat, Quote, Compass } from 'lucide-react';
 import founderImg from '../founder.jpg';
 
 const MeetTheFounder: React.FC = () => {
@@ -33,19 +33,25 @@ const MeetTheFounder: React.FC = () => {
             </div>
 
             <div className="space-y-6 text-center md:text-left">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary-500/10 border border-primary-500/20 rounded-full">
-                <ChefHat size={14} className="text-primary-500" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-primary-600 dark:text-primary-400">Meet the Founder</span>
+              <div className="flex flex-col md:flex-row md:items-center gap-4">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary-500/10 border border-primary-500/20 rounded-full w-fit mx-auto md:mx-0">
+                  <ChefHat size={14} className="text-primary-500" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-primary-600 dark:text-primary-400">Meet the Founder</span>
+                </div>
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full w-fit mx-auto md:mx-0">
+                  <Compass size={14} className="text-emerald-500 animate-spin-slow" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Melotwo Culinary Intelligence</span>
+                </div>
               </div>
               
               <h2 className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight leading-tight">
-                Built by a Chef, for Chefs.
+                High Seas to High-Tech.
               </h2>
               
               <div className="relative">
                 <Quote className="absolute -top-4 -left-4 w-8 h-8 text-primary-500/20 dark:text-white/10" />
                 <p className="text-lg sm:text-xl text-slate-900 dark:text-slate-100 font-medium leading-relaxed italic">
-                  As a South African entrepreneur, I built CaterProAI to solve the manual portioning and costing headaches that drain the creativity out of our local kitchens. My mission is to help Mzansi's chefs reclaim 10+ hours a week and significantly increase their margins through smart automation. We're empowering the next generation of culinary talent to focus on their craft while we handle the scaling engine.
+                  My journey began in the demanding kitchens of the Disney Cruise Line, where precision and global standards were the baseline. I built <span className="font-bold">CaterPro</span><span className="font-medium text-[#10b981]">Ai</span> to bring that same level of elite operational excellence to every chef's office. By automating the complex admin of menu costing and yield management, we're shifting the culinary industry from manual chaos to intelligent systems.
                 </p>
               </div>
 
