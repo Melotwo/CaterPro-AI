@@ -145,6 +145,13 @@ export interface ValidationErrors {
   cuisine?: string;
 }
 
+export interface ShiftIngredient {
+  name: string;
+  quantity: number;
+  unit: string;
+  unitPrice: number;
+}
+
 export interface Message {
   role: 'user' | 'model';
   content: string;
