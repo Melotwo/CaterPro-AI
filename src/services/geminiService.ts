@@ -50,9 +50,9 @@ const safeParseMenuJson = (text: string): Menu => {
 };
 
 const getApiKey = () => {
-    const key = import.meta.env.VITE_GEMINI_API_KEY;
+    const key = process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
     if (!key || key.trim() === '') {
-        throw new Error("API Key is missing.");
+        return "";
     }
     return key;
 };
@@ -97,7 +97,9 @@ export const analyzeMenuForCosting = async (base64: string, suppliers: string, c
 };
 
 export const generateMenuFromApi = async (params: any): Promise<any> => {
-  const ai = new GoogleGenAI({ apiKey: getApiKey() });
+  const apiKey = getApiKey();
+  if (!apiKey) throw new Error("Missing API Key");
+  const ai = new GoogleGenAI({ apiKey });
   
   const costContext = params.userIngredientCosts 
     ? `\nUSER SPECIFIC INGREDIENT COSTS (Use these for accurate costing): ${JSON.stringify(params.userIngredientCosts)}`
@@ -118,7 +120,9 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
   3. For BBQ/Braai: Section 1 is bread/biltong/small bites. Section 2 is THE MEATS. Section 3 is salads/veg.
   4. DO NOT LEAVE ANY SECTION EMPTY.
   5. Currency: ${params.currency || 'ZAR'}.
-  6. If USER SPECIFIC INGREDIENT COSTS are provided, prioritize using those prices in the 'estimatedCost' fields of the 'shoppingList'.`;
+  6. If USER SPECIFIC INGREDIENT COSTS are provided, prioritize using those prices in the 'estimatedCost' fields of the 'shoppingList'.
+  7. Include a detailed 'haccpSafety' checklist with critical control points and requirements.
+  8. Return a full JSON including: Menu, Mise en Place, Shopping List (ZAR), and the new HACCP Safety Checklist.`;
   
   let attempts = 0;
   const maxAttempts = 2;
@@ -130,6 +134,7 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
         contents: prompt,
         config: {
           responseMimeType: "application/json",
+          maxOutputTokens: 16384,
           responseSchema: {
             type: Type.OBJECT,
             properties: {
@@ -139,7 +144,16 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
               mainCourses: { type: Type.ARRAY, items: { type: Type.STRING } },
               sideDishes: { type: Type.ARRAY, items: { type: Type.STRING } },
               dessert: { type: Type.ARRAY, items: { type: Type.STRING } },
-              safetyProtocols: { type: Type.ARRAY, items: { type: Type.STRING } },
+              haccpSafety: { 
+                type: Type.ARRAY, 
+                items: { 
+                  type: Type.OBJECT,
+                  properties: {
+                    point: { type: Type.STRING },
+                    requirement: { type: Type.STRING }
+                  }
+                } 
+              },
               shoppingList: { 
                 type: Type.ARRAY, 
                 items: { 
@@ -176,7 +190,7 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
                 }
               }
             },
-            required: ["menuTitle", "description", "appetizers", "mainCourses", "sideDishes", "dessert"]
+            required: ["menuTitle", "description", "appetizers", "mainCourses", "sideDishes", "dessert", "haccpSafety"]
           }
         }
       });
