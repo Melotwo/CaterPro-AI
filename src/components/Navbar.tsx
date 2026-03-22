@@ -34,7 +34,10 @@ const Navbar: React.FC<{
              <div className="absolute -top-1 -right-1 w-3 h-3 bg-black rounded-full animate-pulse"></div>
           </div>
           <div>
-            <span className="text-2xl font-black text-black tracking-tighter whitespace-nowrap">CATERPRO<span className="text-[#10b981]">AI</span></span>
+            <span className="text-2xl tracking-tighter whitespace-nowrap flex items-center">
+              <span className="font-bold text-black">CaterPro</span>
+              <span className="font-medium bg-gradient-to-br from-[#10b981] to-[#34d399] bg-clip-text text-transparent drop-shadow-[0_0_8px_rgba(16,185,129,0.2)]">Ai</span>
+            </span>
           </div>
         </div>
 
