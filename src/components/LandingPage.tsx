@@ -90,10 +90,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                   <span>2026 Launch Live 🚀</span>
                 </button>
             </div>
-            <h1 className="text-5xl sm:text-6xl lg:text-8xl font-black text-slate-900 dark:text-white tracking-tighter mb-6 leading-[0.9]">
-              Chef in the Kitchen. <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-indigo-500">
-                AI in the Office.
+            <h1 className="text-5xl sm:text-6xl lg:text-8xl tracking-tighter mb-6 leading-[0.9] flex flex-col items-center lg:items-start">
+              <span className="flex items-center">
+                <span className="font-bold text-slate-900 dark:text-white">CaterPro</span>
+                <span className="font-medium bg-gradient-to-br from-[#10b981] to-[#34d399] bg-clip-text text-transparent">Ai</span>
+              </span>
+              <span className="text-slate-500 text-sm md:text-base font-black mt-4 uppercase tracking-[0.4em]">
+                Chef in the Kitchen. AI in the Office.
               </span>
             </h1>
             <p className="text-xl text-slate-900 dark:text-slate-100 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
