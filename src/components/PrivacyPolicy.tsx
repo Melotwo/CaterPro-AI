@@ -29,7 +29,7 @@ export default function PrivacyPolicy({ onBack }: { onBack: () => void }) {
 
             <section>
               <h2 className="text-xl font-bold text-slate-900 dark:text-white mb-2">2. How We Use Your Information</h2>
-              <p>We use the information we collect to provide, maintain, and improve our services, including generating personalized catering menus and proposals. We also use it to communicate with you about updates and promotions.</p>
+              <p>We use the information we collect to provide, maintain, and improve our services, including generating personalized catering menus and proposals via CaterProAi. We also use it to communicate with you about updates and promotions.</p>
             </section>
 
             <section>
