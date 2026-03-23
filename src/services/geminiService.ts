@@ -251,11 +251,11 @@ export const generateMenuFromApi = async (params: any): Promise<any> => {
   throw new Error("The AI is having trouble generating a complete menu. Please try again.");
 };
 
-export const generateMenuImageFromApi = async (title: string, description: string, mainCourses?: string[]): Promise<string> => {
+export const generateMenuImageFromApi = async (title: string, description: string, mainCourses?: string[], imageQuery?: string): Promise<string> => {
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
   const cleanTitle = title.replace(/[^\w\s]/gi, '');
   
-  const mainCourseName = (mainCourses && mainCourses.length > 0) ? mainCourses[0] : cleanTitle;
+  const mainCourseName = imageQuery || ((mainCourses && mainCourses.length > 0) ? mainCourses[0] : cleanTitle);
   const imagePrompt = `Professional Michelin-star plated ${mainCourseName}, soft overhead culinary lighting, luxury fine-dining aesthetic, no animals.`;
 
   try {
