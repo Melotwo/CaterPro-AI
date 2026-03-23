@@ -4,9 +4,6 @@ import { MenuSection, PpeProduct } from './types';
 
 export const CURRENCIES = [
   { code: 'ZAR', symbol: 'R', label: 'South African Rand (R)' },
-  { code: 'USD', symbol: '$', label: 'US Dollar ($)' },
-  { code: 'GBP', symbol: '£', label: 'British Pound (£)' },
-  { code: 'EUR', symbol: '€', label: 'Euro (€)' },
 ];
 
 export const EVENT_TYPES = [
