@@ -256,7 +256,7 @@ export const generateMenuImageFromApi = async (title: string, description: strin
   const cleanTitle = title.replace(/[^\w\s]/gi, '');
   
   const mainCourseName = (mainCourses && mainCourses.length > 0) ? mainCourses[0] : cleanTitle;
-  const imagePrompt = `Generate a high-definition, Michelin-star style plated photo of ${mainCourseName}. The aesthetic must be professional fine-dining, featuring minimalist plating, soft studio lighting, and zero animals or nature backgrounds.`;
+  const imagePrompt = `Professional Michelin-star plated ${mainCourseName}, soft overhead culinary lighting, luxury fine-dining aesthetic, no animals.`;
 
   try {
     const response = await ai.models.generateContent({
