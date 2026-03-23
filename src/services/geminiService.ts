@@ -50,7 +50,7 @@ const safeParseMenuJson = (text: string): Menu => {
 };
 
 const getApiKey = () => {
-    const key = process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
+    const key = import.meta.env.VITE_GEMINI_API_KEY;
     if (!key || key.trim() === '') {
         return "";
     }
@@ -255,14 +255,8 @@ export const generateMenuImageFromApi = async (title: string, description: strin
   const ai = new GoogleGenAI({ apiKey: getApiKey() });
   const cleanTitle = title.replace(/[^\w\s]/gi, '');
   
-  // New Prompt Structure: "Generate a high-definition, minimalist, 16:9 overhead photo of [Insert Main Course 1 text] and [Insert Main Course 2 text] for a premium corporate buffet in South Africa."
-  let imagePrompt = `Professional food photography of ${cleanTitle}. Cinematic lighting, michelin-star presentation, macro shot, blurred background, elegant plating on a ceramic dish. Gourmet catering style. No people.`;
-  
-  if (mainCourses && mainCourses.length >= 2) {
-    imagePrompt = `Generate a high-definition, minimalist, 16:9 overhead photo of ${mainCourses[0]} and ${mainCourses[1]} for a premium corporate buffet in South Africa.`;
-  } else if (mainCourses && mainCourses.length === 1) {
-    imagePrompt = `Generate a high-definition, minimalist, 16:9 overhead photo of ${mainCourses[0]} for a premium corporate buffet in South Africa.`;
-  }
+  const mainCourseName = (mainCourses && mainCourses.length > 0) ? mainCourses[0] : cleanTitle;
+  const imagePrompt = `Generate a high-definition, Michelin-star style plated photo of ${mainCourseName}. The aesthetic must be professional fine-dining, featuring minimalist plating, soft studio lighting, and zero animals or nature backgrounds.`;
 
   try {
     const response = await ai.models.generateContent({
