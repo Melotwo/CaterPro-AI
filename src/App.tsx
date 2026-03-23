@@ -30,7 +30,7 @@ import { ShiftIngredient } from './types';
 
 // --- INITIALIZE GOOGLE AI ---
 const getApiKey = () => {
-  const key = process.env.GEMINI_API_KEY || import.meta.env.VITE_GEMINI_API_KEY || "";
+  const key = import.meta.env.VITE_GEMINI_API_KEY || "";
   return key;
 };
 const apiKey = getApiKey();
