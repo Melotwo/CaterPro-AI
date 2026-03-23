@@ -115,13 +115,14 @@ export default function App() {
       const ai = new GoogleGenAI({ apiKey });
       const prompt = `Act as a Chef Operations manager. Create a comprehensive culinary workspace proposal for a ${eventType}.
       - Guests: ${guests}
-      - Culinary Style: ${style}
+      - Culinary Input: ${style}
+      - Instructions: From the 'Culinary Input', identify the 'Cuisine' (e.g., Thai) and the 'Style' (e.g., Fusion). Use these to ensure Michelin-star accuracy in the menu and image query.
       - Dietary Requirements: ${dietary || "None specified"}
 
       Return a detailed JSON object with the following structure:
       { 
         "title": "string (e.g., Modern Thai Fusion Gala)", 
-        "imageQuery": "string (food item for visual search)", 
+        "imageQuery": "string (food item for visual search, incorporating the identified cuisine and style)", 
         "menu": [{"cat": "Appetizers" | "Main Courses" | "Desserts", "dish": "string", "notes": "string"}], 
         "miseEnPlace": ["step1", "step2"], 
         "serviceNotes": ["note1", "note2"],
@@ -160,7 +161,7 @@ export default function App() {
           .filter((m: any) => m.cat === 'Main Courses')
           .map((m: any) => m.dish);
         
-        const imageBase64 = await generateMenuImageFromApi(data.title, data.description, mainCourses);
+        const imageBase64 = await generateMenuImageFromApi(data.title, data.description, mainCourses, data.imageQuery);
         setProposalImage(imageBase64);
       } catch (err) {
         console.error("Image generation failed", err);
@@ -658,7 +659,7 @@ export default function App() {
                       type="text"
                       value={style} 
                       onChange={e => setStyle(e.target.value)} 
-                      placeholder="e.g., Limpopo-fusion Thai"
+                      placeholder="e.g., Thai Fusion Fine Dining"
                       className="w-full bg-white/50 p-5 rounded-2xl text-slate-900 mt-2 outline-none border border-slate-200 focus:border-[#10b981] transition-all font-bold text-sm"
                     />
                   </div>
