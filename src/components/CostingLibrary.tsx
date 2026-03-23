@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, query, where, onSnapshot, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { useAuth } from '../hooks/useAuth';
-import { Plus, Trash2, Save, Loader2, DollarSign, Package, Scale, X, Search } from 'lucide-react';
+import { Plus, Trash2, Save, Loader2, Coins, Package, Scale, X, Search } from 'lucide-react';
 
 interface IngredientCost {
   id?: string;
@@ -197,7 +197,7 @@ const CostingLibrary: React.FC = () => {
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Price (ZAR)</label>
                     <div className="relative">
-                      <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <Coins className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                       <input 
                         type="number" 
                         step="0.01"
