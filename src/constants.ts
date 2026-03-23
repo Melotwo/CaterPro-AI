@@ -42,9 +42,9 @@ export const GUEST_COUNT_OPTIONS = [
 ];
 
 export const BUDGET_LEVELS = [
-    { value: '$', label: 'Affordable / Economy' },
-    { value: '$$', label: 'Mid-Range / Professional' },
-    { value: '$$$', label: 'High-End / Luxurious' },
+    { value: 'R', label: 'Affordable / Economy' },
+    { value: 'RR', label: 'Mid-Range / Professional' },
+    { value: 'RRR', label: 'High-End / Luxurious' },
 ];
 
 export const SERVICE_STYLES = [
@@ -123,7 +123,7 @@ export const exampleScenarios = [
     eventType: 'Christmas Day Feast 🎅',
     guestCount: '10-20',
     cuisine: 'Mediterranean',
-    budget: '$$$',
+    budget: 'RRR',
     serviceStyle: 'Family Style',
     dietaryRestrictions: ['Gluten-Free'],
   },
@@ -133,7 +133,7 @@ export const exampleScenarios = [
     eventType: 'Wedding Reception',
     guestCount: '51-100',
     cuisine: 'South African',
-    budget: '$$$',
+    budget: 'RRR',
     serviceStyle: 'Plated Service',
     dietaryRestrictions: [],
   },
@@ -143,7 +143,7 @@ export const exampleScenarios = [
     eventType: 'Corporate Lunch',
     guestCount: '21-50',
     cuisine: 'American',
-    budget: '$$',
+    budget: 'RR',
     serviceStyle: 'Upscale Elegant',
     dietaryRestrictions: ['Gluten-Free'],
   },
@@ -153,7 +153,7 @@ export const exampleScenarios = [
     eventType: 'Hospital / Patient Catering',
     guestCount: '100-500 (Institutional)',
     cuisine: 'Any / International',
-    budget: '$',
+    budget: 'R',
     serviceStyle: 'Hospital Tray Service',
     dietaryRestrictions: ['Low Sodium (Cardiac)', 'Soft Food / Pureed'],
   },
@@ -186,42 +186,42 @@ export const RECOMMENDED_PRODUCTS: PpeProduct[] = [
     name: '8-Quart Chafing Dish Set',
     description: 'Stainless steel set with fuel holders to keep your main courses perfectly warm.',
     image: 'https://images.unsplash.com/photo-1576867757603-05b134ebc379?auto=format&fit=crop&w=800&q=80',
-    priceRange: '$$',
+    priceRange: 'RR',
   },
   {
     id: 2,
     name: 'Insulated Food Pan Carrier',
     description: 'Heavy-duty carrier that maintains safe food temperatures for hours during transport.',
     image: 'https://images.unsplash.com/photo-1584473457406-6240486418e9?auto=format&fit=crop&w=800&q=80',
-    priceRange: '$$$',
+    priceRange: 'RRR',
   },
   {
     id: 3,
     name: 'Premium Disposable Dinnerware Set',
     description: 'Elegant plastic plates and cutlery for 100 guests. Looks like real china.',
     image: 'https://images.unsplash.com/photo-1533777857889-4be7c70b33f7?auto=format&fit=crop&w=800&q=80',
-    priceRange: '$',
+    priceRange: 'R',
   },
   {
     id: 4,
     name: '3-Tier Serving Stand',
     description: 'A beautiful and practical way to display appetizers, desserts, or small bites.',
     image: 'https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf?auto=format&fit=crop&w=800&q=80',
-    priceRange: '$',
+    priceRange: 'R',
   },
   {
     id: 5,
     name: 'Commercial Drink Dispenser',
     description: 'Two 3-gallon dispensers for serving cold beverages like iced tea or lemonade.',
     image: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=800&q=80',
-    priceRange: '$$',
+    priceRange: 'RR',
   },
   {
     id: 6,
     name: 'Portable Cambro GoBox',
     description: 'Top-loading insulated carrier, lightweight and perfect for smaller deliveries.',
     image: 'https://images.unsplash.com/photo-1595246140625-573b715d11dc?auto=format&fit=crop&w=800&q=80',
-    priceRange: '$$$',
+    priceRange: 'RRR',
   },
 ];
 
