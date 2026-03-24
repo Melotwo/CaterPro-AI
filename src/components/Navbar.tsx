@@ -17,9 +17,10 @@ const Navbar: React.FC<{
   onViewPricing?: () => void;
   onViewLibrary?: () => void;
   onViewPartner?: () => void;
+  onViewSuccess?: () => void;
   onAuthClick?: () => void;
   user?: FirebaseUser | null;
-}> = ({ whopUrl, facebookUrl, onThemeToggle, isDarkMode, onOpenSaved, savedCount, onOpenQrCode, onOpenInstall, onReset, onViewLanding, onViewPricing, onViewLibrary, onViewPartner, onAuthClick, user }) => (
+}> = ({ whopUrl, facebookUrl, onThemeToggle, isDarkMode, onOpenSaved, savedCount, onOpenQrCode, onOpenInstall, onReset, onViewLanding, onViewPricing, onViewLibrary, onViewPartner, onViewSuccess, onAuthClick, user }) => (
   <nav role="navigation" aria-label="Main navigation" className="no-print bg-white/90 backdrop-blur-md sticky top-0 z-40 border-b border-slate-100 pt-[env(safe-area-inset-top)]">
     <div className="max-w-7xl mx-auto px-6">
       <div className="flex justify-between items-center h-20">
@@ -59,6 +60,16 @@ const Navbar: React.FC<{
               title="Partner Dashboard"
             >
               <Zap size={22} className="text-[#10b981]" />
+            </button>
+          )}
+
+          {onViewSuccess && (
+            <button 
+              onClick={onViewSuccess}
+              className="px-4 py-2.5 rounded-full border-2 border-slate-200 text-slate-600 hover:border-[#10b981] hover:text-[#10b981] transition-all font-bold text-xs uppercase tracking-widest"
+              title="My Results"
+            >
+              My Results
             </button>
           )}
 
