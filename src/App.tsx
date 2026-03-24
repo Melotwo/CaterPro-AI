@@ -26,6 +26,8 @@ import TermsOfService from './components/TermsOfService';
 import { StudentYieldCalculator } from './components/StudentYieldCalculator';
 import { generateMenuImageFromApi, extractIngredientsForShift } from './services/geminiService';
 import { ShiftCalculatorModal } from './components/ShiftCalculatorModal';
+import { SuccessPage } from './components/SuccessPage';
+import { ProposalDocument } from './components/ProposalDocument';
 import { ShiftIngredient } from './types';
 
 // --- INITIALIZE GOOGLE AI ---
@@ -47,12 +49,15 @@ export default function App() {
   
   const [viewMode, setViewMode] = useState<'landing' | 'generator' | 'pricing' | 'library' | 'privacy' | 'partner' | 'terms' | 'success'>('landing');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isTrainingMode, setIsTrainingMode] = useState(false);
   
   // Generator State (Code B)
   const [guests, setGuests] = useState('50');
   const [style, setStyle] = useState('');
   const [dietary, setDietary] = useState('');
   const [eventType, setEventType] = useState('Corporate Event');
+  const [apCost, setApCost] = useState(''); // As Purchased Cost for Waste/Yield
+  const [epYield, setEpYield] = useState(''); // Edible Portion Yield %
   const [loading, setLoading] = useState(false);
   const [proposal, setProposal] = useState<any>(null);
   const [proposalImage, setProposalImage] = useState<string | null>(null);
@@ -107,28 +112,47 @@ export default function App() {
       return;
     }
 
+    if (isTrainingMode && (!apCost || !epYield)) {
+      alert("Please enter AP Cost and EP Yield for QCTO compliance.");
+      return;
+    }
+
     // Check subscription limits (Code A integration)
     if (!recordGeneration()) return;
 
     setLoading(true);
     try {
       const ai = new GoogleGenAI({ apiKey });
-      const prompt = `Act as a Chef Operations manager. Create a comprehensive culinary workspace proposal for a ${eventType}.
+      const trainingContext = isTrainingMode ? `
+      - TRAINING MODE ACTIVE: Categorize every recipe according to QCTO Occupational Certificate: Chef (ID 101697) modules (e.g., Module 5: Operational Cost Control).
+      - Include a "qctoModule" field for each menu item.
+      - Calculate the cost difference between AP (As Purchased) and EP (Edible Portion) based on: AP Cost: R${apCost || 0}, EP Yield: ${epYield || 100}%.
+      ` : "";
+
+      const prompt = `Act as a Chef Operations manager ${isTrainingMode ? "and QCTO TVET Examiner" : ""}. Create a comprehensive culinary workspace proposal for a ${eventType}.
       - Guests: ${guests}
       - Culinary Input: ${style}
       - Instructions: From the 'Culinary Input', identify the 'Cuisine' (e.g., Thai) and the 'Style' (e.g., Fusion). Use these to ensure Michelin-star accuracy in the menu and image query.
       - Dietary Requirements: ${dietary || "None specified"}
+      ${trainingContext}
 
       Return a detailed JSON object with the following structure:
       { 
         "title": "string (e.g., Modern Thai Fusion Gala)", 
         "imageQuery": "string (food item for visual search, incorporating the identified cuisine and style)", 
-        "menu": [{"cat": "Appetizers" | "Main Courses" | "Desserts", "dish": "string", "notes": "string"}], 
+        "menu": [{"cat": "Appetizers" | "Main Courses" | "Desserts", "dish": "string", "notes": "string", "qctoModule": "string (only if training mode)"}], 
         "miseEnPlace": ["step1", "step2"], 
         "serviceNotes": ["note1", "note2"],
         "haccpSafety": [
-          {"point": "Critical Control Point", "requirement": "e.g., Internal temp 75°C for poultry"}
+          {"point": "Critical Control Point", "requirement": "e.g., Internal temp 75°C for poultry", "category": "Temp" | "Storage" | "Allergens"}
         ],
+        "wasteYieldAnalysis": {
+          "apCost": number,
+          "epCost": number,
+          "costDifference": number,
+          "yieldPercentage": number,
+          "qctoCriteria": "string explaining Level 5 assessment compliance"
+        },
         "shoppingList": {
           "Proteins": ["item1", "item2"],
           "Produce": ["item1", "item2"],
@@ -381,231 +405,13 @@ export default function App() {
         if (proposal) {
           return (
             <div className="bg-slate-50 min-h-screen pb-20">
-              <div ref={proposalRef} className="bg-white">
-                <div 
-                  className="h-[60vh] w-full bg-cover bg-center flex items-end p-8 md:p-16 relative" 
-                  style={{backgroundImage: proposalImage ? `url('data:image/png;base64,${proposalImage}')` : `url('https://picsum.photos/seed/${proposal?.imageQuery || 'gourmet-food'}/1920/1080')`}}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-t from-white via-white/10 to-transparent"/>
-                  <div className="relative z-10">
-                    <span className="text-[#10b981] font-black uppercase tracking-[0.4em] text-xs mb-4 block">{eventType}</span>
-                    <h2 className="text-5xl md:text-8xl font-black relative z-10 tracking-tighter leading-none text-slate-900">{proposal?.title}</h2>
-                  </div>
-                </div>
-
-                <div className="max-w-7xl mx-auto grid lg:grid-cols-3 gap-8 px-6 -mt-20 relative z-20">
-                  <div className="lg:col-span-2 space-y-8">
-                    {/* Menu Section */}
-                    <div className="backdrop-blur-md bg-white/70 p-10 rounded-[2.5rem] border border-white/20 shadow-2xl">
-                      <div className="flex items-center gap-3 mb-10 text-[#10b981]">
-                        <Utensils size={28}/>
-                        <h3 className="font-black text-3xl tracking-tighter text-slate-900">Menu Selection</h3>
-                      </div>
-                      <div className="grid md:grid-cols-2 gap-12">
-                        {['Appetizers', 'Main Courses', 'Desserts'].map(cat => (
-                          <div key={cat} className="space-y-8">
-                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] border-b border-slate-100 pb-3">{cat}</h4>
-                            {proposal?.menu.filter((m:any) => m.cat === cat).map((item:any, i:number) => (
-                              <div key={i} className="group">
-                                <h5 className="text-xl font-black group-hover:text-[#10b981] transition-colors text-slate-900 tracking-tight">{item.dish}</h5>
-                                <p className="text-slate-500 text-sm leading-relaxed mt-2 font-medium">{item.notes}</p>
-                              </div>
-                            ))}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Mise en Place & Service Notes Grid */}
-                    <div className="grid md:grid-cols-2 gap-8">
-                      <div className="backdrop-blur-md bg-white/70 p-8 rounded-[2rem] border border-white/20 shadow-xl">
-                        <div className="flex items-center gap-3 mb-6 text-[#10b981]">
-                          <ClipboardList size={24}/>
-                          <h3 className="font-black text-xl tracking-tight text-slate-900">Mise en Place</h3>
-                        </div>
-                        <ul className="space-y-4">
-                          {proposal?.miseEnPlace?.map((step: string, i: number) => (
-                            <li key={i} className="text-sm text-slate-600 flex gap-4 font-medium">
-                              <span className="text-[#10b981] font-black">{String(i + 1).padStart(2, '0')}</span> {step}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div className="backdrop-blur-md bg-white/70 p-8 rounded-[2rem] border border-white/20 shadow-xl">
-                        <div className="flex items-center gap-3 mb-6 text-[#10b981]">
-                          <Sparkles size={24}/>
-                          <h3 className="font-black text-xl tracking-tight text-slate-900">Service Notes</h3>
-                        </div>
-                        <ul className="space-y-4">
-                          {proposal?.serviceNotes?.map((note: string, i: number) => (
-                            <li key={i} className="text-sm text-slate-600 flex gap-4 font-medium">
-                              <span className="w-1.5 h-1.5 rounded-full bg-[#10b981] mt-1.5 shrink-0" /> {note}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-
-                    {/* HACCP Safety Checklist */}
-                    <div className="backdrop-blur-md bg-emerald-50/50 p-10 rounded-[2.5rem] border border-[#10b981]/10 shadow-xl">
-                      <div className="flex items-center gap-3 mb-8 text-[#10b981]">
-                        <ShieldCheck size={28}/>
-                        <h3 className="font-black text-2xl tracking-tighter text-slate-900">HACCP Safety Checklist</h3>
-                      </div>
-                      <div className="grid md:grid-cols-2 gap-6">
-                        {proposal?.haccpSafety?.map((item: any, i: number) => (
-                          <div key={i} className="bg-white/60 p-5 rounded-2xl border border-white/40">
-                            <span className="text-[10px] font-black text-[#10b981] uppercase tracking-widest block mb-1">{item.point}</span>
-                            <p className="text-sm text-slate-700 font-bold">{item.requirement}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Shopping List Section */}
-                    <div className="backdrop-blur-md bg-white/70 p-10 rounded-[2.5rem] border border-white/20 shadow-xl">
-                      <div className="flex items-center gap-3 mb-10 text-[#10b981]">
-                        <ShoppingCart size={28}/>
-                        <h3 className="font-black text-3xl tracking-tighter text-slate-900">Smart Shopping List</h3>
-                      </div>
-                      <div className="grid md:grid-cols-3 gap-8">
-                        {Object.entries(proposal?.shoppingList || {}).map(([cat, items]: [string, any]) => (
-                          <div key={cat} className="space-y-5">
-                            <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">{cat}</h4>
-                            <ul className="space-y-3">
-                              {items.map((item: string, i: number) => (
-                                <li key={i} className="text-sm text-slate-500 flex gap-3 font-medium">
-                                  <span className="text-[#10b981]/40">•</span> {item}
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-8">
-                    {/* Costing Card */}
-                    <div className="backdrop-blur-md bg-white/80 p-10 rounded-[2.5rem] border border-white/20 shadow-2xl sticky top-24">
-                      <div className="flex items-center gap-3 mb-8 text-[#10b981]">
-                        <Calculator size={28}/>
-                        <h3 className="font-black text-2xl tracking-tighter text-slate-900">Live Costing</h3>
-                      </div>
-                      <div className="space-y-6">
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Menu Cost</span>
-                          <span className="text-slate-900 font-black text-lg">{formatCurrency(proposal?.costPerHead * Number(guests))}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-400 text-xs font-bold uppercase tracking-wider">Logistics</span>
-                          <span className="text-slate-900 font-black text-lg">{formatCurrency(proposal?.logistics?.deliveryFee || 0)}</span>
-                        </div>
-                        <div className="pt-8 border-t border-slate-100">
-                          <span className="text-slate-400 text-[10px] uppercase font-black tracking-[0.2em] block mb-2">Total Proposal Value</span>
-                          <div className={`text-5xl font-black text-[#10b981] tracking-tighter transition-transform duration-300 ${isTotalUpdating ? 'scale-105' : 'scale-100'}`}>
-                            {formatCurrency((proposal?.costPerHead * Number(guests)) + (proposal?.logistics?.deliveryFee || 0))}
-                          </div>
-                        </div>
-                        <div className="bg-slate-50 p-4 rounded-2xl flex items-center justify-between">
-                          <span className="text-slate-500 text-xs font-bold uppercase">Cost Per Head</span>
-                          <span className="text-[#10b981] font-black">{formatCurrency(proposal?.costPerHead)}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Logistics Card */}
-                    <div className="backdrop-blur-md bg-white/70 p-8 rounded-[2rem] border border-white/20 shadow-xl">
-                      <div className="flex items-center gap-3 mb-6 text-[#10b981]">
-                        <Package size={24}/>
-                        <h3 className="font-black text-xl tracking-tight text-slate-900">Logistics & Prep</h3>
-                      </div>
-                      <div className="space-y-5">
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-400 uppercase text-[10px] font-black tracking-widest">Setup Time</span>
-                          <span className="text-slate-700 font-bold text-sm">{proposal?.logistics?.setupTime}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-400 uppercase text-[10px] font-black tracking-widest">Staff Required</span>
-                          <span className="text-slate-700 font-bold text-sm">{proposal?.logistics?.staffRequired} Personnel</span>
-                        </div>
-                        <div className="mt-8 pt-6 border-t border-slate-100">
-                          <span className="text-slate-400 uppercase text-[10px] font-black tracking-widest block mb-4">Wine Pairings</span>
-                          <div className="flex flex-wrap gap-2">
-                            {proposal?.winePairings?.map((wine: string, i: number) => (
-                              <span key={i} className="bg-[#10b981]/10 text-[#10b981] px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">{wine}</span>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* AI Chat Sidebar */}
-              <div className={`fixed inset-y-0 right-0 w-96 bg-white/95 backdrop-blur-xl border-l border-slate-100 shadow-2xl transform transition-transform duration-500 ease-out z-[60] ${isChatOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-                <div className="h-full flex flex-col">
-                  <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-[#10b981]/10 rounded-xl flex items-center justify-center">
-                        <Sparkles className="text-[#10b981]" size={20} />
-                      </div>
-                      <div>
-                        <span className="font-black text-sm text-slate-900 block tracking-tight">AI Chef Consultant</span>
-                        <span className="text-[10px] text-[#10b981] font-bold uppercase tracking-widest">Online</span>
-                      </div>
-                    </div>
-                    <button onClick={() => setIsChatOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:text-slate-900 transition-colors"><X size={18} /></button>
-                  </div>
-                  
-                  <div className="flex-1 overflow-y-auto p-6 space-y-6">
-                    {chatMessages.map((msg, i) => (
-                      <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                        <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed ${msg.role === 'user' ? 'bg-gradient-to-br from-[#10b981] to-[#059669] text-black font-bold shadow-lg' : 'bg-slate-50 text-slate-700 border border-slate-100 font-medium'}`}>
-                          {msg.text}
-                        </div>
-                      </div>
-                    ))}
-                    {isChatLoading && (
-                      <div className="flex justify-start">
-                        <div className="bg-slate-50 p-4 rounded-2xl text-sm text-slate-400 flex items-center gap-3 border border-slate-100 font-medium">
-                          <Loader2 className="animate-spin" size={16} /> Chef is thinking...
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="p-6 border-t border-slate-100 bg-white">
-                    <div className="relative">
-                      <input 
-                        type="text" 
-                        value={chatInput}
-                        onChange={e => setChatInput(e.target.value)}
-                        onKeyPress={e => e.key === 'Enter' && handleChat()}
-                        placeholder="Ask about HACCP or pairings..."
-                        className="w-full bg-slate-50 p-4 pr-14 rounded-2xl text-sm text-slate-900 outline-none border border-slate-200 focus:border-[#10b981] transition-all font-medium"
-                      />
-                      <button 
-                        onClick={handleChat}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#10b981] text-black rounded-xl flex items-center justify-center hover:brightness-110 transition-all shadow-md"
-                      >
-                        <Send size={18} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Floating Chat Button */}
-              {!isChatOpen && (
-                <button 
-                  onClick={() => setIsChatOpen(true)}
-                  className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-br from-[#10b981] to-[#059669] text-black rounded-2xl shadow-[0_10px_30px_rgba(16,185,129,0.4)] flex items-center justify-center hover:scale-110 transition-all z-50 group"
-                >
-                  <MessageSquare size={28} className="group-hover:rotate-12 transition-transform" />
-                </button>
-              )}
+              <ProposalDocument 
+                proposal={proposal}
+                proposalImage={proposalImage}
+                eventType={eventType}
+                guests={guests}
+                formatCurrency={formatCurrency}
+              />
             </div>
           );
         }
@@ -614,8 +420,21 @@ export default function App() {
           <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 py-20">
             <div className="w-full max-w-2xl backdrop-blur-md bg-white/70 p-12 rounded-[3rem] shadow-[0_30px_60px_rgba(0,0,0,0.1)] border border-white/20">
               <h2 className="text-4xl font-black text-slate-900 mb-2 text-center tracking-tighter">Command Center</h2>
-              <p className="text-slate-400 text-center mb-12 uppercase tracking-[0.4em] text-[10px] font-black">Chef Operations v4.0</p>
+              <p className="text-slate-400 text-center mb-6 uppercase tracking-[0.4em] text-[10px] font-black">Chef Operations v4.0</p>
               
+              <div className="flex justify-center mb-10">
+                <button 
+                  onClick={() => setIsTrainingMode(!isTrainingMode)}
+                  className={`flex items-center gap-3 px-6 py-3 rounded-2xl transition-all border-2 ${isTrainingMode ? 'bg-[#10b981]/10 border-[#10b981] text-[#10b981]' : 'bg-slate-50 border-slate-200 text-slate-400'}`}
+                >
+                  <GraduationCap size={20} />
+                  <span className="font-black uppercase tracking-widest text-xs">Training Mode {isTrainingMode ? 'ON' : 'OFF'}</span>
+                  <div className={`w-10 h-5 rounded-full relative transition-colors ${isTrainingMode ? 'bg-[#10b981]' : 'bg-slate-300'}`}>
+                    <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${isTrainingMode ? 'left-6' : 'left-1'}`} />
+                  </div>
+                </button>
+              </div>
+
               <div className="grid md:grid-cols-2 gap-8">
                 <div className="space-y-8">
                   <div>
@@ -675,6 +494,40 @@ export default function App() {
                 </div>
               </div>
 
+              {isTrainingMode && (
+                <div className="mt-8 p-8 bg-[#10b981]/5 rounded-[2rem] border border-[#10b981]/20 animate-in fade-in slide-in-from-top-4">
+                  <div className="flex items-center gap-3 mb-6 text-[#10b981]">
+                    <Percent size={20} />
+                    <h3 className="font-black uppercase tracking-widest text-xs">QCTO Level 5 Waste/Yield Input</h3>
+                  </div>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">AP Cost (Total R)</label>
+                      <input 
+                        type="number"
+                        value={apCost}
+                        onChange={e => setApCost(e.target.value)}
+                        placeholder="e.g., 2500"
+                        className="w-full bg-white p-4 rounded-xl text-slate-900 mt-2 outline-none border border-slate-200 focus:border-[#10b981] transition-all font-bold text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Estimated EP Yield (%)</label>
+                      <input 
+                        type="number"
+                        value={epYield}
+                        onChange={e => setEpYield(e.target.value)}
+                        placeholder="e.g., 75"
+                        className="w-full bg-white p-4 rounded-xl text-slate-900 mt-2 outline-none border border-slate-200 focus:border-[#10b981] transition-all font-bold text-sm"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-4 italic font-medium">
+                    * Mandatory for QCTO ID 101697 Module 5 compliance.
+                  </p>
+                </div>
+              )}
+
               <button 
                 onClick={generateProposal} 
                 disabled={loading} 
@@ -717,29 +570,16 @@ export default function App() {
 
       case 'success':
         return (
-          <div className="min-h-screen bg-white text-black flex flex-col items-center justify-center p-6 text-center">
-            <div className="w-32 h-32 bg-[#10b981]/10 rounded-[2.5rem] flex items-center justify-center mb-12 border border-[#10b981]/20 rotate-12">
-              <Trophy className="text-[#10b981]" size={64} />
-            </div>
-            <h2 className="text-6xl font-black mb-6 tracking-tighter">Proposal Finalized!</h2>
-            <p className="text-slate-500 text-xl mb-16 max-w-xl font-medium">
-              Your culinary roadmap has been locked in. The kitchen is ready for your command.
-            </p>
-            <div className="flex gap-6">
-              <button 
-                onClick={() => setViewMode('generator')}
-                className="bg-gradient-to-br from-[#10b981] to-[#059669] text-black px-12 py-5 rounded-2xl font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl"
-              >
-                New Proposal
-              </button>
-              <button 
-                onClick={() => setViewMode('landing')}
-                className="bg-slate-100 text-slate-900 px-12 py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-slate-200 transition-all"
-              >
-                Exit to Office
-              </button>
-            </div>
-          </div>
+          <SuccessPage 
+            proposal={proposal}
+            onNewProposal={() => {
+              setProposal(null);
+              setProposalImage(null);
+              setViewMode('generator');
+            }}
+            onExit={() => setViewMode('landing')}
+            onDownloadPDF={downloadPDF}
+          />
         );
 
       default:
@@ -767,8 +607,89 @@ export default function App() {
       />
 
       {/* Main Content */}
-      <main className="flex-grow">
+      <main className="flex-grow relative">
         {renderView()}
+        
+        {/* AI Chat Sidebar */}
+        <div className={`fixed inset-y-0 right-0 w-96 bg-white/95 backdrop-blur-xl border-l border-slate-100 shadow-2xl transform transition-transform duration-500 ease-out z-[60] ${isChatOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+          <div className="h-full flex flex-col">
+            <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-[#10b981]/10 rounded-xl flex items-center justify-center">
+                  <Sparkles className="text-[#10b981]" size={20} />
+                </div>
+                <div>
+                  <span className="font-black text-sm text-slate-900 block tracking-tight">AI Chef Consultant</span>
+                  <span className="text-[10px] text-[#10b981] font-bold uppercase tracking-widest">Online</span>
+                </div>
+              </div>
+              <button onClick={() => setIsChatOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:text-slate-900 transition-colors"><X size={18} /></button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
+              {chatMessages.map((msg, i) => (
+                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed ${msg.role === 'user' ? 'bg-gradient-to-br from-[#10b981] to-[#059669] text-black font-bold shadow-lg' : 'bg-slate-50 text-slate-700 border border-slate-100 font-medium'}`}>
+                    {msg.text}
+                  </div>
+                </div>
+              ))}
+              {isChatLoading && (
+                <div className="flex justify-start">
+                  <div className="bg-slate-50 p-4 rounded-2xl text-sm text-slate-400 flex items-center gap-3 border border-slate-100 font-medium">
+                    <Loader2 className="animate-spin" size={16} /> Chef is thinking...
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="p-6 border-t border-slate-100 bg-white">
+              <div className="relative">
+                <input 
+                  type="text" 
+                  value={chatInput}
+                  onChange={e => setChatInput(e.target.value)}
+                  onKeyPress={e => e.key === 'Enter' && handleChat()}
+                  placeholder="Ask about HACCP or pairings..."
+                  className="w-full bg-slate-50 p-4 pr-14 rounded-2xl text-sm text-slate-900 outline-none border border-slate-200 focus:border-[#10b981] transition-all font-medium"
+                />
+                <button 
+                  onClick={handleChat}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#10b981] text-black rounded-xl flex items-center justify-center hover:brightness-110 transition-all shadow-md"
+                >
+                  <Send size={18} />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Floating Chat Button */}
+        {!isChatOpen && (
+          <button 
+            onClick={() => setIsChatOpen(true)}
+            className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-br from-[#10b981] to-[#059669] text-black rounded-2xl shadow-[0_10px_30px_rgba(16,185,129,0.4)] flex items-center justify-center hover:scale-110 transition-all z-50 group"
+          >
+            <MessageSquare size={28} className="group-hover:rotate-12 transition-transform" />
+          </button>
+        )}
+
+        {/* Hidden Proposal for PDF Export */}
+        {proposal && (
+          <div 
+            ref={proposalRef} 
+            className="fixed left-[-9999px] top-0 w-[1200px] bg-white pointer-events-none"
+            aria-hidden="true"
+          >
+            <ProposalDocument 
+              proposal={proposal}
+              proposalImage={proposalImage}
+              eventType={eventType}
+              guests={guests}
+              formatCurrency={formatCurrency}
+            />
+          </div>
+        )}
       </main>
 
       {/* Footer Integration (Code A) */}
@@ -785,7 +706,7 @@ export default function App() {
 
       {/* Result View Header (Code B) */}
       {viewMode === 'generator' && proposal && (
-        <div className="fixed top-24 right-6 z-[55] flex gap-3">
+        <div className={`fixed top-24 transition-all duration-500 z-[55] flex gap-3 ${isChatOpen ? 'right-[408px]' : 'right-6'}`}>
           <button 
             onClick={handleOpenShiftCalculator}
             disabled={isShiftLoading}
