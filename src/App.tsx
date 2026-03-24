@@ -339,6 +339,21 @@ export default function App() {
               </div>
             </div>
 
+            {/* QCTO Student Success Guide Section */}
+            <div className="max-w-7xl mx-auto px-6 py-12">
+              <div className="bg-emerald-50 border border-emerald-100 p-10 rounded-[3rem] flex flex-col md:flex-row items-center gap-10">
+                <div className="w-20 h-20 bg-emerald-500/10 rounded-3xl flex items-center justify-center shrink-0">
+                  <GraduationCap className="text-emerald-600" size={40} />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-black tracking-tighter uppercase mb-4 text-emerald-900">QCTO Student Success Guide</h3>
+                  <p className="text-emerald-800/80 font-medium leading-relaxed text-lg">
+                    CaterProAi is specifically engineered to support South African TVET students. Use the 'Training Mode' to map your practicals to QCTO Occupational Certificate: Chef (ID 101697) modules. Every proposal automatically generates the Costing (ZAR), AP/EP Yield Analysis, and HACCP documentation required for Level 5 Assessment compliance.
+                  </p>
+                </div>
+              </div>
+            </div>
+
             {/* Culinary Excellence Section */}
             <div className="bg-slate-50 py-24">
               <div className="max-w-7xl mx-auto px-6">
@@ -602,6 +617,7 @@ export default function App() {
         onViewPricing={() => setViewMode('pricing')}
         onViewLibrary={() => setViewMode('library')}
         onViewPartner={() => setViewMode('partner')}
+        onViewSuccess={() => setViewMode('success')}
         onAuthClick={() => setIsAuthModalOpen(true)}
         user={user}
       />
