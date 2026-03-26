@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI, Chat } from '@google/genai';
-import { MessageSquare, Send, X, Bot, User, AlertTriangle, Lock } from 'lucide-react';
+import { MessageSquare, Send, X, Bot, User, AlertTriangle, Lock, ChefHat } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Message, ErrorState } from '../types';
 import { getApiErrorState } from '../services/apiErrorHandler';
 
@@ -121,92 +122,131 @@ const AiChatBot: React.FC<{
     
     return (
         <>
-            <div className="no-print fixed bottom-6 right-6 z-40">
-                <button
-                    onClick={handleToggleOpen}
-                    className="relative bg-primary-500 text-white rounded-full p-4 shadow-lg hover:bg-primary-600 transition-transform transform hover:scale-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary-500"
-                    aria-label={isOpen ? "Close chat" : "Open chat"}
-                >
-                    {isOpen ? <X size={24} /> : <MessageSquare size={24} />}
-                     {!isPro && (
-                        <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-amber-400 text-amber-900 shadow" aria-hidden="true">
-                          <Lock size={12} />
-                        </span>
-                    )}
-                </button>
-            </div>
-            
-            {isOpen && isPro && (
-                <div role="dialog" aria-labelledby="chat-heading" className="no-print fixed bottom-24 right-6 z-50 w-[calc(100vw-3rem)] max-w-sm h-[60vh] max-h-[700px] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl border border-slate-200 dark:border-slate-700 flex flex-col animate-slide-in">
-                    <header className="flex-shrink-0 p-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                           <Bot className="w-6 h-6 text-primary-500" />
-                           <h2 id="chat-heading" className="text-lg font-semibold text-slate-900 dark:text-white">AI Catering Consultant</h2>
-                        </div>
-                    </header>
-
-                    <div className="flex-grow p-4 overflow-y-auto space-y-4">
-                        {messages.map((msg, index) => (
-                            <div key={index} className={`flex items-start gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
-                                {msg.role === 'model' && <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center"><Bot className="w-5 h-5 text-slate-500" /></div>}
-                                <div className={`max-w-[80%] rounded-2xl px-4 py-2 text-sm ${
-                                    msg.role === 'user'
-                                        ? 'bg-primary-500 text-white rounded-br-none'
-                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-bl-none'
-                                }`}>
-                                    {msg.content}
-                                </div>
-                                {msg.role === 'user' && <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-600 flex items-center justify-center"><User className="w-5 h-5 text-white" /></div>}
+            <div className="no-print fixed bottom-8 right-8 z-50 flex flex-col items-end gap-6">
+                {isOpen && isPro && (
+                    <div 
+                        role="dialog" 
+                        aria-labelledby="chat-heading" 
+                        className="glass-card w-[380px] h-[600px] flex flex-col shadow-[0_50px_100px_rgba(0,0,0,0.2)] border-white/40 rounded-[3rem] overflow-hidden relative animate-slide-in"
+                    >
+                        <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 mask-triangle -z-10" />
+                        
+                        <header className="flex-shrink-0 p-8 bg-charcoal flex items-center justify-between relative overflow-hidden">
+                            <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
+                                <div className="absolute top-[-20%] left-[-20%] w-32 h-32 bg-emerald-500 rounded-full blur-3xl" />
                             </div>
-                        ))}
-                         {isLoading && (
-                            <div className="flex items-start gap-3">
-                                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 flex items-center justify-center"><Bot className="w-5 h-5 text-slate-500" /></div>
-                                <div className="max-w-[80%] rounded-2xl px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-bl-none flex items-center space-x-1">
-                                    <span className="w-2 h-2 bg-slate-400 rounded-full animate-[pulse_1s_ease-in-out_infinite]"></span>
-                                    <span className="w-2 h-2 bg-slate-400 rounded-full animate-[pulse_1s_ease-in-out_0.2s_infinite]"></span>
-                                    <span className="w-2 h-2 bg-slate-400 rounded-full animate-[pulse_1s_ease-in-out_0.4s_infinite]"></span>
+                            <div className="flex items-center gap-4 relative z-10">
+                                <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center border border-emerald-500/30">
+                                    <ChefHat className="text-emerald-400" size={24} />
                                 </div>
-                            </div>
-                        )}
-                        {error && (
-                            <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/30">
-                                <div className="flex items-start">
-                                    <AlertTriangle className="h-5 w-5 text-red-500 dark:text-red-400 flex-shrink-0 mr-2" />
-                                    <div>
-                                        <p className="text-sm font-semibold text-red-800 dark:text-red-200">{error.title}</p>
-                                        <p className="text-sm text-red-700 dark:text-red-300 mt-1">{error.message}</p>
+                                <div>
+                                    <h2 id="chat-heading" className="text-white font-anchor text-lg tracking-tight uppercase">Chef Mentor</h2>
+                                    <div className="flex items-center gap-2">
+                                        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                        <span className="text-emerald-400 text-[10px] font-black uppercase tracking-widest">Online & Ready</span>
                                     </div>
                                 </div>
                             </div>
-                        )}
-                        <div ref={messagesEndRef} />
-                    </div>
-
-                    <footer className="flex-shrink-0 p-4 border-t border-slate-200 dark:border-slate-700">
-                        <form onSubmit={handleSendMessage} className="flex items-center gap-2">
-                            <input
-                                ref={inputRef}
-                                type="text"
-                                value={userInput}
-                                onChange={(e) => setUserInput(e.target.value)}
-                                placeholder="Ask a question..."
-                                disabled={isLoading}
-                                className="w-full px-4 py-2 border-2 border-slate-200 dark:border-slate-600 rounded-full focus:border-primary-500 focus:outline-none transition-colors bg-white dark:bg-slate-800 disabled:opacity-60"
-                                aria-label="Your message"
-                            />
-                            <button
-                                type="submit"
-                                disabled={isLoading || !userInput.trim()}
-                                className="bg-primary-500 text-white rounded-full p-3 shadow-sm hover:bg-primary-600 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
-                                aria-label="Send message"
+                            <button 
+                                onClick={() => setIsOpen(false)}
+                                className="text-white/40 hover:text-white transition-colors"
                             >
-                                <Send size={18} />
+                                <X size={20} />
                             </button>
-                        </form>
-                    </footer>
-                </div>
-            )}
+                        </header>
+
+                        <div className="flex-grow p-8 overflow-y-auto space-y-6 scrollbar-hide">
+                            {messages.map((msg, index) => (
+                                <div key={index} className={`flex items-start gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
+                                    {msg.role === 'model' && (
+                                        <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-sm">
+                                            <Bot className="w-6 h-6 text-emerald-600" />
+                                        </div>
+                                    )}
+                                    <div className={`max-w-[85%] rounded-[2rem] px-6 py-4 text-sm font-medium leading-relaxed shadow-sm ${
+                                        msg.role === 'user'
+                                            ? 'bg-emerald-600 text-white rounded-tr-none'
+                                            : 'bg-white/80 backdrop-blur-sm text-charcoal border border-white/60 rounded-tl-none'
+                                    }`}>
+                                        {msg.content}
+                                    </div>
+                                    {msg.role === 'user' && (
+                                        <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-charcoal flex items-center justify-center shadow-lg">
+                                            <User className="w-6 h-6 text-white" />
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                            {isLoading && (
+                                <div className="flex items-start gap-3">
+                                    <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                                        <Bot className="w-6 h-6 text-emerald-600" />
+                                    </div>
+                                    <div className="bg-white/80 backdrop-blur-sm p-5 rounded-[2rem] rounded-tl-none border border-white/60 flex gap-2">
+                                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce" />
+                                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.2s]" />
+                                        <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.4s]" />
+                                    </div>
+                                </div>
+                            )}
+                            {error && (
+                                <div className="p-6 rounded-[2rem] bg-red-500/5 border border-red-500/20">
+                                    <div className="flex items-start">
+                                        <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0 mr-3" />
+                                        <div>
+                                            <p className="text-xs font-black text-red-600 uppercase tracking-widest">{error.title}</p>
+                                            <p className="text-sm text-red-700 mt-1 font-medium italic">{error.message}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                            <div ref={messagesEndRef} />
+                        </div>
+
+                        <footer className="flex-shrink-0 p-8 bg-white/40 backdrop-blur-md border-t border-white/60">
+                            <form onSubmit={handleSendMessage} className="relative">
+                                <input
+                                    ref={inputRef}
+                                    type="text"
+                                    value={userInput}
+                                    onChange={(e) => setUserInput(e.target.value)}
+                                    placeholder="Ask about costing, QCTO, or recipes..."
+                                    disabled={isLoading}
+                                    className="w-full bg-white/80 border border-slate-200 rounded-2xl px-6 py-4 pr-16 text-sm font-medium text-charcoal focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all disabled:opacity-60"
+                                    aria-label="Your message"
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={isLoading || !userInput.trim()}
+                                    className="absolute right-2 top-2 w-12 h-12 bg-charcoal text-white rounded-xl flex items-center justify-center hover:bg-slate-800 transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-lg"
+                                    aria-label="Send message"
+                                >
+                                    <Send size={20} />
+                                </button>
+                            </form>
+                        </footer>
+                    </div>
+                )}
+
+                <button
+                    onClick={handleToggleOpen}
+                    className="w-20 h-20 bg-charcoal text-white rounded-[2rem] flex items-center justify-center shadow-[0_20px_40px_rgba(0,0,0,0.3)] hover:scale-110 transition-all relative group overflow-hidden"
+                    aria-label={isOpen ? "Close chat" : "Open chat"}
+                >
+                    <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    {isOpen ? <X size={32} /> : <MessageSquare size={32} />}
+                    {!isPro && (
+                        <span className="absolute -top-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-amber-400 text-amber-900 shadow-lg border-4 border-slate-50" aria-hidden="true">
+                            <Lock size={14} />
+                        </span>
+                    )}
+                    {!isOpen && isPro && (
+                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-emerald-500 rounded-full border-4 border-slate-50 flex items-center justify-center">
+                            <div className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+                        </div>
+                    )}
+                </button>
+            </div>
         </>
     );
 };
