@@ -221,7 +221,7 @@ export default function App() {
     switch (viewMode) {
       case 'landing':
         return (
-          <div className="min-h-screen bg-slate-50 text-charcoal flex flex-col noise-bg">
+          <div className="min-h-screen bg-slate-50 text-charcoal flex flex-col">
             <HeroSection onStart={() => setViewMode('generator')} />
 
             {/* QCTO Student Success Guide Section */}
@@ -308,7 +308,7 @@ export default function App() {
             </div>
 
             {/* Culinary Excellence Section */}
-            <div className="bg-slate-100/50 py-32 noise-bg relative">
+            <div className="bg-slate-100/50 py-32 relative">
               <div className="absolute inset-0 bg-emerald-500/5 mask-triangle opacity-20 -z-10" />
               <div className="max-w-7xl mx-auto px-6">
                 <div className="flex flex-col md:flex-row items-center justify-between mb-20 gap-12">
@@ -346,7 +346,7 @@ export default function App() {
             </div>
 
             {/* Common Culinary Queries Section */}
-            <div className="bg-white py-32 noise-bg">
+            <div className="bg-white py-32">
               <div className="max-w-5xl mx-auto px-6">
                 <div className="glass-card p-16 rounded-[4rem] border-white/40 shadow-3xl relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-64 h-64 bg-emerald-500/5 mask-triangle -z-10" />
@@ -374,7 +374,7 @@ export default function App() {
       case 'generator':
         if (proposal) {
           return (
-            <div className="bg-slate-50 min-h-screen pb-20 noise-bg">
+            <div className="bg-slate-50 min-h-screen pb-20">
               <ProposalDocument 
                 proposal={proposal}
                 proposalImage={proposalImage}
@@ -387,7 +387,7 @@ export default function App() {
         }
 
         return (
-          <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 py-32 noise-bg">
+          <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 py-32">
             <div className="w-full max-w-3xl glass-card p-16 rounded-[4rem] shadow-[0_50px_100px_rgba(0,0,0,0.1)] border-white/40 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 mask-triangle -z-10" />
               <h2 className="text-5xl font-anchor text-charcoal mb-4 text-center tracking-tighter uppercase">Command Center</h2>
@@ -559,7 +559,10 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col font-sans">
+    <div className="min-h-screen bg-white flex flex-col font-sans relative overflow-x-hidden">
+      {/* Global Performance Optimized Noise Overlay */}
+      <div className="noise-overlay" />
+      
       {/* Navbar Integration (Code A) */}
       <Navbar 
         whopUrl={whopLinks.executive}
@@ -660,6 +663,3 @@ export default function App() {
         initialIngredients={shiftIngredients}
         menuTitle={proposal?.menuTitle || ''}
       />
-    </div>
-  );
-}
