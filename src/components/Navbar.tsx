@@ -21,72 +21,73 @@ const Navbar: React.FC<{
   onAuthClick?: () => void;
   user?: FirebaseUser | null;
 }> = ({ whopUrl, facebookUrl, onThemeToggle, isDarkMode, onOpenSaved, savedCount, onOpenQrCode, onOpenInstall, onReset, onViewLanding, onViewPricing, onViewLibrary, onViewPartner, onViewSuccess, onAuthClick, user }) => (
-  <nav role="navigation" aria-label="Main navigation" className="no-print bg-white/90 backdrop-blur-md sticky top-0 z-40 border-b border-slate-100 pt-[env(safe-area-inset-top)]">
+  <nav role="navigation" aria-label="Main navigation" className="no-print bg-white/80 backdrop-blur-xl sticky top-0 z-50 border-b border-white/20 pt-[env(safe-area-inset-top)] shadow-sm">
     <div className="max-w-7xl mx-auto px-6">
-      <div className="flex justify-between items-center h-20">
+      <div className="flex justify-between items-center h-24">
         <div 
-            className={`flex items-center space-x-3 ${onViewLanding ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`} 
+            className={`flex items-center space-x-4 ${onViewLanding ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`} 
             onClick={onViewLanding}
             role={onViewLanding ? "button" : undefined}
             tabIndex={0}
         >
-          <div className="relative">
-             <ChefHat className="w-8 h-8 text-[#10b981]" aria-label="CaterProAi Logo Icon" />
-             <div className="absolute -top-1 -right-1 w-3 h-3 bg-black rounded-full animate-pulse"></div>
+          <div className="relative group">
+             <div className="absolute -inset-2 bg-emerald-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
+             <ChefHat className="w-10 h-10 text-emerald-600 relative z-10" aria-label="CaterProAi Logo Icon" />
+             <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-charcoal rounded-full animate-pulse border-2 border-white"></div>
           </div>
           <div>
-            <span className="text-2xl tracking-tighter whitespace-nowrap flex items-center">
-              <span className="font-bold text-black">CaterPro</span>
-              <span className="font-medium bg-gradient-to-br from-[#10b981] to-[#34d399] bg-clip-text text-transparent drop-shadow-[0_0_8px_rgba(16,185,129,0.2)]">Ai</span>
+            <span className="text-3xl tracking-tighter whitespace-nowrap flex items-center font-anchor uppercase">
+              <span className="text-charcoal">CaterPro</span>
+              <span className="bg-gradient-to-br from-emerald-500 to-emerald-400 bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(16,185,129,0.3)]">Ai</span>
             </span>
           </div>
         </div>
 
-        <div className="flex items-center space-x-2 sm:space-x-4">
+        <div className="flex items-center space-x-3 sm:space-x-6">
           {onViewLibrary && (
             <button 
               onClick={onViewLibrary}
-              className="p-3 rounded-xl text-slate-400 hover:text-[#10b981] hover:bg-slate-50 transition-all"
+              className="p-3.5 rounded-2xl text-slate-400 hover:text-emerald-600 hover:bg-emerald-500/5 transition-all group"
               title="Costing Library"
             >
-              <Package size={22} />
+              <Package size={24} className="group-hover:scale-110 transition-transform" />
             </button>
           )}
 
           {onViewPartner && (
             <button 
               onClick={onViewPartner}
-              className="p-3 rounded-xl text-slate-400 hover:text-[#10b981] hover:bg-slate-50 transition-all"
+              className="p-3.5 rounded-2xl text-slate-400 hover:text-emerald-600 hover:bg-emerald-500/5 transition-all group"
               title="Partner Dashboard"
             >
-              <Zap size={22} className="text-[#10b981]" />
+              <Zap size={24} className="text-emerald-500 group-hover:scale-110 transition-transform" />
             </button>
           )}
 
           {onViewSuccess && (
             <button 
               onClick={onViewSuccess}
-              className="px-4 py-2.5 rounded-full border-2 border-slate-200 text-slate-600 hover:border-[#10b981] hover:text-[#10b981] transition-all font-bold text-xs uppercase tracking-widest"
+              className="px-6 py-3 rounded-full border border-slate-200 text-charcoal hover:border-emerald-500 hover:text-emerald-600 transition-all font-anchor text-[10px] uppercase tracking-[0.2em] bg-white/50 backdrop-blur-sm shadow-sm"
               title="My Results"
             >
               My Results
             </button>
           )}
 
-          <button onClick={onOpenSaved} className="relative p-3 rounded-xl text-slate-400 hover:text-[#10b981] hover:bg-slate-50 transition-all" aria-label={`Saved menus (${savedCount})`}>
-            <Bookmark size={22} />
+          <button onClick={onOpenSaved} className="relative p-3.5 rounded-2xl text-slate-400 hover:text-emerald-600 hover:bg-emerald-500/5 transition-all group" aria-label={`Saved menus (${savedCount})`}>
+            <Bookmark size={24} className="group-hover:scale-110 transition-transform" />
             {savedCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#10b981] text-[10px] font-black text-black shadow-lg">{savedCount}</span>
+              <span className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-black text-white shadow-lg border-2 border-white">{savedCount}</span>
             )}
           </button>
           
           <button 
             onClick={onAuthClick}
-            className={`px-6 py-2.5 rounded-full flex items-center gap-2 transition-all font-bold text-sm uppercase tracking-widest ${user ? 'bg-slate-100 text-black hover:bg-slate-200' : 'bg-[#10b981] text-black hover:brightness-110 shadow-lg shadow-[#10b981]/20'}`}
+            className={`px-8 py-3.5 rounded-full flex items-center gap-3 transition-all font-anchor text-xs uppercase tracking-[0.2em] shadow-2xl ${user ? 'bg-slate-100 text-charcoal hover:bg-slate-200' : 'bg-charcoal text-white hover:bg-slate-800 shadow-charcoal/20'}`}
             title={user ? "Sign Out" : "Sign In"}
           >
-            {user ? <LogOut size={18} /> : <LogIn size={18} />}
-            <span className="hidden md:inline">{user ? 'Sign Out' : 'Sign In'}</span>
+            {user ? <LogOut size={20} /> : <LogIn size={20} />}
+            <span className="hidden lg:inline">{user ? 'Sign Out' : 'Sign In'}</span>
           </button>
         </div>
       </div>
