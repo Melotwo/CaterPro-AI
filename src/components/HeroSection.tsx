@@ -17,7 +17,7 @@ const HeroSection: React.FC<{ onStart: () => void }> = ({ onStart }) => {
   };
 
   return (
-    <div className="relative min-h-[90vh] flex flex-col items-center justify-center overflow-hidden noise-bg">
+    <div className="relative min-h-[90vh] flex flex-col items-center justify-center overflow-hidden">
       <QuickInfoModal 
         isOpen={modalInfo.isOpen}
         onClose={() => setModalInfo(prev => ({ ...prev, isOpen: false }))}
@@ -109,60 +109,60 @@ const HeroSection: React.FC<{ onStart: () => void }> = ({ onStart }) => {
               <div className="grid grid-cols-2 gap-6 mb-10">
                 <button 
                   onClick={() => openModal('Net Margin', 'This represents your actual profit after all ingredient and operational costs are deducted, optimized for ZAR market rates.', 'cost')}
-                  className="p-6 rounded-3xl bg-white/60 border border-white/80 text-left hover:scale-105 transition-all active:scale-95 min-h-[120px] flex flex-col justify-between"
+                  className="p-6 rounded-3xl bg-charcoal border border-slate-800 text-left hover:scale-105 transition-all active:scale-95 min-h-[120px] flex flex-col justify-between shadow-xl"
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400">
                       <DollarSign size={16} />
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-700">Net Margin</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-hc-white">Net Margin</span>
                   </div>
-                  <span className="text-3xl font-anchor text-charcoal">68.4%</span>
-                  <div className="mt-2 flex items-center gap-1 text-[10px] font-bold text-emerald-600">
+                  <span className="text-3xl font-anchor text-hc-white">68.4%</span>
+                  <div className="mt-2 flex items-center gap-1 text-[10px] font-bold text-emerald-400">
                     <TrendingUp size={10} /> +12% vs LY
                   </div>
                 </button>
                 <button 
                   onClick={() => openModal('Yield Efficiency', 'This shows your Edible Portion (EP) vs As Purchased (AP) efficiency according to QCTO Module 5 standards.', 'waste')}
-                  className="p-6 rounded-3xl bg-white/60 border border-white/80 text-left hover:scale-105 transition-all active:scale-95 min-h-[120px] flex flex-col justify-between"
+                  className="p-6 rounded-3xl bg-charcoal border border-slate-800 text-left hover:scale-105 transition-all active:scale-95 min-h-[120px] flex flex-col justify-between shadow-xl"
                 >
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center text-amber-600">
+                    <div className="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center text-amber-400">
                       <Zap size={16} />
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-700">Yield Efficiency</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-hc-white">Yield Efficiency</span>
                   </div>
-                  <span className="text-3xl font-anchor text-charcoal">94.2%</span>
-                  <div className="mt-2 flex items-center gap-1 text-[10px] font-bold text-amber-600">
+                  <span className="text-3xl font-anchor text-hc-gold">94.2%</span>
+                  <div className="mt-2 flex items-center gap-1 text-[10px] font-bold text-amber-400">
                     <BarChart3 size={10} /> QCTO Level 5
                   </div>
                 </button>
               </div>
 
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-charcoal text-white">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-charcoal text-white border border-slate-800">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center text-charcoal">
+                    <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400">
                       <PieChart size={20} />
                     </div>
                     <div>
-                      <span className="block text-xs font-black uppercase tracking-widest">Wagyu Fusion</span>
-                      <span className="text-[10px] text-emerald-400/90 font-bold uppercase tracking-widest">Top Performer</span>
+                      <span className="block text-xs font-black uppercase tracking-widest text-hc-white">Wagyu Fusion</span>
+                      <span className="text-[10px] text-emerald-400 font-bold uppercase tracking-widest">Top Performer</span>
                     </div>
                   </div>
                   <span className="font-anchor text-emerald-400">R1,250</span>
                 </div>
-                <div className="flex items-center justify-between p-4 rounded-2xl bg-white/80 border border-slate-100">
+                <div className="flex items-center justify-between p-4 rounded-2xl bg-charcoal border border-slate-800">
                   <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
+                    <div className="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400">
                       <BarChart3 size={20} />
                     </div>
                     <div>
-                      <span className="block text-xs font-black uppercase tracking-widest text-charcoal">Truffle Risotto</span>
-                      <span className="text-[10px] text-medium">Steady Growth</span>
+                      <span className="block text-xs font-black uppercase tracking-widest text-hc-white">Truffle Risotto</span>
+                      <span className="text-[10px] text-hc-gold font-bold uppercase tracking-widest">Steady Growth</span>
                     </div>
                   </div>
-                  <span className="font-anchor text-charcoal">R850</span>
+                  <span className="font-anchor text-hc-white">R850</span>
                 </div>
               </div>
             </div>
