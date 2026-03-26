@@ -28,6 +28,8 @@ import { generateMenuImageFromApi, extractIngredientsForShift } from './services
 import { ShiftCalculatorModal } from './components/ShiftCalculatorModal';
 import { SuccessPage } from './components/SuccessPage';
 import { ProposalDocument } from './components/ProposalDocument';
+import HeroSection from './components/HeroSection';
+import AiChatBot from './components/AiChatBot';
 import { ShiftIngredient } from './types';
 
 // --- INITIALIZE GOOGLE AI ---
@@ -80,12 +82,6 @@ export default function App() {
     }
   };
 
-  // Chat State (Code B)
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [chatInput, setChatInput] = useState('');
-  const [chatMessages, setChatMessages] = useState<any[]>([]);
-  const [isChatLoading, setIsChatLoading] = useState(false);
-  
   const proposalRef = useRef<HTMLDivElement>(null);
 
   // Trigger animation on total change
@@ -191,7 +187,6 @@ export default function App() {
         console.error("Image generation failed", err);
       }
       
-      setChatMessages([{ role: 'model', text: `Chef, your ${data.title} proposal is ready. I've included a HACCP safety checklist for your protein handling. What's our next move?` }]);
       setViewMode('generator'); // Stay in generator view to show result
     } catch (e) { 
       console.error("Gemini Error:", e);
@@ -201,36 +196,7 @@ export default function App() {
   }
 
   async function handleChat() {
-    if (!chatInput.trim() || isChatLoading) return;
-    
-    // Check if user has access to AI Chat (Code A integration)
-    if (!canAccessFeature('aiChatBot')) {
-      setViewMode('pricing');
-      return;
-    }
-
-    const userMsg = { role: 'user', text: chatInput };
-    setChatMessages(prev => [...prev, userMsg]);
-    setChatInput('');
-    setIsChatLoading(true);
-
-    try {
-      const ai = new GoogleGenAI({ apiKey });
-      const chatPrompt = `You are a Chef Operations AI Consultant. The current proposal is for a ${eventType} (${style}) for ${guests} guests.
-      Proposal Details: ${JSON.stringify(proposal)}
-      User Question: ${chatInput}
-      Provide a concise, professional chef-to-chef response. Focus on operational excellence and HACCP standards.`;
-
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: [{ role: 'user', parts: [{ text: chatPrompt }] }]
-      });
-
-      setChatMessages(prev => [...prev, { role: 'model', text: response.text }]);
-    } catch (e) {
-      setChatMessages(prev => [...prev, { role: 'model', text: "Sorry Chef, I'm having trouble connecting to the office right now." }]);
-    }
-    setIsChatLoading(false);
+    // Removed legacy chat
   }
 
   const downloadPDF = async () => {
@@ -255,134 +221,122 @@ export default function App() {
     switch (viewMode) {
       case 'landing':
         return (
-          <div className="min-h-screen bg-white text-black flex flex-col">
-            {/* Hero Section */}
-            <div className="flex flex-col items-center justify-center p-6 text-center pt-32 pb-20">
-              <div className="flex flex-col items-center mb-12">
-                <h1 className="text-6xl md:text-8xl tracking-tighter leading-none">
-                  <span className="font-bold text-black">CaterPro</span>
-                  <span className="font-medium bg-gradient-to-br from-[#10b981] to-[#34d399] bg-clip-text text-transparent drop-shadow-[0_0_15px_rgba(16,185,129,0.3)]">Ai</span>
-                </h1>
-                <p className="text-slate-500 text-sm md:text-base font-black mt-4 uppercase tracking-[0.4em]">
-                  Chef in the Kitchen. AI in the Office.
-                </p>
+          <div className="min-h-screen bg-slate-50 text-charcoal flex flex-col noise-bg">
+            <HeroSection onStart={() => setViewMode('generator')} />
+
+            {/* QCTO Student Success Guide Section */}
+            <div className="max-w-7xl mx-auto px-6 py-24 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 mask-triangle -z-10" />
+              <div className="glass-card p-12 rounded-[4rem] flex flex-col md:flex-row items-center gap-12 border-white/40 shadow-[0_40px_80px_rgba(0,0,0,0.05)]">
+                <div className="w-24 h-24 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center shrink-0 border border-emerald-500/20">
+                  <GraduationCap className="text-emerald-600" size={48} />
+                </div>
+                <div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-4">
+                    <Zap size={12} className="text-emerald-500" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Educational Excellence</span>
+                  </div>
+                  <h3 className="text-4xl font-anchor tracking-tighter uppercase mb-6 text-charcoal">QCTO Student Success Guide</h3>
+                  <p className="text-medium font-medium leading-relaxed text-xl">
+                    CaterProAi is specifically engineered to support South African TVET students. Use the <span className="text-emerald-600 font-bold">'Training Mode'</span> to map your practicals to QCTO Occupational Certificate: Chef (ID 101697) modules. Every proposal automatically generates the Costing (ZAR), AP/EP Yield Analysis, and HACCP documentation required for Level 5 Assessment compliance.
+                  </p>
+                </div>
               </div>
-              <p className="text-slate-500 text-xl mb-12 max-w-2xl font-medium">
-                The <span className="italic">Elegance</span> edition. Precision catering intelligence for the modern executive.
-              </p>
-              <button 
-                onClick={() => setViewMode('generator')} 
-                className="bg-gradient-to-br from-[#10b981] to-[#059669] text-black px-12 py-4 rounded-full font-black text-lg hover:scale-105 transition-all shadow-[0_10px_30px_rgba(16,185,129,0.3)] uppercase tracking-widest"
-              >
-                Start Planning
-              </button>
             </div>
 
             {/* Dual-Tier Section */}
-            <div className="max-w-7xl mx-auto w-full px-6 py-20">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="max-w-7xl mx-auto w-full px-6 py-24">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 {/* For Students */}
-                <div className="bg-slate-50 p-12 rounded-[3rem] border border-slate-100 hover:shadow-2xl transition-all group">
-                  <div className="w-16 h-16 bg-[#10b981]/10 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
-                    <GraduationCap className="text-[#10b981]" size={32} aria-label="Student Yield Calculator Icon" />
+                <div className="glass-card p-16 rounded-[4rem] border-white/40 hover:shadow-2xl transition-all group relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 mask-triangle -z-10" />
+                  <div className="w-20 h-20 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center mb-10 group-hover:scale-110 transition-transform border border-emerald-500/20">
+                    <GraduationCap className="text-emerald-600" size={40} aria-label="Student Yield Calculator Icon" />
                   </div>
-                  <h3 className="text-3xl font-black mb-4 tracking-tighter">For Students</h3>
-                  <p className="text-slate-500 font-medium mb-8 leading-relaxed">
+                  <h3 className="text-4xl font-anchor mb-6 tracking-tighter text-charcoal">For Students</h3>
+                  <p className="text-medium font-medium mb-10 leading-relaxed text-lg">
                     Master the art of food math and international standards with our specialized student toolkit.
                   </p>
-                  <ul className="space-y-4 mb-10">
-                    <li className="flex items-center gap-3 text-sm font-bold text-slate-700">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
+                  <ul className="space-y-6 mb-12">
+                    <li className="flex items-center gap-4 text-sm font-bold text-charcoal">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
                       Yield Sandbox for precision testing
                     </li>
-                    <li className="flex items-center gap-3 text-sm font-bold text-slate-700">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
+                    <li className="flex items-center gap-4 text-sm font-bold text-charcoal">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
                       International Curriculum Modules
                     </li>
-                    <li className="flex items-center gap-3 text-sm font-bold text-slate-700">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
+                    <li className="flex items-center gap-4 text-sm font-bold text-charcoal">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
                       PoE Admin Automation
                     </li>
                   </ul>
-                  <button onClick={() => setViewMode('generator')} className="flex items-center gap-2 text-[#10b981] font-black uppercase tracking-widest text-xs group-hover:gap-4 transition-all">
-                    Explore Student Tools <ArrowRight size={16} />
+                  <button onClick={() => setViewMode('generator')} className="flex items-center gap-3 text-emerald-600 font-black uppercase tracking-widest text-xs group-hover:gap-5 transition-all">
+                    Explore Student Tools <ArrowRight size={18} />
                   </button>
                 </div>
 
                 {/* For Professionals */}
-                <div className="bg-slate-900 p-12 rounded-[3rem] border border-slate-800 hover:shadow-2xl transition-all group text-white">
-                  <div className="w-16 h-16 bg-[#10b981]/20 rounded-2xl flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
-                    <Briefcase className="text-[#10b981]" size={32} aria-label="Professional Catering Dashboard Icon" />
+                <div className="bg-charcoal p-16 rounded-[4rem] border border-slate-800 hover:shadow-2xl transition-all group text-white relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 mask-triangle -z-10" />
+                  <div className="w-20 h-20 bg-emerald-500/20 rounded-[2rem] flex items-center justify-center mb-10 group-hover:scale-110 transition-transform border border-emerald-500/30">
+                    <Briefcase className="text-emerald-400" size={40} aria-label="Professional Catering Dashboard Icon" />
                   </div>
-                  <h3 className="text-3xl font-black mb-4 tracking-tighter">For Professionals</h3>
-                  <p className="text-slate-400 font-medium mb-8 leading-relaxed">
+                  <h3 className="text-4xl font-anchor mb-6 tracking-tighter text-white">For Professionals</h3>
+                  <p className="text-slate-400 font-medium mb-10 leading-relaxed text-lg">
                     Scale your catering operation with enterprise-grade intelligence and automated logistics.
                   </p>
-                  <ul className="space-y-4 mb-10">
-                    <li className="flex items-center gap-3 text-sm font-bold text-slate-300">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
+                  <ul className="space-y-6 mb-12">
+                    <li className="flex items-center gap-4 text-sm font-bold text-slate-300">
+                      <div className="w-2 h-2 rounded-full bg-emerald-400" />
                       Live ZAR Costing & Smart Shopping
                     </li>
-                    <li className="flex items-center gap-3 text-sm font-bold text-slate-300">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
+                    <li className="flex items-center gap-4 text-sm font-bold text-slate-300">
+                      <div className="w-2 h-2 rounded-full bg-emerald-400" />
                       HACCP Safety Automation
                     </li>
-                    <li className="flex items-center gap-3 text-sm font-bold text-slate-300">
-                      <div className="w-1.5 h-1.5 rounded-full bg-[#10b981]" />
+                    <li className="flex items-center gap-4 text-sm font-bold text-slate-300">
+                      <div className="w-2 h-2 rounded-full bg-emerald-400" />
                       One-Click PDF Proposal Exports
                     </li>
                   </ul>
-                  <button onClick={() => setViewMode('generator')} className="flex items-center gap-2 text-[#10b981] font-black uppercase tracking-widest text-xs group-hover:gap-4 transition-all">
-                    Launch Professional Suite <ArrowRight size={16} />
+                  <button onClick={() => setViewMode('generator')} className="flex items-center gap-3 text-emerald-400 font-black uppercase tracking-widest text-xs group-hover:gap-5 transition-all">
+                    Launch Professional Suite <ArrowRight size={18} />
                   </button>
-                </div>
-              </div>
-            </div>
-
-            {/* QCTO Student Success Guide Section */}
-            <div className="max-w-7xl mx-auto px-6 py-12">
-              <div className="bg-emerald-50 border border-emerald-100 p-10 rounded-[3rem] flex flex-col md:flex-row items-center gap-10">
-                <div className="w-20 h-20 bg-emerald-500/10 rounded-3xl flex items-center justify-center shrink-0">
-                  <GraduationCap className="text-emerald-600" size={40} />
-                </div>
-                <div>
-                  <h3 className="text-2xl font-black tracking-tighter uppercase mb-4 text-emerald-900">QCTO Student Success Guide</h3>
-                  <p className="text-emerald-800/80 font-medium leading-relaxed text-lg">
-                    CaterProAi is specifically engineered to support South African TVET students. Use the 'Training Mode' to map your practicals to QCTO Occupational Certificate: Chef (ID 101697) modules. Every proposal automatically generates the Costing (ZAR), AP/EP Yield Analysis, and HACCP documentation required for Level 5 Assessment compliance.
-                  </p>
                 </div>
               </div>
             </div>
 
             {/* Culinary Excellence Section */}
-            <div className="bg-slate-50 py-24">
+            <div className="bg-slate-100/50 py-32 noise-bg relative">
+              <div className="absolute inset-0 bg-emerald-500/5 mask-triangle opacity-20 -z-10" />
               <div className="max-w-7xl mx-auto px-6">
-                <div className="flex flex-col md:flex-row items-center justify-between mb-16 gap-8">
+                <div className="flex flex-col md:flex-row items-center justify-between mb-20 gap-12">
                   <div className="max-w-2xl">
-                    <h3 className="text-4xl font-black tracking-tighter uppercase mb-4">Culinary Excellence</h3>
-                    <p className="text-slate-500 font-medium text-lg leading-relaxed">
+                    <h3 className="text-5xl font-anchor tracking-tighter uppercase mb-6 text-charcoal">Culinary Excellence</h3>
+                    <p className="text-medium font-medium text-xl leading-relaxed">
                       Precision tools for the modern executive chef. Elevate your operations with AI-driven intelligence and Michelin-star standards.
                     </p>
                   </div>
-                  <div className="flex gap-4">
-                    <div className="w-3 h-3 rounded-full bg-[#10b981] animate-pulse" />
-                    <div className="w-3 h-3 rounded-full bg-slate-200" />
-                    <div className="w-3 h-3 rounded-full bg-slate-200" />
+                  <div className="flex gap-6">
+                    <div className="w-4 h-4 rounded-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
+                    <div className="w-4 h-4 rounded-full bg-slate-300" />
+                    <div className="w-4 h-4 rounded-full bg-slate-300" />
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                   {[
-                    { title: "Menu Intelligence", desc: "AI-driven menu engineering and profit margin analysis.", icon: <Utensils className="text-[#10b981]" aria-label="Menu Intelligence Icon" /> },
-                    { title: "Operational Safety", desc: "Automated HACCP checklists and safety protocol generation.", icon: <ShieldCheck className="text-[#10b981]" aria-label="Operational Safety Icon" /> },
-                    { title: "Costing Precision", desc: "Live ZAR costing and smart shopping list automation.", icon: <Calculator className="text-[#10b981]" aria-label="Costing Precision Icon" /> }
+                    { title: "Menu Intelligence", desc: "AI-driven menu engineering and profit margin analysis.", icon: <Utensils className="text-emerald-600" size={32} aria-label="Menu Intelligence Icon" /> },
+                    { title: "Operational Safety", desc: "Automated HACCP checklists and safety protocol generation.", icon: <ShieldCheck className="text-emerald-600" size={32} aria-label="Operational Safety Icon" /> },
+                    { title: "Costing Precision", desc: "Live ZAR costing and smart shopping list automation.", icon: <Calculator className="text-emerald-600" size={32} aria-label="Costing Precision Icon" /> }
                   ].map((feature, i) => (
-                    <div key={i} className="bg-white p-10 rounded-[3rem] border border-slate-100 shadow-xl hover:shadow-2xl transition-all group">
-                      <div className="w-14 h-14 bg-slate-50 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-[#10b981]/10 transition-colors">
+                    <div key={i} className="glass-card p-12 rounded-[3.5rem] border-white/40 shadow-2xl hover:shadow-3xl transition-all group">
+                      <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mb-10 group-hover:bg-emerald-500/10 transition-colors border border-slate-100">
                         {feature.icon}
                       </div>
-                      <h4 className="text-xl font-black mb-4 tracking-tighter">{feature.title}</h4>
-                      <p className="text-slate-500 font-medium text-sm leading-relaxed">
+                      <h4 className="text-2xl font-anchor mb-6 tracking-tighter text-charcoal">{feature.title}</h4>
+                      <p className="text-medium font-medium text-base leading-relaxed">
                         {feature.desc}
                       </p>
                     </div>
@@ -392,21 +346,22 @@ export default function App() {
             </div>
 
             {/* Common Culinary Queries Section */}
-            <div className="bg-white py-24">
-              <div className="max-w-4xl mx-auto px-6">
-                <div className="backdrop-blur-md bg-white/70 p-12 rounded-[3rem] border border-slate-100 shadow-2xl">
-                  <h2 className="text-4xl font-black tracking-tighter uppercase mb-12 text-center">Common Culinary Queries</h2>
-                  <div className="space-y-12">
+            <div className="bg-white py-32 noise-bg">
+              <div className="max-w-5xl mx-auto px-6">
+                <div className="glass-card p-16 rounded-[4rem] border-white/40 shadow-3xl relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-64 h-64 bg-emerald-500/5 mask-triangle -z-10" />
+                  <h2 className="text-5xl font-anchor tracking-tighter uppercase mb-16 text-center text-charcoal">Common Culinary Queries</h2>
+                  <div className="grid md:grid-cols-2 gap-16">
                     <div>
-                      <h3 className="text-xl font-black mb-4 tracking-tighter text-[#10b981]">What is the best AI tool for South African catering?</h3>
-                      <p className="text-slate-600 font-medium leading-relaxed">
-                        <span className="font-bold">CaterPro</span><span className="font-medium text-[#10b981]">Ai</span> provides live ZAR costing and automated HACCP safety for professional chefs.
+                      <h3 className="text-2xl font-anchor mb-6 tracking-tighter text-emerald-600">What is the best AI tool for South African catering?</h3>
+                      <p className="text-medium font-medium leading-relaxed text-lg">
+                        <span className="font-bold text-charcoal">CaterPro</span><span className="font-medium text-emerald-600">Ai</span> provides live ZAR costing and automated HACCP safety for professional chefs.
                       </p>
                     </div>
                     <div>
-                      <h3 className="text-xl font-black mb-4 tracking-tighter text-[#10b981]">How do I calculate culinary yield for City & Guilds exams?</h3>
-                      <p className="text-slate-600 font-medium leading-relaxed">
-                        Use the <span className="font-bold">CaterPro</span><span className="font-medium text-[#10b981]">Ai</span> Student Sandbox to apply the formula EP = AP x Yield% with 100% accuracy.
+                      <h3 className="text-2xl font-anchor mb-6 tracking-tighter text-emerald-600">How do I calculate culinary yield for City & Guilds exams?</h3>
+                      <p className="text-medium font-medium leading-relaxed text-lg">
+                        Use the <span className="font-bold text-charcoal">CaterPro</span><span className="font-medium text-emerald-600">Ai</span> Student Sandbox to apply the formula EP = AP x Yield% with 100% accuracy.
                       </p>
                     </div>
                   </div>
@@ -419,7 +374,7 @@ export default function App() {
       case 'generator':
         if (proposal) {
           return (
-            <div className="bg-slate-50 min-h-screen pb-20">
+            <div className="bg-slate-50 min-h-screen pb-20 noise-bg">
               <ProposalDocument 
                 proposal={proposal}
                 proposalImage={proposalImage}
@@ -432,32 +387,33 @@ export default function App() {
         }
 
         return (
-          <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 py-20">
-            <div className="w-full max-w-2xl backdrop-blur-md bg-white/70 p-12 rounded-[3rem] shadow-[0_30px_60px_rgba(0,0,0,0.1)] border border-white/20">
-              <h2 className="text-4xl font-black text-slate-900 mb-2 text-center tracking-tighter">Command Center</h2>
-              <p className="text-slate-400 text-center mb-6 uppercase tracking-[0.4em] text-[10px] font-black">Chef Operations v4.0</p>
+          <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 py-32 noise-bg">
+            <div className="w-full max-w-3xl glass-card p-16 rounded-[4rem] shadow-[0_50px_100px_rgba(0,0,0,0.1)] border-white/40 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 mask-triangle -z-10" />
+              <h2 className="text-5xl font-anchor text-charcoal mb-4 text-center tracking-tighter uppercase">Command Center</h2>
+              <p className="text-medium text-center mb-12 uppercase tracking-[0.5em] text-[10px] font-black">Chef Operations v12.0 • Luxury Edition</p>
               
-              <div className="flex justify-center mb-10">
+              <div className="flex justify-center mb-12">
                 <button 
                   onClick={() => setIsTrainingMode(!isTrainingMode)}
-                  className={`flex items-center gap-3 px-6 py-3 rounded-2xl transition-all border-2 ${isTrainingMode ? 'bg-[#10b981]/10 border-[#10b981] text-[#10b981]' : 'bg-slate-50 border-slate-200 text-slate-400'}`}
+                  className={`flex items-center gap-4 px-8 py-4 rounded-[2rem] transition-all border-2 ${isTrainingMode ? 'bg-emerald-500/10 border-emerald-500 text-emerald-600 shadow-xl' : 'bg-white/50 border-slate-200 text-slate-400'}`}
                 >
-                  <GraduationCap size={20} />
+                  <GraduationCap size={24} />
                   <span className="font-black uppercase tracking-widest text-xs">Training Mode {isTrainingMode ? 'ON' : 'OFF'}</span>
-                  <div className={`w-10 h-5 rounded-full relative transition-colors ${isTrainingMode ? 'bg-[#10b981]' : 'bg-slate-300'}`}>
-                    <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${isTrainingMode ? 'left-6' : 'left-1'}`} />
+                  <div className={`w-12 h-6 rounded-full relative transition-colors ${isTrainingMode ? 'bg-emerald-500' : 'bg-slate-300'}`}>
+                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${isTrainingMode ? 'left-7' : 'left-1'}`} />
                   </div>
                 </button>
               </div>
 
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="space-y-8">
+              <div className="grid md:grid-cols-2 gap-12">
+                <div className="space-y-10">
                   <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Event Selection</label>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2 mb-2 block">Event Selection</label>
                     <select 
                       value={eventType} 
                       onChange={e => setEventType(e.target.value)} 
-                      className="w-full bg-white/50 p-5 rounded-2xl text-slate-900 mt-2 outline-none border border-slate-200 focus:border-[#10b981] transition-all appearance-none cursor-pointer font-bold text-sm"
+                      className="w-full bg-white/80 p-6 rounded-[2rem] text-charcoal outline-none border border-slate-100 focus:border-emerald-500 transition-all appearance-none cursor-pointer font-bold text-sm shadow-sm"
                     >
                       <option>Corporate Event</option>
                       <option>Wedding Banquet</option>
@@ -470,11 +426,11 @@ export default function App() {
                   </div>
                   
                   <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Guest Volume</label>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2 mb-2 block">Guest Volume</label>
                     <select 
                       value={guests} 
                       onChange={e => setGuests(e.target.value)} 
-                      className="w-full bg-white/50 p-5 rounded-2xl text-slate-900 mt-2 outline-none border border-slate-200 focus:border-[#10b981] transition-all appearance-none cursor-pointer font-bold text-sm"
+                      className="w-full bg-white/80 p-6 rounded-[2rem] text-charcoal outline-none border border-slate-100 focus:border-emerald-500 transition-all appearance-none cursor-pointer font-bold text-sm shadow-sm"
                     >
                       <option value="10">1-10 Guests</option>
                       <option value="20">11-20 Guests</option>
@@ -486,58 +442,58 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="space-y-8">
+                <div className="space-y-10">
                   <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Culinary Style</label>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2 mb-2 block">Culinary Style</label>
                     <input 
                       type="text"
                       value={style} 
                       onChange={e => setStyle(e.target.value)} 
                       placeholder="e.g., Thai Fusion Fine Dining"
-                      className="w-full bg-white/50 p-5 rounded-2xl text-slate-900 mt-2 outline-none border border-slate-200 focus:border-[#10b981] transition-all font-bold text-sm"
+                      className="w-full bg-white/80 p-6 rounded-[2rem] text-charcoal outline-none border border-slate-100 focus:border-emerald-500 transition-all font-bold text-sm shadow-sm"
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Dietary Requirements</label>
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2 mb-2 block">Dietary Requirements</label>
                     <textarea 
                       value={dietary}
                       onChange={e => setDietary(e.target.value)}
                       placeholder="Type specific requirements here..."
-                      className="w-full bg-white/50 p-5 rounded-2xl text-slate-900 outline-none border border-slate-200 mt-2 focus:border-[#10b981] transition-all h-[158px] resize-none font-bold text-sm"
+                      className="w-full bg-white/80 p-6 rounded-[2rem] text-charcoal outline-none border border-slate-100 focus:border-emerald-500 transition-all h-[178px] resize-none font-bold text-sm shadow-sm"
                     />
                   </div>
                 </div>
               </div>
 
               {isTrainingMode && (
-                <div className="mt-8 p-8 bg-[#10b981]/5 rounded-[2rem] border border-[#10b981]/20 animate-in fade-in slide-in-from-top-4">
-                  <div className="flex items-center gap-3 mb-6 text-[#10b981]">
-                    <Percent size={20} />
-                    <h3 className="font-black uppercase tracking-widest text-xs">QCTO Level 5 Waste/Yield Input</h3>
+                <div className="mt-12 p-10 bg-emerald-500/5 rounded-[3rem] border border-emerald-500/20 animate-in fade-in slide-in-from-top-4">
+                  <div className="flex items-center gap-4 mb-8 text-emerald-600">
+                    <Percent size={24} />
+                    <h3 className="font-anchor uppercase tracking-widest text-sm">QCTO Level 5 Waste/Yield Input</h3>
                   </div>
-                  <div className="grid md:grid-cols-2 gap-6">
+                  <div className="grid md:grid-cols-2 gap-8">
                     <div>
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">AP Cost (Total R)</label>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2 mb-2 block">AP Cost (Total R)</label>
                       <input 
                         type="number"
                         value={apCost}
                         onChange={e => setApCost(e.target.value)}
                         placeholder="e.g., 2500"
-                        className="w-full bg-white p-4 rounded-xl text-slate-900 mt-2 outline-none border border-slate-200 focus:border-[#10b981] transition-all font-bold text-sm"
+                        className="w-full bg-white p-5 rounded-2xl text-charcoal outline-none border border-slate-100 focus:border-emerald-500 transition-all font-bold text-sm shadow-sm"
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Estimated EP Yield (%)</label>
+                      <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] ml-2 mb-2 block">Estimated EP Yield (%)</label>
                       <input 
                         type="number"
                         value={epYield}
                         onChange={e => setEpYield(e.target.value)}
                         placeholder="e.g., 75"
-                        className="w-full bg-white p-4 rounded-xl text-slate-900 mt-2 outline-none border border-slate-200 focus:border-[#10b981] transition-all font-bold text-sm"
+                        className="w-full bg-white p-5 rounded-2xl text-charcoal outline-none border border-slate-100 focus:border-emerald-500 transition-all font-bold text-sm shadow-sm"
                       />
                     </div>
                   </div>
-                  <p className="text-[10px] text-slate-400 mt-4 italic font-medium">
+                  <p className="text-[10px] text-slate-400 mt-6 italic font-medium text-center">
                     * Mandatory for QCTO ID 101697 Module 5 compliance.
                   </p>
                 </div>
@@ -546,23 +502,23 @@ export default function App() {
               <button 
                 onClick={generateProposal} 
                 disabled={loading} 
-                className="w-full bg-gradient-to-br from-[#10b981] to-[#059669] py-6 rounded-[2rem] font-black uppercase text-black tracking-widest hover:scale-[1.02] transition-all disabled:opacity-50 flex items-center justify-center gap-4 mt-12 shadow-[0_20px_40px_rgba(16,185,129,0.3)]"
+                className="w-full bg-charcoal text-white py-8 rounded-[2.5rem] font-anchor uppercase text-lg tracking-[0.2em] hover:bg-emerald-600 transition-all disabled:opacity-50 flex items-center justify-center gap-6 mt-16 shadow-[0_30px_60px_rgba(0,0,0,0.2)] group"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="animate-spin" size={24} />
-                    Generating...
+                    <Loader2 className="animate-spin" size={28} />
+                    Engineering...
                   </>
                 ) : (
                   <>
-                    <Zap size={24} />
+                    <Zap size={28} className="group-hover:scale-125 transition-transform" />
                     Launch AI Culinary Planner
                   </>
                 )}
               </button>
             </div>
 
-            <div className="w-full max-w-2xl">
+            <div className="w-full max-w-3xl mt-12">
               <StudentYieldCalculator />
             </div>
           </div>
@@ -626,69 +582,20 @@ export default function App() {
       <main className="flex-grow relative">
         {renderView()}
         
-        {/* AI Chat Sidebar */}
-        <div className={`fixed inset-y-0 right-0 w-96 bg-white/95 backdrop-blur-xl border-l border-slate-100 shadow-2xl transform transition-transform duration-500 ease-out z-[60] ${isChatOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-          <div className="h-full flex flex-col">
-            <div className="p-6 border-b border-slate-100 flex justify-between items-center">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#10b981]/10 rounded-xl flex items-center justify-center">
-                  <Sparkles className="text-[#10b981]" size={20} />
-                </div>
-                <div>
-                  <span className="font-black text-sm text-slate-900 block tracking-tight">AI Chef Consultant</span>
-                  <span className="text-[10px] text-[#10b981] font-bold uppercase tracking-widest">Online</span>
-                </div>
-              </div>
-              <button onClick={() => setIsChatOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:text-slate-900 transition-colors"><X size={18} /></button>
-            </div>
-            
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
-              {chatMessages.map((msg, i) => (
-                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed ${msg.role === 'user' ? 'bg-gradient-to-br from-[#10b981] to-[#059669] text-black font-bold shadow-lg' : 'bg-slate-50 text-slate-700 border border-slate-100 font-medium'}`}>
-                    {msg.text}
-                  </div>
-                </div>
-              ))}
-              {isChatLoading && (
-                <div className="flex justify-start">
-                  <div className="bg-slate-50 p-4 rounded-2xl text-sm text-slate-400 flex items-center gap-3 border border-slate-100 font-medium">
-                    <Loader2 className="animate-spin" size={16} /> Chef is thinking...
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="p-6 border-t border-slate-100 bg-white">
-              <div className="relative">
-                <input 
-                  type="text" 
-                  value={chatInput}
-                  onChange={e => setChatInput(e.target.value)}
-                  onKeyPress={e => e.key === 'Enter' && handleChat()}
-                  placeholder="Ask about HACCP or pairings..."
-                  className="w-full bg-slate-50 p-4 pr-14 rounded-2xl text-sm text-slate-900 outline-none border border-slate-200 focus:border-[#10b981] transition-all font-medium"
-                />
-                <button 
-                  onClick={handleChat}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 bg-[#10b981] text-black rounded-xl flex items-center justify-center hover:brightness-110 transition-all shadow-md"
-                >
-                  <Send size={18} />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Floating Chat Button */}
-        {!isChatOpen && (
-          <button 
-            onClick={() => setIsChatOpen(true)}
-            className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-br from-[#10b981] to-[#059669] text-black rounded-2xl shadow-[0_10px_30px_rgba(16,185,129,0.4)] flex items-center justify-center hover:scale-110 transition-all z-50 group"
-          >
-            <MessageSquare size={28} className="group-hover:rotate-12 transition-transform" />
-          </button>
-        )}
+        <AiChatBot 
+          onAttemptAccess={() => {
+            if (!user) {
+              setIsAuthModalOpen(true);
+              return false;
+            }
+            if (!canAccessFeature('aiChatBot')) {
+              setViewMode('pricing');
+              return false;
+            }
+            return true;
+          }}
+          isPro={canAccessFeature('aiChatBot')}
+        />
 
         {/* Hidden Proposal for PDF Export */}
         {proposal && (
@@ -703,6 +610,7 @@ export default function App() {
               eventType={eventType}
               guests={guests}
               formatCurrency={formatCurrency}
+              isExporting={true}
             />
           </div>
         )}
@@ -722,7 +630,7 @@ export default function App() {
 
       {/* Result View Header (Code B) */}
       {viewMode === 'generator' && proposal && (
-        <div className={`fixed top-24 transition-all duration-500 z-[55] flex gap-3 ${isChatOpen ? 'right-[408px]' : 'right-6'}`}>
+        <div className={`fixed top-24 transition-all duration-500 z-[55] flex gap-3 right-6`}>
           <button 
             onClick={handleOpenShiftCalculator}
             disabled={isShiftLoading}
