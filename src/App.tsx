@@ -663,3 +663,6 @@ export default function App() {
         initialIngredients={shiftIngredients}
         menuTitle={proposal?.menuTitle || ''}
       />
+    </div>
+  );
+}
