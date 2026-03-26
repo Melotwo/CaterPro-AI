@@ -12,14 +12,14 @@
   --gold-light: #f1e5ac;
 }
 
-@layer utilities {
+@layer base {
   /* Text Hierarchy Opacities - Hard Contrast Fix */
   .text-high { @apply text-slate-900 dark:text-white opacity-100; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-  .text-medium { @apply text-slate-700 dark:text-[#F8F9FA] opacity-100; text-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-  .text-low { @apply text-slate-500 dark:text-[#FFD700] opacity-100; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+  .text-medium { @apply text-slate-700 dark:text-[#F8F9FA] opacity-100 font-medium; text-shadow: 0 1px 2px rgba(0,0,0,0.2); font-size: 16px; }
+  .text-low { @apply text-slate-500 dark:text-[#FFD700] opacity-100 font-bold; text-shadow: 0 1px 2px rgba(0,0,0,0.3); font-size: 16px; }
 
   /* Explicit High Contrast for Dark Backgrounds */
-  .text-hc-white { color: #F8F9FA !important; opacity: 1 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+  .text-hc-white { color: #FFFFFF !important; opacity: 1 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
   .text-hc-gold { color: #FFD700 !important; opacity: 1 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
 
   /* Glassmorphism V2 - Optimized for Speed */
@@ -51,7 +51,9 @@
     90% { transform: translate(10%,5%) }
     100% { transform: translate(5%,0) }
   }
+}
 
+@layer utilities {
   /* Triangular Motif Masks */
   .mask-triangle {
     clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
@@ -223,3 +225,4 @@ img {
     transform: scale(0.97);
     transition: transform 0.1s ease;
 }
+
