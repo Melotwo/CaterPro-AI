@@ -52,8 +52,8 @@ const RecipeGenerator: React.FC<{ dietaryRestrictions: string[], currency: strin
           <Sparkles size={24} />
         </div>
         <div>
-          <h2 className="text-2xl font-black text-slate-900 dark:text-white">Recipe Lab (Beta)</h2>
-          <p className="text-sm text-slate-500 font-medium">Vision AI Powered by Gemini 3</p>
+          <h2 className="text-2xl font-black text-[#000000] dark:text-white opacity-100">Recipe Lab (Beta)</h2>
+          <p className="text-sm text-[#000000] font-medium opacity-100">Vision AI Powered by Gemini 3</p>
         </div>
       </div>
 
