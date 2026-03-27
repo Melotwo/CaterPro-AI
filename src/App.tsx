@@ -15,23 +15,23 @@ import jsPDF from 'jspdf';
 // --- INFRASTRUCTURE IMPORTS ---
 import { useAuth } from './hooks/useAuth';
 import { useAppSubscription, SubscriptionPlan } from './hooks/useAppSubscription';
-import Navbar from './Navbar.tsx';
-import Footer from './Footer.tsx';
-import AuthModal from './AuthModal.tsx';
-import PricingPage from './PricingPage.tsx';
-import CostingLibrary from './CostingLibrary.tsx';
-import PartnerDashboard from './PartnerDashboard.tsx';
-import PrivacyPolicy from './PrivacyPolicy.tsx';
-import TermsOfService from './TermsOfService.tsx';
-import { StudentYieldCalculator } from './StudentYieldCalculator.tsx';
+import Navbar from './Navbar';
+import Footer from './Footer';
+import AuthModal from './AuthModal';
+import PricingPage from './PricingPage';
+import CostingLibrary from './CostingLibrary';
+import PartnerDashboard from './PartnerDashboard';
+import PrivacyPolicy from './PrivacyPolicy';
+import TermsOfService from './TermsOfService';
+import { StudentYieldCalculator } from './StudentYieldCalculator';
 import { generateMenuImageFromApi, extractIngredientsForShift } from './services/geminiService';
-import { ShiftCalculatorModal } from './ShiftCalculatorModal.tsx';
-import { SuccessPage } from './SuccessPage.tsx';
-import { ProposalDocument } from './ProposalDocument.tsx';
+import { ShiftCalculatorModal } from './ShiftCalculatorModal';
+import { SuccessPage } from './SuccessPage';
+import { ProposalDocument } from './ProposalDocument';
 import HeroSection from './HeroSection';
 import Dashboard from './Dashboard';
 import RecipeGenerator from './RecipeGenerator';
-import AiChatBot from './AiChatBot.tsx';
+import AiChatBot from './AiChatBot';
 import { ShiftIngredient } from './types';
 
 // --- INITIALIZE GOOGLE AI ---
