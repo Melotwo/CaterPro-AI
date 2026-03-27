@@ -67,7 +67,7 @@ const Navbar: React.FC<{
           {onViewSuccess && (
             <button 
               onClick={onViewSuccess}
-              className="px-6 py-3 rounded-full border border-slate-200 text-charcoal hover:border-emerald-500 hover:text-emerald-600 transition-all font-anchor text-[10px] uppercase tracking-[0.2em] bg-white/50 backdrop-blur-sm shadow-sm"
+              className="px-6 py-3 rounded-full border border-slate-200 text-[#000000] hover:border-emerald-500 hover:text-emerald-600 transition-all font-anchor text-[10px] uppercase tracking-[0.2em] bg-white/50 backdrop-blur-sm shadow-sm opacity-100"
               title="My Results"
             >
               My Results
@@ -83,7 +83,7 @@ const Navbar: React.FC<{
           
           <button 
             onClick={onAuthClick}
-            className={`px-8 py-3.5 rounded-full flex items-center gap-3 transition-all font-anchor text-xs uppercase tracking-[0.2em] shadow-2xl ${user ? 'bg-slate-100 text-charcoal hover:bg-slate-200' : 'bg-charcoal text-white hover:bg-slate-800 shadow-charcoal/20'}`}
+            className={`px-8 py-3.5 rounded-full flex items-center gap-3 transition-all font-anchor text-xs uppercase tracking-[0.2em] shadow-2xl ${user ? 'bg-slate-100 text-[#121212] hover:bg-slate-200' : 'bg-[#FFD700] text-[#121212] hover:bg-amber-400 shadow-amber-200/20'}`}
             title={user ? "Sign Out" : "Sign In"}
           >
             {user ? <LogOut size={20} /> : <LogIn size={20} />}
