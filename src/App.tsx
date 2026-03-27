@@ -28,9 +28,9 @@ import { generateMenuImageFromApi, extractIngredientsForShift } from './services
 import { ShiftCalculatorModal } from './ShiftCalculatorModal.tsx';
 import { SuccessPage } from './SuccessPage.tsx';
 import { ProposalDocument } from './ProposalDocument.tsx';
-import HeroSection from './HeroSection.tsx';
-import Dashboard from './Dashboard.tsx';
-import RecipeGenerator from './components/RecipeGenerator.tsx';
+import HeroSection from './HeroSection';
+import Dashboard from './Dashboard';
+import RecipeGenerator from './RecipeGenerator';
 import AiChatBot from './AiChatBot.tsx';
 import { ShiftIngredient } from './types';
 
@@ -234,7 +234,7 @@ export default function App() {
                     <Zap size={12} className="text-emerald-500" />
                     <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Educational Excellence</span>
                   </div>
-                  <h3 className="text-4xl font-anchor tracking-tighter uppercase mb-6 text-white">QCTO Student Success Guide</h3>
+                  <h3 className="text-4xl font-anchor tracking-tighter uppercase mb-6 text-white opacity-100">QCTO Student Success Guide</h3>
                   <p className="text-[#FFFFFF] font-medium leading-relaxed text-xl opacity-100">
                     CaterProAi is specifically engineered to support South African TVET students. Use the <span className="text-emerald-400 font-bold">'Training Mode'</span> to map your practicals to QCTO Occupational Certificate: Chef (ID 101697) modules. Every proposal automatically generates the Costing (ZAR), AP/EP Yield Analysis, and HACCP documentation required for Level 5 Assessment compliance.
                   </p>
@@ -251,20 +251,20 @@ export default function App() {
                   <div className="w-20 h-20 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center mb-10 group-hover:scale-110 transition-transform border border-emerald-500/20">
                     <GraduationCap className="text-emerald-600" size={40} aria-label="Student Yield Calculator Icon" />
                   </div>
-                  <h3 className="text-4xl font-anchor mb-6 tracking-tighter text-[#000000]">For Students</h3>
+                  <h3 className="text-4xl font-anchor mb-6 tracking-tighter text-[#000000] opacity-100">For Students</h3>
                   <p className="text-[#000000] font-medium mb-10 leading-relaxed text-lg opacity-100">
                     Master the art of food math and international standards with our specialized student toolkit.
                   </p>
                   <ul className="space-y-6 mb-12">
-                    <li className="flex items-center gap-4 text-base font-bold text-[#000000]">
+                    <li className="flex items-center gap-4 text-base font-bold text-[#000000] opacity-100">
                       <div className="w-2 h-2 rounded-full bg-emerald-600" />
                       Yield Sandbox for precision testing
                     </li>
-                    <li className="flex items-center gap-4 text-base font-bold text-[#000000]">
+                    <li className="flex items-center gap-4 text-base font-bold text-[#000000] opacity-100">
                       <div className="w-2 h-2 rounded-full bg-emerald-600" />
                       International Curriculum Modules
                     </li>
-                    <li className="flex items-center gap-4 text-base font-bold text-[#000000]">
+                    <li className="flex items-center gap-4 text-base font-bold text-[#000000] opacity-100">
                       <div className="w-2 h-2 rounded-full bg-emerald-600" />
                       PoE Admin Automation
                     </li>
@@ -280,20 +280,20 @@ export default function App() {
                   <div className="w-20 h-20 bg-emerald-500/20 rounded-[2rem] flex items-center justify-center mb-10 group-hover:scale-110 transition-transform border border-emerald-500/30">
                     <Briefcase className="text-emerald-400" size={40} aria-label="Professional Catering Dashboard Icon" />
                   </div>
-                  <h3 className="text-4xl font-anchor mb-6 tracking-tighter text-white">For Professionals</h3>
+                  <h3 className="text-4xl font-anchor mb-6 tracking-tighter text-white opacity-100">For Professionals</h3>
                   <p className="text-[#FFFFFF] font-medium mb-10 leading-relaxed text-lg opacity-100">
                     Scale your catering operation with enterprise-grade intelligence and automated logistics.
                   </p>
                   <ul className="space-y-6 mb-12">
-                    <li className="flex items-center gap-4 text-base font-bold text-white">
+                    <li className="flex items-center gap-4 text-base font-bold text-white opacity-100">
                       <div className="w-2 h-2 rounded-full bg-emerald-400" />
                       Live ZAR Costing & Smart Shopping
                     </li>
-                    <li className="flex items-center gap-4 text-base font-bold text-white">
+                    <li className="flex items-center gap-4 text-base font-bold text-white opacity-100">
                       <div className="w-2 h-2 rounded-full bg-emerald-400" />
                       HACCP Safety Automation
                     </li>
-                    <li className="flex items-center gap-4 text-base font-bold text-white">
+                    <li className="flex items-center gap-4 text-base font-bold text-white opacity-100">
                       <div className="w-2 h-2 rounded-full bg-emerald-400" />
                       One-Click PDF Proposal Exports
                     </li>
@@ -654,26 +654,26 @@ export default function App() {
 
       {/* Result View Header */}
       {viewMode === 'generator' && proposal && (
-        <div className={`fixed top-24 transition-all duration-500 z-[55] flex gap-3 right-6`}>
+        <div className="fixed top-24 transition-all duration-500 z-[55] flex flex-col sm:flex-row gap-3 right-4 md:right-8">
           <button 
             onClick={handleOpenShiftCalculator}
             disabled={isShiftLoading}
-            className="backdrop-blur-md bg-emerald-500/10 text-emerald-400 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-emerald-500/20 transition-all flex items-center gap-2 shadow-2xl border border-emerald-500/20 disabled:opacity-50"
+            className="backdrop-blur-md bg-emerald-500/10 text-emerald-400 px-6 py-3 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:bg-emerald-500/20 transition-all flex items-center gap-2 shadow-2xl border border-emerald-500/20 disabled:opacity-50"
           >
             {isShiftLoading ? <Loader2 className="animate-spin" size={18} /> : <Calculator size={18} />}
-            Open Shift Calculator
+            <span className="whitespace-nowrap">Shift Calculator</span>
           </button>
           <button 
             onClick={downloadPDF}
-            className="backdrop-blur-md bg-white/80 text-slate-900 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-white transition-all flex items-center gap-2 shadow-2xl border border-white/20"
+            className="backdrop-blur-md bg-white/80 text-slate-900 px-6 py-3 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:bg-white transition-all flex items-center gap-2 shadow-2xl border border-white/20"
           >
-            <Download size={18} /> Export PDF
+            <Download size={18} /> <span className="whitespace-nowrap">Export PDF</span>
           </button>
           <button 
             onClick={() => setViewMode('success')}
-            className="bg-[#FFD700] text-[#121212] px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-2xl"
+            className="bg-[#FFD700] text-[#121212] px-8 py-3 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-2xl"
           >
-            My Results
+            <span className="whitespace-nowrap">My Results</span>
           </button>
         </div>
       )}
