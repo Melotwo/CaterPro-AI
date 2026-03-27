@@ -14,13 +14,23 @@
 
 @layer base {
   /* Text Hierarchy Opacities - Hard Contrast Fix */
-  .text-high { @apply text-slate-900 dark:text-white opacity-100; text-shadow: 0 1px 2px rgba(0,0,0,0.1); }
-  .text-medium { @apply text-slate-700 dark:text-[#F8F9FA] opacity-100 font-medium; text-shadow: 0 1px 2px rgba(0,0,0,0.2); font-size: 16px; }
-  .text-low { @apply text-slate-500 dark:text-[#FFD700] opacity-100 font-bold; text-shadow: 0 1px 2px rgba(0,0,0,0.3); font-size: 16px; }
+  .text-high { color: #121212 !important; opacity: 1 !important; text-shadow: none; }
+  .text-medium { color: #121212 !important; opacity: 1 !important; font-weight: 500; font-size: 16px; }
+  .text-low { color: #121212 !important; opacity: 1 !important; font-weight: 700; font-size: 16px; }
 
   /* Explicit High Contrast for Dark Backgrounds */
-  .text-hc-white { color: #FFFFFF !important; opacity: 1 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
-  .text-hc-gold { color: #FFD700 !important; opacity: 1 !important; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+  .text-hc-white { color: #FFFFFF !important; opacity: 1 !important; }
+  .text-hc-gold { color: #FFD700 !important; opacity: 1 !important; }
+  .text-hc-charcoal { color: #121212 !important; opacity: 1 !important; }
+
+  /* Global Force Contrast for Hierarchy */
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark .font-anchor { color: #FFFFFF !important; opacity: 1 !important; }
+  .dark .data-label, .dark .text-gold { color: #FFD700 !important; opacity: 1 !important; }
+  
+  /* Force 100% Opacity on all text elements */
+  p, span, h1, h2, h3, h4, h5, h6, li, a, button, label, input, select, textarea {
+    opacity: 1 !important;
+  }
 
   /* Glassmorphism V2 - Optimized for Speed */
   .glass-card {
@@ -171,7 +181,7 @@ body {
   }
   
   .text-xs { font-size: 0.875rem !important; } /* min 14px approx */
-  .text-[10px] { font-size: 0.75rem !important; } /* min 12px approx */
+  .text-\[10px\] { font-size: 0.75rem !important; } /* min 12px approx */
   
   input, select, textarea, button {
     font-size: 16px !important; /* Prevent iOS zoom */
