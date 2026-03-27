@@ -40,7 +40,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onOpenModal }) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-6 mb-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-10">
             {/* Total Cost Widget */}
             <button 
               onClick={() => onOpenModal('Total Cost', 'This is the comprehensive financial breakdown of your menu, including ingredient costs, labor, and overheads adjusted for ZAR market rates.', 'cost')}
@@ -120,3 +120,4 @@ const Dashboard: React.FC<DashboardProps> = ({ onOpenModal }) => {
 };
 
 export default Dashboard;
+
