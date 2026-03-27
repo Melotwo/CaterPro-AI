@@ -39,15 +39,15 @@ const HeroSection: React.FC<{ onStart: () => void }> = ({ onStart }) => {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-8">
             <Zap size={14} className="text-emerald-600" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-700">The 12th Edition • Luxury Suite</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#000000]">The 12th Edition • Luxury Suite</span>
           </div>
           
-          <h1 className="text-6xl md:text-8xl font-anchor leading-[0.9] mb-8 text-[#000000] uppercase tracking-tighter">
+          <h1 className="text-5xl md:text-8xl font-anchor leading-[0.9] mb-8 text-[#000000] uppercase tracking-tighter opacity-100">
             Chef in the <span className="text-[#10b981]">Kitchen.</span><br />
             AI in the <span className="italic font-serif">Office.</span>
           </h1>
           
-          <p className="text-xl text-[#000000] max-w-xl mb-12 leading-relaxed font-medium opacity-100">
+          <p className="text-lg md:text-xl text-[#000000] max-w-xl mb-12 leading-relaxed font-medium opacity-100">
             Precision catering intelligence for the modern executive. Elevate your operations with Michelin-star standards and automated financial health.
           </p>
           
