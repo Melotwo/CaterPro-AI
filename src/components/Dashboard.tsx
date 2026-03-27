@@ -32,8 +32,8 @@ const Dashboard: React.FC<DashboardProps> = ({ onOpenModal }) => {
         <div className="relative z-10">
           <div className="flex justify-between items-center mb-10">
             <div>
-              <span className="text-base font-black uppercase tracking-[0.3em] text-[#FFD700] mb-1 block">Financial Health</span>
-              <h3 className="text-3xl font-anchor text-white uppercase tracking-tighter">Menu Performance</h3>
+              <span className="text-base font-black uppercase tracking-[0.3em] text-[#FFD700] mb-1 block opacity-100">Financial Health</span>
+              <h3 className="text-3xl font-anchor text-white uppercase tracking-tighter opacity-100">Menu Performance</h3>
             </div>
             <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 shadow-xl border border-emerald-500/30">
               <TrendingUp size={28} />
@@ -50,28 +50,28 @@ const Dashboard: React.FC<DashboardProps> = ({ onOpenModal }) => {
                 <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover/btn:bg-emerald-500 group-hover/btn:text-white transition-colors">
                   <DollarSign size={20} />
                 </div>
-                <span className="text-base font-black uppercase tracking-widest text-[#FFD700]">Total Cost</span>
+                <span className="text-base font-black uppercase tracking-widest text-[#FFFFFF] opacity-100">Total Cost</span>
               </div>
-              <span className="text-4xl font-anchor text-white">R42,500</span>
-              <div className="mt-2 flex items-center gap-1 text-xs font-bold text-emerald-400">
+              <span className="text-4xl font-anchor text-white opacity-100">R42,500</span>
+              <div className="mt-2 flex items-center gap-1 text-xs font-bold text-emerald-400 opacity-100">
                 <TrendingUp size={12} /> Optimized for Profit
               </div>
             </button>
 
-            {/* QCTO Compliance Widget */}
+            {/* Waste % Widget */}
             <button 
-              onClick={() => onOpenModal('QCTO Compliance', 'Your menu is automatically audited against QCTO Occupational Certificate: Chef (ID 101697) standards for Level 5 assessment readiness.', 'compliance')}
+              onClick={() => onOpenModal('Waste %', 'Automated yield analysis calculates exactly how much of your raw ingredients (AP) becomes usable product (EP), minimizing financial leakage.', 'waste')}
               className="p-8 rounded-3xl bg-[#1a1a1a] border border-emerald-500/30 text-left hover:scale-105 transition-all active:scale-95 min-h-[140px] flex flex-col justify-between shadow-2xl group/btn"
             >
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-amber-500/20 flex items-center justify-center text-amber-400 group-hover/btn:bg-amber-500 group-hover/btn:text-white transition-colors">
                   <Zap size={20} />
                 </div>
-                <span className="text-base font-black uppercase tracking-widest text-[#FFD700]">QCTO Compliance</span>
+                <span className="text-base font-black uppercase tracking-widest text-[#FFFFFF] opacity-100">Waste %</span>
               </div>
-              <span className="text-4xl font-anchor text-[#FFD700]">100%</span>
-              <div className="mt-2 flex items-center gap-1 text-xs font-bold text-amber-400">
-                <BarChart3 size={12} /> Level 5 Certified
+              <span className="text-4xl font-anchor text-[#FFD700] opacity-100">12.4%</span>
+              <div className="mt-2 flex items-center gap-1 text-xs font-bold text-amber-400 opacity-100">
+                <BarChart3 size={12} /> Below Industry Avg
               </div>
             </button>
           </div>
@@ -83,11 +83,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onOpenModal }) => {
                   <PieChart size={24} />
                 </div>
                 <div>
-                  <span className="block text-base font-black uppercase tracking-widest text-white">Wagyu Fusion</span>
-                  <span className="text-xs text-emerald-400 font-bold uppercase tracking-widest">Top Performer</span>
+                  <span className="block text-base font-black uppercase tracking-widest text-white opacity-100">Wagyu Fusion</span>
+                  <span className="text-xs text-emerald-400 font-bold uppercase tracking-widest opacity-100">Top Performer</span>
                 </div>
               </div>
-              <span className="text-2xl font-anchor text-emerald-400">R1,250</span>
+              <span className="text-2xl font-anchor text-emerald-400 opacity-100">R1,250</span>
             </div>
             <div className="flex items-center justify-between p-6 rounded-2xl bg-[#1a1a1a] border border-emerald-500/20">
               <div className="flex items-center gap-4">
@@ -95,11 +95,11 @@ const Dashboard: React.FC<DashboardProps> = ({ onOpenModal }) => {
                   <BarChart3 size={24} />
                 </div>
                 <div>
-                  <span className="block text-base font-black uppercase tracking-widest text-white">Truffle Risotto</span>
-                  <span className="text-xs text-[#FFD700] font-bold uppercase tracking-widest">Steady Growth</span>
+                  <span className="block text-base font-black uppercase tracking-widest text-white opacity-100">Truffle Risotto</span>
+                  <span className="text-xs text-[#FFD700] font-bold uppercase tracking-widest opacity-100">Steady Growth</span>
                 </div>
               </div>
-              <span className="text-2xl font-anchor text-white">R850</span>
+              <span className="text-2xl font-anchor text-white opacity-100">R850</span>
             </div>
           </div>
         </div>
