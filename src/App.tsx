@@ -15,22 +15,23 @@ import jsPDF from 'jspdf';
 // --- INFRASTRUCTURE IMPORTS ---
 import { useAuth } from './hooks/useAuth';
 import { useAppSubscription, SubscriptionPlan } from './hooks/useAppSubscription';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import AuthModal from './components/AuthModal';
-import PricingPage from './components/PricingPage';
-import CostingLibrary from './components/CostingLibrary';
-import PartnerDashboard from './components/PartnerDashboard';
-import PrivacyPolicy from './components/PrivacyPolicy';
-import TermsOfService from './components/TermsOfService';
-import { StudentYieldCalculator } from './components/StudentYieldCalculator';
+import Navbar from './Navbar';
+import Footer from './Footer';
+import AuthModal from './AuthModal';
+import PricingPage from './PricingPage';
+import CostingLibrary from './CostingLibrary';
+import PartnerDashboard from './PartnerDashboard';
+import PrivacyPolicy from './PrivacyPolicy';
+import TermsOfService from './TermsOfService';
+import { StudentYieldCalculator } from './StudentYieldCalculator';
 import { generateMenuImageFromApi, extractIngredientsForShift } from './services/geminiService';
-import { ShiftCalculatorModal } from './components/ShiftCalculatorModal';
-import { SuccessPage } from './components/SuccessPage';
-import { ProposalDocument } from './components/ProposalDocument';
-import HeroSection from './components/HeroSection';
-import Dashboard from './components/Dashboard';
-import AiChatBot from './components/AiChatBot';
+import { ShiftCalculatorModal } from './ShiftCalculatorModal';
+import { SuccessPage } from './SuccessPage';
+import { ProposalDocument } from './ProposalDocument';
+import HeroSection from './HeroSection';
+import Dashboard from './Dashboard';
+import RecipeGenerator from './components/RecipeGenerator';
+import AiChatBot from './AiChatBot';
 import { ShiftIngredient } from './types';
 
 // --- INITIALIZE GOOGLE AI ---
@@ -50,7 +51,7 @@ export default function App() {
   const { user, loading: authLoading } = useAuth();
   const { subscription, selectPlan, canAccessFeature, recordGeneration } = useAppSubscription();
   
-  const [viewMode, setViewMode] = useState<'landing' | 'generator' | 'pricing' | 'library' | 'privacy' | 'partner' | 'terms' | 'success'>('landing');
+  const [viewMode, setViewMode] = useState<'landing' | 'generator' | 'pricing' | 'library' | 'privacy' | 'partner' | 'terms' | 'success' | 'recipe-lab'>('landing');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isTrainingMode, setIsTrainingMode] = useState(false);
   
@@ -234,7 +235,7 @@ export default function App() {
                     <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Educational Excellence</span>
                   </div>
                   <h3 className="text-4xl font-anchor tracking-tighter uppercase mb-6 text-white">QCTO Student Success Guide</h3>
-                  <p className="text-[#FFD700] font-medium leading-relaxed text-xl opacity-100">
+                  <p className="text-[#FFFFFF] font-medium leading-relaxed text-xl opacity-100">
                     CaterProAi is specifically engineered to support South African TVET students. Use the <span className="text-emerald-400 font-bold">'Training Mode'</span> to map your practicals to QCTO Occupational Certificate: Chef (ID 101697) modules. Every proposal automatically generates the Costing (ZAR), AP/EP Yield Analysis, and HACCP documentation required for Level 5 Assessment compliance.
                   </p>
                 </div>
@@ -245,31 +246,31 @@ export default function App() {
             <div className="max-w-7xl mx-auto w-full px-6 py-24">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                 {/* For Students */}
-                <div className="bg-[#121212] p-16 rounded-[4rem] border border-emerald-500/30 hover:shadow-2xl transition-all group relative overflow-hidden">
+                <div className="bg-white p-16 rounded-[4rem] border border-emerald-500/30 hover:shadow-2xl transition-all group relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 mask-triangle -z-10" />
-                  <div className="w-20 h-20 bg-emerald-500/20 rounded-[2rem] flex items-center justify-center mb-10 group-hover:scale-110 transition-transform border border-emerald-500/30">
-                    <GraduationCap className="text-emerald-400" size={40} aria-label="Student Yield Calculator Icon" />
+                  <div className="w-20 h-20 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center mb-10 group-hover:scale-110 transition-transform border border-emerald-500/20">
+                    <GraduationCap className="text-emerald-600" size={40} aria-label="Student Yield Calculator Icon" />
                   </div>
-                  <h3 className="text-4xl font-anchor mb-6 tracking-tighter text-white">For Students</h3>
-                  <p className="text-[#FFD700] font-medium mb-10 leading-relaxed text-lg opacity-100">
+                  <h3 className="text-4xl font-anchor mb-6 tracking-tighter text-[#000000]">For Students</h3>
+                  <p className="text-[#000000] font-medium mb-10 leading-relaxed text-lg opacity-100">
                     Master the art of food math and international standards with our specialized student toolkit.
                   </p>
                   <ul className="space-y-6 mb-12">
-                    <li className="flex items-center gap-4 text-base font-bold text-white">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <li className="flex items-center gap-4 text-base font-bold text-[#000000]">
+                      <div className="w-2 h-2 rounded-full bg-emerald-600" />
                       Yield Sandbox for precision testing
                     </li>
-                    <li className="flex items-center gap-4 text-base font-bold text-white">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <li className="flex items-center gap-4 text-base font-bold text-[#000000]">
+                      <div className="w-2 h-2 rounded-full bg-emerald-600" />
                       International Curriculum Modules
                     </li>
-                    <li className="flex items-center gap-4 text-base font-bold text-white">
-                      <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                    <li className="flex items-center gap-4 text-base font-bold text-[#000000]">
+                      <div className="w-2 h-2 rounded-full bg-emerald-600" />
                       PoE Admin Automation
                     </li>
                   </ul>
-                  <button onClick={() => setViewMode('generator')} className="flex items-center gap-3 text-emerald-400 font-black uppercase tracking-widest text-xs group-hover:gap-5 transition-all">
-                    Explore Student Tools <ArrowRight size={18} />
+                  <button onClick={() => setViewMode('recipe-lab')} className="flex items-center gap-3 text-emerald-700 font-black uppercase tracking-widest text-xs group-hover:gap-5 transition-all">
+                    Explore Recipe Lab <ArrowRight size={18} />
                   </button>
                 </div>
 
@@ -280,7 +281,7 @@ export default function App() {
                     <Briefcase className="text-emerald-400" size={40} aria-label="Professional Catering Dashboard Icon" />
                   </div>
                   <h3 className="text-4xl font-anchor mb-6 tracking-tighter text-white">For Professionals</h3>
-                  <p className="text-[#FFD700] font-medium mb-10 leading-relaxed text-lg opacity-100">
+                  <p className="text-[#FFFFFF] font-medium mb-10 leading-relaxed text-lg opacity-100">
                     Scale your catering operation with enterprise-grade intelligence and automated logistics.
                   </p>
                   <ul className="space-y-6 mb-12">
@@ -310,8 +311,8 @@ export default function App() {
               <div className="max-w-7xl mx-auto px-6">
                 <div className="flex flex-col md:flex-row items-center justify-between mb-20 gap-12">
                   <div className="max-w-2xl">
-                    <h3 className="text-5xl font-anchor tracking-tighter uppercase mb-6 text-charcoal">Culinary Excellence</h3>
-                    <p className="text-medium font-medium text-xl leading-relaxed">
+                    <h3 className="text-5xl font-anchor tracking-tighter uppercase mb-6 text-[#000000]">Culinary Excellence</h3>
+                    <p className="text-[#000000] font-medium text-xl leading-relaxed opacity-100">
                       Precision tools for the modern executive chef. Elevate your operations with AI-driven intelligence and Michelin-star standards.
                     </p>
                   </div>
@@ -332,8 +333,8 @@ export default function App() {
                       <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-10 group-hover:bg-emerald-500/20 transition-colors border border-emerald-500/20">
                         {feature.icon}
                       </div>
-                      <h4 className="text-2xl font-anchor mb-6 tracking-tighter text-white">{feature.title}</h4>
-                      <p className="text-[#FFD700] font-medium text-base leading-relaxed opacity-100">
+                  <h4 className="text-2xl font-anchor mb-6 tracking-tighter text-white">{feature.title}</h4>
+                      <p className="text-[#FFFFFF] font-medium text-base leading-relaxed opacity-100">
                         {feature.desc}
                       </p>
                     </div>
@@ -351,13 +352,13 @@ export default function App() {
                   <div className="grid md:grid-cols-2 gap-16">
                     <div>
                       <h3 className="text-2xl font-anchor mb-6 tracking-tighter text-emerald-400">What is the best AI tool for South African catering?</h3>
-                      <p className="text-[#FFD700] font-medium leading-relaxed text-lg opacity-100">
+                      <p className="text-[#FFFFFF] font-medium leading-relaxed text-lg opacity-100">
                         <span className="font-bold text-white">CaterPro</span><span className="font-medium text-emerald-400">Ai</span> provides live ZAR costing and automated HACCP safety for professional chefs.
                       </p>
                     </div>
                     <div>
                       <h3 className="text-2xl font-anchor mb-6 tracking-tighter text-emerald-400">How do I calculate culinary yield for City & Guilds exams?</h3>
-                      <p className="text-[#FFD700] font-medium leading-relaxed text-lg opacity-100">
+                      <p className="text-[#FFFFFF] font-medium leading-relaxed text-lg opacity-100">
                         Use the <span className="font-bold text-white">CaterPro</span><span className="font-medium text-emerald-400">Ai</span> Student Sandbox to apply the formula EP = AP x Yield% with 100% accuracy.
                       </p>
                     </div>
@@ -521,6 +522,21 @@ export default function App() {
           </div>
         );
 
+      case 'recipe-lab':
+        return (
+          <div className="min-h-screen bg-slate-50 p-6 pt-24">
+            <div className="max-w-4xl mx-auto">
+              <button 
+                onClick={() => setViewMode('landing')}
+                className="mb-8 flex items-center gap-2 text-slate-500 font-bold uppercase tracking-widest text-xs hover:text-emerald-600 transition-colors"
+              >
+                <ArrowRight className="rotate-180" size={16} /> Back to Dashboard
+              </button>
+              <RecipeGenerator dietaryRestrictions={[]} currency="R" />
+            </div>
+          </div>
+        );
+
       case 'pricing':
         return <PricingPage onSelectPlan={selectPlan} whopLinks={whopLinks} />;
       
@@ -655,9 +671,9 @@ export default function App() {
           </button>
           <button 
             onClick={() => setViewMode('success')}
-            className="bg-gradient-to-br from-[#10b981] to-[#059669] text-black px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-2xl"
+            className="bg-[#FFD700] text-[#121212] px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-2xl"
           >
-            Finalize
+            My Results
           </button>
         </div>
       )}
