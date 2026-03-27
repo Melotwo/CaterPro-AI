@@ -29,32 +29,32 @@ const HeroSection: React.FC<{ onStart: () => void }> = ({ onStart }) => {
       <div className="absolute top-20 left-10 w-64 h-64 bg-emerald-500/5 mask-triangle rotate-12 -z-10" />
       <div className="absolute bottom-20 right-10 w-96 h-96 bg-emerald-500/5 mask-triangle-inv -rotate-12 -z-10" />
       
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center pt-20">
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-[1.1fr_0.9fr] gap-16 items-center pt-20 relative z-10">
         {/* Left Content: The Message */}
         <motion.div 
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-left"
+          className="text-left z-20"
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-8">
-            <Zap size={14} className="text-emerald-500" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600">The 12th Edition • Luxury Suite</span>
+            <Zap size={14} className="text-emerald-600" />
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-700">The 12th Edition • Luxury Suite</span>
           </div>
           
-          <h1 className="text-6xl md:text-8xl font-anchor leading-[0.9] mb-8 text-charcoal uppercase tracking-tighter">
+          <h1 className="text-6xl md:text-8xl font-anchor leading-[0.9] mb-8 text-[#000000] uppercase tracking-tighter">
             Chef in the <span className="text-[#10b981]">Kitchen.</span><br />
             AI in the <span className="italic font-serif">Office.</span>
           </h1>
           
-          <p className="text-xl text-medium max-w-xl mb-12 leading-relaxed font-medium">
+          <p className="text-xl text-[#000000] max-w-xl mb-12 leading-relaxed font-medium opacity-100">
             Precision catering intelligence for the modern executive. Elevate your operations with Michelin-star standards and automated financial health.
           </p>
           
           <div className="flex flex-wrap gap-6">
             <button 
               onClick={onStart}
-              className="bg-charcoal text-white px-10 py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-emerald-600 transition-all shadow-2xl flex items-center gap-3 group"
+              className="bg-[#121212] text-[#FFD700] px-10 py-5 rounded-2xl font-black uppercase tracking-widest hover:bg-emerald-600 hover:text-white transition-all shadow-2xl flex items-center gap-3 group"
             >
               Start Planning <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform" />
             </button>
@@ -74,8 +74,10 @@ const HeroSection: React.FC<{ onStart: () => void }> = ({ onStart }) => {
           </div>
         </motion.div>
 
-        {/* Right Content: The 'Star of the Show' Dashboard */}
-        <Dashboard onOpenModal={openModal} />
+        {/* Right Content: The 'Star of the Show' Dashboard - Repositioned for clear space */}
+        <div className="relative lg:translate-x-8 xl:translate-x-16">
+          <Dashboard onOpenModal={openModal} />
+        </div>
       </div>
     </div>
   );
