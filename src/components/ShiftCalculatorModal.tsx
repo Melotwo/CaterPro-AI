@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calculator, Copy, Check, Trash2, Plus } from 'lucide-react';
-import { ShiftIngredient } from '../types';
+import { ShiftIngredient } from './types';
 
 interface ShiftCalculatorModalProps {
   isOpen: boolean;
@@ -69,16 +69,16 @@ export const ShiftCalculatorModal: React.FC<ShiftCalculatorModalProps> = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xl p-4 md:p-8"
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-[#121212] bg-opacity-95 p-4 md:p-8"
         >
           <motion.div
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
-            className="w-full max-w-6xl h-full max-h-[90vh] bg-white/10 border border-white/20 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative"
+            className="w-full max-w-6xl h-full max-h-[90vh] bg-[#1a1a1a] border-2 border-emerald-500/50 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative"
           >
             {/* Header */}
-            <div className="p-8 border-b border-white/10 flex items-center justify-between bg-white/5">
+            <div className="p-8 border-b border-white/10 flex items-center justify-between bg-[#121212]">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-emerald-500/20 rounded-2xl text-emerald-400">
                   <Calculator size={32} />
@@ -98,10 +98,10 @@ export const ShiftCalculatorModal: React.FC<ShiftCalculatorModalProps> = ({
 
             {/* Content */}
             <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-              <div className="bg-white/5 rounded-[2rem] border border-white/10 overflow-hidden">
+              <div className="bg-[#121212] rounded-[2rem] border border-white/10 overflow-hidden">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-white/5 text-emerald-400 text-xs font-black uppercase tracking-widest">
+                    <tr className="bg-[#1a1a1a] text-emerald-400 text-xs font-black uppercase tracking-widest">
                       <th className="p-6">Ingredient Name</th>
                       <th className="p-6">Quantity Needed</th>
                       <th className="p-6">Unit Price (ZAR)</th>
@@ -111,7 +111,7 @@ export const ShiftCalculatorModal: React.FC<ShiftCalculatorModalProps> = ({
                   </thead>
                   <tbody className="divide-y divide-white/5">
                     {ingredients.map((item, idx) => (
-                      <tr key={idx} className="group hover:bg-white/5 transition-colors">
+                      <tr key={idx} className="group hover:bg-[#1a1a1a] transition-colors">
                         <td className="p-6">
                           <input
                             type="text"
@@ -130,7 +130,7 @@ export const ShiftCalculatorModal: React.FC<ShiftCalculatorModalProps> = ({
                               type="number"
                               value={item.quantity}
                               onChange={(e) => handleQuantityChange(idx, parseFloat(e.target.value) || 0)}
-                              className="w-24 bg-white/10 border-white/20 rounded-xl text-white font-bold focus:ring-emerald-500 focus:border-emerald-500 py-2 px-3"
+                              className="w-24 bg-[#1a1a1a] border-white/20 rounded-xl text-white font-bold focus:ring-emerald-500 focus:border-emerald-500 py-2 px-3"
                             />
                             <input
                               type="text"
@@ -151,7 +151,7 @@ export const ShiftCalculatorModal: React.FC<ShiftCalculatorModalProps> = ({
                               type="number"
                               value={item.unitPrice}
                               onChange={(e) => handlePriceChange(idx, parseFloat(e.target.value) || 0)}
-                              className="w-32 bg-white/10 border-white/20 rounded-xl text-white font-bold focus:ring-emerald-500 focus:border-emerald-500 py-2 px-3"
+                              className="w-32 bg-[#1a1a1a] border-white/20 rounded-xl text-white font-bold focus:ring-emerald-500 focus:border-emerald-500 py-2 px-3"
                             />
                           </div>
                         </td>
@@ -183,7 +183,7 @@ export const ShiftCalculatorModal: React.FC<ShiftCalculatorModalProps> = ({
             </div>
 
             {/* Footer */}
-            <div className="p-8 bg-white/5 border-t border-white/10 flex items-center justify-between">
+            <div className="p-8 bg-[#121212] border-t border-white/10 flex items-center justify-between">
               <div className="flex items-center gap-6">
                 <div>
                   <p className="text-emerald-400/60 text-[10px] font-black uppercase tracking-widest mb-1">Total Shift Cost</p>
