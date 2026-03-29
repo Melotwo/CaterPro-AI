@@ -1,9 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { GoogleGenAI, Chat } from '@google/genai';
-import { MessageSquare, Send, X, Bot, User, AlertTriangle, Lock, ChefHat } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Message, ErrorState } from '../types';
-import { getApiErrorState } from '../services/apiErrorHandler';
+import { Message, ErrorState } from './types';
+import { getApiErrorState } from './apiErrorHandler';
 
 const AiChatBot: React.FC<{
   onAttemptAccess: () => boolean;
@@ -127,20 +125,17 @@ const AiChatBot: React.FC<{
                     <div 
                         role="dialog" 
                         aria-labelledby="chat-heading" 
-                        className="glass-card w-[380px] h-[600px] flex flex-col shadow-[0_50px_100px_rgba(0,0,0,0.2)] border-white/40 rounded-[3rem] overflow-hidden relative animate-slide-in"
+                        className="w-[380px] h-[600px] flex flex-col shadow-[0_50px_100px_rgba(0,0,0,0.2)] border border-slate-200 bg-white rounded-[3rem] overflow-hidden relative animate-slide-in"
                     >
-                        <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 mask-triangle -z-10" />
+                        <div className="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 -z-10" />
                         
-                        <header className="flex-shrink-0 p-8 bg-charcoal flex items-center justify-between relative overflow-hidden">
-                            <div className="absolute top-0 left-0 w-full h-full opacity-20 pointer-events-none">
-                                <div className="absolute top-[-20%] left-[-20%] w-32 h-32 bg-emerald-500 rounded-full blur-3xl" />
-                            </div>
+                        <header className="flex-shrink-0 p-8 bg-slate-900 flex items-center justify-between relative overflow-hidden">
                             <div className="flex items-center gap-4 relative z-10">
                                 <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center border border-emerald-500/30">
-                                    <ChefHat className="text-emerald-400" size={24} />
+                                    <span className="text-2xl">👨‍🍳</span>
                                 </div>
                                 <div>
-                                    <h2 id="chat-heading" className="text-white font-anchor text-lg tracking-tight uppercase">Chef Mentor</h2>
+                                    <h2 id="chat-heading" className="text-white font-black text-lg tracking-tight uppercase">Chef Mentor</h2>
                                     <div className="flex items-center gap-2">
                                         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                                         <span className="text-emerald-400 text-[10px] font-black uppercase tracking-widest">Online & Ready</span>
@@ -151,28 +146,28 @@ const AiChatBot: React.FC<{
                                 onClick={() => setIsOpen(false)}
                                 className="text-white/40 hover:text-white transition-colors"
                             >
-                                <X size={20} />
+                                <span className="text-xl">✕</span>
                             </button>
                         </header>
 
-                        <div className="flex-grow p-8 overflow-y-auto space-y-6 scrollbar-hide">
+                        <div className="flex-grow p-8 overflow-y-auto space-y-6 scrollbar-hide bg-slate-50">
                             {messages.map((msg, index) => (
                                 <div key={index} className={`flex items-start gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
                                     {msg.role === 'model' && (
                                         <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center shadow-sm">
-                                            <Bot className="w-6 h-6 text-emerald-600" />
+                                            <span className="text-xl">🤖</span>
                                         </div>
                                     )}
                                     <div className={`max-w-[85%] rounded-[2rem] px-6 py-4 text-sm font-medium leading-relaxed shadow-sm ${
                                         msg.role === 'user'
                                             ? 'bg-emerald-600 text-white rounded-tr-none'
-                                            : 'bg-white/80 backdrop-blur-sm text-charcoal border border-white/60 rounded-tl-none'
+                                            : 'bg-white text-slate-900 border border-slate-200 rounded-tl-none'
                                     }`}>
                                         {msg.content}
                                     </div>
                                     {msg.role === 'user' && (
-                                        <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-charcoal flex items-center justify-center shadow-lg">
-                                            <User className="w-6 h-6 text-white" />
+                                        <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-slate-900 flex items-center justify-center shadow-lg">
+                                            <span className="text-xl">👤</span>
                                         </div>
                                     )}
                                 </div>
@@ -180,9 +175,9 @@ const AiChatBot: React.FC<{
                             {isLoading && (
                                 <div className="flex items-start gap-3">
                                     <div className="flex-shrink-0 w-10 h-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-                                        <Bot className="w-6 h-6 text-emerald-600" />
+                                        <span className="text-xl">🤖</span>
                                     </div>
-                                    <div className="bg-white/80 backdrop-blur-sm p-5 rounded-[2rem] rounded-tl-none border border-white/60 flex gap-2">
+                                    <div className="bg-white p-5 rounded-[2rem] rounded-tl-none border border-slate-200 flex gap-2">
                                         <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce" />
                                         <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.2s]" />
                                         <div className="w-2 h-2 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.4s]" />
@@ -192,7 +187,7 @@ const AiChatBot: React.FC<{
                             {error && (
                                 <div className="p-6 rounded-[2rem] bg-red-500/5 border border-red-500/20">
                                     <div className="flex items-start">
-                                        <AlertTriangle className="h-5 w-5 text-red-500 flex-shrink-0 mr-3" />
+                                        <span className="text-xl mr-3">⚠️</span>
                                         <div>
                                             <p className="text-xs font-black text-red-600 uppercase tracking-widest">{error.title}</p>
                                             <p className="text-sm text-red-700 mt-1 font-medium italic">{error.message}</p>
@@ -203,7 +198,7 @@ const AiChatBot: React.FC<{
                             <div ref={messagesEndRef} />
                         </div>
 
-                        <footer className="flex-shrink-0 p-8 bg-white/40 backdrop-blur-md border-t border-white/60">
+                        <footer className="flex-shrink-0 p-8 bg-white border-t border-slate-200">
                             <form onSubmit={handleSendMessage} className="relative">
                                 <input
                                     ref={inputRef}
@@ -212,16 +207,16 @@ const AiChatBot: React.FC<{
                                     onChange={(e) => setUserInput(e.target.value)}
                                     placeholder="Ask about costing, QCTO, or recipes..."
                                     disabled={isLoading}
-                                    className="w-full bg-white/80 border border-slate-200 rounded-2xl px-6 py-4 pr-16 text-sm font-medium text-charcoal focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all disabled:opacity-60"
+                                    className="w-full bg-white border border-slate-200 rounded-2xl px-6 py-4 pr-16 text-sm font-medium text-slate-900 focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 outline-none transition-all disabled:opacity-60"
                                     aria-label="Your message"
                                 />
                                 <button
                                     type="submit"
                                     disabled={isLoading || !userInput.trim()}
-                                    className="absolute right-2 top-2 w-12 h-12 bg-charcoal text-white rounded-xl flex items-center justify-center hover:bg-slate-800 transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-lg"
+                                    className="absolute right-2 top-2 w-12 h-12 bg-slate-900 text-white rounded-xl flex items-center justify-center hover:bg-slate-800 transition-all disabled:opacity-60 disabled:cursor-not-allowed shadow-lg"
                                     aria-label="Send message"
                                 >
-                                    <Send size={20} />
+                                    <span className="text-xl">➡️</span>
                                 </button>
                             </form>
                         </footer>
@@ -230,14 +225,14 @@ const AiChatBot: React.FC<{
 
                 <button
                     onClick={handleToggleOpen}
-                    className="w-20 h-20 bg-charcoal text-white rounded-[2rem] flex items-center justify-center shadow-[0_20px_40px_rgba(0,0,0,0.3)] hover:scale-110 transition-all relative group overflow-hidden"
+                    className="w-20 h-20 bg-slate-900 text-white rounded-[2rem] flex items-center justify-center shadow-[0_20px_40px_rgba(0,0,0,0.3)] hover:scale-110 transition-all relative group overflow-hidden"
                     aria-label={isOpen ? "Close chat" : "Open chat"}
                 >
                     <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    {isOpen ? <X size={32} /> : <MessageSquare size={32} />}
+                    {isOpen ? <span className="text-3xl">✕</span> : <span className="text-3xl">💬</span>}
                     {!isPro && (
                         <span className="absolute -top-1 -right-1 flex h-7 w-7 items-center justify-center rounded-full bg-amber-400 text-amber-900 shadow-lg border-4 border-slate-50" aria-hidden="true">
-                            <Lock size={14} />
+                            <span className="text-xs">🔒</span>
                         </span>
                     )}
                     {!isOpen && isPro && (
