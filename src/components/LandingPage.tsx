@@ -1,8 +1,6 @@
 
 import React, { useState } from 'react';
-import { ChefHat, Check, ArrowRight, Star, Zap, Quote, ChevronDown, ChevronUp, HelpCircle, AlignLeft, Linkedin, Twitter, Brain, Heart, Gift, Globe, Rocket, Sparkle, Award, User, Compass } from 'lucide-react';
 import PartnerProgram from './PartnerProgram';
-import founderImg from '../founder.jpg';
 
 interface LandingPageProps {
   onGetStarted: () => void;
@@ -10,8 +8,8 @@ interface LandingPageProps {
 
 const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
-  // Using imported image for better build-time handling and reliability
-  const imageSrc = founderImg;
+  // Using public path for the image
+  const imageSrc = '/founder.jpg';
 
   const toggleFaq = (index: number) => {
     setOpenFaq(openFaq === index ? null : index);
@@ -60,12 +58,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
       <div className="bg-indigo-600 text-white py-3 px-4 relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-r from-indigo-600 via-emerald-500 to-indigo-600 animate-pulse"></div>
           <div className="max-w-7xl mx-auto flex items-center justify-center gap-3 relative z-10 text-center">
-              <Globe size={18} className="text-white animate-spin-slow" />
+              <span className="text-white animate-spin-slow text-xl">🌐</span>
               <p className="text-xs sm:text-sm font-black uppercase tracking-widest">
                   We are officially live at <span className="text-amber-300">caterproai.com</span>! 🥂
               </p>
               <button onClick={handleAction} className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 bg-white text-indigo-700 rounded-full text-[10px] font-black hover:scale-105 transition-transform">
-                  Explore Now <ArrowRight size={12} />
+                  Explore Now <span className="text-xs">➡️</span>
               </button>
           </div>
       </div>
@@ -79,14 +77,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                   onClick={handleAction}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 text-xs font-black animate-fade-in border-2 border-primary-200 dark:border-primary-700 hover:scale-105 transition-transform shadow-lg shadow-primary-500/10 cursor-pointer"
                 >
-                  <Globe size={14} />
+                  <span className="text-sm">🌐</span>
                   <span>Global AI Assistant</span>
                 </button>
                 <button 
                   onClick={handleAction}
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-indigo-600 text-white text-xs font-black border-2 border-indigo-400 hover:scale-105 transition-transform shadow-lg shadow-indigo-500/20 cursor-pointer"
                 >
-                  <Rocket size={14} />
+                  <span className="text-sm">🚀</span>
                   <span>2026 Launch Live 🚀</span>
                 </button>
             </div>
@@ -108,7 +106,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 className="inline-flex items-center justify-center px-12 py-5 text-lg font-black text-white bg-primary-600 rounded-2xl shadow-2xl shadow-primary-500/30 hover:bg-primary-700 hover:scale-105 transition-all"
               >
                 Start Free Proposal
-                <ArrowRight className="ml-2 w-6 h-6" />
+                <span className="ml-2 text-2xl">➡️</span>
               </button>
             </div>
           </div>
@@ -128,7 +126,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                         <div className="h-5 bg-slate-100 dark:bg-slate-800 rounded-full w-full animate-pulse delay-75"></div>
                         <div className="pt-12">
                              <div className="p-10 bg-emerald-50 dark:bg-emerald-900/20 border-4 border-dashed border-emerald-500/30 rounded-[2rem] text-center">
-                                 <Check className="w-16 h-16 text-emerald-500 mx-auto mb-4" />
+                                 <span className="text-6xl text-emerald-500 mx-auto mb-4 block">✅</span>
                                  <p className="font-black text-slate-900 dark:text-white uppercase tracking-widest text-sm">System Ready for 2026</p>
                              </div>
                         </div>
@@ -145,9 +143,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             <div className="flex flex-col md:flex-row gap-16 items-center lg:items-start">
                 <div className="w-full md:w-2/5 order-first md:order-last">
                     <div className="relative group">
-                        <div className="absolute -inset-2 bg-gradient-to-r from-primary-500 to-indigo-600 rounded-[2rem] blur-xl opacity-20 group-hover:opacity-40 transition duration-1000"></div>
+                        <div className="absolute -inset-2 bg-gradient-to-r from-primary-500 to-indigo-600 rounded-[2rem] opacity-20 group-hover:opacity-40 transition duration-1000"></div>
                         <div className="relative rounded-[2rem] shadow-2xl w-full aspect-square md:aspect-[4/5] bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden border-2 border-slate-200 dark:border-slate-800">
-                            <User className="absolute w-20 h-20 text-slate-300 dark:text-slate-600" />
+                            <span className="absolute text-6xl text-slate-300 dark:text-slate-600">👤</span>
                             <img 
                                 src={imageSrc} 
                                 alt="Founder Tumi" 
@@ -161,10 +159,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 <div className="w-full md:w-3/5 space-y-10">
                     <div className="inline-flex items-center gap-4">
                         <div className="p-4 bg-primary-500/10 rounded-2xl">
-                            <ChefHat className="w-10 h-10 text-primary-500" />
+                            <span className="text-4xl text-primary-500">👨‍🍳</span>
                         </div>
                         <div className="p-4 bg-emerald-500/10 rounded-2xl">
-                            <Compass className="w-10 h-10 text-emerald-500 animate-spin-slow" />
+                            <span className="text-4xl text-emerald-500 animate-spin-slow block">🧭</span>
                         </div>
                     </div>
                     <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black leading-[0.9] italic tracking-tight text-slate-900 dark:text-white">
@@ -177,7 +175,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                     </div>
                     <div className="pt-12 border-t border-slate-800 flex flex-wrap gap-6 items-center">
                         <button onClick={() => handleShare('linkedin')} className="flex items-center gap-3 px-8 py-4 bg-[#0077b5] text-white rounded-2xl hover:bg-[#006097] text-sm font-black transition-all active:scale-95 shadow-xl shadow-blue-500/20">
-                            <Linkedin size={20} /> Share My Story
+                            <span className="text-xl">🔗</span> Share My Story
                         </button>
                     </div>
                 </div>
@@ -199,7 +197,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                     <div key={index} className="border-4 border-slate-200 dark:border-slate-800 rounded-[2rem] overflow-hidden transition-all hover:border-primary-500/20 shadow-sm">
                         <button onClick={() => toggleFaq(index)} className="w-full flex justify-between items-center p-8 text-left font-black text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800/50">
                             <span className="pr-4 text-lg">{faq.question}</span>
-                            {openFaq === index ? <ChevronUp className="text-primary-500 w-6 h-6" /> : <ChevronDown className="text-slate-400 w-6 h-6" />}
+                            {openFaq === index ? <span className="text-primary-500 text-xl">▲</span> : <span className="text-slate-400 text-xl">▼</span>}
                         </button>
                         {openFaq === index && (
                             <div className="p-8 text-slate-600 dark:text-slate-400 border-t-2 border-slate-50 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 animate-slide-in text-lg font-medium leading-relaxed">
