@@ -6,7 +6,6 @@ import {
   signOut,
   sendPasswordResetEmail
 } from 'firebase/auth';
-import { X, Mail, Lock, Loader2, LogIn, UserPlus, Sparkles } from 'lucide-react';
 import { automationService } from './automationService';
 
 interface AuthModalProps {
@@ -109,7 +108,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               )}
             </h2>
             <button onClick={onClose} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
-              <X className="w-6 h-6 text-slate-400" />
+              <span className="text-xl text-slate-400">✕</span>
             </button>
           </div>
 
@@ -118,7 +117,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               <div className="space-y-2">
                 <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Founder Access Code</label>
                 <div className="relative">
-                  <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg">🔒</span>
                   <input 
                     type="password" 
                     required
@@ -134,7 +133,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 type="submit" 
                 className="w-full py-5 bg-amber-500 hover:bg-amber-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-amber-500/20 transition-all active:scale-95 flex items-center justify-center gap-3"
               >
-                <Sparkles className="w-6 h-6" />
+                <span className="text-xl">✨</span>
                 Unlock Founder Mode
               </button>
               <button 
@@ -152,7 +151,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   <div className="space-y-2 animate-fade-in">
                     <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Full Name</label>
                     <div className="relative">
-                      <UserPlus className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg">👤</span>
                       <input 
                         type="text" 
                         required
@@ -168,7 +167,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Email Address</label>
                   <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg">✉️</span>
                     <input 
                       type="email" 
                       required
@@ -183,7 +182,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Password</label>
                   <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg">🔒</span>
                     <input 
                       type="password" 
                       required
@@ -203,7 +202,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
                   disabled={loading}
                   className="w-full py-5 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-black text-lg shadow-xl shadow-primary-500/20 transition-all active:scale-95 flex items-center justify-center gap-3"
                 >
-                  {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : (isLogin ? <LogIn className="w-6 h-6" /> : <UserPlus className="w-6 h-6" />)}
+                  {loading ? <span className="animate-spin text-xl">⏳</span> : (isLogin ? <span className="text-xl">🔑</span> : <span className="text-xl">➕</span>)}
                   {isLogin ? 'Sign In' : 'Create Account'}
                 </button>
               </form>
