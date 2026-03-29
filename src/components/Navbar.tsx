@@ -21,7 +21,7 @@ const Navbar: React.FC<{
   onAuthClick?: () => void;
   user?: FirebaseUser | null;
 }> = ({ whopUrl, facebookUrl, onThemeToggle, isDarkMode, onOpenSaved, savedCount, onOpenQrCode, onOpenInstall, onReset, onViewLanding, onViewPricing, onViewLibrary, onViewPartner, onViewSuccess, onAuthClick, user }) => (
-  <nav role="navigation" aria-label="Main navigation" className="no-print bg-white/80 backdrop-blur-xl sticky top-0 z-50 border-b border-white/20 pt-[env(safe-area-inset-top)] shadow-sm">
+  <nav role="navigation" aria-label="Main navigation" className="no-print bg-white sticky top-0 z-50 border-b border-slate-200 pt-[env(safe-area-inset-top)] shadow-sm">
     <div className="max-w-7xl mx-auto px-6">
       <div className="flex justify-between items-center h-24">
         <div 
@@ -67,7 +67,7 @@ const Navbar: React.FC<{
           {onViewSuccess && (
             <button 
               onClick={onViewSuccess}
-              className="px-6 py-3 rounded-full border border-slate-200 text-[#000000] hover:border-emerald-500 hover:text-emerald-600 transition-all font-anchor text-[10px] uppercase tracking-[0.2em] bg-white/50 backdrop-blur-sm shadow-sm opacity-100"
+              className="px-6 py-3 rounded-full border border-slate-200 text-[#000000] hover:border-emerald-500 hover:text-emerald-600 transition-all font-anchor text-[10px] uppercase tracking-[0.2em] bg-white shadow-sm opacity-100"
               title="My Results"
             >
               My Results
@@ -83,11 +83,11 @@ const Navbar: React.FC<{
           
           <button 
             onClick={onAuthClick}
-            className={`px-8 py-3.5 rounded-full flex items-center gap-3 transition-all font-anchor text-xs uppercase tracking-[0.2em] shadow-2xl ${user ? 'bg-slate-100 text-[#121212] hover:bg-slate-200' : 'bg-[#FFD700] text-[#121212] hover:bg-amber-400 shadow-amber-200/20'}`}
+            className={`px-8 py-3.5 rounded-full flex items-center gap-3 transition-all font-anchor text-xs uppercase tracking-[0.2em] shadow-2xl ${user ? 'bg-slate-100 text-[#000000] hover:bg-slate-200' : 'bg-[#FFD700] text-[#000000] hover:bg-amber-400 shadow-amber-200/20'}`}
             title={user ? "Sign Out" : "Sign In"}
           >
-            {user ? <LogOut size={20} /> : <LogIn size={20} />}
-            <span className="hidden lg:inline">{user ? 'Sign Out' : 'Sign In'}</span>
+            {user ? <LogOut size={20} className="text-[#000000]" /> : <LogIn size={20} className="text-[#000000]" />}
+            <span className="hidden lg:inline text-[#000000] opacity-100">{user ? 'Sign Out' : 'Sign In'}</span>
           </button>
         </div>
       </div>
