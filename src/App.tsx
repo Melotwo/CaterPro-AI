@@ -13,8 +13,8 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
 // --- INFRASTRUCTURE IMPORTS ---
-import { useAuth } from './hooks/useAuth';
-import { useAppSubscription, SubscriptionPlan } from './hooks/useAppSubscription';
+import { useAuth } from './useAuth';
+import { useAppSubscription, SubscriptionPlan } from './useAppSubscription';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import AuthModal from './AuthModal';
@@ -24,7 +24,7 @@ import PartnerDashboard from './PartnerDashboard';
 import PrivacyPolicy from './PrivacyPolicy';
 import TermsOfService from './TermsOfService';
 import { StudentYieldCalculator } from './StudentYieldCalculator';
-import { generateMenuImageFromApi, extractIngredientsForShift } from './services/geminiService';
+import { generateMenuImageFromApi, extractIngredientsForShift } from './geminiService';
 import { ShiftCalculatorModal } from './ShiftCalculatorModal';
 import { SuccessPage } from './SuccessPage';
 import { ProposalDocument } from './ProposalDocument';
@@ -269,8 +269,8 @@ export default function App() {
                       PoE Admin Automation
                     </li>
                   </ul>
-                  <button onClick={() => setViewMode('recipe-lab')} className="flex items-center gap-3 text-emerald-700 font-black uppercase tracking-widest text-xs group-hover:gap-5 transition-all">
-                    Explore Recipe Lab <ArrowRight size={18} />
+                  <button onClick={() => setViewMode('recipe-lab')} className="flex items-center gap-3 text-emerald-700 font-black uppercase tracking-widest text-xs group-hover:gap-5 transition-all opacity-100">
+                    <span className="text-emerald-700 opacity-100">Explore Recipe Lab</span> <ArrowRight size={18} className="text-emerald-700" />
                   </button>
                 </div>
 
@@ -581,9 +581,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans relative overflow-x-hidden">
-      {/* Global Performance Optimized Noise Overlay */}
-      <div className="noise-overlay" />
-      
       {/* Navbar Integration */}
       <Navbar 
         whopUrl={whopLinks.executive}
@@ -658,14 +655,14 @@ export default function App() {
           <button 
             onClick={handleOpenShiftCalculator}
             disabled={isShiftLoading}
-            className="backdrop-blur-md bg-emerald-500/10 text-emerald-400 px-6 py-3 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:bg-emerald-500/20 transition-all flex items-center gap-2 shadow-2xl border border-emerald-500/20 disabled:opacity-50"
+            className="bg-[#121212] text-white px-6 py-3 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:bg-black transition-all flex items-center gap-2 shadow-2xl border border-emerald-500/20 disabled:opacity-50"
           >
             {isShiftLoading ? <Loader2 className="animate-spin" size={18} /> : <Calculator size={18} />}
             <span className="whitespace-nowrap">Shift Calculator</span>
           </button>
           <button 
             onClick={downloadPDF}
-            className="backdrop-blur-md bg-white/80 text-slate-900 px-6 py-3 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:bg-white transition-all flex items-center gap-2 shadow-2xl border border-white/20"
+            className="bg-white text-slate-900 px-6 py-3 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:bg-slate-100 transition-all flex items-center gap-2 shadow-2xl border border-slate-200"
           >
             <Download size={18} /> <span className="whitespace-nowrap">Export PDF</span>
           </button>
