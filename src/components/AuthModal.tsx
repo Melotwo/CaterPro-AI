@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { auth } from '../firebase';
+import { auth } from './firebase';
 import { 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
@@ -7,7 +7,7 @@ import {
   sendPasswordResetEmail
 } from 'firebase/auth';
 import { X, Mail, Lock, Loader2, LogIn, UserPlus, Sparkles } from 'lucide-react';
-import { automationService } from '../services/automationService';
+import { automationService } from './automationService';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -91,8 +91,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-      <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-slide-in">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#121212] bg-opacity-90">
+      <div className="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl border-2 border-slate-200 overflow-hidden animate-slide-in">
         <div className="p-8">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl tracking-tight">
