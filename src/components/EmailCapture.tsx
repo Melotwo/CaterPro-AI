@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Mail, MessageSquare, Check, Loader2, AlertCircle, Send, ArrowRight, ShieldCheck } from 'lucide-react';
-import { analytics } from '../services/analyticsManager';
+import { analytics } from './analyticsManager';
 
 interface EmailCaptureProps {
   isOpen: boolean;
@@ -101,7 +100,7 @@ const EmailCapture: React.FC<EmailCaptureProps> = ({ isOpen, onClose, onSave, ev
   
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-      <div onClick={handleClose} className="fixed inset-0 bg-slate-900/80 backdrop-blur-md animate-[fade-in_0.2s_ease-out]"></div>
+      <div onClick={handleClose} className="fixed inset-0 bg-slate-900/80 animate-[fade-in_0.2s_ease-out]"></div>
       <div ref={modalRef} className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-[2.5rem] shadow-2xl border-4 border-white dark:border-slate-800 overflow-hidden animate-[scale-up_0.3s_cubic-bezier(0.16,1,0.3,1)]">
         
         {/* Progress Bar */}
@@ -111,13 +110,13 @@ const EmailCapture: React.FC<EmailCaptureProps> = ({ isOpen, onClose, onSave, ev
 
         <div className="p-8">
           <button onClick={handleClose} className="absolute top-6 right-6 p-2 rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-            <X size={20} />
+            <span className="text-xl">✕</span>
           </button>
 
           {isSubmitted ? (
             <div className="text-center py-6 animate-fade-in">
               <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/30 mb-6 border-4 border-emerald-500/20">
-                <Check className="h-12 w-12 text-emerald-600 dark:text-emerald-400" />
+                <span className="text-5xl text-emerald-600 dark:text-emerald-400">✅</span>
               </div>
               <h3 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Sync Complete!</h3>
               <p className="mt-3 text-slate-600 dark:text-slate-400 font-medium">
@@ -125,7 +124,7 @@ const EmailCapture: React.FC<EmailCaptureProps> = ({ isOpen, onClose, onSave, ev
               </p>
               <div className="mt-10">
                   <button onClick={handleClose} className="w-full py-5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black shadow-xl shadow-indigo-500/20 transition-all active:scale-95 flex items-center justify-center gap-2">
-                    Return to Hub <ArrowRight size={18} />
+                    Return to Hub <span className="text-xl">➡️</span>
                   </button>
               </div>
             </div>
@@ -133,7 +132,7 @@ const EmailCapture: React.FC<EmailCaptureProps> = ({ isOpen, onClose, onSave, ev
             <>
               <div className="flex items-center gap-4 mb-8">
                   <div className="p-4 bg-indigo-600 rounded-2xl shadow-lg">
-                    <ShieldCheck className="w-7 h-7 text-white" />
+                    <span className="text-3xl text-white">🛡️</span>
                   </div>
                   <div>
                     <h3 className="text-2xl font-black text-slate-900 dark:text-white leading-none">Lead Capture</h3>
@@ -145,7 +144,7 @@ const EmailCapture: React.FC<EmailCaptureProps> = ({ isOpen, onClose, onSave, ev
                 <div>
                   <label htmlFor="email" className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">Client/Business Email</label>
                   <div className="relative">
-                    <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <span className="absolute left-5 top-1/2 -translate-y-1/2 text-xl text-slate-400">✉️</span>
                     <input 
                         type="email" 
                         id="email" 
@@ -158,7 +157,7 @@ const EmailCapture: React.FC<EmailCaptureProps> = ({ isOpen, onClose, onSave, ev
                   </div>
                    {error && (
                        <div className="flex items-center gap-1.5 mt-2 text-red-500 text-xs font-bold animate-slide-in">
-                           <AlertCircle size={14} /> {error}
+                           <span className="text-sm">⚠️</span> {error}
                        </div>
                    )}
                 </div>
@@ -166,7 +165,7 @@ const EmailCapture: React.FC<EmailCaptureProps> = ({ isOpen, onClose, onSave, ev
                 <div>
                   <label htmlFor="whatsapp" className="block text-[10px] font-black uppercase text-slate-400 mb-2 tracking-widest">WhatsApp Number (Optional)</label>
                   <div className="relative">
-                    <MessageSquare className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <span className="absolute left-5 top-1/2 -translate-y-1/2 text-xl text-slate-400">💬</span>
                     <input 
                         type="tel" 
                         id="whatsapp" 
@@ -186,18 +185,18 @@ const EmailCapture: React.FC<EmailCaptureProps> = ({ isOpen, onClose, onSave, ev
                     >
                         {isSubmitting ? (
                             <>
-                                <Loader2 className="w-6 h-6 animate-spin" />
+                                <span className="text-2xl animate-spin">🔄</span>
                                 <span>PULLING INTO SYSTEMS...</span>
                             </>
                         ) : (
                             <>
-                                <Send size={20} />
+                                <span className="text-xl">📤</span>
                                 <span>PUSH LEAD TO MAKE.COM</span>
                             </>
                         )}
                     </button>
                     <div className="mt-6 flex items-center justify-center gap-2 opacity-40">
-                         <ShieldCheck size={12} />
+                         <span className="text-xs">🛡️</span>
                          <p className="text-[9px] font-bold uppercase tracking-widest">End-to-End Encrypted CRM Sync</p>
                     </div>
                 </div>
