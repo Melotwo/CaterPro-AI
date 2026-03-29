@@ -1,20 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { GoogleGenAI } from "@google/genai";
-import { 
-  ChefHat, ShoppingCart, Calculator, 
-  ClipboardList, Utensils, ArrowRight, 
-  Loader2, Download, MessageSquare, X, 
-  Send, Sparkles, Trophy, Package, Zap,
-  ShieldCheck, FileText, ExternalLink,
-  Percent, Info, GraduationCap, Briefcase,
-  Camera
-} from 'lucide-react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
 // --- INFRASTRUCTURE IMPORTS ---
 import { useAuth } from './useAuth';
-import { useAppSubscription, SubscriptionPlan } from './useAppSubscription';
+import { useAppSubscription } from './useAppSubscription';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import AuthModal from './AuthModal';
@@ -23,33 +13,61 @@ import CostingLibrary from './CostingLibrary';
 import PartnerDashboard from './PartnerDashboard';
 import PrivacyPolicy from './PrivacyPolicy';
 import TermsOfService from './TermsOfService';
-import { StudentYieldCalculator } from './StudentYieldCalculator';
-import { generateMenuImageFromApi, extractIngredientsForShift } from './geminiService';
-import { ShiftCalculatorModal } from './ShiftCalculatorModal';
-import { SuccessPage } from './SuccessPage';
-import { ProposalDocument } from './ProposalDocument';
+import StudentYieldCalculator from './StudentYieldCalculator';
+import ShiftCalculatorModal from './ShiftCalculatorModal';
+import SuccessPage from './SuccessPage';
+import ProposalDocument from './ProposalDocument';
 import HeroSection from './HeroSection';
 import Dashboard from './Dashboard';
 import RecipeGenerator from './RecipeGenerator';
 import AiChatBot from './AiChatBot';
 import { ShiftIngredient } from './types';
 
-// --- INITIALIZE GOOGLE AI ---
-const getApiKey = () => {
-  const key = import.meta.env.VITE_GEMINI_API_KEY || "";
-  return key;
-};
-const apiKey = getApiKey();
-
 // --- UTILS ---
 const formatCurrency = (amount: number) => {
   return `R${amount.toLocaleString('en-ZA', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 };
 
+// --- MOCK DATA FOR DEMO ---
+const MOCK_PROPOSAL = { 
+  "title": "Modern Thai Fusion Gala", 
+  "imageQuery": "Thai fusion fine dining plating", 
+  "menu": [
+    {"cat": "Appetizers", "dish": "Lemongrass Infused Prawn Skewers", "notes": "Served with a spicy mango dip"},
+    {"cat": "Main Courses", "dish": "Green Curry Braised Short Rib", "notes": "With coconut jasmine rice and pickled vegetables"},
+    {"cat": "Desserts", "dish": "Thai Tea Panna Cotta", "notes": "With cardamom shortbread crumbs"}
+  ], 
+  "miseEnPlace": ["Infuse prawns with lemongrass", "Braise short ribs for 6 hours", "Prepare Thai tea base for panna cotta"], 
+  "serviceNotes": ["Ensure prawns are served hot", "Garnish short ribs with fresh cilantro"],
+  "haccpSafety": [
+    {"point": "Critical Control Point", "requirement": "Internal temp 75°C for prawns", "category": "Temp"},
+    {"point": "Storage", "requirement": "Store short ribs at < 5°C", "category": "Storage"}
+  ],
+  "wasteYieldAnalysis": {
+    "apCost": 2500,
+    "epCost": 3333,
+    "costDifference": 833,
+    "yieldPercentage": 75,
+    "qctoCriteria": "Level 5 assessment compliance met through detailed yield tracking."
+  },
+  "shoppingList": {
+    "Proteins": ["Prawns", "Short Ribs"],
+    "Produce": ["Lemongrass", "Mango", "Cilantro", "Pickled Veg"],
+    "Pantry": ["Coconut Milk", "Jasmine Rice", "Thai Tea", "Cardamom"]
+  },
+  "logistics": {
+    "deliveryFee": 500,
+    "setupTime": "2 hours",
+    "staffRequired": 4
+  },
+  "winePairings": ["Riesling", "Pinot Noir"],
+  "costPerHead": 450
+};
+
 export default function App() {
   // --- STATE & HOOKS ---
   const { user, loading: authLoading } = useAuth();
-  const { subscription, selectPlan, canAccessFeature, recordGeneration } = useAppSubscription();
+  const { selectPlan, canAccessFeature, recordGeneration } = useAppSubscription();
   
   const [viewMode, setViewMode] = useState<'landing' | 'generator' | 'pricing' | 'library' | 'privacy' | 'partner' | 'terms' | 'success' | 'recipe-lab'>('landing');
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -60,8 +78,8 @@ export default function App() {
   const [style, setStyle] = useState('');
   const [dietary, setDietary] = useState('');
   const [eventType, setEventType] = useState('Corporate Event');
-  const [apCost, setApCost] = useState(''); // As Purchased Cost for Waste/Yield
-  const [epYield, setEpYield] = useState(''); // Edible Portion Yield %
+  const [apCost, setApCost] = useState('');
+  const [epYield, setEpYield] = useState('');
   const [loading, setLoading] = useState(false);
   const [proposal, setProposal] = useState<any>(null);
   const [proposalImage, setProposalImage] = useState<string | null>(null);
@@ -73,20 +91,19 @@ export default function App() {
   const handleOpenShiftCalculator = async () => {
     if (!proposal?.miseEnPlace) return;
     setIsShiftLoading(true);
-    try {
-      const ingredients = await extractIngredientsForShift(proposal.miseEnPlace, proposal.menuTitle);
-      setShiftIngredients(ingredients);
+    // Mock shift ingredients
+    setTimeout(() => {
+      setShiftIngredients([
+        { name: 'Prawns', quantity: 5, unit: 'kg', unitPrice: 250 },
+        { name: 'Short Ribs', quantity: 10, unit: 'kg', unitPrice: 180 }
+      ]);
       setIsShiftCalculatorOpen(true);
-    } catch (err) {
-      console.error("Failed to extract ingredients:", err);
-    } finally {
       setIsShiftLoading(false);
-    }
+    }, 1000);
   };
 
   const proposalRef = useRef<HTMLDivElement>(null);
 
-  // Trigger animation on total change
   useEffect(() => {
     if (proposal) {
       setIsTotalUpdating(true);
@@ -103,98 +120,23 @@ export default function App() {
     executive: "https://whop.com/checkout/plan_4"
   };
 
-  // --- GENERATION LOGIC ---
+  // --- GENERATION LOGIC (MOCKED FOR DEMO) ---
   async function generateProposal() {
-    if (!apiKey) {
-      alert("Gemini API Key is missing. Please configure it in the settings.");
-      return;
-    }
-
     if (isTrainingMode && (!apCost || !epYield)) {
       alert("Please enter AP Cost and EP Yield for QCTO compliance.");
       return;
     }
 
-    // Check subscription limits
     if (!recordGeneration()) return;
 
     setLoading(true);
-    try {
-      const ai = new GoogleGenAI({ apiKey });
-      const trainingContext = isTrainingMode ? `
-      - TRAINING MODE ACTIVE: Categorize every recipe according to QCTO Occupational Certificate: Chef (ID 101697) modules (e.g., Module 5: Operational Cost Control).
-      - Include a "qctoModule" field for each menu item.
-      - Calculate the cost difference between AP (As Purchased) and EP (Edible Portion) based on: AP Cost: R${apCost || 0}, EP Yield: ${epYield || 100}%.
-      ` : "";
-
-      const prompt = `Act as a Chef Operations manager ${isTrainingMode ? "and QCTO TVET Examiner" : ""}. Create a comprehensive culinary workspace proposal for a ${eventType}.
-      - Guests: ${guests}
-      - Culinary Input: ${style}
-      - Instructions: From the 'Culinary Input', identify the 'Cuisine' (e.g., Thai) and the 'Style' (e.g., Fusion). Use these to ensure Michelin-star accuracy in the menu and image query.
-      - Dietary Requirements: ${dietary || "None specified"}
-      ${trainingContext}
-
-      Return a detailed JSON object with the following structure:
-      { 
-        "title": "string (e.g., Modern Thai Fusion Gala)", 
-        "imageQuery": "string (food item for visual search, incorporating the identified cuisine and style)", 
-        "menu": [{"cat": "Appetizers" | "Main Courses" | "Desserts", "dish": "string", "notes": "string", "qctoModule": "string (only if training mode)"}], 
-        "miseEnPlace": ["step1", "step2"], 
-        "serviceNotes": ["note1", "note2"],
-        "haccpSafety": [
-          {"point": "Critical Control Point", "requirement": "e.g., Internal temp 75°C for poultry", "category": "Temp" | "Storage" | "Allergens"}
-        ],
-        "wasteYieldAnalysis": {
-          "apCost": number,
-          "epCost": number,
-          "costDifference": number,
-          "yieldPercentage": number,
-          "qctoCriteria": "string explaining Level 5 assessment compliance"
-        },
-        "shoppingList": {
-          "Proteins": ["item1", "item2"],
-          "Produce": ["item1", "item2"],
-          "Pantry": ["item1", "item2"]
-        },
-        "logistics": {
-          "deliveryFee": number (in ZAR),
-          "setupTime": "string",
-          "staffRequired": number
-        },
-        "winePairings": ["pairing1", "pairing2"],
-        "costPerHead": number (in ZAR)
-      }`;
-      
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        config: { 
-          responseMimeType: "application/json",
-          maxOutputTokens: 16384
-        }
-      });
-
-      const data = JSON.parse(response.text || "{}");
-      setProposal(data);
-      
-      // Generate Synchronized Banner Image
-      try {
-        const mainCourses = data.menu
-          .filter((m: any) => m.cat === 'Main Courses')
-          .map((m: any) => m.dish);
-        
-        const imageBase64 = await generateMenuImageFromApi(data.title, data.description, mainCourses, data.imageQuery);
-        setProposalImage(imageBase64);
-      } catch (err) {
-        console.error("Image generation failed", err);
-      }
-      
-      setViewMode('generator'); // Stay in generator view to show result
-    } catch (e) { 
-      console.error("Gemini Error:", e);
-      alert("Error generating proposal. Please check your connection and API key."); 
-    }
-    setLoading(false);
+    // Simulate AI Generation
+    setTimeout(() => {
+      setProposal(MOCK_PROPOSAL);
+      setProposalImage("https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800&q=80");
+      setViewMode('generator');
+      setLoading(false);
+    }, 2000);
   }
 
   const downloadPDF = async () => {
@@ -227,11 +169,11 @@ export default function App() {
               <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 mask-triangle -z-10" />
               <div className="bg-[#121212] p-12 rounded-[4rem] flex flex-col md:flex-row items-center gap-12 border border-emerald-500/30 shadow-[0_40px_80px_rgba(0,0,0,0.3)]">
                 <div className="w-24 h-24 bg-emerald-500/20 rounded-[2rem] flex items-center justify-center shrink-0 border border-emerald-500/30">
-                  <GraduationCap className="text-emerald-400" size={48} />
+                  <span className="text-4xl">🎓</span>
                 </div>
                 <div>
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-4">
-                    <Zap size={12} className="text-emerald-500" />
+                    <span className="text-emerald-500">⚡</span>
                     <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Educational Excellence</span>
                   </div>
                   <h3 className="text-4xl font-anchor tracking-tighter uppercase mb-6 text-white opacity-100">QCTO Student Success Guide</h3>
@@ -249,7 +191,7 @@ export default function App() {
                 <div className="bg-white p-16 rounded-[4rem] border border-emerald-500/30 hover:shadow-2xl transition-all group relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 mask-triangle -z-10" />
                   <div className="w-20 h-20 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center mb-10 group-hover:scale-110 transition-transform border border-emerald-500/20">
-                    <GraduationCap className="text-emerald-600" size={40} aria-label="Student Yield Calculator Icon" />
+                    <span className="text-4xl">🎓</span>
                   </div>
                   <h3 className="text-4xl font-anchor mb-6 tracking-tighter text-[#000000] opacity-100">For Students</h3>
                   <p className="text-[#000000] font-medium mb-10 leading-relaxed text-lg opacity-100">
@@ -270,7 +212,7 @@ export default function App() {
                     </li>
                   </ul>
                   <button onClick={() => setViewMode('recipe-lab')} className="flex items-center gap-3 text-emerald-700 font-black uppercase tracking-widest text-xs group-hover:gap-5 transition-all opacity-100">
-                    <span className="text-emerald-700 opacity-100">Explore Recipe Lab</span> <ArrowRight size={18} className="text-emerald-700" />
+                    <span className="text-emerald-700 opacity-100">Explore Recipe Lab</span> <span className="text-emerald-700">→</span>
                   </button>
                 </div>
 
@@ -278,7 +220,7 @@ export default function App() {
                 <div className="bg-[#121212] p-16 rounded-[4rem] border border-emerald-500/30 hover:shadow-2xl transition-all group text-white relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 mask-triangle -z-10" />
                   <div className="w-20 h-20 bg-emerald-500/20 rounded-[2rem] flex items-center justify-center mb-10 group-hover:scale-110 transition-transform border border-emerald-500/30">
-                    <Briefcase className="text-emerald-400" size={40} aria-label="Professional Catering Dashboard Icon" />
+                    <span className="text-4xl">💼</span>
                   </div>
                   <h3 className="text-4xl font-anchor mb-6 tracking-tighter text-white opacity-100">For Professionals</h3>
                   <p className="text-[#FFFFFF] font-medium mb-10 leading-relaxed text-lg opacity-100">
@@ -299,7 +241,7 @@ export default function App() {
                     </li>
                   </ul>
                   <button onClick={() => setViewMode('generator')} className="flex items-center gap-3 text-emerald-400 font-black uppercase tracking-widest text-xs group-hover:gap-5 transition-all">
-                    Launch Professional Suite <ArrowRight size={18} />
+                    Launch Professional Suite <span>→</span>
                   </button>
                 </div>
               </div>
@@ -325,9 +267,9 @@ export default function App() {
                 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                   {[
-                    { title: "Menu Intelligence", desc: "AI-driven menu engineering and profit margin analysis.", icon: <Utensils className="text-emerald-400" size={32} aria-label="Menu Intelligence Icon" /> },
-                    { title: "Operational Safety", desc: "Automated HACCP checklists and safety protocol generation.", icon: <ShieldCheck className="text-emerald-400" size={32} aria-label="Operational Safety Icon" /> },
-                    { title: "Costing Precision", desc: "Live ZAR costing and smart shopping list automation.", icon: <Calculator className="text-emerald-400" size={32} aria-label="Costing Precision Icon" /> }
+                    { title: "Menu Intelligence", desc: "AI-driven menu engineering and profit margin analysis.", icon: <span className="text-3xl">🍴</span> },
+                    { title: "Operational Safety", desc: "Automated HACCP checklists and safety protocol generation.", icon: <span className="text-3xl">🛡️</span> },
+                    { title: "Costing Precision", desc: "Live ZAR costing and smart shopping list automation.", icon: <span className="text-3xl">🧮</span> }
                   ].map((feature, i) => (
                     <div key={i} className="bg-[#121212] p-12 rounded-[3.5rem] border border-emerald-500/30 shadow-2xl hover:shadow-3xl transition-all group">
                       <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-10 group-hover:bg-emerald-500/20 transition-colors border border-emerald-500/20">
@@ -396,7 +338,7 @@ export default function App() {
                   onClick={() => setIsTrainingMode(!isTrainingMode)}
                   className={`flex items-center gap-4 px-8 py-4 rounded-[2rem] transition-all border-2 ${isTrainingMode ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400 shadow-xl' : 'bg-white/5 border-slate-800 text-slate-500'}`}
                 >
-                  <GraduationCap size={24} />
+                  <span className="text-xl">🎓</span>
                   <span className="font-black uppercase tracking-widest text-xs">Training Mode {isTrainingMode ? 'ON' : 'OFF'}</span>
                   <div className={`w-12 h-6 rounded-full relative transition-colors ${isTrainingMode ? 'bg-emerald-500' : 'bg-slate-700'}`}>
                     <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${isTrainingMode ? 'left-7' : 'left-1'}`} />
@@ -466,7 +408,7 @@ export default function App() {
               {isTrainingMode && (
                 <div className="mt-12 p-10 bg-emerald-500/10 rounded-[3rem] border border-emerald-500/30 animate-in fade-in slide-in-from-top-4">
                   <div className="flex items-center gap-4 mb-8 text-emerald-400">
-                    <Percent size={24} />
+                    <span className="text-xl">%</span>
                     <h3 className="font-anchor uppercase tracking-widest text-sm">QCTO Level 5 Waste/Yield Input</h3>
                   </div>
                   <div className="grid md:grid-cols-2 gap-8">
@@ -504,12 +446,12 @@ export default function App() {
               >
                 {loading ? (
                   <>
-                    <Loader2 className="animate-spin" size={28} />
+                    <span className="animate-spin text-2xl">⏳</span>
                     Engineering...
                   </>
                 ) : (
                   <>
-                    <Zap size={28} className="group-hover:scale-125 transition-transform" />
+                    <span className="text-2xl group-hover:scale-125 transition-transform">⚡</span>
                     Launch AI Culinary Planner
                   </>
                 )}
@@ -530,7 +472,7 @@ export default function App() {
                 onClick={() => setViewMode('landing')}
                 className="mb-8 flex items-center gap-2 text-slate-500 font-bold uppercase tracking-widest text-xs hover:text-emerald-600 transition-colors"
               >
-                <ArrowRight className="rotate-180" size={16} /> Back to Dashboard
+                <span className="rotate-180">→</span> Back to Dashboard
               </button>
               <RecipeGenerator dietaryRestrictions={[]} currency="R" />
             </div>
@@ -574,7 +516,7 @@ export default function App() {
   if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="w-16 h-16 text-emerald-500 animate-spin" />
+        <span className="w-16 h-16 text-emerald-500 animate-spin text-4xl flex items-center justify-center">⏳</span>
       </div>
     );
   }
@@ -657,14 +599,14 @@ export default function App() {
             disabled={isShiftLoading}
             className="bg-[#121212] text-white px-6 py-3 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:bg-black transition-all flex items-center gap-2 shadow-2xl border border-emerald-500/20 disabled:opacity-50"
           >
-            {isShiftLoading ? <Loader2 className="animate-spin" size={18} /> : <Calculator size={18} />}
+            {isShiftLoading ? <span className="animate-spin text-lg">⏳</span> : <span className="text-lg">🧮</span>}
             <span className="whitespace-nowrap">Shift Calculator</span>
           </button>
           <button 
             onClick={downloadPDF}
             className="bg-white text-slate-900 px-6 py-3 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:bg-slate-100 transition-all flex items-center gap-2 shadow-2xl border border-slate-200"
           >
-            <Download size={18} /> <span className="whitespace-nowrap">Export PDF</span>
+            <span className="text-lg">📥</span> <span className="whitespace-nowrap">Export PDF</span>
           </button>
           <button 
             onClick={() => setViewMode('success')}
