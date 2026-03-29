@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Save, Sparkles, Loader2, AlertTriangle } from 'lucide-react';
-import { MenuSection } from '../types';
-import { regenerateMenuItemFromApi } from '../services/geminiService';
-import { getApiErrorState } from '../services/apiErrorHandler';
-import { ErrorState } from '../types';
+import { MenuSection } from './types';
+import { regenerateMenuItemFromApi } from './geminiService';
+import { getApiErrorState } from './apiErrorHandler';
+import { ErrorState } from './types';
 
 interface CustomizationModalProps {
   isOpen: boolean;
@@ -74,7 +73,7 @@ const CustomizationModal: React.FC<CustomizationModalProps> = ({
       aria-labelledby="customization-modal-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
     >
-      <div onClick={onClose} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm animate-[fade-in_0.2s_ease-out]"></div>
+      <div onClick={onClose} className="fixed inset-0 bg-slate-900/80 animate-[fade-in_0.2s_ease-out]"></div>
       <div
         ref={modalRef}
         className="relative w-full max-w-lg bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 transition-all animate-[scale-up_0.2s_ease-out]"
@@ -84,7 +83,7 @@ const CustomizationModal: React.FC<CustomizationModalProps> = ({
             Customize Item
           </h3>
           <button onClick={onClose} className="p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="Close modal">
-            <X size={20} />
+            <span className="text-xl">✕</span>
           </button>
         </div>
 
@@ -104,7 +103,7 @@ const CustomizationModal: React.FC<CustomizationModalProps> = ({
           
           <div className="border-t border-slate-200 dark:border-slate-700 pt-4">
             <label htmlFor="regen-prompt" className="flex items-center text-sm font-medium text-slate-700 dark:text-slate-300">
-              <Sparkles className="w-4 h-4 mr-2 text-primary-500" />
+              <span className="mr-2 text-primary-500">✨</span>
               Regenerate with AI (Optional)
             </label>
              <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">e.g., "make it gluten-free", "add a spicy kick", "change chicken to salmon"</p>
@@ -122,14 +121,14 @@ const CustomizationModal: React.FC<CustomizationModalProps> = ({
                 disabled={isRegenerating || !regenPrompt.trim()}
                 className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm hover:bg-slate-200 dark:hover:bg-slate-600 disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                {isRegenerating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
+                {isRegenerating ? <span className="mr-2 animate-spin">🔄</span> : <span className="mr-2">✨</span>}
                 Regenerate
               </button>
             </div>
              {error && (
               <div role="alert" className="mt-2 p-2 rounded-md bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800">
                 <div className="flex items-start">
-                  <AlertTriangle className="h-5 w-5 text-red-500 dark:text-red-400 flex-shrink-0 mr-2" />
+                  <span className="text-xl text-red-500 dark:text-red-400 flex-shrink-0 mr-2">⚠️</span>
                   <div>
                     <p className="text-sm font-semibold text-red-800 dark:text-red-200">{error.title}</p>
                   </div>
@@ -150,7 +149,7 @@ const CustomizationModal: React.FC<CustomizationModalProps> = ({
             onClick={handleSave}
             className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-primary-500 border border-transparent rounded-md shadow-sm hover:bg-primary-600"
           >
-            <Save className="mr-2 h-4 w-4" />
+            <span className="mr-2">💾</span>
             Save Changes
           </button>
         </div>
