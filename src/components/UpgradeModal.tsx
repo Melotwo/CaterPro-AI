@@ -1,7 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { X, Star, Briefcase, Check, Gift, Key, GraduationCap, Sparkles, Users, Zap } from 'lucide-react';
-import { SubscriptionPlan } from '../hooks/useAppSubscription';
+import { SubscriptionPlan } from './useAppSubscription';
 
 interface UpgradeModalProps {
   isOpen: boolean;
@@ -58,15 +57,15 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
 
   return (
     <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div onClick={onClose} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm animate-[fade-in_0.2s_ease-out]"></div>
+      <div onClick={onClose} className="fixed inset-0 bg-slate-900/80 animate-[fade-in_0.2s_ease-out]"></div>
       <div ref={modalRef} className="relative w-full max-w-4xl bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 transition-all animate-[scale-up_0.2s_ease-out] overflow-hidden">
         <button onClick={onClose} className="absolute top-4 right-4 p-2 rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700 z-10">
-          <X size={20} />
+          <span className="text-xl">✕</span>
         </button>
 
         <div className="p-8 text-center bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700">
              <div className="flex items-center justify-center gap-2 mb-3">
-                 <Sparkles size={16} className="text-amber-500 animate-pulse" />
+                 <span className="text-amber-500 animate-pulse">✨</span>
                  <span className="text-[10px] font-black uppercase text-amber-600 tracking-widest">7-Day Free Trial Available</span>
              </div>
              <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tight">Upgrade Your Kitchen</h3>
@@ -76,13 +75,13 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
             <div className="p-6 border-b lg:border-b-0 lg:border-r border-slate-100 dark:border-slate-700">
                 <div className="flex items-center gap-3 mb-4">
-                    <GraduationCap className="text-slate-500" size={20} />
+                    <span className="text-slate-500 text-xl">🎓</span>
                     <h4 className="font-black text-base">Commis</h4>
                 </div>
                 <ul className="space-y-2 mb-6">
                     {['Academic PoE', 'Curriculum Map', 'Trial Included'].map(f => (
                         <li key={f} className="flex gap-2 text-[11px] text-slate-600 dark:text-slate-400 font-bold">
-                            <Check size={14} className="text-green-500" /> {f}
+                            <span className="text-green-500">✅</span> {f}
                         </li>
                     ))}
                 </ul>
@@ -96,13 +95,13 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
 
             <div className="p-6 border-b lg:border-b-0 lg:border-r border-slate-100 dark:border-slate-700 bg-amber-50/20 dark:bg-amber-900/10">
                 <div className="flex items-center gap-3 mb-4">
-                    <Zap className="text-amber-500" size={20} />
+                    <span className="text-amber-500 text-xl">⚡</span>
                     <h4 className="font-black text-base">Chef de Partie</h4>
                 </div>
                 <ul className="space-y-2 mb-6">
                     {['Costing Engine', 'Shopping Lists', 'Trial Included'].map(f => (
                         <li key={f} className="flex gap-2 text-[11px] text-slate-600 dark:text-slate-400 font-bold">
-                            <Check size={14} className="text-green-500" /> {f}
+                            <span className="text-green-500">✅</span> {f}
                         </li>
                     ))}
                 </ul>
@@ -116,13 +115,13 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
 
             <div className="p-6 border-b lg:border-b-0 lg:border-r border-slate-100 dark:border-slate-700 bg-blue-50/20 dark:bg-blue-900/10">
                 <div className="flex items-center gap-3 mb-4">
-                    <Users className="text-blue-500" size={20} />
+                    <span className="text-blue-500 text-xl">👥</span>
                     <h4 className="font-black text-base">Sous Chef</h4>
                 </div>
                 <ul className="space-y-2 mb-6">
                     {['Multi-user (3)', 'Cloud Storage', 'Trial Included'].map(f => (
                         <li key={f} className="flex gap-2 text-[11px] text-slate-600 dark:text-slate-400 font-bold">
-                            <Check size={14} className="text-green-500" /> {f}
+                            <span className="text-green-500">✅</span> {f}
                         </li>
                     ))}
                 </ul>
@@ -136,13 +135,13 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
 
             <div className="p-6 bg-primary-50/20 dark:bg-primary-900/10">
                 <div className="flex items-center gap-3 mb-4">
-                    <Briefcase className="text-primary-600" size={20} />
+                    <span className="text-primary-600 text-xl">💼</span>
                     <h4 className="font-black text-base">Executive</h4>
                 </div>
                 <ul className="space-y-2 mb-6">
                     {['Viral Video Creator', 'Unlimited Access', 'Trial Included'].map(f => (
                         <li key={f} className="flex gap-2 text-[11px] text-slate-600 dark:text-slate-400 font-bold">
-                            <Check size={14} className="text-green-500" /> {f}
+                            <span className="text-green-500">✅</span> {f}
                         </li>
                     ))}
                 </ul>
@@ -158,7 +157,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
         <div className="p-6 bg-slate-50 dark:bg-slate-900 flex flex-col items-center gap-4 border-t border-slate-100 dark:border-slate-700">
              {!showPromo ? (
                 <button onClick={() => setShowPromo(true)} className="flex items-center gap-2 text-xs font-bold text-primary-600 hover:underline">
-                    <Key size={14} /> Founder Access Code
+                    <span className="text-sm">🔑</span> Founder Access Code
                 </button>
              ) : (
                  <div className="w-full max-w-xs flex gap-2">
@@ -180,3 +179,4 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
 };
 
 export default UpgradeModal;
+
