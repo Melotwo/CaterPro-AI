@@ -64,7 +64,7 @@ const ShiftCalculatorModal: React.FC<ShiftCalculatorModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-dark bg-opacity-95 p-4 md:p-8">
-      <div className="w-full max-w-6xl h-full max-h-[90vh] bg-[#1a1a1a] border-2 border-emerald-500/50 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative">
+      <div className="w-full max-w-6xl h-full max-h-[90vh] bg-dark-soft border-2 border-emerald-500/50 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col relative">
         {/* Header */}
         <div className="p-8 border-b border-white/10 flex items-center justify-between bg-dark">
           <div className="flex items-center gap-4">
@@ -89,7 +89,7 @@ const ShiftCalculatorModal: React.FC<ShiftCalculatorModalProps> = ({
           <div className="bg-dark rounded-[2rem] border border-white/10 overflow-hidden">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-[#1a1a1a] text-emerald-400 text-xs font-black uppercase tracking-widest">
+                <tr className="bg-dark-soft text-emerald-400 text-xs font-black uppercase tracking-widest">
                   <th className="p-6">Ingredient Name</th>
                   <th className="p-6">Quantity Needed</th>
                   <th className="p-6">Unit Price (ZAR)</th>
@@ -99,7 +99,7 @@ const ShiftCalculatorModal: React.FC<ShiftCalculatorModalProps> = ({
               </thead>
               <tbody className="divide-y divide-white/5">
                 {ingredients.map((item, idx) => (
-                  <tr key={idx} className="group hover:bg-[#1a1a1a] transition-colors">
+                  <tr key={idx} className="group hover:bg-dark-soft transition-colors">
                     <td className="p-6">
                       <input
                         type="text"
@@ -118,7 +118,7 @@ const ShiftCalculatorModal: React.FC<ShiftCalculatorModalProps> = ({
                           type="number"
                           value={item.quantity}
                           onChange={(e) => handleQuantityChange(idx, parseFloat(e.target.value) || 0)}
-                          className="w-24 bg-[#1a1a1a] border-white/20 rounded-xl text-white font-bold focus:ring-emerald-500 focus:border-emerald-500 py-2 px-3"
+                          className="w-24 bg-dark-soft border-white/20 rounded-xl text-white font-bold focus:ring-emerald-500 focus:border-emerald-500 py-2 px-3"
                         />
                         <input
                           type="text"
@@ -139,7 +139,7 @@ const ShiftCalculatorModal: React.FC<ShiftCalculatorModalProps> = ({
                           type="number"
                           value={item.unitPrice}
                           onChange={(e) => handlePriceChange(idx, parseFloat(e.target.value) || 0)}
-                          className="w-32 bg-[#1a1a1a] border-white/20 rounded-xl text-white font-bold focus:ring-emerald-500 focus:border-emerald-500 py-2 px-3"
+                          className="w-32 bg-dark-soft border-white/20 rounded-xl text-white font-bold focus:ring-emerald-500 focus:border-emerald-500 py-2 px-3"
                         />
                       </div>
                     </td>
