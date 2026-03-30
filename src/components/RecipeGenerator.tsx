@@ -1,7 +1,6 @@
 
 import React, { useState, useRef } from 'react';
-import { Camera, FileText, ShieldAlert, Loader2, CheckCircle, AlertTriangle, Sparkles, TrendingUp, DollarSign, X, UtensilsCrossed, Building2 } from 'lucide-react';
-import { analyzeReceiptFromApi, analyzeLabelFromApi, analyzeMenuForCosting } from './services/geminiService';
+import { analyzeReceiptFromApi, analyzeLabelFromApi, analyzeMenuForCosting } from './geminiService';
 import { ScannedMenuCosting } from './types';
 
 const RecipeGenerator: React.FC<{ dietaryRestrictions: string[], currency: string }> = ({ dietaryRestrictions, currency }) => {
@@ -49,11 +48,11 @@ const RecipeGenerator: React.FC<{ dietaryRestrictions: string[], currency: strin
     <section className="mt-16 animate-slide-in">
       <div className="flex items-center gap-3 mb-6">
         <div className="p-2 bg-amber-500 rounded-lg text-white">
-          <Sparkles size={24} />
+          <span className="text-2xl">✨</span>
         </div>
         <div>
-          <h2 className="text-2xl font-black text-[#000000] dark:text-white opacity-100">Recipe Lab (Beta)</h2>
-          <p className="text-sm text-[#000000] font-medium opacity-100">Vision AI Powered by Gemini 3</p>
+          <h2 className="text-2xl font-black text-black dark:text-white opacity-100">Recipe Lab (Beta)</h2>
+          <p className="text-sm text-black font-medium opacity-100">Vision AI Powered by Gemini 3</p>
         </div>
       </div>
 
@@ -63,19 +62,19 @@ const RecipeGenerator: React.FC<{ dietaryRestrictions: string[], currency: strin
             onClick={() => { setActiveTab('receipt'); setResult(null); }}
             className={`flex-1 min-w-[150px] p-5 text-sm font-bold flex items-center justify-center gap-2 transition-all ${activeTab === 'receipt' ? 'bg-slate-50 dark:bg-slate-800 text-amber-600 border-b-4 border-amber-600' : 'text-slate-500'}`}
           >
-            <FileText size={18} /> Expenses
+            <span className="text-lg">📄</span> Expenses
           </button>
           <button 
             onClick={() => { setActiveTab('menu'); setMenuResult(null); }}
             className={`flex-1 min-w-[150px] p-5 text-sm font-bold flex items-center justify-center gap-2 transition-all ${activeTab === 'menu' ? 'bg-slate-50 dark:bg-slate-800 text-pink-600 border-b-4 border-pink-600' : 'text-slate-500'}`}
           >
-            <UtensilsCrossed size={18} /> Menu Vision
+            <span className="text-lg">🍴</span> Menu Vision
           </button>
           <button 
             onClick={() => { setActiveTab('label'); setResult(null); }}
             className={`flex-1 min-w-[150px] p-5 text-sm font-bold flex items-center justify-center gap-2 transition-all ${activeTab === 'label' ? 'bg-slate-50 dark:bg-slate-800 text-blue-600 border-b-4 border-blue-600' : 'text-slate-500'}`}
           >
-            <ShieldAlert size={18} /> Allergens
+            <span className="text-lg">🛡️</span> Allergens
           </button>
         </div>
 
@@ -83,7 +82,7 @@ const RecipeGenerator: React.FC<{ dietaryRestrictions: string[], currency: strin
           {activeTab === 'menu' && !menuResult && !isAnalyzing && (
               <div className="mb-8 space-y-4 animate-fade-in">
                   <div className="flex items-center gap-2 text-pink-600">
-                      <Building2 size={18} />
+                      <span className="text-lg">🏢</span>
                       <span className="text-[10px] font-black uppercase tracking-widest">Supplier Context (Optional)</span>
                   </div>
                   <textarea 
@@ -98,7 +97,7 @@ const RecipeGenerator: React.FC<{ dietaryRestrictions: string[], currency: strin
           {!result && !menuResult && !isAnalyzing ? (
             <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-slate-50 dark:bg-slate-950/50">
               <div className="w-16 h-16 bg-white dark:bg-slate-800 rounded-full flex items-center justify-center shadow-lg mb-4 text-slate-400">
-                <Camera size={32} />
+                <span className="text-3xl">📷</span>
               </div>
               <h4 className="text-lg font-bold text-slate-900 dark:text-white">
                 {activeTab === 'receipt' ? 'Analyze Supply Expenses' : activeTab === 'menu' ? 'Scan Menu for Costing' : 'Scan Ingredient Labels'}
@@ -126,7 +125,7 @@ const RecipeGenerator: React.FC<{ dietaryRestrictions: string[], currency: strin
             </div>
           ) : isAnalyzing ? (
             <div className="flex flex-col items-center justify-center py-20 animate-pulse">
-              <Loader2 className={`w-12 h-12 animate-spin mb-4 ${activeTab === 'menu' ? 'text-pink-500' : 'text-amber-500'}`} />
+              <span className={`text-5xl animate-spin mb-4 ${activeTab === 'menu' ? 'text-pink-500' : 'text-amber-500'}`}>⏳</span>
               <p className="text-lg font-bold text-slate-900 dark:text-white">Gemini Vision is Analyzing...</p>
               <p className="text-sm text-slate-500">Processing image data for {currency} costing.</p>
             </div>
@@ -155,7 +154,7 @@ const RecipeGenerator: React.FC<{ dietaryRestrictions: string[], currency: strin
                                     ))}
                                 </div>
                                 <p className="text-[9px] font-black text-pink-400 uppercase tracking-tighter flex items-center gap-1">
-                                    <Building2 size={10} /> Source: {item.suggestedSupplier}
+                                    <span className="text-[10px]">🏢</span> Source: {item.suggestedSupplier}
                                 </p>
                             </div>
                         ))}
@@ -174,7 +173,7 @@ const RecipeGenerator: React.FC<{ dietaryRestrictions: string[], currency: strin
                   <div className="p-6 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700">
                     <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Extracted Merchant</p>
                     <h5 className="text-2xl font-black text-slate-900 dark:text-white">{result.merchant}</h5>
-                    <p className="text-sm text-slate-500 mt-1 flex items-center gap-1"><TrendingUp size={14} /> Recorded on {result.date}</p>
+                    <p className="text-sm text-slate-500 mt-1 flex items-center gap-1"><span className="text-sm">📈</span> Recorded on {result.date}</p>
                     
                     <div className="mt-8 pt-8 border-t border-slate-200 dark:border-slate-700">
                       <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Total Expense</p>
@@ -188,7 +187,7 @@ const RecipeGenerator: React.FC<{ dietaryRestrictions: string[], currency: strin
                     <div className="flex flex-wrap gap-2">
                       {result.categories && result.categories.map((cat: string) => (
                         <span key={cat} className="px-4 py-2 bg-white dark:bg-slate-700 rounded-xl border border-slate-200 dark:border-slate-600 text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2 shadow-sm">
-                          <CheckCircle size={12} className="text-green-500" /> {cat}
+                          <span className="text-xs text-green-500">✅</span> {cat}
                         </span>
                       ))}
                     </div>
@@ -212,18 +211,18 @@ const RecipeGenerator: React.FC<{ dietaryRestrictions: string[], currency: strin
                   </div>
                   <div className="space-y-4">
                     <h5 className="text-sm font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                      <AlertTriangle size={16} className="text-red-500" /> Detected Concerns
+                      <span className="text-lg text-red-500">⚠️</span> Detected Concerns
                     </h5>
                     <div className="space-y-2">
                       {result.flaggedIngredients && result.flaggedIngredients.length > 0 ? (
                         result.flaggedIngredients.map((ing: string) => (
                           <div key={ing} className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-xl text-xs font-bold text-red-700 dark:text-red-300 flex items-center gap-2">
-                            <X size={14} /> Flagged: {ing}
+                            <span className="text-sm">❌</span> Flagged: {ing}
                           </div>
                         ))
                       ) : (
                         <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800 rounded-xl text-xs font-bold text-green-700 dark:text-green-300 flex items-center gap-2">
-                          <CheckCircle size={14} /> No restricted allergens found.
+                          <span className="text-sm">✅</span> No restricted allergens found.
                         </div>
                       )}
                     </div>
