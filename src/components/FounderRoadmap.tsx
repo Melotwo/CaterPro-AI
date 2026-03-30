@@ -56,7 +56,7 @@ const ValentineSprint: React.FC = () => {
 const CRMArchitect: React.FC = () => {
     return (
         <div className="space-y-10 animate-slide-in">
-            <div className="p-10 bg-[#4A154B] text-white rounded-[3.5rem] border-4 border-white/20 shadow-2xl relative overflow-hidden">
+            <div className="p-10 bg-purple-deep text-white rounded-[3.5rem] border-4 border-white/20 shadow-2xl relative overflow-hidden">
                 <div className="absolute top-0 right-0 p-10 opacity-10 text-9xl">💬</div>
                 <div className="relative z-10">
                     <div className="flex items-center gap-4 mb-8">
@@ -115,7 +115,7 @@ const CRMArchitect: React.FC = () => {
                                 <h4 className="text-xl font-black uppercase tracking-tight mb-2">Domain Launch Reminder</h4>
                                 <p className="text-xs text-purple-200 font-medium">Once you have the .COM domain, we will connect HubSpot to track every visit on your site.</p>
                              </div>
-                             <button onClick={() => window.open('https://app-eu1.hubspot.com/', '_blank')} className="w-full py-5 bg-white text-[#4A154B] rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-purple-50 transition-all">
+                             <button onClick={() => window.open('https://app-eu1.hubspot.com/', '_blank')} className="w-full py-5 bg-white text-dark rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-purple-50 transition-all">
                                 Open HubSpot Dashboard <span className="text-sm">↗️</span>
                              </button>
                         </div>
