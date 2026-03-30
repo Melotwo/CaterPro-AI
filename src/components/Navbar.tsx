@@ -1,6 +1,5 @@
 
 import React from 'react';
-import { ChefHat, Sun, Moon, Bookmark, Zap, Facebook, LogOut, Package, User, LogIn } from 'lucide-react';
 import { User as FirebaseUser } from 'firebase/auth';
 
 const Navbar: React.FC<{
@@ -32,7 +31,7 @@ const Navbar: React.FC<{
         >
           <div className="relative group">
              <div className="absolute -inset-2 bg-emerald-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-             <ChefHat className="w-10 h-10 text-emerald-600 relative z-10" aria-label="CaterProAi Logo Icon" />
+             <span className="text-4xl relative z-10" aria-label="CaterProAi Logo Icon">👨‍🍳</span>
              <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-charcoal rounded-full animate-pulse border-2 border-white"></div>
           </div>
           <div>
@@ -50,7 +49,7 @@ const Navbar: React.FC<{
               className="p-3.5 rounded-2xl text-slate-400 hover:text-emerald-600 hover:bg-emerald-500/5 transition-all group"
               title="Costing Library"
             >
-              <Package size={24} className="group-hover:scale-110 transition-transform" />
+              <span className="text-2xl group-hover:scale-110 transition-transform">📦</span>
             </button>
           )}
 
@@ -60,14 +59,14 @@ const Navbar: React.FC<{
               className="p-3.5 rounded-2xl text-slate-400 hover:text-emerald-600 hover:bg-emerald-500/5 transition-all group"
               title="Partner Dashboard"
             >
-              <Zap size={24} className="text-emerald-500 group-hover:scale-110 transition-transform" />
+              <span className="text-2xl text-emerald-500 group-hover:scale-110 transition-transform">⚡</span>
             </button>
           )}
 
           {onViewSuccess && (
             <button 
               onClick={onViewSuccess}
-              className="px-6 py-3 rounded-full border border-slate-200 text-[#000000] hover:border-emerald-500 hover:text-emerald-600 transition-all font-anchor text-[10px] uppercase tracking-[0.2em] bg-white shadow-sm opacity-100"
+              className="px-6 py-3 rounded-full border border-slate-200 text-black hover:border-emerald-500 hover:text-emerald-600 transition-all font-anchor text-[10px] uppercase tracking-[0.2em] bg-white shadow-sm opacity-100"
               title="My Results"
             >
               My Results
@@ -75,7 +74,7 @@ const Navbar: React.FC<{
           )}
 
           <button onClick={onOpenSaved} className="relative p-3.5 rounded-2xl text-slate-400 hover:text-emerald-600 hover:bg-emerald-500/5 transition-all group" aria-label={`Saved menus (${savedCount})`}>
-            <Bookmark size={24} className="group-hover:scale-110 transition-transform" />
+            <span className="text-2xl group-hover:scale-110 transition-transform">🔖</span>
             {savedCount > 0 && (
               <span className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-black text-white shadow-lg border-2 border-white">{savedCount}</span>
             )}
@@ -83,11 +82,11 @@ const Navbar: React.FC<{
           
           <button 
             onClick={onAuthClick}
-            className={`px-8 py-3.5 rounded-full flex items-center gap-3 transition-all font-anchor text-xs uppercase tracking-[0.2em] shadow-2xl ${user ? 'bg-slate-100 text-[#000000] hover:bg-slate-200' : 'bg-[#FFD700] text-[#000000] hover:bg-amber-400 shadow-amber-200/20'}`}
+            className={`px-8 py-3.5 rounded-full flex items-center gap-3 transition-all font-anchor text-xs uppercase tracking-[0.2em] shadow-2xl ${user ? 'bg-slate-100 text-black hover:bg-slate-200' : 'bg-[#FFD700] text-black hover:bg-amber-400 shadow-amber-200/20'}`}
             title={user ? "Sign Out" : "Sign In"}
           >
-            {user ? <LogOut size={20} className="text-[#000000]" /> : <LogIn size={20} className="text-[#000000]" />}
-            <span className="hidden lg:inline text-[#000000] opacity-100">{user ? 'Sign Out' : 'Sign In'}</span>
+            <span className="text-xl text-black">{user ? '🚪' : '🔑'}</span>
+            <span className="hidden lg:inline text-black opacity-100">{user ? 'Sign Out' : 'Sign In'}</span>
           </button>
         </div>
       </div>
