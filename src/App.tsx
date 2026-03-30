@@ -3,8 +3,8 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 
 // --- INFRASTRUCTURE IMPORTS ---
-import { useAuth } from './useAuth';
-import { useAppSubscription } from './useAppSubscription';
+import { useAuth } from './useAuth.tsx';
+import { useAppSubscription } from './useAppSubscription.ts';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import AuthModal from './AuthModal';
