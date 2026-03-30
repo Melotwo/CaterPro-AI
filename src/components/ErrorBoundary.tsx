@@ -1,4 +1,3 @@
-
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 
 interface Props {
@@ -30,18 +29,18 @@ export default class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col items-center justify-center p-4 font-sans text-center">
+        <div className="min-h-screen bg-dark flex flex-col items-center justify-center p-4 font-sans text-center">
             <div className="max-w-md">
                 <span className="mx-auto text-6xl mb-4 block">⚠️</span>
-                <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+                <h1 className="text-3xl font-bold text-white">
                     CaterProAi Loading...
                 </h1>
-                <p className="mt-4 text-lg text-slate-600 dark:text-slate-400">
+                <p className="mt-4 text-lg text-slate-300">
                     An unexpected error occurred. Please try reloading the page.
                 </p>
                 <button
                     onClick={this.handleReload}
-                    className="mt-8 inline-flex items-center justify-center bg-primary-500 hover:bg-primary-600 text-white font-semibold py-3 px-6 rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                    className="mt-8 inline-flex items-center justify-center bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 px-6 rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
                 >
                     <span className="mr-2 text-xl">🔄</span>
                     Reload Application
