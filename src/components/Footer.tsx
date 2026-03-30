@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
-import { Facebook, Mail, Sparkles, Loader2 } from 'lucide-react';
-import { automationService } from '../services/automationService';
+import { automationService } from './automationService';
 
 const Footer: React.FC<{ 
   facebookUrl?: string;
@@ -42,7 +41,7 @@ const Footer: React.FC<{
           <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
             <div className="text-center md:text-left">
               <h3 className="text-xl font-black text-black tracking-tight flex items-center justify-center md:justify-start gap-2">
-                <Sparkles size={20} className="text-[#10b981]" />
+                <span className="text-xl text-emerald">✨</span>
                 Stay in the Loop
               </h3>
               <p className="text-sm text-slate-500 font-medium mt-1">
@@ -51,7 +50,7 @@ const Footer: React.FC<{
             </div>
 
             {isSubscribed ? (
-              <div className="bg-[#10b981]/10 border border-[#10b981]/20 px-6 py-3 rounded-xl text-[#10b981] font-bold text-sm animate-fade-in">
+              <div className="bg-emerald/10 border border-emerald/20 px-6 py-3 rounded-xl text-emerald font-bold text-sm animate-fade-in">
                 You're on the list! 👨‍🍳
               </div>
             ) : (
@@ -62,7 +61,7 @@ const Footer: React.FC<{
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  className="flex-grow sm:w-40 px-4 py-3 rounded-xl border border-slate-200 bg-white focus:border-[#10b981] outline-none transition-all text-sm font-medium"
+                  className="flex-grow sm:w-40 px-4 py-3 rounded-xl border border-slate-200 bg-white focus:border-emerald outline-none transition-all text-sm font-medium"
                 />
                 <input
                   type="email"
@@ -70,14 +69,14 @@ const Footer: React.FC<{
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="flex-grow sm:w-56 px-4 py-3 rounded-xl border border-slate-200 bg-white focus:border-[#10b981] outline-none transition-all text-sm font-medium"
+                  className="flex-grow sm:w-56 px-4 py-3 rounded-xl border border-slate-200 bg-white focus:border-emerald outline-none transition-all text-sm font-medium"
                 />
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-6 py-3 bg-[#10b981] hover:brightness-110 text-black rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="px-6 py-3 bg-emerald hover:brightness-110 text-black rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                 >
-                  {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : <Mail size={16} />}
+                  {isSubmitting ? <span className="animate-spin">⏳</span> : <span className="text-lg">✉️</span>}
                   Join
                 </button>
               </form>
@@ -86,14 +85,14 @@ const Footer: React.FC<{
         </div>
 
         <div className="text-center text-sm text-slate-400">
-          <p className="text-black font-bold">&copy; 2026 <span className="font-bold">CaterPro</span><span className="font-medium text-[#10b981]">Ai</span>. All rights reserved.</p>
+          <p className="text-black font-bold">&copy; 2026 <span className="font-bold">CaterPro</span><span className="font-medium text-emerald">Ai</span>. All rights reserved.</p>
           <p className="mt-1">Intelligent menu planning for catering professionals at caterproai.com</p>
           <p className="mt-2 font-bold text-slate-600">Contact: info@caterproai.com</p>
           
           <div className="mt-4 flex justify-center gap-4">
-            <button onClick={() => onViewPrivacy?.()} className="hover:text-[#10b981] transition-colors">Privacy Policy</button>
+            <button onClick={() => onViewPrivacy?.()} className="hover:text-emerald transition-colors">Privacy Policy</button>
             <span className="text-slate-200">|</span>
-            <button onClick={() => onViewTerms?.()} className="hover:text-[#10b981] transition-colors">Terms of Service</button>
+            <button onClick={() => onViewTerms?.()} className="hover:text-emerald transition-colors">Terms of Service</button>
           </div>
           
           {facebookUrl && (
@@ -103,7 +102,7 @@ const Footer: React.FC<{
               rel="noopener noreferrer"
               className="mt-4 inline-flex items-center gap-2 text-blue-600 font-bold hover:underline"
             >
-              <Facebook size={16} /> Join the Facebook Group
+              <span className="text-lg">📘</span> Join the Facebook Group
             </a>
           )}
 
