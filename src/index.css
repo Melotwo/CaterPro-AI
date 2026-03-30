@@ -14,7 +14,7 @@
 
 @layer base {
   /* Text Hierarchy Opacities - Hard Contrast Fix */
-  .text-high { color: #121212 !important; opacity: 1 !important; text-shadow: none; }
+  .text-high { color: #121212 !important; opacity: 1 !important; text-shadow: none !important; }
   .text-medium { color: #121212 !important; opacity: 1 !important; font-weight: 500; font-size: 16px; }
   .text-low { color: #121212 !important; opacity: 1 !important; font-weight: 700; font-size: 16px; }
 
@@ -27,8 +27,8 @@
   .dark h1, .dark h2, .dark h3, .dark h4, .dark .font-anchor { color: #FFFFFF !important; opacity: 1 !important; }
   .dark .data-label, .dark .text-gold { color: #FFD700 !important; opacity: 1 !important; }
   
-  /* Force 100% Opacity on all text elements */
-  p, span, h1, h2, h3, h4, h5, h6, li, a, button, label, input, select, textarea, div {
+  /* Force 100% Opacity on all text elements and REMOVE ALL BLUR */
+  * {
     opacity: 1 !important;
     text-shadow: none !important;
     backdrop-filter: none !important;
