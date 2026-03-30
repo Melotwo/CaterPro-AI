@@ -165,7 +165,7 @@ export default function App() {
             {/* QCTO Student Success Guide Section */}
             <div className="max-w-7xl mx-auto px-6 py-24 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 mask-triangle -z-10" />
-              <div className="bg-[#121212] p-12 rounded-[4rem] flex flex-col md:flex-row items-center gap-12 border border-emerald-500/30 shadow-[0_40px_80px_rgba(0,0,0,0.3)]">
+              <div className="bg-dark p-12 rounded-[4rem] flex flex-col md:flex-row items-center gap-12 border border-emerald-500/30 shadow-[0_40px_80px_rgba(0,0,0,0.3)]">
                 <div className="w-24 h-24 bg-emerald-500/20 rounded-[2rem] flex items-center justify-center shrink-0 border border-emerald-500/30">
                   <span className="text-4xl">🎓</span>
                 </div>
@@ -175,7 +175,7 @@ export default function App() {
                     <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Educational Excellence</span>
                   </div>
                   <h3 className="text-4xl font-anchor tracking-tighter uppercase mb-6 text-white opacity-100">QCTO Student Success Guide</h3>
-                  <p className="text-[#FFFFFF] font-medium leading-relaxed text-xl opacity-100">
+                  <p className="text-white font-medium leading-relaxed text-xl opacity-100">
                     CaterProAi is specifically engineered to support South African TVET students. Use the <span className="text-emerald-400 font-bold">'Training Mode'</span> to map your practicals to QCTO Occupational Certificate: Chef (ID 101697) modules. Every proposal automatically generates the Costing (ZAR), AP/EP Yield Analysis, and HACCP documentation required for Level 5 Assessment compliance.
                   </p>
                 </div>
@@ -191,20 +191,20 @@ export default function App() {
                   <div className="w-20 h-20 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center mb-10 group-hover:scale-110 transition-transform border border-emerald-500/20">
                     <span className="text-4xl">🎓</span>
                   </div>
-                  <h3 className="text-4xl font-anchor mb-6 tracking-tighter text-[#000000] opacity-100">For Students</h3>
-                  <p className="text-[#000000] font-medium mb-10 leading-relaxed text-lg opacity-100">
+                  <h3 className="text-4xl font-anchor mb-6 tracking-tighter text-black opacity-100">For Students</h3>
+                  <p className="text-black font-medium mb-10 leading-relaxed text-lg opacity-100">
                     Master the art of food math and international standards with our specialized student toolkit.
                   </p>
                   <ul className="space-y-6 mb-12">
-                    <li className="flex items-center gap-4 text-base font-bold text-[#000000] opacity-100">
+                    <li className="flex items-center gap-4 text-base font-bold text-black opacity-100">
                       <div className="w-2 h-2 rounded-full bg-emerald-600" />
                       Yield Sandbox for precision testing
                     </li>
-                    <li className="flex items-center gap-4 text-base font-bold text-[#000000] opacity-100">
+                    <li className="flex items-center gap-4 text-base font-bold text-black opacity-100">
                       <div className="w-2 h-2 rounded-full bg-emerald-600" />
                       International Curriculum Modules
                     </li>
-                    <li className="flex items-center gap-4 text-base font-bold text-[#000000] opacity-100">
+                    <li className="flex items-center gap-4 text-base font-bold text-black opacity-100">
                       <div className="w-2 h-2 rounded-full bg-emerald-600" />
                       PoE Admin Automation
                     </li>
@@ -215,13 +215,13 @@ export default function App() {
                 </div>
 
                 {/* For Professionals */}
-                <div className="bg-[#121212] p-16 rounded-[4rem] border border-emerald-500/30 hover:shadow-2xl transition-all group text-white relative overflow-hidden">
+                <div className="bg-dark p-16 rounded-[4rem] border border-emerald-500/30 hover:shadow-2xl transition-all group text-white relative overflow-hidden">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 mask-triangle -z-10" />
                   <div className="w-20 h-20 bg-emerald-500/20 rounded-[2rem] flex items-center justify-center mb-10 group-hover:scale-110 transition-transform border border-emerald-500/30">
                     <span className="text-4xl">💼</span>
                   </div>
                   <h3 className="text-4xl font-anchor mb-6 tracking-tighter text-white opacity-100">For Professionals</h3>
-                  <p className="text-[#FFFFFF] font-medium mb-10 leading-relaxed text-lg opacity-100">
+                  <p className="text-white font-medium mb-10 leading-relaxed text-lg opacity-100">
                     Scale your catering operation with enterprise-grade intelligence and automated logistics.
                   </p>
                   <ul className="space-y-6 mb-12">
@@ -251,8 +251,8 @@ export default function App() {
               <div className="max-w-7xl mx-auto px-6">
                 <div className="flex flex-col md:flex-row items-center justify-between mb-20 gap-12">
                   <div className="max-w-2xl">
-                    <h3 className="text-5xl font-anchor tracking-tighter uppercase mb-6 text-[#000000]">Culinary Excellence</h3>
-                    <p className="text-[#000000] font-medium text-xl leading-relaxed opacity-100">
+                    <h3 className="text-5xl font-anchor tracking-tighter uppercase mb-6 text-black">Culinary Excellence</h3>
+                    <p className="text-black font-medium text-xl leading-relaxed opacity-100">
                       Precision tools for the modern executive chef. Elevate your operations with AI-driven intelligence and Michelin-star standards.
                     </p>
                   </div>
@@ -269,12 +269,12 @@ export default function App() {
                     { title: "Operational Safety", desc: "Automated HACCP checklists and safety protocol generation.", icon: <span className="text-3xl">🛡️</span> },
                     { title: "Costing Precision", desc: "Live ZAR costing and smart shopping list automation.", icon: <span className="text-3xl">🧮</span> }
                   ].map((feature, i) => (
-                    <div key={i} className="bg-[#121212] p-12 rounded-[3.5rem] border border-emerald-500/30 shadow-2xl hover:shadow-3xl transition-all group">
+                    <div key={i} className="bg-dark p-12 rounded-[3.5rem] border border-emerald-500/30 shadow-2xl hover:shadow-3xl transition-all group">
                       <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-10 group-hover:bg-emerald-500/20 transition-colors border border-emerald-500/20">
                         {feature.icon}
                       </div>
                   <h4 className="text-2xl font-anchor mb-6 tracking-tighter text-white">{feature.title}</h4>
-                      <p className="text-[#FFFFFF] font-medium text-base leading-relaxed opacity-100">
+                      <p className="text-white font-medium text-base leading-relaxed opacity-100">
                         {feature.desc}
                       </p>
                     </div>
@@ -286,19 +286,19 @@ export default function App() {
             {/* Common Culinary Queries Section */}
             <div className="bg-white py-32">
               <div className="max-w-5xl mx-auto px-6">
-                <div className="bg-[#121212] p-16 rounded-[4rem] border border-emerald-500/30 shadow-3xl relative overflow-hidden">
+                <div className="bg-dark p-16 rounded-[4rem] border border-emerald-500/30 shadow-3xl relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-64 h-64 bg-emerald-500/5 mask-triangle -z-10" />
                   <h2 className="text-5xl font-anchor tracking-tighter uppercase mb-16 text-center text-white">Common Culinary Queries</h2>
                   <div className="grid md:grid-cols-2 gap-16">
                     <div>
                       <h3 className="text-2xl font-anchor mb-6 tracking-tighter text-emerald-400">What is the best AI tool for South African catering?</h3>
-                      <p className="text-[#FFFFFF] font-medium leading-relaxed text-lg opacity-100">
+                      <p className="text-white font-medium leading-relaxed text-lg opacity-100">
                         <span className="font-bold text-white">CaterPro</span><span className="font-medium text-emerald-400">Ai</span> provides live ZAR costing and automated HACCP safety for professional chefs.
                       </p>
                     </div>
                     <div>
                       <h3 className="text-2xl font-anchor mb-6 tracking-tighter text-emerald-400">How do I calculate culinary yield for City & Guilds exams?</h3>
-                      <p className="text-[#FFFFFF] font-medium leading-relaxed text-lg opacity-100">
+                      <p className="text-white font-medium leading-relaxed text-lg opacity-100">
                         Use the <span className="font-bold text-white">CaterPro</span><span className="font-medium text-emerald-400">Ai</span> Student Sandbox to apply the formula EP = AP x Yield% with 100% accuracy.
                       </p>
                     </div>
@@ -326,7 +326,7 @@ export default function App() {
 
         return (
           <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 py-32">
-            <div className="w-full max-w-3xl bg-[#121212] p-16 rounded-[4rem] shadow-[0_50px_100px_rgba(0,0,0,0.3)] border border-emerald-500/30 relative overflow-hidden">
+            <div className="w-full max-w-3xl bg-dark p-16 rounded-[4rem] shadow-[0_50px_100px_rgba(0,0,0,0.3)] border border-emerald-500/30 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 mask-triangle -z-10" />
               <h2 className="text-5xl font-anchor text-white mb-4 text-center tracking-tighter uppercase">Command Center</h2>
               <p className="text-[#FFD700] text-center mb-12 uppercase tracking-[0.5em] text-[10px] font-black opacity-100">Chef Operations v12.0 • Luxury Edition</p>
@@ -595,7 +595,7 @@ export default function App() {
           <button 
             onClick={handleOpenShiftCalculator}
             disabled={isShiftLoading}
-            className="bg-[#121212] text-white px-6 py-3 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:bg-black transition-all flex items-center gap-2 shadow-2xl border border-emerald-500/20 disabled:opacity-50"
+            className="bg-dark text-white px-6 py-3 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:bg-black transition-all flex items-center gap-2 shadow-2xl border border-emerald-500/20 disabled:opacity-50"
           >
             {isShiftLoading ? <span className="animate-spin text-lg">⏳</span> : <span className="text-lg">🧮</span>}
             <span className="whitespace-nowrap">Shift Calculator</span>
@@ -608,7 +608,7 @@ export default function App() {
           </button>
           <button 
             onClick={() => setViewMode('success')}
-            className="bg-[#FFD700] text-[#121212] px-8 py-3 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-2xl"
+            className="bg-[#FFD700] text-dark px-8 py-3 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-2xl"
           >
             <span className="whitespace-nowrap">My Results</span>
           </button>
