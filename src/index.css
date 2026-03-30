@@ -37,31 +37,31 @@
   }
 
   /* Force Black Text on Light Backgrounds */
-  .bg-white p, .bg-white span, .bg-white h1, .bg-white h2, .bg-white h3, .bg-white h4, .bg-white h5, .bg-white h6, .bg-white li, .bg-white label, .bg-white a, .bg-white button:not(.bg-emerald-600):not(.bg-emerald-500):not(.bg-[#121212]):not(.bg-slate-900),
-  .bg-slate-50 p, .bg-slate-50 span, .bg-slate-50 h1, .bg-slate-50 h2, .bg-slate-50 h3, .bg-slate-50 h4, .bg-slate-50 h5, .bg-slate-50 h6, .bg-slate-50 li, .bg-slate-50 label, .bg-slate-50 a, .bg-slate-50 button:not(.bg-emerald-600):not(.bg-emerald-500):not(.bg-[#121212]):not(.bg-slate-900),
-  .bg-[#F9FAFB] p, .bg-[#F9FAFB] span, .bg-[#F9FAFB] h1, .bg-[#F9FAFB] h2, .bg-[#F9FAFB] h3, .bg-[#F9FAFB] h4, .bg-[#F9FAFB] h5, .bg-[#F9FAFB] h6, .bg-[#F9FAFB] li, .bg-[#F9FAFB] label, .bg-[#F9FAFB] a, .bg-[#F9FAFB] button {
+  .bg-white p, .bg-white span, .bg-white h1, .bg-white h2, .bg-white h3, .bg-white h4, .bg-white h5, .bg-white h6, .bg-white li, .bg-white label, .bg-white a, .bg-white button:not(.bg-emerald-600):not(.bg-emerald-500):not(.bg-\[\#121212\]):not(.bg-slate-900),
+  .bg-slate-50 p, .bg-slate-50 span, .bg-slate-50 h1, .bg-slate-50 h2, .bg-slate-50 h3, .bg-slate-50 h4, .bg-slate-50 h5, .bg-slate-50 h6, .bg-slate-50 li, .bg-slate-50 label, .bg-slate-50 a, .bg-slate-50 button:not(.bg-emerald-600):not(.bg-emerald-500):not(.bg-\[\#121212\]):not(.bg-slate-900),
+  .bg-\[\#F9FAFB\] p, .bg-\[\#F9FAFB\] span, .bg-\[\#F9FAFB\] h1, .bg-\[\#F9FAFB\] h2, .bg-\[\#F9FAFB\] h3, .bg-\[\#F9FAFB\] h4, .bg-\[\#F9FAFB\] h5, .bg-\[\#F9FAFB\] h6, .bg-\[\#F9FAFB\] li, .bg-\[\#F9FAFB\] label, .bg-\[\#F9FAFB\] a, .bg-\[\#F9FAFB\] button {
     color: #000000 !important;
   }
 
   /* Force White/Gold Text on Dark Backgrounds */
   .bg-slate-950 p, .bg-slate-950 span, .bg-slate-950 h1, .bg-slate-950 h2, .bg-slate-950 h3, .bg-slate-950 h4, .bg-slate-950 h5, .bg-slate-950 h6, .bg-slate-950 li, .bg-slate-950 label,
   .bg-emerald-950 p, .bg-emerald-950 span, .bg-emerald-950 h1, .bg-emerald-950 h2, .bg-emerald-950 h3, .bg-emerald-950 h4, .bg-emerald-950 h5, .bg-emerald-950 h6, .bg-emerald-950 li, .bg-emerald-950 label,
-  .bg-[#121212] p, .bg-[#121212] span, .bg-[#121212] h1, .bg-[#121212] h2, .bg-[#121212] h3, .bg-[#121212] h4, .bg-[#121212] h5, .bg-[#121212] h6, .bg-[#121212] li, .bg-[#121212] label,
-  .bg-[#064E3B] p, .bg-[#064E3B] span, .bg-[#064E3B] h1, .bg-[#064E3B] h2, .bg-[#064E3B] h3, .bg-[#064E3B] h4, .bg-[#064E3B] h5, .bg-[#064E3B] h6, .bg-[#064E3B] li, .bg-[#064E3B] label,
+  .bg-\[\#121212\] p, .bg-\[\#121212\] span, .bg-\[\#121212\] h1, .bg-\[\#121212\] h2, .bg-\[\#121212\] h3, .bg-\[\#121212\] h4, .bg-\[\#121212\] h5, .bg-\[\#121212\] h6, .bg-\[\#121212\] li, .bg-\[\#121212\] label,
+  .bg-\[\#064E3B\] p, .bg-\[\#064E3B\] span, .bg-\[\#064E3B\] h1, .bg-\[\#064E3B\] h2, .bg-\[\#064E3B\] h3, .bg-\[\#064E3B\] h4, .bg-\[\#064E3B\] h5, .bg-\[\#064E3B\] h6, .bg-\[\#064E3B\] li, .bg-\[\#064E3B\] label,
   .bg-emerald-600 p, .bg-emerald-600 span, .bg-emerald-600 h1, .bg-emerald-600 h2, .bg-emerald-600 h3, .bg-emerald-600 h4, .bg-emerald-600 h5, .bg-emerald-600 h6, .bg-emerald-600 li, .bg-emerald-600 label,
   .bg-emerald-500 p, .bg-emerald-500 span, .bg-emerald-500 h1, .bg-emerald-500 h2, .bg-emerald-500 h3, .bg-emerald-500 h4, .bg-emerald-500 h5, .bg-emerald-500 h6, .bg-emerald-500 li, .bg-emerald-500 label {
     color: #FFFFFF !important;
   }
 
   /* Force Gold for specific labels on dark */
-  .bg-[#121212] .text-gold, .bg-[#121212] label, .bg-slate-950 .text-gold, .bg-emerald-950 .text-gold, .bg-[#064E3B] .text-gold {
+  .bg-\[\#121212\] .text-gold, .bg-\[\#121212\] label, .bg-slate-950 .text-gold, .bg-emerald-950 .text-gold, .bg-\[\#064E3B\] .text-gold {
     color: #FFD700 !important;
   }
 
   /* Icon Contrast */
-  .bg-white svg, .bg-slate-50 svg, .bg-[#F9FAFB] svg { color: #000000 !important; }
-  .bg-[#121212] svg, .bg-slate-950 svg, .bg-emerald-950 svg, .bg-emerald-600 svg, .bg-emerald-500 svg, .bg-[#064E3B] svg { color: #FFFFFF !important; }
-  .bg-[#121212] .text-emerald-400 svg, .bg-[#121212] .text-emerald-500 svg { color: #10b981 !important; }
+  .bg-white svg, .bg-slate-50 svg, .bg-\[\#F9FAFB\] svg { color: #000000 !important; }
+  .bg-\[\#121212\] svg, .bg-slate-950 svg, .bg-emerald-950 svg, .bg-emerald-600 svg, .bg-emerald-500 svg, .bg-\[\#064E3B\] svg { color: #FFFFFF !important; }
+  .bg-\[\#121212\] .text-emerald-400 svg, .bg-\[\#121212\] .text-emerald-500 svg { color: #10b981 !important; }
 
   /* Solid Card Backgrounds - No Transparency */
   .card-dark, .glass-card, .bg-white\/10, .bg-white\/5, .bg-black\/10, .bg-black\/5 {
