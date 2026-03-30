@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Check, X, Mail, User, Building, Loader2 } from 'lucide-react';
-import { PpeProduct } from '../types';
+import { PpeProduct } from './types';
 
 const QuoteModal: React.FC<{
   isOpen: boolean;
@@ -88,13 +87,13 @@ const QuoteModal: React.FC<{
       <div onClick={handleClose} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity animate-[fade-in_0.2s_ease-out]"></div>
       <div ref={modalRef} className="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 transition-all animate-[scale-up_0.2s_ease-out]">
         <button onClick={handleClose} className="absolute top-2 right-2 p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="Close modal">
-          <X size={20} />
+          <span className="text-lg">❌</span>
         </button>
         <div className="p-6 sm:p-8">
           {isSubmitted ? (
             <div className="text-center">
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/50">
-                <Check className="h-6 w-6 text-green-600 dark:text-green-400" aria-hidden="true" />
+                <span className="text-xl text-green-600 dark:text-green-400" aria-hidden="true">✅</span>
               </div>
               <h3 id="modal-title" className="mt-4 text-lg font-semibold text-slate-900 dark:text-white">Request Sent!</h3>
               <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">Thank you, {name}. We will be in touch shortly.</p>
@@ -110,26 +109,26 @@ const QuoteModal: React.FC<{
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Full Name</label>
                   <div className="relative mt-1">
-                    <User className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-3 h-5 w-5 text-slate-400" />
+                    <span className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-3 text-slate-400">👤</span>
                     <input type="text" id="name" value={name} onChange={e => setName(e.target.value)} required className="w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-slate-700 dark:text-white sm:text-sm" />
                   </div>
                 </div>
                 <div>
                   <label htmlFor="company" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Company</label>
                   <div className="relative mt-1">
-                    <Building className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-3 h-5 w-5 text-slate-400" />
+                    <span className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-3 text-slate-400">🏢</span>
                     <input type="text" id="company" value={company} onChange={e => setCompany(e.target.value)} required className="w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-slate-700 dark:text-white sm:text-sm" />
                   </div>
                 </div>
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-slate-700 dark:text-slate-300">Email Address</label>
                   <div className="relative mt-1">
-                    <Mail className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-3 h-5 w-5 text-slate-400" />
+                    <span className="pointer-events-none absolute top-1/2 -translate-y-1/2 left-3 text-slate-400">📧</span>
                     <input type="email" id="email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full pl-10 pr-3 py-2 border border-slate-300 dark:border-slate-600 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 dark:bg-slate-700 dark:text-white sm:text-sm" />
                   </div>
                 </div>
                 <button type="submit" disabled={!isFormValid || isSubmitting} className="w-full mt-4 flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 focus:outline-none disabled:opacity-70 disabled:cursor-not-allowed">
-                  {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {isSubmitting && <span className="mr-2 h-4 w-4 animate-spin">⏳</span>}
                   {isSubmitting ? 'Sending...' : 'Submit Request'}
                 </button>
               </form>
