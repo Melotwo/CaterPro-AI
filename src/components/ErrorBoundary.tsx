@@ -40,7 +40,7 @@ export default class ErrorBoundary extends Component<Props, State> {
                 </p>
                 <button
                     onClick={this.handleReload}
-                    className="mt-8 inline-flex items-center justify-center bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 px-6 rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                    className="mt-8 inline-flex items-center justify-center bg-emerald-deep hover:bg-emerald-600 text-white font-semibold py-3 px-6 rounded-xl transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
                 >
                     <span className="mr-2 text-xl">🔄</span>
                     Reload Application
