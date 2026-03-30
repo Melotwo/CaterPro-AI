@@ -17,9 +17,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          icons: ['lucide-react'],
-          pdf: ['jspdf', 'html2canvas'],
-          ai: ['@google/genai']
+          pdf: ['jspdf', 'html2canvas']
         }
       }
     }
