@@ -4,275 +4,134 @@
 
 :root { 
   font-family: 'Inter', sans-serif; 
-  --primary-500: #10b981; 
-  --slate-950: #020617;
-  --slate-50: #f8fafc;
-  --charcoal: #1a1a1a;
+  --primary: #10b981; 
+  --primary-dark: #059669;
+  --bg-dark: #0B0F19;
+  --bg-card: #151B28;
+  --text-primary: #FFFFFF;
+  --text-secondary: #FFFFFF;
+  --charcoal: #064E3B;
   --gold: #d4af37;
-  --gold-light: #f1e5ac;
 }
 
 @layer base {
-  /* Text Hierarchy Opacities - Hard Contrast Fix */
-  .text-high { color: #121212 !important; opacity: 1 !important; text-shadow: none !important; }
-  .text-medium { color: #121212 !important; opacity: 1 !important; font-weight: 500; font-size: 16px; }
-  .text-low { color: #121212 !important; opacity: 1 !important; font-weight: 700; font-size: 16px; }
-
-  /* Explicit High Contrast for Dark Backgrounds */
-  .text-hc-white { color: #FFFFFF !important; opacity: 1 !important; }
-  .text-hc-gold { color: #FFD700 !important; opacity: 1 !important; }
-  .text-hc-charcoal { color: #000000 !important; opacity: 1 !important; }
-
-  /* Global Force Contrast for Hierarchy */
-  .dark h1, .dark h2, .dark h3, .dark h4, .dark .font-anchor { color: #FFFFFF !important; opacity: 1 !important; }
-  .dark .data-label, .dark .text-gold { color: #FFD700 !important; opacity: 1 !important; }
-  
-  /* Force 100% Opacity on all text elements and REMOVE ALL BLUR */
-  * {
-    opacity: 1 !important;
-    text-shadow: none !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    filter: none !important;
+  body {
+    @apply bg-slate-50 text-[#064E3B] antialiased;
+    background-image: radial-gradient(rgba(16, 185, 129, 0.05) 1px, transparent 0);
+    background-size: 32px 32px;
   }
 
-  /* Force Black Text on Light Backgrounds */
-  .bg-white p, .bg-white span, .bg-white h1, .bg-white h2, .bg-white h3, .bg-white h4, .bg-white h5, .bg-white h6, .bg-white li, .bg-white label, .bg-white a, .bg-white button:not(.bg-emerald-600):not(.bg-emerald-500):not(.bg-dark):not(.bg-slate-900),
-  .bg-slate-50 p, .bg-slate-50 span, .bg-slate-50 h1, .bg-slate-50 h2, .bg-slate-50 h3, .bg-slate-50 h4, .bg-slate-50 h5, .bg-slate-50 h6, .bg-slate-50 li, .bg-slate-50 label, .bg-slate-50 a, .bg-slate-50 button:not(.bg-emerald-600):not(.bg-emerald-500):not(.bg-dark):not(.bg-slate-900),
-  .bg-light p, .bg-light span, .bg-light h1, .bg-light h2, .bg-light h3, .bg-light h4, .bg-light h5, .bg-light h6, .bg-light li, .bg-light label, .bg-light a, .bg-light button {
-    color: #000000 !important;
+  .dark body {
+    @apply bg-[#0B0F19] text-[#FFFFFF];
+    background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0);
   }
 
-  /* Force White/Gold Text on Dark Backgrounds */
-  .bg-slate-950 p, .bg-slate-950 span, .bg-slate-950 h1, .bg-slate-950 h2, .bg-slate-950 h3, .bg-slate-950 h4, .bg-slate-950 h5, .bg-slate-950 h6, .bg-slate-950 li, .bg-slate-950 label,
-  .bg-emerald-950 p, .bg-emerald-950 span, .bg-emerald-950 h1, .bg-emerald-950 h2, .bg-emerald-950 h3, .bg-emerald-950 h4, .bg-emerald-950 h5, .bg-emerald-950 h6, .bg-emerald-950 li, .bg-emerald-950 label,
-  .bg-dark p, .bg-dark span, .bg-dark h1, .bg-dark h2, .bg-dark h3, .bg-dark h4, .bg-dark h5, .bg-dark h6, .bg-dark li, .bg-dark label,
-  .bg-emerald-deep p, .bg-emerald-deep span, .bg-emerald-deep h1, .bg-emerald-deep h2, .bg-emerald-deep h3, .bg-emerald-deep h4, .bg-emerald-deep h5, .bg-emerald-deep h6, .bg-emerald-deep li, .bg-emerald-deep label,
-  .bg-emerald-600 p, .bg-emerald-600 span, .bg-emerald-600 h1, .bg-emerald-600 h2, .bg-emerald-600 h3, .bg-emerald-600 h4, .bg-emerald-600 h5, .bg-emerald-600 h6, .bg-emerald-600 li, .bg-emerald-600 label,
-  .bg-emerald-500 p, .bg-emerald-500 span, .bg-emerald-500 h1, .bg-emerald-500 h2, .bg-emerald-500 h3, .bg-emerald-500 h4, .bg-emerald-500 h5, .bg-emerald-500 h6, .bg-emerald-500 li, .bg-emerald-500 label {
-    color: #FFFFFF !important;
+  /* Typography Hierarchy - NotebookLM Design Principles */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-black tracking-tighter uppercase;
+    color: var(--text-primary);
   }
 
-  /* Force Gold for specific labels on dark */
-  .bg-dark .text-gold, .bg-dark label, .bg-slate-950 .text-gold, .bg-emerald-950 .text-gold, .bg-emerald-deep .text-gold {
-    color: #FFD700 !important;
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    color: #FFFFFF;
   }
 
-  /* Icon Contrast */
-  .bg-white svg, .bg-slate-50 svg, .bg-light svg { color: #000000 !important; }
-  .bg-dark svg, .bg-slate-950 svg, .bg-emerald-950 svg, .bg-emerald-600 svg, .bg-emerald-500 svg, .bg-emerald-deep svg { color: #FFFFFF !important; }
-  .bg-dark .text-emerald-400 svg, .bg-dark .text-emerald-500 svg { color: #10b981 !important; }
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--charcoal);
+  }
 
-  /* Standard CSS Classes for Backgrounds */
-  .bg-dark, .bg-main { background-color: #121212 !important; }
-  .bg-dark-soft { background-color: #1a1a1a !important; }
-  .bg-light { background-color: #F9FAFB !important; }
-  .bg-emerald-deep { background-color: #064E3B !important; }
-  .bg-gold { background-color: #FFD700 !important; }
-  .bg-whatsapp { background-color: #25D366 !important; }
-  .bg-linkedin { background-color: #0077b5 !important; }
-  .bg-facebook { background-color: #1877F2 !important; }
-  .bg-slack { background-color: #4A154B !important; }
-  .bg-purple-deep { background-color: #4A154B !important; }
-  
-  .text-gold { color: #FFD700 !important; }
-  .text-white { color: #FFFFFF !important; }
-  .text-black { color: #000000 !important; }
-  .text-emerald { color: #10b981 !important; }
-  .text-slack { color: #4A154B !important; }
+  p, span, li {
+    color: var(--charcoal);
+  }
 
-  /* Solid Card Backgrounds - No Transparency */
-  .card-dark, .glass-card, .bg-white\/10, .bg-white\/5, .bg-black\/10, .bg-black\/5 {
-    background-color: #121212 !important;
-    opacity: 1 !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
+  .dark p, .dark span, .dark li {
+    color: #FFFFFF;
   }
-  .card-emerald, .bg-emerald-500\/10, .bg-emerald-500\/20 {
-    background-color: #064E3B !important;
-    opacity: 1 !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
-  .card-light {
-    background-color: #F9FAFB !important;
-    opacity: 1 !important;
-  }
-  .noise-overlay {
-    background-image: none !important;
-  }
+
+  .text-primary { color: var(--text-primary) !important; }
+  .text-secondary { color: var(--text-secondary) !important; }
+  .text-charcoal { color: var(--charcoal) !important; }
+  .dark .text-charcoal { color: #FFFFFF !important; }
 }
 
 @layer utilities {
-  /* Triangular Motif Masks */
-  .mask-triangle {
+  /* Visual Rhyming: Logo Masking (Triangular Motif) */
+  .mask-logo {
     clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
   }
   
-  .mask-triangle-inv {
-    clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+  .mask-diamond {
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
   }
 
-  /* Anchor Font */
-  .font-anchor {
-    @apply font-black tracking-tighter;
-    font-family: 'Inter', sans-serif;
+  .btn-masked {
+    @apply relative overflow-hidden;
+    clip-path: polygon(5% 0%, 95% 0%, 100% 50%, 95% 100%, 5% 100%, 0% 50%);
   }
-}
 
-@supports (font-variation-settings: normal) {
-  :root { font-family: 'Inter var', sans-serif; }
-}
-
-html {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(156, 163, 175, 0.5) var(--slate-50);
-  -webkit-overflow-scrolling: touch;
-  height: 100%;
-  height: -webkit-fill-available;
-}
-
-body {
-  @apply bg-slate-50;
-  background-image: radial-gradient(rgba(4, 120, 87, 0.03) 1px, transparent 0);
-  background-size: 24px 24px;
-  min-height: 100vh;
-  min-height: -webkit-fill-available;
-  padding-left: env(safe-area-inset-left);
-  padding-right: env(safe-area-inset-right);
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-.dark body {
-  @apply bg-slate-950;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 0);
-}
-
-@theme {
-  --font-serif: "Playfair Display", serif;
-  --font-sans: "Inter", sans-serif;
-}
-
-@layer base {
-  h1 { @apply text-balance; }
-  p { @apply text-pretty; }
-}
-
-@layer utilities {
-  .font-serif { font-family: var(--font-serif); }
-  .font-sans { font-family: var(--font-sans); }
-
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
+  /* Golden Triangle Layout Helper */
+  .golden-triangle-grid {
+    display: grid;
+    grid-template-areas: 
+      "top top"
+      "left right";
+    grid-template-columns: 1.2fr 0.8fr;
   }
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-emerald-500/10 rounded-full;
-  }
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    @apply bg-emerald-500/20;
-  }
-}
 
-/* Enhanced Tablet Consistency Fix */
-@media (min-width: 768px) and (max-width: 1180px) {
-  .main-grid {
-    grid-template-columns: 1fr !important;
-    gap: 1.5rem !important;
+  .bg-dark {
+    background-color: #0B0F19 !important;
   }
   
-  .full-width-tablet {
-    grid-column: span 1 !important;
+  .bg-dark-soft {
+    background-color: #151B28 !important;
   }
 
-  /* Force consistent font sizing for iPad */
-  input, select, textarea {
-    font-size: 16px !important; 
-    padding: 1rem !important;
-    border-radius: 1.25rem !important;
-  }
-
-  h1 {
-      font-size: 3rem !important;
-      line-height: 1.1 !important;
-  }
-
-  h2 {
-      font-size: 2.25rem !important;
-  }
-  
-  /* Optimize padding for tablet forms */
-  .p-6.sm\:p-12.md\:p-16 {
-      padding: 2rem !important;
-  }
-
-  /* Ensure dashboard cards don't bleed off screen */
-  .rounded-\[3\.5rem\] {
-      border-radius: 2rem !important;
+  /* Plate Cost Formula Utility (Documentation)
+     Plate Cost = Σ (Ingredient Cost × Quantity Used)
+  */
+  .plate-cost-calc::after {
+    content: "Σ(Cost × Qty)";
+    @apply absolute -top-2 -right-2 text-[8px] font-black text-emerald-500 bg-emerald-500/10 px-1 rounded;
   }
 }
 
-/* Mobile Auto-Scale & Accessibility */
-@media (max-width: 640px) {
-  html {
-    font-size: 14px;
-  }
-  
-  .text-xs { font-size: 0.875rem !important; } /* min 14px approx */
-  .text-\[10px\] { font-size: 0.75rem !important; } /* min 12px approx */
-  
-  input, select, textarea, button {
-    font-size: 16px !important; /* Prevent iOS zoom */
-  }
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-emerald-500/20 rounded-full hover:bg-emerald-500/40 transition-colors;
 }
 
-/* Ensure images don't overflow containers */
-img {
-    max-width: 100%;
-    height: auto;
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }
 
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+/* High-End Culinary Vibe */
+.glass-panel {
+  @apply bg-white/10 backdrop-blur-xl border border-white/20 shadow-2xl;
 }
 
-.theme-container {
-  transition: background-color 0.5s ease, color 0.5s ease;
+.dark .glass-panel {
+  @apply bg-[#0B0F19]/40 backdrop-blur-2xl border border-white/5;
 }
 
+/* Force RGB/Hex for PDF Stability */
 @media print {
+  * {
+    color: rgb(17, 24, 39) !important;
+    background-color: rgb(255, 255, 255) !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
   .no-print { display: none !important; }
-  body { background: white !important; background-image: none !important; padding: 0 !important; }
-  .theme-container { box-shadow: none !important; border: none !important; width: 100% !important; padding: 0 !important; margin: 0 !important; }
-}
-
-@keyframes spin-slow {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-.animate-spin-slow {
-  animation: spin-slow 8s linear infinite;
-}
-
-.vertical-text {
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-}
-
-/* Pointer feedback */
-.cursor-pointer {
-    cursor: pointer !important;
-}
-
-/* Active touch feedback for iPad */
-.active-press:active {
-    transform: scale(0.97);
-    transition: transform 0.1s ease;
 }
 
