@@ -22,7 +22,7 @@ const StudentYieldCalculator = () => {
         <div className="space-y-8">
           <div className="space-y-6">
             <label className="block">
-              <span className="text-[10px] font-black text-[#FFD700] uppercase tracking-[0.3em] mb-3 block">As Purchased (AP) Weight (g)</span>
+              <span className="text-[10px] font-black text-gold uppercase tracking-[0.3em] mb-3 block">As Purchased (AP) Weight (g)</span>
               <input 
                 type="number" 
                 value={apWeight}
@@ -31,7 +31,7 @@ const StudentYieldCalculator = () => {
               />
             </label>
             <label className="block">
-              <span className="text-[10px] font-black text-[#FFD700] uppercase tracking-[0.3em] mb-3 block">Edible Portion (EP) Weight (g)</span>
+              <span className="text-[10px] font-black text-gold uppercase tracking-[0.3em] mb-3 block">Edible Portion (EP) Weight (g)</span>
               <input 
                 type="number" 
                 value={epWeight}
@@ -40,7 +40,7 @@ const StudentYieldCalculator = () => {
               />
             </label>
             <label className="block">
-              <span className="text-[10px] font-black text-[#FFD700] uppercase tracking-[0.3em] mb-3 block">Cost per Kilogram (R)</span>
+              <span className="text-[10px] font-black text-gold uppercase tracking-[0.3em] mb-3 block">Cost per Kilogram (R)</span>
               <input 
                 type="number" 
                 value={unitCost}
@@ -81,7 +81,7 @@ const StudentYieldCalculator = () => {
             </div>
             <div>
               <span className="text-[10px] font-black text-emerald-400 uppercase tracking-widest block mb-1">QCTO Student Tip</span>
-              <p className="text-[10px] text-[#FFD700] font-medium leading-relaxed italic opacity-100">
+              <p className="text-[10px] text-gold font-medium leading-relaxed italic opacity-100">
                 Always calculate EP cost to ensure your menu pricing covers actual ingredient usage.
               </p>
             </div>
