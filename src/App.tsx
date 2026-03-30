@@ -329,7 +329,7 @@ export default function App() {
             <div className="w-full max-w-3xl bg-dark p-16 rounded-[4rem] shadow-[0_50px_100px_rgba(0,0,0,0.3)] border border-emerald-500/30 relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 mask-triangle -z-10" />
               <h2 className="text-5xl font-anchor text-white mb-4 text-center tracking-tighter uppercase">Command Center</h2>
-              <p className="text-[#FFD700] text-center mb-12 uppercase tracking-[0.5em] text-[10px] font-black opacity-100">Chef Operations v12.0 • Luxury Edition</p>
+              <p className="text-gold text-center mb-12 uppercase tracking-[0.5em] text-[10px] font-black opacity-100">Chef Operations v12.0 • Luxury Edition</p>
               
               <div className="flex justify-center mb-12">
                 <button 
@@ -347,7 +347,7 @@ export default function App() {
               <div className="grid md:grid-cols-2 gap-12">
                 <div className="space-y-10">
                   <div>
-                    <label className="text-[10px] font-black text-[#FFD700] uppercase tracking-[0.3em] ml-2 mb-2 block">Event Selection</label>
+                    <label className="text-[10px] font-black text-gold uppercase tracking-[0.3em] ml-2 mb-2 block">Event Selection</label>
                     <select 
                       value={eventType} 
                       onChange={e => setEventType(e.target.value)} 
@@ -364,7 +364,7 @@ export default function App() {
                   </div>
                   
                   <div>
-                    <label className="text-[10px] font-black text-[#FFD700] uppercase tracking-[0.3em] ml-2 mb-2 block">Guest Volume</label>
+                    <label className="text-[10px] font-black text-gold uppercase tracking-[0.3em] ml-2 mb-2 block">Guest Volume</label>
                     <select 
                       value={guests} 
                       onChange={e => setGuests(e.target.value)} 
@@ -382,7 +382,7 @@ export default function App() {
 
                 <div className="space-y-10">
                   <div>
-                    <label className="text-[10px] font-black text-[#FFD700] uppercase tracking-[0.3em] ml-2 mb-2 block">Culinary Style</label>
+                    <label className="text-[10px] font-black text-gold uppercase tracking-[0.3em] ml-2 mb-2 block">Culinary Style</label>
                     <input 
                       type="text"
                       value={style} 
@@ -392,7 +392,7 @@ export default function App() {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-black text-[#FFD700] uppercase tracking-[0.3em] ml-2 mb-2 block">Dietary Requirements</label>
+                    <label className="text-[10px] font-black text-gold uppercase tracking-[0.3em] ml-2 mb-2 block">Dietary Requirements</label>
                     <textarea 
                       value={dietary}
                       onChange={e => setDietary(e.target.value)}
@@ -411,7 +411,7 @@ export default function App() {
                   </div>
                   <div className="grid md:grid-cols-2 gap-8">
                     <div>
-                      <label className="text-[10px] font-black text-[#FFD700] uppercase tracking-[0.3em] ml-2 mb-2 block">AP Cost (Total R)</label>
+                      <label className="text-[10px] font-black text-gold uppercase tracking-[0.3em] ml-2 mb-2 block">AP Cost (Total R)</label>
                       <input 
                         type="number"
                         value={apCost}
@@ -421,7 +421,7 @@ export default function App() {
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] font-black text-[#FFD700] uppercase tracking-[0.3em] ml-2 mb-2 block">Estimated EP Yield (%)</label>
+                      <label className="text-[10px] font-black text-gold uppercase tracking-[0.3em] ml-2 mb-2 block">Estimated EP Yield (%)</label>
                       <input 
                         type="number"
                         value={epYield}
@@ -608,7 +608,7 @@ export default function App() {
           </button>
           <button 
             onClick={() => setViewMode('success')}
-            className="bg-[#FFD700] text-dark px-8 py-3 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-2xl"
+            className="bg-gold text-dark px-8 py-3 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-2xl"
           >
             <span className="whitespace-nowrap">My Results</span>
           </button>
