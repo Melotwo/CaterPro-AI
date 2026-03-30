@@ -3,9 +3,32 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth, isConfigured } from './firebase';
-import { authService } from './authService';
 
 // --- INLINED INFRASTRUCTURE ---
+
+// Auth Service
+export const authService = {
+  getCurrentUid(): string | null {
+    const isFounder = localStorage.getItem('caterpro_is_founder') === 'true';
+    if (isFounder) return 'FOUNDER_ADMIN';
+    return auth?.currentUser?.uid || null;
+  },
+  getCurrentUser() {
+    const isFounder = localStorage.getItem('caterpro_is_founder') === 'true';
+    if (isFounder) {
+      return {
+        uid: 'FOUNDER_ADMIN',
+        displayName: 'Founder Admin',
+        email: 'founder@caterproai.com',
+        isFounder: true
+      };
+    }
+    return auth?.currentUser || null;
+  },
+  isFounderSession(): boolean {
+    return localStorage.getItem('caterpro_is_founder') === 'true';
+  }
+};
 
 // Auth Context
 interface AuthContextType {
