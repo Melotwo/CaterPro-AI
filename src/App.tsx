@@ -30,18 +30,18 @@ const formatCurrency = (amount: number) => {
 
 // --- MOCK DATA FOR DEMO ---
 const MOCK_PROPOSAL = { 
-  "title": "Modern Thai Fusion Gala", 
-  "imageQuery": "Thai fusion fine dining plating", 
+  "title": "Michelin-Star Herb Crusted Lamb", 
+  "imageQuery": "Michelin-Star Herb Crusted Lamb fine dining", 
   "menu": [
-    {"cat": "Appetizers", "dish": "Lemongrass Infused Prawn Skewers", "notes": "Served with a spicy mango dip"},
-    {"cat": "Main Courses", "dish": "Green Curry Braised Short Rib", "notes": "With coconut jasmine rice and pickled vegetables"},
-    {"cat": "Desserts", "dish": "Thai Tea Panna Cotta", "notes": "With cardamom shortbread crumbs"}
+    {"cat": "Appetizers", "dish": "Truffle Infused King Oyster Mushroom", "notes": "With garlic butter and microgreens"},
+    {"cat": "Main Courses", "dish": "Michelin-Star Herb Crusted Lamb", "notes": "With red wine jus and seasonal root vegetables"},
+    {"cat": "Desserts", "dish": "Dark Chocolate Fondant", "notes": "With vanilla bean panna cotta"}
   ], 
-  "miseEnPlace": ["Infuse prawns with lemongrass", "Braise short ribs for 6 hours", "Prepare Thai tea base for panna cotta"], 
-  "serviceNotes": ["Ensure prawns are served hot", "Garnish short ribs with fresh cilantro"],
+  "miseEnPlace": ["Clean and slice mushrooms", "Prepare herb crust for lamb", "Reduce red wine for jus"], 
+  "serviceNotes": ["Serve lamb immediately after resting", "Garnish with fresh microgreens"],
   "haccpSafety": [
-    {"point": "Critical Control Point", "requirement": "Internal temp 75°C for prawns", "category": "Temp"},
-    {"point": "Storage", "requirement": "Store short ribs at < 5°C", "category": "Storage"}
+    {"point": "Critical Control Point", "requirement": "Internal temp 63°C for medium-rare lamb", "category": "Temp"},
+    {"point": "Storage", "requirement": "Store mushrooms at < 5°C", "category": "Storage"}
   ],
   "wasteYieldAnalysis": {
     "apCost": 2500,
@@ -51,16 +51,16 @@ const MOCK_PROPOSAL = {
     "qctoCriteria": "Level 5 assessment compliance met through detailed yield tracking."
   },
   "shoppingList": {
-    "Proteins": ["Prawns", "Short Ribs"],
-    "Produce": ["Lemongrass", "Mango", "Cilantro", "Pickled Veg"],
-    "Pantry": ["Coconut Milk", "Jasmine Rice", "Thai Tea", "Cardamom"]
+    "Proteins": ["Rack of Lamb"],
+    "Produce": ["King Oyster Mushroom", "Microgreens", "Root Vegetables"],
+    "Pantry": ["Truffle Oil", "Garlic Butter", "Red Wine"]
   },
   "logistics": {
     "deliveryFee": 500,
-    "setupTime": "2 hours",
-    "staffRequired": 4
+    "setupTime": "1 hour",
+    "staffRequired": 2
   },
-  "winePairings": ["Riesling", "Pinot Noir"],
+  "winePairings": ["Cabernet Sauvignon", "Pinot Noir"],
   "costPerHead": 450
 };
 
@@ -130,13 +130,11 @@ export default function App() {
     if (!recordGeneration()) return;
 
     setLoading(true);
-    // Simulate AI Generation
-    setTimeout(() => {
-      setProposal(MOCK_PROPOSAL);
-      setProposalImage("https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800&q=80");
-      setViewMode('generator');
-      setLoading(false);
-    }, 2000);
+    // Instant AI Generation Mock
+    setProposal(MOCK_PROPOSAL);
+    setProposalImage("https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800&q=80");
+    setViewMode('generator');
+    setLoading(false);
   }
 
   const downloadPDF = async () => {
