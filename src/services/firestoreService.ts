@@ -11,9 +11,9 @@ import {
   serverTimestamp,
   Timestamp
 } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from '../firebase';
-import { authService } from './authService';
-import { CloudMenu, Menu } from '../types';
+import { db, handleFirestoreError, OperationType } from './firebase';
+import { authService } from './App';
+import { CloudMenu, Menu } from './types';
 
 const COLLECTION_NAME = 'menus';
 
