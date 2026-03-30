@@ -55,19 +55,19 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, shareUrl, menu
     { 
       name: 'WhatsApp', 
       icon: '💬', 
-      color: 'bg-[#25D366]', 
+      color: 'bg-whatsapp', 
       link: `https://wa.me/?text=${encodeURIComponent(`Check out this ${menuTitle} I just generated with CaterPro AI: ${shareUrl}`)}` 
     },
     { 
       name: 'LinkedIn', 
       icon: '💼', 
-      color: 'bg-[#0077b5]', 
+      color: 'bg-linkedin', 
       link: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}` 
     },
     { 
       name: 'Facebook', 
       icon: '👥', 
-      color: 'bg-[#1877F2]', 
+      color: 'bg-facebook', 
       link: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}` 
     },
     { 
