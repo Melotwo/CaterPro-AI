@@ -1,5 +1,4 @@
 
-import { Briefcase, Heart, PartyPopper, Stethoscope, User, UtensilsCrossed, Gift } from 'lucide-react';
 import { MenuSection, PpeProduct } from './types';
 
 export const CURRENCIES = [
@@ -30,6 +29,7 @@ export const GUEST_COUNT_OPTIONS = [
   '1 (Individual)',
   '2-9 (Family/Small Group)',
   '10-20',
+  '21-50',
   '21-50',
   '51-100',
   '100-500 (Institutional)',
@@ -115,7 +115,7 @@ export const EDUCATION_TOPICS = [
 
 export const exampleScenarios = [
   {
-    IconComponent: Gift,
+    icon: '🎁',
     title: 'Grand Christmas Feast 🎄',
     eventType: 'Christmas Day Feast 🎅',
     guestCount: '10-20',
@@ -125,7 +125,7 @@ export const exampleScenarios = [
     dietaryRestrictions: ['Gluten-Free'],
   },
   {
-    IconComponent: PartyPopper,
+    icon: '🎉',
     title: 'South African Wedding',
     eventType: 'Wedding Reception',
     guestCount: '51-100',
@@ -135,7 +135,7 @@ export const exampleScenarios = [
     dietaryRestrictions: [],
   },
   {
-    IconComponent: Briefcase,
+    icon: '💼',
     title: 'Modern Corporate Lunch',
     eventType: 'Corporate Lunch',
     guestCount: '21-50',
@@ -145,7 +145,7 @@ export const exampleScenarios = [
     dietaryRestrictions: ['Gluten-Free'],
   },
   {
-    IconComponent: Stethoscope,
+    icon: '🩺',
     title: 'Hospital Recovery Menu',
     eventType: 'Hospital / Patient Catering',
     guestCount: '100-500 (Institutional)',
