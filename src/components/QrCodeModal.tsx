@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Copy, Check } from 'lucide-react';
 
 const QrCodeModal: React.FC<{
   isOpen: boolean;
@@ -68,7 +67,7 @@ const QrCodeModal: React.FC<{
       <div onClick={onClose} className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity animate-[fade-in_0.2s_ease-out]"></div>
       <div ref={modalRef} className="relative w-full max-w-sm bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 transition-all animate-[scale-up_0.2s_ease-out] text-center p-8">
         <button onClick={onClose} className="absolute top-2 right-2 p-2 rounded-full text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700" aria-label="Close modal">
-          <X size={20} />
+          ❌
         </button>
         <h3 id="qr-modal-title" className="text-lg font-semibold text-slate-900 dark:text-white mb-2">Share Application</h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">Scan the QR code or copy the link below.</p>
@@ -88,7 +87,7 @@ const QrCodeModal: React.FC<{
             onClick={handleCopy}
             className="relative -ml-px inline-flex items-center gap-x-1.5 rounded-r-md px-3 py-2 text-sm font-semibold text-slate-900 dark:text-white ring-1 ring-inset ring-slate-300 dark:ring-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600"
           >
-            {copied ? <Check className="h-5 w-5 text-green-500" /> : <Copy className="h-5 w-5 text-slate-500 dark:text-slate-400" />}
+            {copied ? <span className="h-5 w-5 text-green-500">✅</span> : <span className="h-5 w-5 text-slate-500 dark:text-slate-400">📋</span>}
             {copied ? 'Copied!' : 'Copy'}
           </button>
         </div>
