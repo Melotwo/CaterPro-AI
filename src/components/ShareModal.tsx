@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Copy, Check, Facebook, Linkedin, MessageSquare, Twitter, Globe, Send } from 'lucide-react';
 
 interface ShareModalProps {
   isOpen: boolean;
@@ -55,25 +54,25 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, shareUrl, menu
   const shareActions = [
     { 
       name: 'WhatsApp', 
-      icon: MessageSquare, 
+      icon: '💬', 
       color: 'bg-[#25D366]', 
       link: `https://wa.me/?text=${encodeURIComponent(`Check out this ${menuTitle} I just generated with CaterPro AI: ${shareUrl}`)}` 
     },
     { 
       name: 'LinkedIn', 
-      icon: Linkedin, 
+      icon: '💼', 
       color: 'bg-[#0077b5]', 
       link: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}` 
     },
     { 
       name: 'Facebook', 
-      icon: Facebook, 
+      icon: '👥', 
       color: 'bg-[#1877F2]', 
       link: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}` 
     },
     { 
       name: 'X (Twitter)', 
-      icon: Twitter, 
+      icon: '🐦', 
       color: 'bg-black', 
       link: `https://twitter.com/intent/tweet?text=${encodeURIComponent(`Just architected a pro menu: ${menuTitle}`)}&url=${encodeURIComponent(shareUrl)}` 
     },
@@ -87,13 +86,13 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, shareUrl, menu
       <div ref={modalRef} className="relative w-full max-w-xl bg-white dark:bg-slate-900 rounded-[3rem] shadow-2xl border-4 border-white dark:border-slate-800 transition-all animate-scale-up overflow-hidden">
         
         <div className="bg-indigo-600 p-8 text-white relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-10 opacity-10"><Globe size={140} /></div>
+            <div className="absolute top-0 right-0 p-10 opacity-10 text-8xl">🌐</div>
             <div className="relative z-10">
                 <h3 id="share-modal-title" className="text-3xl font-black uppercase tracking-tight leading-none mb-2">Share Strategy</h3>
                 <p className="text-indigo-100 text-sm font-medium">Deliver this proposal to your client or community instantly.</p>
             </div>
             <button onClick={onClose} className="absolute top-6 right-6 p-2 rounded-full bg-white/10 hover:bg-white/20 transition-all text-white">
-                <X size={24} />
+                <span className="text-xl">❌</span>
             </button>
         </div>
 
@@ -107,8 +106,8 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, shareUrl, menu
                         rel="noopener noreferrer"
                         className="flex flex-col items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700 hover:scale-105 transition-transform"
                     >
-                        <div className={`p-4 ${action.color} text-white rounded-2xl shadow-lg`}>
-                            <action.icon size={24} />
+                        <div className={`p-4 ${action.color} text-white rounded-2xl shadow-lg flex items-center justify-center`}>
+                            <span className="text-2xl">{action.icon}</span>
                         </div>
                         <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{action.name}</span>
                     </a>
@@ -129,7 +128,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ isOpen, onClose, shareUrl, menu
                                 className="bg-transparent text-[10px] font-bold text-slate-500 w-full outline-none truncate" 
                              />
                              <button onClick={handleCopy} className="p-2 bg-slate-900 text-white rounded-lg active:scale-90 transition-transform">
-                                {copied ? <Check size={14} /> : <Copy size={14} />}
+                                {copied ? <span className="text-xs">✅</span> : <span className="text-xs">📋</span>}
                              </button>
                         </div>
                     </div>
