@@ -82,7 +82,7 @@ const Navbar: React.FC<{
           
           <button 
             onClick={onAuthClick}
-            className={`px-8 py-3.5 rounded-full flex items-center gap-3 transition-all font-anchor text-xs uppercase tracking-[0.2em] shadow-2xl ${user ? 'bg-slate-100 text-black hover:bg-slate-200' : 'bg-[#FFD700] text-black hover:bg-amber-400 shadow-amber-200/20'}`}
+            className={`px-8 py-3.5 rounded-full flex items-center gap-3 transition-all font-anchor text-xs uppercase tracking-[0.2em] shadow-2xl ${user ? 'bg-slate-100 text-black hover:bg-slate-200' : 'bg-gold text-black hover:bg-amber-400 shadow-amber-200/20'}`}
             title={user ? "Sign Out" : "Sign In"}
           >
             <span className="text-xl text-black">{user ? '🚪' : '🔑'}</span>
