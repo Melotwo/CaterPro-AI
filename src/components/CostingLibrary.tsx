@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { db } from '../firebase';
+import { db } from './firebase';
 import { collection, query, where, onSnapshot, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { useAuth } from '../hooks/useAuth';
-import { Plus, Trash2, Save, Loader2, Coins, Package, Scale, X, Search } from 'lucide-react';
+import { useAuth } from './AuthContext';
 
 interface IngredientCost {
   id?: string;
@@ -76,7 +75,7 @@ const CostingLibrary: React.FC = () => {
 
   if (!user) return (
     <div className="p-12 text-center bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-2xl">
-      <Package className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+      <span className="text-6xl mb-4 block">📦</span>
       <h3 className="text-2xl font-black text-slate-900 dark:text-white">Sign in to build your library</h3>
       <p className="text-slate-500 mt-2 font-medium">Save your ingredient prices to get more accurate costing.</p>
     </div>
@@ -93,14 +92,14 @@ const CostingLibrary: React.FC = () => {
           onClick={() => setIsAdding(true)}
           className="px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-black text-sm shadow-xl shadow-primary-500/20 transition-all active:scale-95 flex items-center gap-2"
         >
-          <Plus className="w-5 h-5" /> Add Ingredient
+          <span className="text-lg">➕</span> Add Ingredient
         </button>
       </div>
 
       <div className="bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-2xl overflow-hidden">
         <div className="p-8 border-b border-slate-100 dark:border-slate-800">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg text-slate-400">🔍</span>
             <input 
               type="text" 
               placeholder="Search ingredients..." 
@@ -136,7 +135,7 @@ const CostingLibrary: React.FC = () => {
                     <td className="px-8 py-5 text-slate-400 text-xs font-bold">{new Date(ing.lastUpdated).toLocaleDateString()}</td>
                     <td className="px-8 py-5 text-right">
                       <button onClick={() => handleDelete(ing.id!)} className="p-2 text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors">
-                        <Trash2 className="w-5 h-5" />
+                        <span className="text-lg">🗑️</span>
                       </button>
                     </td>
                   </tr>
@@ -148,13 +147,13 @@ const CostingLibrary: React.FC = () => {
       </div>
 
       {isAdding && (
-        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-950/80">
           <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-slide-in">
             <div className="p-8">
               <div className="flex justify-between items-center mb-8">
                 <h2 className="text-3xl font-black text-slate-900 dark:text-white tracking-tight">Add Ingredient</h2>
                 <button onClick={() => setIsAdding(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
-                  <X className="w-6 h-6 text-slate-400" />
+                  <span className="text-2xl text-slate-400">❌</span>
                 </button>
               </div>
 
@@ -162,7 +161,7 @@ const CostingLibrary: React.FC = () => {
                 <div className="space-y-2">
                   <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Ingredient Name</label>
                   <div className="relative">
-                    <Package className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg text-slate-400">📦</span>
                     <input 
                       type="text" 
                       required
@@ -178,7 +177,7 @@ const CostingLibrary: React.FC = () => {
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Unit</label>
                     <div className="relative">
-                      <Scale className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg text-slate-400">⚖️</span>
                       <select 
                         value={newIngredient.unit}
                         onChange={(e) => setNewIngredient({...newIngredient, unit: e.target.value})}
@@ -197,7 +196,7 @@ const CostingLibrary: React.FC = () => {
                   <div className="space-y-2">
                     <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Price (ZAR)</label>
                     <div className="relative">
-                      <Coins className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg text-slate-400">💰</span>
                       <input 
                         type="number" 
                         step="0.01"
@@ -216,7 +215,7 @@ const CostingLibrary: React.FC = () => {
                   disabled={loading}
                   className="w-full py-5 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-black text-lg shadow-xl shadow-primary-500/20 transition-all active:scale-95 flex items-center justify-center gap-3"
                 >
-                  {loading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Save className="w-6 h-6" />}
+                  {loading ? <span className="text-2xl animate-spin">⏳</span> : <span className="text-2xl">💾</span>}
                   Save Ingredient
                 </button>
               </form>
