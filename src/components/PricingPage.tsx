@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
-import { Check, Star, Zap, Briefcase, GraduationCap, ExternalLink, ShieldCheck, Globe, Clock, Lock, Sparkles, Users } from 'lucide-react';
-import { SubscriptionPlan } from '../hooks/useAppSubscription';
+import { SubscriptionPlan } from './AppSubscription';
 import Footer from './Footer';
 import PaymentModal from './PaymentModal';
 
@@ -83,7 +82,7 @@ const getTiers = (currency: string = 'ZAR', whopLinks: PricingPageProps['whopLin
       id: 'commis',
       price: getPrice('commis'),
       priceSuffix: isYearly ? '/yr' : '/mo',
-      icon: GraduationCap,
+      icon: '🎓',
       description: 'Student Edition - Academic PoE Automation & Curriculum Mapping.',
       features: [
         'Academic PoE Automation',
@@ -102,7 +101,7 @@ const getTiers = (currency: string = 'ZAR', whopLinks: PricingPageProps['whopLin
       id: 'chef-de-partie',
       price: getPrice('chef-de-partie'),
       priceSuffix: isYearly ? '/yr' : '/mo',
-      icon: Zap,
+      icon: '⚡',
       description: 'Professional Edition - Interactive Costing & Shopping Lists.',
       features: [
         'Everything in Commis',
@@ -123,7 +122,7 @@ const getTiers = (currency: string = 'ZAR', whopLinks: PricingPageProps['whopLin
       id: 'sous-chef',
       price: getPrice('sous-chef'),
       priceSuffix: isYearly ? '/yr' : '/mo',
-      icon: Users,
+      icon: '👥',
       description: 'Growth Edition - Multi-user Collaboration & Cloud Storage.',
       features: [
         'Everything in Professional',
@@ -142,7 +141,7 @@ const getTiers = (currency: string = 'ZAR', whopLinks: PricingPageProps['whopLin
       id: 'executive',
       price: getPrice('executive'),
       priceSuffix: isYearly ? '/yr' : '/mo',
-      icon: Briefcase,
+      icon: '💼',
       description: 'Empire Edition - Full Suite & Viral Video Creator.',
       features: [
         'Everything in Growth',
@@ -197,7 +196,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
         <div className="max-w-7xl mx-auto py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-3xl mx-auto mb-12">
             <div className="flex items-center justify-center gap-2 mb-4 bg-indigo-50 dark:bg-indigo-900/30 w-fit mx-auto px-4 py-2 rounded-full border border-indigo-100 dark:border-indigo-800">
-                <Sparkles size={14} className="text-indigo-600 animate-pulse" />
+                <span className="text-xs animate-pulse">✨</span>
                 <span className="text-[10px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-300">7-Day Free Trial Active on All Plans</span>
             </div>
             <h1 className="text-4xl sm:text-6xl font-black text-slate-900 dark:text-white tracking-tighter leading-none mb-6">
@@ -242,7 +241,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
                   )}
                   
                   <div className="mb-6 flex justify-between items-start">
-                      <tier.icon className={`w-10 h-10 ${styles.icon}`} />
+                      <span className={`text-4xl ${styles.icon}`}>{tier.icon}</span>
                       {tier.hasTrial && (
                           <div className="text-[10px] font-black text-emerald-500 border border-emerald-500/30 px-2 py-1 rounded-lg uppercase tracking-widest">
                               Trial
@@ -263,7 +262,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
                   <ul role="list" className="space-y-4 mb-10 flex-grow">
                     {tier.features.map((feature) => (
                       <li key={feature} className="flex items-start text-sm">
-                        <Check className="h-4 w-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                        <span className="h-4 w-4 text-emerald-500 flex-shrink-0 mt-0.5">✅</span>
                         <p className="ml-3 text-slate-900 dark:text-slate-200 font-medium">{feature}</p>
                       </li>
                     ))}
@@ -276,7 +275,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
                     } active:scale-95`}
                   >
                     {tier.cta}
-                    {tier.whopLink && <ExternalLink size={16} />}
+                    {tier.whopLink && <span className="text-sm">🔗</span>}
                   </button>
 
                   <p className="mt-4 text-center text-[9px] font-bold text-slate-400 uppercase">Secure via Whop Marketplace</p>
