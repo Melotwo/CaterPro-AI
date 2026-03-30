@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Lock, ShieldCheck, Loader2 } from 'lucide-react';
-import { SubscriptionPlan } from '../hooks/useAppSubscription';
+import { SubscriptionPlan } from './AppSubscription';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 const PAYPAL_CLIENT_ID: string = "Adp-3XYWNARTpkCw4rbtFUnFox3mMwZtWWRy-TprJ8sOrV8X9z4xtyobRHuCx848mseDoqATaUooheFz"; 
@@ -31,16 +30,16 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, plan, onCo
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div onClick={onClose} className="fixed inset-0 bg-slate-900/70 backdrop-blur-sm animate-[fade-in_0.2s_ease-out]"></div>
+      <div onClick={onClose} className="fixed inset-0 bg-slate-900 opacity-70 animate-[fade-in_0.2s_ease-out]"></div>
       <div ref={modalRef} className="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-3xl shadow-2xl border border-slate-200 dark:border-slate-700 overflow-hidden animate-[scale-up_0.2s_ease-out]">
         
         <div className="bg-slate-50 dark:bg-slate-900/50 p-4 border-b border-slate-200 dark:border-slate-700 flex justify-between items-center">
             <div className="flex items-center gap-2 text-green-600">
-                <Lock className="w-4 h-4" />
+                <span className="text-sm">🔒</span>
                 <span className="text-xs font-black uppercase tracking-widest">Secure Checkout</span>
             </div>
             <button onClick={onClose} className="p-1 rounded-full text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors">
-                <X size={20} />
+                <span className="text-xl">✕</span>
             </button>
         </div>
 
@@ -53,7 +52,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, plan, onCo
 
             {isProcessing ? (
                 <div className="flex flex-col items-center justify-center py-10 space-y-4">
-                    <Loader2 className="w-12 h-12 text-primary-500 animate-spin" />
+                    <span className="text-4xl animate-spin">⏳</span>
                     <p className="font-bold text-slate-900 dark:text-white">Verifying Transaction...</p>
                 </div>
             ) : (
@@ -95,7 +94,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onClose, plan, onCo
             )}
 
             <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-700 flex items-center justify-center gap-2">
-                <ShieldCheck className="text-slate-400 w-4 h-4" />
+                <span className="text-slate-400 text-sm">🛡️</span>
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Encrypted SSL Payment via PayPal</span>
             </div>
         </div>
