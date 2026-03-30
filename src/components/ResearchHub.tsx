@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
-import { BookOpen, Copy, Zap, CheckCircle2, Sparkles, Award, GraduationCap, Share2, Scale, MessageSquare, Phone, ShieldCheck, Info, Anchor, CreditCard, Mail, User, Globe, Users, Briefcase, Send, Camera, Building2, BellRing, RefreshCw, Play, PlayCircle, Layers, MousePointer2, Image as ImageIcon, Download, Loader2, ListTree, Activity, MessageSquareQuote, ChevronRight, Video, Search, TrendingUp, X, Mic2, ArrowRight, Book, Trash2 } from 'lucide-react';
-import { generateCulinaryInfographic } from '../services/geminiService';
+import { generateCulinaryInfographic } from './geminiService';
 
 const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowToast }) => {
   // Set 'lifecycle' as the default tab so the script is visible immediately
@@ -61,7 +60,7 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
         <div className="p-8 bg-indigo-600 border-b border-indigo-700 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-4">
                 <div className="p-3 bg-white/20 backdrop-blur-md rounded-2xl text-white">
-                    <Globe size={24} />
+                    <span className="text-2xl">🌐</span>
                 </div>
                 <div>
                     <h3 className="text-xl font-black text-white uppercase tracking-tight">Strategy Command</h3>
@@ -101,7 +100,7 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
             {/* 4-Step Strategy Breakdown */}
             <div className="p-8 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/20">
                 <div className="flex items-center gap-3 mb-6">
-                    <PlayCircle className="text-red-500" />
+                    <span className="text-red-500 text-xl">⏺️</span>
                     <h4 className="text-sm font-black uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">The 4-Step Viral Formula</h4>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -127,7 +126,7 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
             {/* Infographic Generator */}
             <div className="p-8 border-b border-slate-100 dark:border-slate-800">
                 <div className="flex items-center gap-3 mb-6">
-                    <Camera className="text-indigo-500" />
+                    <span className="text-indigo-500 text-xl">📷</span>
                     <h4 className="text-sm font-black uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">Social Cheat Sheet Studio</h4>
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -135,10 +134,10 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
                         <p className="text-xs text-slate-500 font-bold leading-relaxed">Generate high-density educational assets to build authority.</p>
                         <div className="flex flex-col sm:flex-row gap-3">
                             <button onClick={() => handleGenerateInfographic('comparison')} disabled={isGeneratingSheet} className="flex-1 py-4 bg-slate-900 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl disabled:opacity-50">
-                                {isGeneratingSheet ? <Loader2 size={16} className="animate-spin" /> : <Layers size={16} />} Chef vs Cook
+                                {isGeneratingSheet ? <span className="animate-spin">⏳</span> : <span className="text-base">📊</span>} Chef vs Cook
                             </button>
                             <button onClick={() => handleGenerateInfographic('meat_chart')} disabled={isGeneratingSheet} className="flex-1 py-4 bg-primary-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2 shadow-xl disabled:opacity-50">
-                                {isGeneratingSheet ? <Loader2 size={16} className="animate-spin" /> : <ImageIcon size={16} />} Meat Mapping
+                                {isGeneratingSheet ? <span className="animate-spin">⏳</span> : <span className="text-base">🖼️</span>} Meat Mapping
                             </button>
                         </div>
                     </div>
@@ -151,19 +150,19 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
             <div className="p-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="p-8 bg-slate-50 dark:bg-slate-800/50 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700">
-                        <GraduationCap className="text-indigo-600 mb-4" />
+                        <span className="text-indigo-600 mb-4 text-2xl block">🎓</span>
                         <h4 className="text-lg font-black uppercase">Academy Outreach</h4>
                         <p className="text-xs text-slate-500 font-bold mt-2">Automate student PoE admin to win 2026 enrollments.</p>
                         <button onClick={handleCopyAcademyPitch} className="w-full mt-4 py-4 bg-indigo-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2">
-                            <Mail size={16} /> Copy Academy Pitch
+                            <span className="text-base">📧</span> Copy Academy Pitch
                         </button>
                     </div>
                     <div className="p-8 bg-slate-100 dark:bg-slate-800 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700">
-                        <MousePointer2 className="text-red-600 mb-4" />
+                        <span className="text-red-600 mb-4 text-2xl block">🖱️</span>
                         <h4 className="text-lg font-black uppercase">Viral Bait</h4>
                         <p className="text-xs text-slate-500 font-bold mt-2">The "Comment CHEF" hook for Instagram growth.</p>
                         <button onClick={() => { navigator.clipboard.writeText(`I just used AI to write a 5-course Wedding Proposal in 30 seconds. 🤯 Comment "CHEF" for the link.`); onShowToast("Hook Copied!"); }} className="w-full mt-4 py-4 bg-red-600 text-white rounded-2xl font-black text-[11px] uppercase tracking-widest flex items-center justify-center gap-2">
-                            <Copy size={16} /> Copy Hook
+                            <span className="text-base">📋</span> Copy Hook
                         </button>
                     </div>
                 </div>
@@ -175,7 +174,7 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
                   {/* Make.com Logic */}
                   <div className="glass-card p-8 rounded-[2.5rem] border-2 border-slate-100 dark:border-slate-800">
                       <div className="flex items-center gap-3 mb-6">
-                          <RefreshCw className="text-indigo-500" />
+                          <span className="text-indigo-500 text-xl">🔄</span>
                           <h4 className="text-lg font-black uppercase">Make.com Logic Map</h4>
                       </div>
                       <div className="space-y-4">
@@ -199,7 +198,7 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
                   {/* Klaviyo Sequence */}
                   <div className="glass-card p-8 rounded-[2.5rem] border-2 border-slate-100 dark:border-slate-800">
                       <div className="flex items-center gap-3 mb-6">
-                          <Mail className="text-emerald-500" />
+                          <span className="text-emerald-500 text-xl">📧</span>
                           <h4 className="text-lg font-black uppercase">Klaviyo Welcome Sequence</h4>
                       </div>
                       <div className="space-y-4">
@@ -217,7 +216,7 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
                                       <p className="text-xs font-black text-slate-900 dark:text-white uppercase tracking-widest">{e.title}</p>
                                       <p className="text-[10px] font-medium text-slate-500 uppercase tracking-tighter">{e.desc}</p>
                                   </div>
-                                  <ChevronRight size={16} className="text-slate-300 group-hover:text-indigo-500" />
+                                  <span className="text-slate-300 group-hover:text-indigo-500 text-xs">▶️</span>
                               </button>
                           ))}
                       </div>
@@ -227,12 +226,12 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
         ) : activeTab === 'library' ? (
           <div className="p-8 animate-fade-in space-y-8">
             <div className="flex items-center gap-3 mb-6">
-              <BookOpen className="text-indigo-500" />
+              <span className="text-indigo-500 text-xl">📖</span>
               <h4 className="text-sm font-black uppercase tracking-[0.2em] text-slate-600 dark:text-slate-400">International Study Guide</h4>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="p-8 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-[2.5rem] relative group">
-                <div className="absolute top-0 right-0 p-8 opacity-5 text-indigo-500"><Scale size={80} /></div>
+                <div className="absolute top-0 right-0 p-8 opacity-5 text-indigo-500 text-6xl">⚖️</div>
                 <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-[9px] font-black uppercase tracking-widest mb-4 inline-block">Module A</span>
                 <h5 className="text-xl font-black mb-3 text-slate-900 dark:text-white">Yield Testing Standards</h5>
                 <p className="text-xs text-slate-500 font-bold leading-relaxed mb-6">Master the fundamental formula for edible portion calculation.</p>
@@ -242,7 +241,7 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
               </div>
 
               <div className="p-8 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-[2.5rem] relative group">
-                <div className="absolute top-0 right-0 p-8 opacity-5 text-indigo-500"><Globe size={80} /></div>
+                <div className="absolute top-0 right-0 p-8 opacity-5 text-indigo-500 text-6xl">🌐</div>
                 <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-[9px] font-black uppercase tracking-widest mb-4 inline-block">Module B</span>
                 <h5 className="text-xl font-black mb-3 text-slate-900 dark:text-white">Unit Conversion Matrix</h5>
                 <p className="text-xs text-slate-500 font-bold leading-relaxed mb-6">Standardized metrics for international culinary operations.</p>
@@ -252,7 +251,7 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
               </div>
 
               <div className="p-8 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-[2.5rem] relative group">
-                <div className="absolute top-0 right-0 p-8 opacity-5 text-indigo-500"><Trash2 size={80} /></div>
+                <div className="absolute top-0 right-0 p-8 opacity-5 text-indigo-500 text-6xl">🗑️</div>
                 <span className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[9px] font-black uppercase tracking-widest mb-4 inline-block">Module C</span>
                 <h5 className="text-xl font-black mb-3 text-slate-900 dark:text-white">Waste Management</h5>
                 <p className="text-xs text-slate-500 font-bold leading-relaxed mb-6">Optimize your bottom line by tracking trim percentages.</p>
@@ -279,13 +278,13 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
                         onClick={handleCopyLoomScript}
                         className="px-6 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 transition-all hover:bg-slate-200"
                     >
-                        <Copy size={14} /> Copy Script
+                        <span className="text-base">📋</span> Copy Script
                     </button>
                     <button 
                         onClick={handleOpenScript}
                         className="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 transition-all active:scale-95"
                     >
-                        <Video size={18} /> Launch Full-Screen
+                        <span className="text-lg">📹</span> Launch Full-Screen
                     </button>
                   </div>
               </div>
@@ -293,7 +292,7 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
               {/* STORYBOARD PREVIEW - Simplified and expanded for iPad reading */}
               <div className="p-8 bg-indigo-600 dark:bg-indigo-900 rounded-[2.5rem] shadow-2xl border-4 border-indigo-400/30">
                   <div className="flex items-center gap-3 mb-8">
-                      <Book className="text-white" size={24} />
+                      <span className="text-white text-xl">📖</span>
                       <h5 className="text-lg font-black uppercase tracking-widest text-white">Loom Pitch Storyboard</h5>
                   </div>
                   <div className="p-8 sm:p-12 bg-white dark:bg-slate-900 rounded-[2rem] shadow-inner border border-white/20">
@@ -302,49 +301,49 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
                       </p>
                   </div>
                   <div className="mt-8 flex items-center justify-center gap-3 text-[11px] font-black text-indigo-100 uppercase tracking-[0.2em]">
-                      <Sparkles size={14} className="text-amber-400" /> Practice this delivery before hitting record
+                      <span className="text-amber-400 text-sm">✨</span> Practice this delivery before hitting record
                   </div>
               </div>
 
               {/* Lifecycle Visualization */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
                   <div className="p-8 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-[2.5rem] relative group">
-                      <div className="absolute top-0 right-0 p-8 opacity-5 text-indigo-500"><Search size={80} /></div>
+                      <div className="absolute top-0 right-0 p-8 opacity-5 text-indigo-500 text-6xl">🔍</div>
                       <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-[9px] font-black uppercase tracking-widest mb-4 inline-block">Phase 1: Awareness</span>
                       <h5 className="text-xl font-black mb-3 text-slate-900 dark:text-white">The Lobby</h5>
                       <p className="text-xs text-slate-500 font-bold leading-relaxed mb-6">Build trust in your Whop/Skool community through free educational resources and "behind-the-scenes" process videos.</p>
                       <ul className="space-y-3">
                           {['Free Recipes', 'Culinary Tips', 'Community Q&A'].map(i => (
                               <li key={i} className="flex items-center gap-2 text-[10px] font-black text-slate-700 dark:text-slate-300">
-                                  <CheckCircle2 size={12} className="text-emerald-500" /> {i}
+                                  <span className="text-emerald-500 text-[10px]">✅</span> {i}
                               </li>
                           ))}
                       </ul>
                   </div>
 
                   <div className="p-8 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-[2.5rem] relative group border-indigo-500/20 shadow-indigo-500/5 shadow-2xl">
-                      <div className="absolute top-0 right-0 p-8 opacity-5 text-indigo-500"><CreditCard size={80} /></div>
+                      <div className="absolute top-0 right-0 p-8 opacity-5 text-indigo-500 text-6xl">💳</div>
                       <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-[9px] font-black uppercase tracking-widest mb-4 inline-block">Phase 2: Conversion</span>
                       <h5 className="text-xl font-black mb-3 text-slate-900 dark:text-white">The Dining Room</h5>
                       <p className="text-xs text-slate-500 font-bold leading-relaxed mb-6">Transition members into clients using CaterPro AI’s personalized proposals and streamlined booking logistics.</p>
                       <ul className="space-y-3">
                           {['Pro Proposals', 'Shopping Lists', 'Clear CTA Hub'].map(i => (
                               <li key={i} className="flex items-center gap-2 text-[10px] font-black text-slate-700 dark:text-slate-300">
-                                  <CheckCircle2 size={12} className="text-emerald-500" /> {i}
+                                  <span className="text-emerald-500 text-[10px]">✅</span> {i}
                               </li>
                           ))}
                       </ul>
                   </div>
 
                   <div className="p-8 bg-white dark:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 rounded-[2.5rem] relative group">
-                      <div className="absolute top-0 right-0 p-8 opacity-5 text-indigo-500"><TrendingUp size={80} /></div>
+                      <div className="absolute top-0 right-0 p-8 opacity-5 text-indigo-500 text-6xl">📈</div>
                       <span className="px-3 py-1 bg-emerald-100 text-emerald-700 rounded-full text-[9px] font-black uppercase tracking-widest mb-4 inline-block">Phase 3: Loyalty</span>
                       <h5 className="text-xl font-black mb-3 text-slate-900 dark:text-white">The Lounge</h5>
                       <p className="text-xs text-slate-500 font-bold leading-relaxed mb-6">Create the "Loyalty Loop" with automated follow-ups, referral bonuses, and exclusive ongoing club access.</p>
                       <ul className="space-y-3">
                           {['Auto Follow-up', 'Referral Rewards', 'VIP Feedback'].map(i => (
                               <li key={i} className="flex items-center gap-2 text-[10px] font-black text-slate-700 dark:text-slate-300">
-                                  <CheckCircle2 size={12} className="text-emerald-500" /> {i}
+                                  <span className="text-emerald-500 text-[10px]">✅</span> {i}
                               </li>
                           ))}
                       </ul>
@@ -366,10 +365,10 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
                 </div>
                 <div className="flex items-center gap-2">
                     <button onClick={handleCopyLoomScript} className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-50 transition-all text-slate-500" title="Copy to Clipboard">
-                        <Copy size={20} />
+                        <span className="text-lg">📋</span>
                     </button>
                     <button onClick={() => setIsScriptModalOpen(false)} className="p-3 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-red-50 hover:text-red-500 transition-all text-slate-500">
-                        <X size={24} />
+                        <span className="text-lg">❌</span>
                     </button>
                 </div>
             </div>
@@ -381,7 +380,7 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
             <div className="p-8 bg-slate-950 flex flex-col sm:flex-row items-center justify-between gap-4 flex-shrink-0">
                 <div className="flex items-center gap-4">
                     <div className="p-3 bg-indigo-500/20 rounded-xl">
-                        <Mic2 className="text-indigo-400" />
+                        <span className="text-indigo-400 text-lg">🎙️</span>
                     </div>
                     <div>
                         <p className="text-[10px] font-black uppercase text-indigo-400 tracking-widest">Active Script</p>
@@ -392,7 +391,7 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
                   onClick={() => setIsScriptModalOpen(false)}
                   className="px-12 py-5 bg-indigo-600 text-white rounded-2xl font-black text-sm uppercase tracking-widest flex items-center gap-3 shadow-2xl hover:scale-105 transition-all"
                 >
-                    Finish Recording <ArrowRight size={18} />
+                    Finish Recording <span className="text-lg">➡️</span>
                 </button>
             </div>
           </div>
