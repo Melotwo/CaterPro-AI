@@ -1,7 +1,6 @@
 
 import React from 'react';
-import { User, MapPin, ChefHat, Quote, Compass } from 'lucide-react';
-import founderImg from '../founder.jpg';
+import founderImg from './founder.jpg';
 
 const MeetTheFounder: React.FC = () => {
   return (
@@ -11,7 +10,7 @@ const MeetTheFounder: React.FC = () => {
           <div className="relative z-10 flex flex-col md:flex-row items-center gap-10">
             {/* Image Container */}
             <div className="w-56 h-56 sm:w-72 sm:h-72 rounded-3xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center border-4 border-slate-200 dark:border-slate-800 overflow-hidden shrink-0 shadow-2xl relative group">
-              <User className="absolute w-20 h-20 text-slate-300 dark:text-slate-600" />
+              <span className="absolute text-6xl text-slate-300 dark:text-slate-600">👤</span>
               <img 
                 id="founder-image" 
                 src={founderImg} 
@@ -35,11 +34,11 @@ const MeetTheFounder: React.FC = () => {
             <div className="space-y-6 text-center md:text-left">
               <div className="flex flex-col md:flex-row md:items-center gap-4">
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary-500/10 border border-primary-500/20 rounded-full w-fit mx-auto md:mx-0">
-                  <ChefHat size={14} className="text-primary-500" />
+                  <span className="text-primary-500 text-xs">👨‍🍳</span>
                   <span className="text-[10px] font-black uppercase tracking-widest text-primary-600 dark:text-primary-400">Meet the Founder</span>
                 </div>
                 <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full w-fit mx-auto md:mx-0">
-                  <Compass size={14} className="text-emerald-500 animate-spin-slow" />
+                  <span className="text-emerald-500 text-xs animate-spin-slow">🧭</span>
                   <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Melotwo Culinary Intelligence</span>
                 </div>
               </div>
@@ -49,16 +48,15 @@ const MeetTheFounder: React.FC = () => {
               </h2>
               
               <div className="relative">
-                <Quote className="absolute -top-4 -left-4 w-8 h-8 text-primary-500/20 dark:text-white/10" />
+                <span className="absolute -top-4 -left-4 text-3xl opacity-20">"</span>
                 <p className="text-lg sm:text-xl text-slate-900 dark:text-slate-100 font-medium leading-relaxed italic">
-                  My journey began in the demanding kitchens of the Disney Cruise Line, where precision and global standards were the baseline. I built <span className="font-bold">CaterPro</span><span className="font-medium text-[#10b981]">Ai</span> to bring that same level of elite operational excellence to every chef's office. By automating the complex admin of menu costing and yield management, we're shifting the culinary industry from manual chaos to intelligent systems.
+                  My journey began in the demanding kitchens of the Disney Cruise Line, where precision and global standards were the baseline. I built <span className="font-bold">CaterPro</span><span className="font-medium text-emerald">Ai</span> to bring that same level of elite operational excellence to every chef's office. By automating the complex admin of menu costing and yield management, we're shifting the culinary industry from manual chaos to intelligent systems.
                 </p>
               </div>
 
               <div className="flex items-center justify-center md:justify-start gap-4 pt-4">
                 <div className="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest">
-                  <MapPin size={14} />
-                  Johannesburg, South Africa
+                  📍 Johannesburg, South Africa
                 </div>
               </div>
             </div>
