@@ -64,9 +64,22 @@
   .bg-dark .text-emerald-400 svg, .bg-dark .text-emerald-500 svg { color: #10b981 !important; }
 
   /* Standard CSS Classes for Backgrounds */
-  .bg-dark { background-color: #121212 !important; }
+  .bg-dark, .bg-main { background-color: #121212 !important; }
+  .bg-dark-soft { background-color: #1a1a1a !important; }
   .bg-light { background-color: #F9FAFB !important; }
   .bg-emerald-deep { background-color: #064E3B !important; }
+  .bg-gold { background-color: #FFD700 !important; }
+  .bg-whatsapp { background-color: #25D366 !important; }
+  .bg-linkedin { background-color: #0077b5 !important; }
+  .bg-facebook { background-color: #1877F2 !important; }
+  .bg-slack { background-color: #4A154B !important; }
+  .bg-purple-deep { background-color: #4A154B !important; }
+  
+  .text-gold { color: #FFD700 !important; }
+  .text-white { color: #FFFFFF !important; }
+  .text-black { color: #000000 !important; }
+  .text-emerald { color: #10b981 !important; }
+  .text-slack { color: #4A154B !important; }
 
   /* Solid Card Backgrounds - No Transparency */
   .card-dark, .glass-card, .bg-white\/10, .bg-white\/5, .bg-black\/10, .bg-black\/5 {
