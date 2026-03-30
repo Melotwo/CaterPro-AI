@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from './firebase';
 import { collection, query, where, onSnapshot, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { useAuth } from './AuthContext';
+import { useAuth } from './App';
 
 interface IngredientCost {
   id?: string;
