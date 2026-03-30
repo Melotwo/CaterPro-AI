@@ -1,8 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing, CloudMenu } from '../types';
-import { Pencil, Copy, Edit, CheckSquare, ListTodo, X, ShoppingCart, Wine, Calculator, RefreshCw, Truck, ChefHat, FileText, ClipboardCheck, Share2, Link as LinkIcon, DollarSign, Wallet, Megaphone, Target, Lightbulb, TrendingUp, BarChart3, HelpCircle, Info, ArrowRight, Calendar, ShieldCheck, Sparkles, FileDown, Video, MessageSquareQuote, Lock, Sparkle, EyeOff, Eye, BrainCircuit, Globe, ExternalLink, Camera, Instagram, BarChart4, ShieldAlert, Thermometer, Droplets, Layout, Palette, AlertTriangle, Loader2, ImageIcon, Plus, Users, Tag } from 'lucide-react';
-import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES, PRICING_DATABASE } from '../constants';
-import { analytics } from '../services/analyticsManager';
+import { Menu, MenuSection, ShoppingListItem, RecommendedEquipment, BeveragePairing, CloudMenu } from './types';
+import { MENU_SECTIONS, EDITABLE_MENU_SECTIONS, PROPOSAL_THEMES, PRICING_DATABASE } from './constants';
+import { analytics } from './analyticsManager';
 
 interface MenuDisplayProps {
   menu: Menu;
@@ -109,7 +108,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
           {/* Background Image / Placeholder */}
           {isGeneratingImage ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center animate-pulse bg-slate-200 dark:bg-slate-900 z-10">
-                  <Loader2 className="w-12 h-12 text-indigo-500 animate-spin mb-4" />
+                  <span className="text-4xl animate-spin mb-4">⌛</span>
                   <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500">Architecting Food Photography...</p>
               </div>
           ) : menu.image ? (
@@ -120,7 +119,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
               />
           ) : (
               <div className="absolute inset-0 bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-900 flex flex-col items-center justify-center text-slate-300 dark:text-slate-600">
-                  <ImageIcon size={64} className="mb-4 opacity-10" />
+                  <span className="text-6xl mb-4 opacity-10">🖼️</span>
                   <p className="text-[9px] font-black uppercase tracking-widest opacity-40">Presentation Space Reserved</p>
                   {onRegenerateImage && (
                     <button 
@@ -138,7 +137,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
           
           <div className="absolute top-6 left-6 sm:top-10 sm:left-10 z-20">
               <div className="px-4 py-2 bg-primary-500/90 backdrop-blur-md rounded-2xl border border-white/20 shadow-xl flex items-center gap-3">
-                  <ChefHat className="w-5 h-5 text-white" />
+                  <span className="text-xl text-white">👨‍🍳</span>
                   <span className="text-[10px] font-black uppercase tracking-widest text-white">CaterPro AI: Marketing Hub</span>
               </div>
           </div>
@@ -146,10 +145,10 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
           {/* Action Buttons */}
           <div className="absolute top-6 right-6 z-20 flex gap-2 no-print">
               <button onClick={() => onOpenShareModal?.()} className="p-3 bg-white/20 backdrop-blur-xl text-white hover:bg-white/40 rounded-2xl transition-all border border-white/20 shadow-lg" title="Share Strategy">
-                  <Share2 size={20} />
+                  <span className="text-xl">📤</span>
               </button>
               <button onClick={() => window.print()} className="p-3 bg-white/20 backdrop-blur-xl text-white hover:bg-white/40 rounded-2xl transition-all border border-white/20 shadow-lg" title="Export Strategic PDF">
-                  <FileDown size={20} />
+                  <span className="text-xl">📄</span>
               </button>
           </div>
 
@@ -180,7 +179,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
           <div className="md:col-span-2 glass-card p-8 rounded-[2.5rem] border border-primary-100 dark:border-primary-900/30 bg-primary-50/30 dark:bg-primary-900/10 flex flex-col sm:flex-row items-center justify-between gap-6 no-print">
               <div className="flex items-center gap-4">
                   <div className="p-3 bg-primary-500 text-white rounded-2xl shadow-lg">
-                      <Users size={24} />
+                      <span className="text-2xl">👥</span>
                   </div>
                   <div>
                       <h4 className="text-lg font-black text-slate-900 dark:text-white">Dynamic Scaling Engine</h4>
@@ -225,14 +224,14 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                       <ul className="space-y-4">
                           {items.map((item, index) => (
                               <li key={`${key}-${index}`} className="flex items-start gap-4 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl">
-                                  <CheckSquare size={18} className="text-primary-500 mt-1 shrink-0" />
+                                  <span className="text-primary-500 mt-1 shrink-0">✅</span>
                                   <span className={`text-lg font-bold tracking-tight ${t.uncheckedText}`}>{String(item)}</span>
                               </li>
                           ))}
                       </ul>
                   ) : (
                       <div className="py-12 px-6 text-center border-4 border-dashed border-slate-100 dark:border-slate-800 rounded-[2rem] flex flex-col items-center justify-center gap-4">
-                          <AlertTriangle className="text-amber-400 w-8 h-8" />
+                          <span className="text-amber-400 text-3xl">⚠️</span>
                           <p className="text-xs font-black uppercase text-slate-400 dark:text-slate-500 tracking-widest leading-relaxed">
                               Section {catIdx + 1} Pending:<br/>AI Refinement Required
                           </p>
@@ -253,7 +252,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
               return (
                   <div key={key} className={`${t.sectionContainer} rounded-[2.5rem] md:col-span-2 shadow-xl overflow-hidden bg-white/50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 mt-6`}>
                       <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex items-center gap-4">
-                          <div className={`p-3 ${t.sectionIcon} rounded-2xl`}><ClipboardCheck size={24} /></div>
+                          <div className={`p-3 ${t.sectionIcon} rounded-2xl`}><span className="text-2xl">📋</span></div>
                           <h3 className={`text-2xl font-black ${t.sectionTitle}`}>{section.title}</h3>
                       </div>
                       <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -271,7 +270,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
           <div className={`${t.sectionContainer} rounded-[2.5rem] md:col-span-2 shadow-xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 mt-6`}>
               <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                      <div className={`p-3 ${t.sectionIcon} rounded-2xl`}><ShoppingCart size={24} /></div>
+                      <div className={`p-3 ${t.sectionIcon} rounded-2xl`}><span className="text-2xl">🛒</span></div>
                       <div>
                           <h3 className={`text-2xl font-black ${t.sectionTitle}`}>Scaled Shopping List</h3>
                           <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Quantities adjusted for {scaledGuestCount} guests</p>
@@ -329,7 +328,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                                                                       className="text-sm font-black text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 px-2 py-1 rounded transition-colors flex items-center gap-1 ml-auto"
                                                                   >
                                                                       R{item.unitPrice.toFixed(2)}
-                                                                      <Edit size={12} className="opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                                      <span className="text-xs opacity-0 group-hover:opacity-100 transition-opacity ml-1">✏️</span>
                                                                   </button>
                                                               )}
                                                           </td>
@@ -353,7 +352,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
 
                           <div className="mt-8 p-6 bg-primary-600 rounded-3xl flex justify-between items-center shadow-xl shadow-primary-500/20">
                               <div className="flex items-center gap-3 text-white">
-                                  <Calculator size={24} />
+                                  <span className="text-2xl">🧮</span>
                                   <span className="text-sm font-black uppercase tracking-[0.2em]">Grand Total Estimate</span>
                               </div>
                               <div className="text-3xl font-black text-white tracking-tight">
@@ -373,7 +372,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
           <div className={`${t.sectionContainer} rounded-[2.5rem] md:col-span-2 shadow-xl overflow-hidden bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 mt-12`}>
               <div className="p-8 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
                   <div className="flex items-center gap-4">
-                      <div className={`p-3 ${t.sectionIcon} rounded-2xl`}><Camera size={24} /></div>
+                      <div className={`p-3 ${t.sectionIcon} rounded-2xl`}><span className="text-2xl">📷</span></div>
                       <div>
                           <h3 className="text-2xl font-black">Dish Gallery</h3>
                           <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">Showcase your actual creations</p>
@@ -381,7 +380,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                   </div>
                   {onUploadDishImage && (
                       <label className="cursor-pointer px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl text-xs font-black uppercase flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-primary-500/20">
-                          <Plus className="w-4 h-4" /> Upload Dish Photo
+                          <span className="text-sm">➕</span> Upload Dish Photo
                           <input 
                               type="file" 
                               className="hidden" 
@@ -402,7 +401,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                                   <img src={img} alt={`Dish ${idx + 1}`} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
                                   <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                       <button className="p-2 bg-white/20 backdrop-blur-md rounded-full text-white">
-                                          <Eye size={20} />
+                                          <span className="text-xl">👁️</span>
                                       </button>
                                   </div>
                               </div>
@@ -410,7 +409,7 @@ const MenuDisplay: React.FC<MenuDisplayProps> = ({
                       </div>
                   ) : (
                       <div className="py-16 text-center border-4 border-dashed border-slate-100 dark:border-slate-800 rounded-[2rem]">
-                          <ImageIcon className="w-12 h-12 text-slate-300 mx-auto mb-4 opacity-20" />
+                          <span className="text-6xl mb-4 opacity-10">🖼️</span>
                           <p className="text-sm font-bold text-slate-400">No dish photos uploaded yet.</p>
                           <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-2">Upload your work to build client trust</p>
                       </div>
