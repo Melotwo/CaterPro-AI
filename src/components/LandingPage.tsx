@@ -91,7 +91,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             <h1 className="text-5xl sm:text-6xl lg:text-8xl tracking-tighter mb-6 leading-[0.9] flex flex-col items-center lg:items-start">
               <span className="flex items-center">
                 <span className="font-bold text-slate-900 dark:text-white">CaterPro</span>
-                <span className="font-medium bg-gradient-to-br from-[#10b981] to-[#34d399] bg-clip-text text-transparent">Ai</span>
+                <span className="font-medium text-emerald">Ai</span>
               </span>
               <span className="text-slate-500 text-sm md:text-base font-black mt-4 uppercase tracking-[0.4em]">
                 Chef in the Kitchen. AI in the Office.
@@ -170,11 +170,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                     </h2>
                     <div className="space-y-8 text-slate-600 dark:text-slate-100 text-xl leading-relaxed font-medium">
                         <p>
-                            My journey began in the demanding kitchens of the Disney Cruise Line, where precision and global standards were the baseline. I built <span className="font-bold text-black">CaterPro</span><span className="font-medium bg-gradient-to-br from-[#10b981] to-[#34d399] bg-clip-text text-transparent drop-shadow-[0_0_8px_rgba(16,185,129,0.2)]">Ai</span> to bring that same level of elite operational excellence to every chef's office.
+                            My journey began in the demanding kitchens of the Disney Cruise Line, where precision and global standards were the baseline. I built <span className="font-bold text-black">CaterPro</span><span className="font-medium text-emerald">Ai</span> to bring that same level of elite operational excellence to every chef's office.
                         </p>
                     </div>
                     <div className="pt-12 border-t border-slate-800 flex flex-wrap gap-6 items-center">
-                        <button onClick={() => handleShare('linkedin')} className="flex items-center gap-3 px-8 py-4 bg-[#0077b5] text-white rounded-2xl hover:bg-[#006097] text-sm font-black transition-all active:scale-95 shadow-xl shadow-blue-500/20">
+                        <button onClick={() => handleShare('linkedin')} className="flex items-center gap-3 px-8 py-4 bg-linkedin text-white rounded-2xl hover:brightness-110 text-sm font-black transition-all active:scale-95 shadow-xl shadow-blue-500/20">
                             <span className="text-xl">🔗</span> Share My Story
                         </button>
                     </div>
