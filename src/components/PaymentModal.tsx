@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { SubscriptionPlan } from './AppSubscription';
+import { SubscriptionPlan } from './App';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
 const PAYPAL_CLIENT_ID: string = "Adp-3XYWNARTpkCw4rbtFUnFox3mMwZtWWRy-TprJ8sOrV8X9z4xtyobRHuCx848mseDoqATaUooheFz"; 
