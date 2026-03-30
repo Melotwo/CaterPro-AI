@@ -3,7 +3,7 @@ import React, { Component, ErrorInfo, ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
-import { AuthProvider } from './useAuth.tsx';
+import { AuthProvider } from './AuthContext';
 
 interface ErrorBoundaryProps {
   children?: ReactNode;
