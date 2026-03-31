@@ -6,29 +6,9 @@ import { getFirestore, collection, query, where, onSnapshot, doc, setDoc } from 
 import { GoogleGenAI, Chat } from '@google/genai';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  ChefHat, 
-  Calculator, 
-  TrendingUp, 
-  DollarSign, 
-  Users, 
-  Truck, 
-  Utensils, 
-  Trash2, 
-  Download, 
-  MessageSquare,
-  ChevronRight,
-  Zap,
-  ShieldCheck,
-  RefreshCw,
-  Star,
-  ArrowRight,
-  PieChart,
-  Percent,
-  CheckCircle2
-} from 'lucide-react';
 
 // --- FIREBASE INITIALIZATION ---
+// This assumes the file exists in your environment
 import firebaseConfig from '../firebase-applet-config.json';
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
@@ -142,7 +122,7 @@ const Toast: React.FC<{ message: string | null; onDismiss: () => void }> = ({ me
       className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[200]"
     >
       <div className="bg-emerald-600 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-white/20 backdrop-blur-xl">
-        <Zap size={18} strokeWidth={3} />
+        <span className="text-lg">⚡</span>
         <p className="text-sm font-black uppercase tracking-widest">{message}</p>
       </div>
     </motion.div>
@@ -169,7 +149,7 @@ const PricingSection: React.FC = () => (
             <ul className="space-y-4 mb-12 flex-grow">
               {plan.features.map(f => (
                 <li key={f} className="flex items-center gap-3 text-sm text-slate-400 opacity-60">
-                  <CheckCircle2 size={14} className="text-emerald-500" /> {f}
+                  <span className="text-emerald-500">✅</span> {f}
                 </li>
               ))}
             </ul>
@@ -210,10 +190,10 @@ const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; ini
       <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-6xl h-full max-h-[90vh] bg-slate-900/90 backdrop-blur-2xl border-2 border-emerald-500/30 rounded-[4rem] shadow-2xl overflow-hidden flex flex-col">
         <div className="p-12 border-b border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-400"><Calculator size={24} strokeWidth={3} /></div>
+            <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center text-2xl">🧮</div>
             <h2 className="text-4xl font-black text-white uppercase tracking-tighter">Shift Breakdown</h2>
           </div>
-          <button onClick={onClose} className="w-12 h-12 flex items-center justify-center text-slate-500 hover:text-white transition-colors"><Trash2 size={24} strokeWidth={3} /></button>
+          <button onClick={onClose} className="w-12 h-12 flex items-center justify-center text-slate-500 hover:text-white transition-colors text-2xl">🗑️</button>
         </div>
         <div className="flex-1 overflow-y-auto p-12">
           <table className="w-full text-left">
@@ -342,7 +322,7 @@ const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => 
         <div className="space-y-16">
           <div className="bg-slate-800/30 p-12 rounded-[3.5rem] border border-white/10 shadow-xl">
             <div className="flex items-center gap-4 mb-10">
-              <Truck size={18} className="text-emerald-500" strokeWidth={3} />
+              <span className="text-xl">🚚</span>
               <h4 className="text-xs font-black uppercase text-emerald-500 tracking-[0.3em]">Logistics & Service</h4>
             </div>
             <div className="space-y-10">
@@ -361,7 +341,7 @@ const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => 
                 <ul className="space-y-5">
                   {proposal.deliveryLogistics.map((d, i) => (
                     <li key={i} contentEditable suppressContentEditableWarning onBlur={(e) => { const n = [...proposal.deliveryLogistics]; n[i] = e.currentTarget.textContent || ''; updateRoot('deliveryLogistics', n); }} className="text-sm font-medium text-slate-300 flex gap-4 outline-none group">
-                      <ShieldCheck size={14} className="text-emerald-500 opacity-40 group-hover:opacity-100" /> {d}
+                      <span className="text-emerald-500">🛡️</span> {d}
                     </li>
                   ))}
                 </ul>
@@ -374,7 +354,7 @@ const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => 
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
             
             <div className="flex items-center gap-3 mb-6 opacity-60">
-              <DollarSign size={16} strokeWidth={3} />
+              <span className="text-sm">💰</span>
               <p className="text-[10px] font-black uppercase tracking-[0.3em]">Total Proposal Value</p>
             </div>
             
@@ -525,22 +505,22 @@ export default function App() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-950/40 backdrop-blur-2xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
           <div onClick={() => setView('landing')} className="flex items-center gap-3 cursor-pointer group">
-            <div className="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-2xl group-hover:scale-110 transition-transform">
-              <ChefHat size={24} strokeWidth={3} />
+            <div className="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-2xl group-hover:scale-110 transition-transform text-2xl">
+              👨‍🍳
             </div>
             <span className="text-3xl font-black tracking-tighter uppercase italic text-white">CaterPro<span className="text-emerald-500">AI</span></span>
           </div>
           <div className="hidden md:flex items-center gap-10">
             {[
-              { id: 'generator', label: 'Generator', icon: <Zap size={14} strokeWidth={3} /> },
-              { id: 'calculator', label: 'Calculator', icon: <Calculator size={14} strokeWidth={3} /> }
+              { id: 'generator', label: 'Generator', icon: '⚡' },
+              { id: 'calculator', label: 'Calculator', icon: '🧮' }
             ].map(item => (
               <button 
                 key={item.id} 
                 onClick={() => setView(item.id)} 
                 className={`text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2 ${view === item.id ? 'text-emerald-500' : 'text-slate-500 hover:text-white'}`}
               >
-                {item.icon}
+                <span>{item.icon}</span>
                 {item.label}
               </button>
             ))}
@@ -579,11 +559,11 @@ export default function App() {
 
                   <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                     <button onClick={() => setView('generator')} className="px-12 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-emerald-500 transition-all shadow-2xl shadow-emerald-600/20 flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
-                      <Zap size={18} strokeWidth={3} />
+                      <span>⚡</span>
                       Start New Proposal
                     </button>
                     <button onClick={() => window.location.href = WHOP_CHECKOUT_URL} className="px-12 py-6 bg-white text-slate-950 rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-emerald-500 hover:text-white transition-all shadow-2xl flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
-                      <ShieldCheck size={18} strokeWidth={3} />
+                      <span>🛡️</span>
                       Upgrade to Pro
                     </button>
                   </div>
@@ -599,7 +579,7 @@ export default function App() {
               <div className="flex flex-col md:flex-row justify-center gap-6 mt-12">
                 <button onClick={() => setView('generator')} className="px-12 py-6 bg-slate-900/40 backdrop-blur-xl text-white border border-white/10 rounded-[2rem] font-black uppercase text-sm hover:bg-slate-800 transition-all" style={{ clipPath: OCTAGON_CLIP }}>New Draft</button>
                 <button onClick={exportPDF} className="px-12 py-6 bg-white text-slate-950 rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 hover:text-white transition-all shadow-2xl flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
-                  <Download size={18} strokeWidth={3} />
+                  <span>📥</span>
                   Download PDF
                 </button>
                 <button onClick={() => setShiftModal({ 
@@ -611,7 +591,7 @@ export default function App() {
                   ], 
                   title: proposal.title 
                 })} className="px-12 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-2xl flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
-                  <Calculator size={18} strokeWidth={3} />
+                  <span>🧮</span>
                   Shift Breakdown
                 </button>
               </div>
@@ -629,19 +609,19 @@ export default function App() {
                   <div>
                     <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 opacity-60">Event Type</label>
                     <div className="relative">
-                      <Utensils className="absolute left-6 top-1/2 -translate-y-1/2 text-emerald-500" size={20} strokeWidth={3} />
+                      <span className="absolute left-6 top-1/2 -translate-y-1/2 text-xl">🍴</span>
                       <input type="text" placeholder="e.g. Wedding Gala..." className="w-full p-6 pl-16 rounded-[2rem] border border-white/10 bg-slate-800 text-white font-bold outline-none focus:border-emerald-500 transition-all" />
                     </div>
                   </div>
                   <div>
                     <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 opacity-60">Guest Count</label>
                     <div className="relative">
-                      <Users className="absolute left-6 top-1/2 -translate-y-1/2 text-emerald-500" size={20} strokeWidth={3} />
+                      <span className="absolute left-6 top-1/2 -translate-y-1/2 text-xl">👥</span>
                       <input type="number" placeholder="50" className="w-full p-6 pl-16 rounded-[2rem] border border-white/10 bg-slate-800 text-white font-bold outline-none focus:border-emerald-500 transition-all" />
                     </div>
                   </div>
                   <button onClick={generate} disabled={generating} className="w-full py-8 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-2xl disabled:opacity-50 flex items-center justify-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
-                    {generating ? <RefreshCw className="animate-spin" size={20} strokeWidth={3} /> : <Zap size={20} strokeWidth={3} />}
+                    {generating ? <span className="animate-spin">🔄</span> : <span>⚡</span>}
                     {generating ? 'Chef AI is Drafting...' : 'Generate Proposal'}
                   </button>
                 </div>
@@ -656,7 +636,7 @@ export default function App() {
               </div>
               <div className="bg-slate-900/40 backdrop-blur-xl p-8 rounded-[4rem] border border-white/10 shadow-2xl">
                 <div className="flex items-center gap-4 mb-8">
-                  <div className="w-10 h-10 bg-sky-500/20 rounded-xl flex items-center justify-center text-sky-400"><Calculator size={20} strokeWidth={3} /></div>
+                  <div className="w-10 h-10 bg-sky-500/20 rounded-xl flex items-center justify-center text-xl">🧮</div>
                   <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Quick Costing</h3>
                 </div>
                 <div className="space-y-6">
@@ -676,8 +656,8 @@ export default function App() {
       <footer className="bg-slate-950 py-20 border-t border-white/5 relative z-10">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <div className="flex items-center justify-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white">
-              <ChefHat size={20} strokeWidth={3} />
+            <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white text-xl">
+              👨‍🍳
             </div>
             <span className="text-2xl font-black tracking-tighter uppercase italic">CaterPro<span className="text-emerald-500">AI</span></span>
           </div>
