@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import ThumbnailStudio from './ThumbnailStudio';
+import Toast from './Toast';
 
 interface FounderRoadmapProps {
   whopUrl: string;
   onOpenSocial?: (mode: 'create' | 'reel' | 'status') => void;
 }
 
-const ValentineSprint: React.FC = () => {
+const ValentineSprint: React.FC<{ setToast: (msg: string) => void }> = ({ setToast }) => {
     const scripts = [
         {
             title: "The 'High-Margin' Yacht Hook",
@@ -42,7 +43,15 @@ const ValentineSprint: React.FC = () => {
                                 </div>
                                 <div className="mt-6 pt-4 border-t border-white/10 flex items-center justify-between">
                                     <span className="text-[9px] font-black uppercase tracking-widest text-rose-200">Tip: {s.advice}</span>
-                                    <button onClick={() => { navigator.clipboard.writeText(s.script); alert("Script Copied!"); }} className="p-2 bg-white text-rose-600 rounded-lg shrink-0"><span className="text-sm">📋</span></button>
+                                    <button 
+                                      onClick={() => { 
+                                        navigator.clipboard.writeText(s.script); 
+                                        setToast("Script Copied!");
+                                      }} 
+                                      className="p-2 bg-white text-rose-600 rounded-lg shrink-0"
+                                    >
+                                      <span className="text-sm">📋</span>
+                                    </button>
                                 </div>
                             </div>
                         ))}
@@ -341,6 +350,7 @@ const WhopWarRoom: React.FC = () => {
 
 const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }) => {
   const [activeTab, setActiveTab] = useState<'valentine' | 'crm_architect' | 'outreach' | 'security' | 'whop_war_room' | 'assets'>('valentine');
+  const [toast, setToast] = useState<string | null>(null);
 
   return (
     <section id="founder-roadmap" className="mt-20 space-y-12 animate-slide-in scroll-mt-24">
@@ -373,13 +383,17 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
       </div>
 
       <div className="grid grid-cols-1 gap-12">
-        {activeTab === 'valentine' && <ValentineSprint />}
+        {activeTab === 'valentine' && <ValentineSprint setToast={setToast} />}
         {activeTab === 'crm_architect' && <CRMArchitect />}
         {activeTab === 'outreach' && <OutreachLab />}
         {activeTab === 'whop_war_room' && <WhopWarRoom />}
         {activeTab === 'security' && <SecurityHub />}
         {activeTab === 'assets' && <ThumbnailStudio />}
       </div>
+      <Toast 
+        message={toast || ''} 
+        onDismiss={() => setToast(null)} 
+      />
     </section>
   );
 };
