@@ -3,6 +3,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, collection, query, where, onSnapshot } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { motion, AnimatePresence } from 'framer-motion';
@@ -60,17 +61,26 @@ export type SubscriptionPlan = 'free' | 'commis' | 'chef-de-partie' | 'sous-chef
 // --- CONSTANTS ---
 
 const DEMO_USER_ID = 'DEMO_USER';
-// PRODUCTION PAYPAL CLIENT ID
-const PAYPAL_CLIENT_ID = "Adp-3XYWNARTpkCw4rbtFUnFox3mMwZtWWRy-TprJ8sOrV8X9z4xtyobRHuCx848mseDoqATaUooheFz";
 const WHOP_CHECKOUT_URL = "https://whop.com/caterpro-ai"; 
 const HERO_FALLBACK = "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1200&q=80";
 
-// --- FIREBASE INITIALIZATION ---
+// --- FIREBASE INITIALIZATION (NO EXTERNAL CONFIG) ---
 
-import firebaseConfig from '../firebase-applet-config.json';
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+};
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+const db = getFirestore(app, import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID || '(default)');
+const auth = getAuth(app);
+
+// --- PAYPAL CONFIG ---
+const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID || "Adp-3XYWNARTpkCw4rbtFUnFox3mMwZtWWRy-TprJ8sOrV8X9z4xtyobRHuCx848mseDoqATaUooheFz";
 
 // --- UTILS ---
 
@@ -97,6 +107,24 @@ const NoiseOverlay = () => (
       </filter>
       <rect width="100%" height="100%" filter="url(#noiseFilter)" />
     </svg>
+  </div>
+);
+
+const Logo = ({ className = "" }: { className?: string }) => (
+  <div className={`flex items-center gap-3 ${className}`}>
+    <div className="relative w-12 h-12 flex items-center justify-center">
+      {/* Circular 'C' with Chef Hat */}
+      <div className="absolute inset-0 border-2 border-emerald-500 rounded-full" />
+      <div className="absolute inset-0 flex items-center justify-center text-2xl font-black text-emerald-500">
+        C
+      </div>
+      <div className="absolute -top-1 -right-1 bg-slate-950 rounded-full p-0.5">
+        <span className="text-lg">👨‍🍳</span>
+      </div>
+    </div>
+    <span className="text-3xl font-black tracking-tighter uppercase italic text-white">
+      CaterPro<span className="text-emerald-500">AI</span>
+    </span>
   </div>
 );
 
@@ -177,32 +205,6 @@ const Toast: React.FC<{ message: string | null; onDismiss: () => void }> = ({ me
         <p className="text-sm font-black uppercase tracking-widest">{message}</p>
       </div>
     </motion.div>
-  );
-};
-
-const PaymentModal: React.FC<{ isOpen: boolean; onClose: () => void; plan: SubscriptionPlan; onConfirm: () => void; price: string }> = ({ isOpen, onClose, plan, onConfirm, price }) => {
-  const [isProcessing, setIsProcessing] = useState(false);
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-      <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-w-md bg-slate-900/90 backdrop-blur-2xl rounded-[3rem] shadow-2xl border border-white/10 overflow-hidden p-8">
-        <div className="text-center mb-8">
-          <h3 className="text-2xl font-black text-white capitalize">Unlock {plan}</h3>
-          <p className="text-4xl font-black text-emerald-500 mt-2">{price}</p>
-        </div>
-        {isProcessing ? (
-          <div className="flex flex-col items-center py-10 space-y-4">
-            <span className="animate-spin text-4xl">🔄</span>
-            <p className="font-bold text-white uppercase tracking-widest text-xs">Verifying Transaction...</p>
-          </div>
-        ) : (
-          <PayPalScriptProvider options={{ clientId: PAYPAL_CLIENT_ID, currency: "USD" }}>
-            <PayPalButtons style={{ layout: "vertical", shape: "pill" }} createOrder={(data, actions) => actions.order.create({ intent: "CAPTURE", purchase_units: [{ amount: { currency_code: "USD", value: price.replace('$', '') } }] })} onApprove={async (data, actions) => { setIsProcessing(true); await actions.order?.capture(); onConfirm(); }} onCancel={() => setIsProcessing(false)} />
-          </PayPalScriptProvider>
-        )}
-        <button onClick={onClose} className="w-full mt-4 text-slate-500 font-bold text-sm uppercase tracking-widest">Cancel</button>
-      </motion.div>
-    </div>
   );
 };
 
@@ -554,7 +556,6 @@ export default function App() {
   const [toast, setToast] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [proposal, setProposal] = useState<Menu | null>(null);
-  const [payModal, setPayModal] = useState<{ isOpen: boolean; plan: SubscriptionPlan; price: string } | null>(null);
   const [shiftModal, setShiftModal] = useState<{ isOpen: boolean; ingredients: ShiftIngredient[]; title: string } | null>(null);
 
   useEffect(() => {
@@ -635,11 +636,8 @@ export default function App() {
       
       <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-950/40 backdrop-blur-2xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
-          <div onClick={() => setView('landing')} className="flex items-center gap-3 cursor-pointer group">
-            <div className="w-12 h-12 bg-emerald-600 rounded-2xl flex items-center justify-center text-white shadow-2xl group-hover:scale-110 transition-transform text-2xl">
-              👨‍🍳
-            </div>
-            <span className="text-3xl font-black tracking-tighter uppercase italic text-white">CaterPro<span className="text-emerald-500">AI</span></span>
+          <div onClick={() => setView('landing')} className="cursor-pointer group">
+            <Logo />
           </div>
           <div className="hidden md:flex items-center gap-10">
             {[
@@ -743,10 +741,7 @@ export default function App() {
       <footer className="bg-slate-950 py-20 border-t border-white/5 relative z-10">
         <div className="max-w-7xl mx-auto px-6 text-center">
           <div className="flex items-center justify-center gap-3 mb-8">
-            <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white text-xl">
-              👨‍🍳
-            </div>
-            <span className="text-2xl font-black tracking-tighter uppercase italic">CaterPro<span className="text-emerald-500">AI</span></span>
+            <Logo />
           </div>
           <p className="text-slate-500 font-medium italic mb-8 opacity-60">Empowering chefs with AI-driven precision. Built for the Modern Kitchen.</p>
         </div>
