@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, Copy, Check, Facebook, Twitter, Instagram, Video, Loader2, Smartphone, MessageSquareQuote, Activity, Pin, Flame, Rocket, MessageSquare, Mic2, Hash, AtSign, Zap, UserCircle, AlertCircle, Megaphone } from 'lucide-react';
-import { generateSocialCaption, generateVideoFromApi, generateWhatsAppStatus } from '../services/geminiService';
+import { generateSocialCaption, generateVideoFromApi, generateWhatsAppStatus } from './geminiService';
+import Toast from './Toast';
 
 export type Mode = 'create' | 'pitch' | 'video' | 'status' | 'reel' | 'formula' | 'flex' | 'tiktok' | 'tags' | 'bio';
 
@@ -23,6 +23,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
   const [activePlatform, setActivePlatform] = useState<Platform>('whop');
   const [editedContent, setEditedContent] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
   const [copiedText, setCopiedText] = useState(false);
 
   useEffect(() => {
@@ -85,25 +86,25 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
         
         <div className="bg-slate-50 dark:bg-slate-800 p-6 flex items-center justify-between border-b border-slate-100 dark:border-slate-700">
             <h3 className="text-xs font-black uppercase tracking-widest text-slate-500">Marketing & Strategy Console</h3>
-            <button onClick={onClose} className="p-3 bg-white dark:bg-slate-700 rounded-full shadow-sm hover:scale-110 transition-transform"><X size={20} /></button>
+            <button onClick={onClose} className="p-3 bg-white dark:bg-slate-700 rounded-full shadow-sm hover:scale-110 transition-transform">✕</button>
         </div>
 
         <div className="flex bg-white dark:bg-slate-900 p-3 border-b border-slate-100 dark:border-slate-800 overflow-x-auto no-scrollbar gap-3">
             {[
-                { id: 'bio', icon: UserCircle, label: 'Bio Architect' },
-                { id: 'tags', icon: Hash, label: 'Tags' },
-                { id: 'tiktok', icon: Mic2, label: 'TikTok Script' },
-                { id: 'create', icon: MessageSquareQuote, label: 'Captions' },
-                { id: 'flex', icon: Rocket, label: 'Flex' },
-                { id: 'status', icon: Smartphone, label: 'WhatsApp' },
-                { id: 'reel', icon: Video, label: 'Reel Render' }
+                { id: 'bio', icon: '👤', label: 'Bio Architect' },
+                { id: 'tags', icon: '#', label: 'Tags' },
+                { id: 'tiktok', icon: '🎤', label: 'TikTok Script' },
+                { id: 'create', icon: '💬', label: 'Captions' },
+                { id: 'flex', icon: '🚀', label: 'Flex' },
+                { id: 'status', icon: '📱', label: 'WhatsApp' },
+                { id: 'reel', icon: '📹', label: 'Reel Render' }
             ].map(m => (
                 <button 
                   key={m.id}
                   onClick={() => { setActiveMode(m.id as Mode); if(m.id !== 'reel' && m.id !== 'tags' && m.id !== 'bio') handleGenerate(); }}
                   className={`flex-1 min-w-[120px] py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all ${activeMode === m.id ? 'bg-indigo-600 text-white shadow-lg scale-105' : 'bg-slate-50 dark:bg-slate-800 text-slate-400'}`}
                 >
-                    <m.icon size={16} /> {m.label}
+                    <span className="text-base">{m.icon}</span> {m.label}
                 </button>
             ))}
         </div>
@@ -112,7 +113,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
             {activeMode === 'bio' ? (
                 <div className="flex-grow p-10 overflow-y-auto custom-scrollbar space-y-10 bg-slate-50 dark:bg-slate-950">
                     <div className="flex items-center gap-3 mb-8">
-                        <UserCircle className="text-indigo-500" size={24} />
+                        <span className="text-2xl">👤</span>
                         <h4 className="text-xl font-black uppercase tracking-tight">Character-Limited Bio Studio</h4>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -130,7 +131,10 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                                     </p>
                                 </div>
                                 <button 
-                                    onClick={() => { navigator.clipboard.writeText(template.text); alert(`${template.platform} Bio Copied!`); }}
+                                    onClick={() => { 
+                                      navigator.clipboard.writeText(template.text); 
+                                      setToast(`${template.platform} Bio Copied!`);
+                                    }}
                                     className="mt-8 w-full py-4 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest active:scale-95 transition-all shadow-lg"
                                 >
                                     Copy Bio
@@ -139,7 +143,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                         ))}
                     </div>
                     <div className="p-6 bg-amber-50 dark:bg-amber-900/10 border-2 border-amber-100 dark:border-amber-800 rounded-2xl flex gap-4">
-                        <AlertCircle className="text-amber-600 shrink-0" />
+                        <span className="text-amber-600 shrink-0">⚠️</span>
                         <p className="text-xs font-bold text-amber-800 dark:text-amber-400 leading-relaxed">
                             TikTok is strictly limited to 80 characters. If your bio is "too long," it usually means the invisible formatting characters (spaces/line breaks) are pushing you over. Use the TikTok template above—it's pre-measured.
                         </p>
@@ -151,7 +155,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="p-8 bg-white dark:bg-slate-900 rounded-[2.5rem] border-2 border-slate-100 dark:border-slate-800 shadow-xl">
                             <div className="flex items-center gap-3 mb-6">
-                                <Zap className="text-amber-500" size={20} />
+                                <span className="text-amber-500 text-xl">⚡</span>
                                 <h5 className="text-sm font-black uppercase tracking-widest">2026 Viral Hooks</h5>
                             </div>
                             <div className="space-y-3">
@@ -164,7 +168,10 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                                 ].map((hook, i) => (
                                     <button 
                                         key={i}
-                                        onClick={() => { navigator.clipboard.writeText(hook); alert("Hook Copied!"); }}
+                                        onClick={() => { 
+                                          navigator.clipboard.writeText(hook); 
+                                          setToast("Hook Copied!");
+                                        }}
                                         className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl text-left text-xs font-bold hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all border border-transparent hover:border-indigo-200"
                                     >
                                         {hook}
@@ -174,7 +181,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                         </div>
                         <div className="p-8 bg-white dark:bg-slate-900 rounded-[2.5rem] border-2 border-slate-100 dark:border-slate-800 shadow-xl">
                             <div className="flex items-center gap-3 mb-6">
-                                <Megaphone className="text-indigo-500" size={20} />
+                                <span className="text-indigo-500 text-xl">📢</span>
                                 <h5 className="text-sm font-black uppercase tracking-widest">Pinterest Strategy</h5>
                             </div>
                             <div className="space-y-3">
@@ -186,7 +193,10 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                                 ].map((desc, i) => (
                                     <button 
                                         key={i}
-                                        onClick={() => { navigator.clipboard.writeText(desc); alert("Description Copied!"); }}
+                                        onClick={() => { 
+                                          navigator.clipboard.writeText(desc); 
+                                          setToast("Description Copied!");
+                                        }}
                                         className="w-full p-4 bg-slate-50 dark:bg-slate-800 rounded-xl text-left text-xs font-bold hover:bg-indigo-50 dark:hover:bg-indigo-900/20 transition-all border border-transparent hover:border-indigo-200"
                                     >
                                         {desc}
@@ -196,7 +206,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                         </div>
                     </div>
                     <div className="flex items-center gap-3">
-                        <Hash className="text-indigo-500" size={24} />
+                        <span className="text-indigo-500 text-2xl">#</span>
                         <h4 className="text-xl font-black uppercase tracking-tight">Optimized Hashtag Stacks</h4>
                     </div>
                     <div className="grid grid-cols-1 gap-4">
@@ -210,10 +220,13 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                                     <div className="flex justify-between items-center mb-4">
                                         <h5 className="text-[10px] font-black uppercase text-indigo-500 tracking-widest">{stack.label}</h5>
                                         <button 
-                                            onClick={() => { navigator.clipboard.writeText(stack.tags); alert("Stack Copied!"); }}
+                                            onClick={() => { 
+                                              navigator.clipboard.writeText(stack.tags); 
+                                              setToast("Stack Copied!");
+                                            }}
                                             className="p-2 bg-white dark:bg-slate-900 rounded-xl opacity-0 group-hover:opacity-100 transition-all shadow-sm"
                                         >
-                                            <Copy size={14} className="text-slate-400" />
+                                            <span className="text-slate-400 text-xs">📋</span>
                                         </button>
                                     </div>
                                     <p className="text-lg font-bold text-slate-700 dark:text-slate-200 leading-relaxed">{stack.tags}</p>
@@ -223,7 +236,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                     </div>
                     <div className="md:w-1/3 bg-slate-50 dark:bg-slate-950 p-10 border-l border-slate-100 dark:border-slate-800 space-y-8">
                         <div className="flex items-center gap-3">
-                            <AtSign className="text-amber-500" size={20} />
+                            <span className="text-amber-500 text-xl">@</span>
                             <h4 className="text-sm font-black uppercase tracking-widest">Target Mentions</h4>
                         </div>
                         <div className="space-y-3">
@@ -235,14 +248,17 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                             ].map((m, i) => (
                                 <button 
                                     key={i} 
-                                    onClick={() => { navigator.clipboard.writeText(m.handle); alert("Mention Copied!"); }}
+                                    onClick={() => { 
+                                      navigator.clipboard.writeText(m.handle); 
+                                      setToast("Mention Copied!");
+                                    }}
                                     className="w-full p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-100 dark:border-slate-800 flex items-center justify-between group hover:scale-105 transition-all"
                                 >
                                     <div>
                                         <p className="text-sm font-black text-slate-800 dark:text-white text-left">{m.handle}</p>
                                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest text-left">{m.reason}</p>
                                     </div>
-                                    <Copy size={14} className="text-slate-300 group-hover:text-indigo-500 transition-colors" />
+                                    <span className="text-slate-300 group-hover:text-indigo-500 transition-colors text-xs">📋</span>
                                 </button>
                             ))}
                         </div>
@@ -253,18 +269,18 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                 {(activeMode === 'create' || activeMode === 'flex') && (
                     <div className="md:w-1/4 bg-slate-50 dark:bg-slate-950 p-4 border-r border-slate-100 dark:border-slate-800 overflow-x-auto no-scrollbar flex md:flex-col gap-3">
                         {[
-                            { id: 'whop', icon: MessageSquare, label: 'Whop Forum' },
-                            { id: 'facebook', icon: Facebook, label: 'Facebook' },
-                            { id: 'linkedin', icon: Rocket, label: 'LinkedIn' },
-                            { id: 'instagram', icon: Instagram, label: 'Instagram' },
-                            { id: 'twitter', icon: Twitter, label: 'X (Twitter)' }
+                            { id: 'whop', icon: '💬', label: 'Whop Forum' },
+                            { id: 'facebook', icon: '📘', label: 'Facebook' },
+                            { id: 'linkedin', icon: '🚀', label: 'LinkedIn' },
+                            { id: 'instagram', icon: '📸', label: 'Instagram' },
+                            { id: 'twitter', icon: '𝕏', label: 'X (Twitter)' }
                         ].map(p => (
                             <button 
                             key={p.id}
                             onClick={() => { setActivePlatform(p.id as Platform); handleGenerate(p.id as Platform); }}
                             className={`flex items-center gap-3 px-6 py-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all whitespace-nowrap ${activePlatform === p.id ? 'bg-white dark:bg-slate-800 text-indigo-600 shadow-md border-2 border-indigo-100 dark:border-indigo-900 scale-105' : 'text-slate-400 hover:text-slate-500'}`}
                             >
-                                <p.icon size={18} /> {p.label}
+                                <span className="text-lg">{p.icon}</span> {p.label}
                             </button>
                         ))}
                     </div>
@@ -274,7 +290,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                     <div className="flex-grow p-10 overflow-y-auto custom-scrollbar">
                         {isGenerating ? (
                             <div className="h-full flex flex-col items-center justify-center animate-pulse">
-                                <Loader2 className="w-16 h-16 text-indigo-500 animate-spin mb-6" />
+                                <div className="w-16 h-16 text-indigo-500 animate-spin mb-6 text-5xl flex items-center justify-center">⏳</div>
                                 <p className="font-black text-slate-400 uppercase text-[10px] tracking-[0.4em]">Gemini is Architecting Post...</p>
                             </div>
                         ) : (
@@ -293,7 +309,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                             disabled={!editedContent}
                             className="w-full py-6 bg-slate-950 dark:bg-indigo-600 text-white rounded-3xl font-black text-xs uppercase tracking-[0.2em] shadow-2xl flex items-center justify-center gap-3 active:scale-95 disabled:opacity-30 transition-all"
                         >
-                            {copiedText ? <Check size={20} /> : <Copy size={20} />}
+                            {copiedText ? '✅' : '📋'}
                             {copiedText ? 'Script Copied!' : 'Copy to Clipboard'}
                         </button>
                     </div>
@@ -302,6 +318,11 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
             )}
         </div>
       </div>
+
+      <Toast 
+        message={toast || ''} 
+        onDismiss={() => setToast(null)} 
+      />
     </div>
   );
 };
