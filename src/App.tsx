@@ -9,20 +9,19 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ChefHat, 
   Calculator, 
-  FileText, 
   TrendingUp, 
   DollarSign, 
   Users, 
   Truck, 
   Utensils, 
-  Plus, 
   Trash2, 
   Download, 
   MessageSquare,
   ChevronRight,
   Zap,
   ShieldCheck,
-  RefreshCw
+  RefreshCw,
+  Camera
 } from 'lucide-react';
 
 // --- TYPES & INTERFACES ---
@@ -40,7 +39,7 @@ export interface MenuItem {
   dish: string;
   notes: string;
   cat: 'Appetizers' | 'Main Courses' | 'Desserts';
-  imageUrl?: string;
+  cost: number; // Per-dish costing
   recipe?: string[];
 }
 
@@ -51,9 +50,9 @@ export interface Menu {
   miseEnPlace: string[];
   serviceNotes: string[];
   deliveryLogistics: string[];
-  costPerHead: number;
   logistics: { deliveryFee: number };
   guestCount: number;
+  heroImage?: string;
 }
 
 export interface Message {
@@ -66,6 +65,7 @@ export interface ShiftIngredient {
   quantity: number;
   unit: string;
   unitPrice: number;
+  linkedDish?: string; // Link to a specific dish name
 }
 
 export type SubscriptionPlan = 'free' | 'commis' | 'chef-de-partie' | 'sous-chef' | 'executive';
@@ -74,7 +74,7 @@ export type SubscriptionPlan = 'free' | 'commis' | 'chef-de-partie' | 'sous-chef
 
 const DEMO_USER_ID = 'DEMO_USER';
 const PAYPAL_CLIENT_ID = "Adp-3XYWNARTpkCw4rbtFUnFox3mMwZtWWRy-TprJ8sOrV8X9z4xtyobRHuCx848mseDoqATaUooheFz";
-const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80";
+const HERO_FALLBACK = "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1200&q=80";
 
 // --- FIREBASE INITIALIZATION ---
 
@@ -93,10 +93,11 @@ const db = getFirestore(app);
 // --- UTILS ---
 
 const oklchToRgb = (oklchStr: string) => {
-  // Simple fallback for common Tailwind v4 colors if they leak into PDF render
   if (oklchStr.includes('oklch')) return '#10b981'; 
   return oklchStr;
 };
+
+const OCTAGON_CLIP = 'polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%)';
 
 // --- COMPONENTS ---
 
@@ -126,7 +127,7 @@ const ProfitGauge: React.FC<{ margin: number }> = ({ margin }) => {
       </motion.div>
       <div className="absolute bottom-0 left-0 w-64 h-64 border-[12px] border-transparent border-t-emerald-500 rounded-full opacity-20" />
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center">
-        <span className="text-xs font-black uppercase tracking-widest text-slate-500">Margin</span>
+        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 opacity-60">Profit Margin</span>
         <p className="text-4xl font-black text-white tracking-tighter">{margin.toFixed(1)}%</p>
       </div>
     </div>
@@ -182,30 +183,12 @@ const PaymentModal: React.FC<{ isOpen: boolean; onClose: () => void; plan: Subsc
   );
 };
 
-const Dashboard: React.FC<{ onOpenModal: (type: string) => void }> = ({ onOpenModal }) => (
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-    {[
-      { label: 'Plate Margin', value: '72.4%', icon: <TrendingUp size={24} strokeWidth={3} />, color: 'emerald', type: 'cost' },
-      { label: 'Food Waste', value: '-12%', icon: <RefreshCw size={24} strokeWidth={3} />, color: 'amber', type: 'waste' },
-      { label: 'Compliance', value: '98/100', icon: <ShieldCheck size={24} strokeWidth={3} />, color: 'sky', type: 'compliance' }
-    ].map((stat) => (
-      <motion.div key={stat.label} whileHover={{ scale: 1.02 }} onClick={() => onOpenModal(stat.type)} className="cursor-pointer bg-slate-900/40 backdrop-blur-xl p-8 rounded-[3rem] border border-white/10 shadow-2xl group">
-        <div className="flex items-center justify-between mb-6">
-          <div className={`w-12 h-12 bg-${stat.color}-500/20 rounded-2xl flex items-center justify-center text-${stat.color}-400`}>{stat.icon}</div>
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest opacity-60">{stat.label}</span>
-        </div>
-        <p className="text-4xl font-black text-white tracking-tighter">{stat.value}</p>
-      </motion.div>
-    ))}
-  </div>
-);
-
 const HeroSection: React.FC<{ onStart: () => void; margin: number }> = ({ onStart, margin }) => (
   <div className="relative pt-32 pb-20 overflow-hidden">
     <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/10 rounded-full border border-emerald-500/20 mb-12">
-        <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Command Center v4.0</span>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-2 bg-sky-500/10 rounded-full border border-sky-500/20 mb-12">
+        <span className="flex h-2 w-2 rounded-full bg-sky-500 animate-pulse" />
+        <span className="text-[10px] font-black uppercase tracking-widest text-sky-400">Culinary Logic Engine</span>
       </motion.div>
       
       <div className="mb-16">
@@ -216,39 +199,15 @@ const HeroSection: React.FC<{ onStart: () => void; margin: number }> = ({ onStar
         CaterPro<span className="text-emerald-500">AI</span>
       </motion.h1>
       <p className="text-xl font-medium text-slate-400 opacity-60 max-w-2xl mx-auto mb-12 italic">
-        The professional chef's operating system for high-margin, zero-waste catering operations.
+        Transparent costing. Stunning proposals. Zero-waste operations.
       </p>
 
       <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
         <button onClick={onStart} className="px-12 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-emerald-500 transition-all shadow-2xl shadow-emerald-600/20 flex items-center gap-3">
           <Zap size={18} strokeWidth={3} />
-          Launch Generator
+          Start New Proposal
         </button>
       </div>
-    </div>
-  </div>
-);
-
-const PricingPage: React.FC<{ onSelectPlan: (plan: SubscriptionPlan, price: string) => void }> = ({ onSelectPlan }) => (
-  <div className="py-40 bg-slate-950 max-w-7xl mx-auto px-6">
-    <div className="text-center mb-20">
-      <h2 className="text-5xl font-black text-white tracking-tight uppercase italic mb-4">Subscription Ranks</h2>
-    </div>
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-      {[
-        { name: 'Commis', price: '$19', id: 'commis', features: ['5 AI Generations/mo', 'Basic Costing'] },
-        { name: 'Chef de Partie', price: '$49', id: 'chef-de-partie', popular: true, features: ['20 AI Generations/mo', 'Advanced Costing', 'Recipe Lab'] },
-        { name: 'Executive', price: '$149', id: 'executive', features: ['Unlimited Generations', 'Full CRM', 'Custom Branding'] }
-      ].map((tier) => (
-        <motion.div key={tier.id} whileHover={{ scale: 1.05 }} className={`bg-slate-900/40 backdrop-blur-xl p-10 rounded-[3rem] border ${tier.popular ? 'border-emerald-500 shadow-2xl' : 'border-white/10 shadow-xl'}`}>
-          <h3 className="text-2xl font-black text-white uppercase mb-2">{tier.name}</h3>
-          <p className="text-5xl font-black text-white mb-8">{tier.price}</p>
-          <ul className="space-y-4 mb-10">
-            {tier.features.map(f => <li key={f} className="text-sm font-medium text-slate-400 flex items-center gap-3"><span className="text-emerald-500">✅</span> {f}</li>)}
-          </ul>
-          <button onClick={() => onSelectPlan(tier.id as SubscriptionPlan, tier.price)} className="w-full py-5 rounded-2xl font-black uppercase tracking-widest text-xs bg-emerald-600 text-white hover:bg-emerald-700">Select Plan</button>
-        </motion.div>
-      ))}
     </div>
   </div>
 );
@@ -263,7 +222,7 @@ const PlateCostEngine: React.FC<{ ingredients: IngredientCost[]; onUpdate?: (cos
     <div className="bg-slate-900/40 backdrop-blur-xl p-8 rounded-[4rem] border border-white/10 shadow-2xl">
       <div className="flex items-center gap-4 mb-8">
         <div className="w-10 h-10 bg-sky-500/20 rounded-xl flex items-center justify-center text-sky-400"><Calculator size={20} strokeWidth={3} /></div>
-        <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Plate Cost Engine</h3>
+        <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Quick Costing</h3>
       </div>
       <div className="space-y-6">
         <select onChange={(e) => { if (e.target.value) setSelected([...selected, { id: e.target.value, quantity: 1 }]); e.target.value = ''; }} className="w-full p-4 rounded-2xl bg-slate-800 text-white font-bold outline-none border border-white/10 text-sm">
@@ -290,14 +249,23 @@ const PlateCostEngine: React.FC<{ ingredients: IngredientCost[]; onUpdate?: (cos
   );
 };
 
-const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; initialIngredients: ShiftIngredient[]; menuTitle: string; guestCount: number; onUpdateCost: (newCost: number) => void }> = ({ isOpen, onClose, initialIngredients, menuTitle, guestCount, onUpdateCost }) => {
+const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; initialIngredients: ShiftIngredient[]; menuTitle: string; guestCount: number; onUpdateDishCost: (dishName: string, newCost: number) => void }> = ({ isOpen, onClose, initialIngredients, menuTitle, guestCount, onUpdateDishCost }) => {
   const [ingredients, setIngredients] = useState<ShiftIngredient[]>([]);
   useEffect(() => { if (isOpen) setIngredients(initialIngredients); }, [isOpen, initialIngredients]);
+  
   const handleUpdate = (idx: number, field: keyof ShiftIngredient, val: any) => {
-    const n = [...ingredients]; n[idx] = { ...n[idx], [field]: val }; setIngredients(n);
-    const total = n.reduce((sum, item) => sum + (item.quantity * guestCount * item.unitPrice), 0);
-    onUpdateCost(total / guestCount);
+    const n = [...ingredients]; 
+    n[idx] = { ...n[idx], [field]: val }; 
+    setIngredients(n);
+    
+    // If linked to a dish, update that dish's cost
+    if (n[idx].linkedDish) {
+      const dishIngredients = n.filter(i => i.linkedDish === n[idx].linkedDish);
+      const dishCostPerHead = dishIngredients.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+      onUpdateDishCost(n[idx].linkedDish, dishCostPerHead);
+    }
   };
+
   const total = ingredients.reduce((sum, item) => sum + (item.quantity * guestCount * item.unitPrice), 0);
   if (!isOpen) return null;
   return (
@@ -312,11 +280,12 @@ const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; ini
         </div>
         <div className="flex-1 overflow-y-auto p-12">
           <table className="w-full text-left">
-            <thead><tr className="text-emerald-500 text-[10px] font-black uppercase border-b border-white/10"><th className="p-6">Ingredient</th><th className="p-6">Qty/Guest</th><th className="p-6">Unit Price</th><th className="p-6 text-right">Total</th></tr></thead>
+            <thead><tr className="text-emerald-500 text-[10px] font-black uppercase border-b border-white/10"><th className="p-6">Ingredient</th><th className="p-6">Dish Link</th><th className="p-6">Qty/Guest</th><th className="p-6">Unit Price</th><th className="p-6 text-right">Total</th></tr></thead>
             <tbody className="divide-y divide-white/5">
               {ingredients.map((item, idx) => (
                 <tr key={idx} className="hover:bg-white/5 transition-colors">
                   <td className="p-6 font-bold text-white"><input value={item.name} onChange={(e) => handleUpdate(idx, 'name', e.target.value)} className="bg-transparent outline-none focus:text-emerald-400 w-full" /></td>
+                  <td className="p-6 text-slate-500 text-xs font-black uppercase italic">{item.linkedDish || 'Unlinked'}</td>
                   <td className="p-6 text-slate-400 opacity-60"><input type="number" value={item.quantity} onChange={(e) => handleUpdate(idx, 'quantity', Number(e.target.value))} className="bg-slate-800 border border-white/10 rounded px-2 py-1 w-20 text-white" /> {item.unit}</td>
                   <td className="p-6 text-slate-400 opacity-60">R <input type="number" value={item.unitPrice} onChange={(e) => handleUpdate(idx, 'unitPrice', Number(e.target.value))} className="bg-slate-800 border border-white/10 rounded px-2 py-1 w-24 text-white" /></td>
                   <td className="p-6 text-right font-black text-white">R {(item.quantity * guestCount * item.unitPrice).toFixed(2)}</td>
@@ -339,7 +308,7 @@ const RecipeLab: React.FC<{ menu: Menu; onUpdate: (updated: Menu) => void }> = (
   const generate = () => {
     setLoading(true);
     setTimeout(() => {
-      const updated = { ...menu, miseEnPlace: ["Clean proteins", "Prepare reductions", "Dice aromatics"], menu: menu.menu.map(m => ({ ...m, recipe: ["Prep ingredients", "Cook to temp", "Plate and garnish"] })) };
+      const updated = { ...menu, miseEnPlace: ["Clean proteins", "Prepare reductions", "Dice aromatics"] };
       onUpdate(updated); setLoading(false);
     }, 1500);
   };
@@ -352,15 +321,12 @@ const RecipeLab: React.FC<{ menu: Menu; onUpdate: (updated: Menu) => void }> = (
         </div>
         <button onClick={generate} disabled={loading} className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-black uppercase text-[10px] disabled:opacity-50 hover:bg-emerald-500 transition-all flex items-center gap-2">
           {loading ? <RefreshCw className="animate-spin" size={14} strokeWidth={3} /> : <Zap size={14} strokeWidth={3} />}
-          {loading ? 'Generating...' : 'Generate Recipes'}
+          {loading ? 'Generating...' : 'Generate Mise en Place'}
         </button>
       </div>
       <div className="space-y-8">
         {menu.miseEnPlace.length > 0 ? (
-          <>
-            <div><h4 className="text-xs font-black text-emerald-500 uppercase mb-4 tracking-widest opacity-60">Mise en Place</h4><ul className="space-y-4">{menu.miseEnPlace.map((s, i) => <li key={i} className="flex gap-4 p-6 bg-slate-800/30 rounded-3xl border border-white/5"><span className="text-emerald-500 font-black">0{i + 1}</span><p className="text-slate-300 italic">{s}</p></li>)}</ul></div>
-            <div><h4 className="text-xs font-black text-emerald-500 uppercase mb-4 tracking-widest opacity-60">Dish Instructions</h4><div className="space-y-6">{menu.menu.map((m, i) => <div key={i} className="p-6 bg-slate-800/20 rounded-3xl border border-white/5"><p className="font-black text-white uppercase text-sm mb-3">{m.dish}</p><ul className="space-y-2">{m.recipe?.map((r, ri) => <li key={ri} className="text-xs text-slate-400 italic opacity-60">• {r}</li>)}</ul></div>)}</div></div>
-          </>
+          <div><h4 className="text-xs font-black text-emerald-500 uppercase mb-4 tracking-widest opacity-60">Mise en Place</h4><ul className="space-y-4">{menu.miseEnPlace.map((s, i) => <li key={i} className="flex gap-4 p-6 bg-slate-800/30 rounded-3xl border border-white/5"><span className="text-emerald-500 font-black">0{i + 1}</span><p className="text-slate-300 italic">{s}</p></li>)}</ul></div>
         ) : <div className="p-12 text-center border-2 border-dashed border-white/10 rounded-[3rem] text-slate-500 font-bold italic opacity-60">No recipes generated yet.</div>}
       </div>
     </div>
@@ -368,16 +334,33 @@ const RecipeLab: React.FC<{ menu: Menu; onUpdate: (updated: Menu) => void }> = (
 };
 
 const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => void }> = ({ proposal, onUpdate }) => {
-  const updateItem = (idx: number, field: keyof MenuItem, val: string) => { const n = [...proposal.menu]; n[idx] = { ...n[idx], [field]: val }; onUpdate({ ...proposal, menu: n }); };
+  const updateItem = (idx: number, field: keyof MenuItem, val: any) => { const n = [...proposal.menu]; n[idx] = { ...n[idx], [field]: val }; onUpdate({ ...proposal, menu: n }); };
   const updateRoot = (field: keyof Menu, val: any) => onUpdate({ ...proposal, [field]: val });
   const updateLogistics = (val: number) => onUpdate({ ...proposal, logistics: { ...proposal.logistics, deliveryFee: val } });
-  const getFoodImage = (dish: string) => `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80&sig=${encodeURIComponent(dish)}`;
+
+  const totalDishCost = proposal.menu.reduce((sum, m) => sum + m.cost, 0);
+  const totalProposalValue = (totalDishCost * proposal.guestCount) + proposal.logistics.deliveryFee;
 
   return (
     <div id="proposal-content" className="bg-slate-900/60 backdrop-blur-2xl p-16 rounded-[4rem] shadow-2xl border border-white/10 mb-12 relative overflow-hidden">
+      {/* HERO IMAGE SECTION */}
+      <div className="relative w-full h-[400px] mb-16 overflow-hidden">
+        <img 
+          src={proposal.heroImage || HERO_FALLBACK} 
+          alt="Hero" 
+          className="w-full h-full object-cover"
+          style={{ clipPath: OCTAGON_CLIP }}
+          onError={(e) => { (e.target as HTMLImageElement).src = HERO_FALLBACK; }}
+          referrerPolicy="no-referrer"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent pointer-events-none" />
+        <div className="absolute bottom-8 left-8">
+           <div contentEditable suppressContentEditableWarning onBlur={(e) => updateRoot('title', e.currentTarget.textContent || '')} className="text-6xl font-black text-white uppercase tracking-tighter outline-none focus:ring-2 focus:ring-emerald-500/20 rounded-xl p-1">{proposal.title}</div>
+        </div>
+      </div>
+
       <div className="flex flex-col md:flex-row justify-between items-start mb-16 gap-8">
         <div className="flex-1">
-          <div contentEditable suppressContentEditableWarning onBlur={(e) => updateRoot('title', e.currentTarget.textContent || '')} className="text-6xl font-black text-white uppercase tracking-tighter mb-4 outline-none focus:ring-2 focus:ring-emerald-500/20 rounded-xl p-1">{proposal.title}</div>
           <div contentEditable suppressContentEditableWarning onBlur={(e) => updateRoot('description', e.currentTarget.textContent || '')} className="text-slate-400 font-medium italic outline-none focus:ring-2 focus:ring-emerald-500/20 rounded-xl p-1 opacity-60">{proposal.description}</div>
         </div>
         <div className="text-right shrink-0">
@@ -385,6 +368,7 @@ const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => 
           <p className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em]">Drafted by CaterPro AI</p>
         </div>
       </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
         <div className="space-y-12">
           {['Appetizers', 'Main Courses', 'Desserts'].map(cat => (
@@ -394,21 +378,21 @@ const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => 
                 {proposal.menu.filter(m => m.cat === cat).map((item, i) => {
                   const idx = proposal.menu.findIndex(x => x === item);
                   return (
-                    <div key={i} className="flex gap-6 items-start">
-                      <div className="relative w-32 h-32 shrink-0">
-                        <img 
-                          src={item.imageUrl || getFoodImage(item.dish)} 
-                          alt={item.dish} 
-                          className="w-full h-full rounded-[2rem] object-cover border border-white/10 shadow-lg" 
-                          style={{ clipPath: 'polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%)' }}
-                          onError={(e) => { (e.target as HTMLImageElement).src = FALLBACK_IMAGE; }} 
-                          referrerPolicy="no-referrer" 
-                        />
-                      </div>
-                      <div className="flex-1">
+                    <div key={i} className="group">
+                      <div className="flex items-baseline justify-between gap-4 mb-2">
                         <div contentEditable suppressContentEditableWarning onBlur={(e) => updateItem(idx, 'dish', e.currentTarget.textContent || '')} className="text-2xl font-black text-white uppercase outline-none focus:text-emerald-400 p-1 tracking-tighter">{item.dish}</div>
-                        <div contentEditable suppressContentEditableWarning onBlur={(e) => updateItem(idx, 'notes', e.currentTarget.textContent || '')} className="text-slate-400 text-sm italic outline-none focus:text-white p-1 opacity-60">{item.notes}</div>
+                        <div className="flex items-center gap-1 text-emerald-500 font-black italic text-sm">
+                          <span>R</span>
+                          <input 
+                            type="number" 
+                            value={item.cost} 
+                            onChange={(e) => updateItem(idx, 'cost', Number(e.target.value))}
+                            className="bg-transparent border-none outline-none w-16 text-right focus:text-white"
+                          />
+                          <span className="text-[10px] opacity-60">pp</span>
+                        </div>
                       </div>
+                      <div contentEditable suppressContentEditableWarning onBlur={(e) => updateItem(idx, 'notes', e.currentTarget.textContent || '')} className="text-slate-400 text-sm italic outline-none focus:text-white p-1 opacity-60">{item.notes}</div>
                     </div>
                   );
                 })}
@@ -430,23 +414,14 @@ const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => 
           <div className="bg-emerald-600 p-10 rounded-[3rem] shadow-2xl text-white">
             <div className="flex items-center gap-2 mb-4 opacity-70">
               <DollarSign size={14} strokeWidth={3} />
-              <p className="text-[10px] font-black uppercase tracking-widest">Total Proposal Value (Edit)</p>
+              <p className="text-[10px] font-black uppercase tracking-widest">Total Proposal Value</p>
             </div>
             <div className="flex items-center gap-2 mb-8">
               <span className="text-4xl font-black">R</span>
-              <input 
-                type="number" 
-                value={(proposal.costPerHead * proposal.guestCount) + proposal.logistics.deliveryFee} 
-                onChange={(e) => {
-                  const newTotal = Number(e.target.value);
-                  const newCostPerHead = (newTotal - proposal.logistics.deliveryFee) / proposal.guestCount;
-                  updateRoot('costPerHead', newCostPerHead);
-                }}
-                className="bg-transparent border-none outline-none text-7xl font-black tracking-tighter w-full"
-              />
+              <div className="text-7xl font-black tracking-tighter w-full">{totalProposalValue.toLocaleString()}</div>
             </div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white/10 p-4 rounded-2xl"><p className="text-[8px] font-black uppercase opacity-60">Per Head (Edit)</p><div className="flex items-center gap-1"><span className="text-xl font-black">R</span><input type="number" value={proposal.costPerHead} onChange={(e) => updateRoot('costPerHead', Number(e.target.value))} className="bg-transparent border-none outline-none text-xl font-black w-full" /></div></div>
+              <div className="bg-white/10 p-4 rounded-2xl"><p className="text-[8px] font-black uppercase opacity-60">Food Cost pp</p><div className="flex items-center gap-1"><span className="text-xl font-black">R</span><span className="text-xl font-black">{totalDishCost}</span></div></div>
               <div className="bg-white/10 p-4 rounded-2xl"><p className="text-[8px] font-black uppercase opacity-60">Logistics (Edit)</p><div className="flex items-center gap-1"><span className="text-xl font-black">R</span><input type="number" value={proposal.logistics.deliveryFee} onChange={(e) => updateLogistics(Number(e.target.value))} className="bg-transparent border-none outline-none text-xl font-black w-full" /></div></div>
             </div>
           </div>
@@ -519,8 +494,9 @@ export default function App() {
 
   const currentMargin = useMemo(() => {
     if (!proposal) return 72.4;
-    const totalCost = proposal.costPerHead * proposal.guestCount;
-    const totalRevenue = (proposal.costPerHead * 1.4) * proposal.guestCount; // Assuming 40% markup for margin calculation
+    const totalDishCost = proposal.menu.reduce((sum, m) => sum + m.cost, 0);
+    const totalCost = totalDishCost * proposal.guestCount;
+    const totalRevenue = (totalDishCost * 1.4) * proposal.guestCount; 
     return ((totalRevenue - totalCost) / totalRevenue) * 100;
   }, [proposal]);
 
@@ -531,13 +507,18 @@ export default function App() {
         title: "Gourmet Fusion Experience",
         description: "A high-end culinary journey blending local ingredients with modern techniques.",
         menu: [
-          { dish: "Truffle Arancini", notes: "Risotto balls with black truffle.", cat: "Appetizers" },
-          { dish: "Citrus Cured Salmon", notes: "Fresh Atlantic salmon with grapefruit.", cat: "Appetizers" },
-          { dish: "Pan-Seared Sea Bass", notes: "With lemon caper butter.", cat: "Main Courses" },
-          { dish: "Herb-Crusted Rack of Lamb", notes: "Slow-roasted with rosemary.", cat: "Main Courses" },
-          { dish: "Dark Chocolate Fondant", notes: "Warm center with vanilla bean gelato.", cat: "Desserts" }
+          { dish: "Truffle Arancini", notes: "Risotto balls with black truffle.", cat: "Appetizers", cost: 65 },
+          { dish: "Citrus Cured Salmon", notes: "Fresh Atlantic salmon with grapefruit.", cat: "Appetizers", cost: 85 },
+          { dish: "Pan-Seared Sea Bass", notes: "With lemon caper butter.", cat: "Main Courses", cost: 185 },
+          { dish: "Herb-Crusted Rack of Lamb", notes: "Slow-roasted with rosemary.", cat: "Main Courses", cost: 210 },
+          { dish: "Dark Chocolate Fondant", notes: "Warm center with vanilla bean gelato.", cat: "Desserts", cost: 75 }
         ],
-        miseEnPlace: [], serviceNotes: ["Serve appetizers on slate boards", "Main course plates must be warmed"], deliveryLogistics: ["Refrigerated transport required"], costPerHead: 450, logistics: { deliveryFee: 2500 }, guestCount: 50
+        miseEnPlace: [], 
+        serviceNotes: ["Serve appetizers on slate boards", "Main course plates must be warmed"], 
+        deliveryLogistics: ["Refrigerated transport required"], 
+        logistics: { deliveryFee: 2500 }, 
+        guestCount: 50,
+        heroImage: HERO_FALLBACK
       });
       setGenerating(false); setView('proposal'); setToast('Proposal generated!');
     }, 2000);
@@ -590,8 +571,7 @@ export default function App() {
           <div className="hidden md:flex items-center gap-10">
             {[
               { id: 'generator', label: 'Generator', icon: <Zap size={14} strokeWidth={3} /> },
-              { id: 'calculator', label: 'Calculator', icon: <Calculator size={14} strokeWidth={3} /> },
-              { id: 'pricing', label: 'Pricing', icon: <DollarSign size={14} strokeWidth={3} /> }
+              { id: 'calculator', label: 'Calculator', icon: <Calculator size={14} strokeWidth={3} /> }
             ].map(item => (
               <button 
                 key={item.id} 
@@ -653,7 +633,15 @@ export default function App() {
                   <Download size={18} strokeWidth={3} />
                   Download PDF
                 </button>
-                <button onClick={() => setShiftModal({ isOpen: true, ingredients: [{ name: 'Sea Bass', quantity: 0.2, unit: 'kg', unitPrice: 350 }, { name: 'Truffles', quantity: 0.01, unit: 'kg', unitPrice: 2500 }, { name: 'Rack of Lamb', quantity: 0.3, unit: 'kg', unitPrice: 420 }], title: proposal.title })} className="px-12 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-2xl flex items-center gap-3">
+                <button onClick={() => setShiftModal({ 
+                  isOpen: true, 
+                  ingredients: [
+                    { name: 'Sea Bass', quantity: 0.2, unit: 'kg', unitPrice: 350, linkedDish: 'Pan-Seared Sea Bass' }, 
+                    { name: 'Truffles', quantity: 0.01, unit: 'kg', unitPrice: 2500, linkedDish: 'Truffle Arancini' }, 
+                    { name: 'Rack of Lamb', quantity: 0.3, unit: 'kg', unitPrice: 420, linkedDish: 'Herb-Crusted Rack of Lamb' }
+                  ], 
+                  title: proposal.title 
+                })} className="px-12 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-2xl flex items-center gap-3">
                   <Calculator size={18} strokeWidth={3} />
                   Shift Breakdown
                 </button>
@@ -669,7 +657,6 @@ export default function App() {
               <button onClick={() => setView('landing')} className="w-full mt-8 py-6 bg-slate-900/40 backdrop-blur-xl text-white border border-white/10 rounded-[2rem] font-black uppercase text-sm hover:bg-slate-800 transition-all">Back to Home</button>
             </motion.div>
           )}
-          {view === 'pricing' && <motion.div key="pricing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><PricingPage onSelectPlan={(p, pr) => setPayModal({ isOpen: true, plan: p, price: pr })} /></motion.div>}
         </AnimatePresence>
       </main>
 
@@ -688,7 +675,14 @@ export default function App() {
       <Toast message={toast} onDismiss={() => setToast(null)} />
       <AiChatBot />
       {payModal && <PaymentModal isOpen={payModal.isOpen} onClose={() => setPayModal(null)} plan={payModal.plan} price={payModal.price} onConfirm={() => { setPayModal(null); setToast(`Welcome to ${payModal.plan}!`); }} />}
-      {shiftModal && proposal && <ShiftCalculatorModal isOpen={shiftModal.isOpen} onClose={() => setShiftModal(null)} initialIngredients={shiftModal.ingredients} menuTitle={shiftModal.title} guestCount={proposal.guestCount} onUpdateCost={(newCost) => setProposal(prev => prev ? { ...prev, costPerHead: newCost } : null)} />}
+      {shiftModal && proposal && <ShiftCalculatorModal isOpen={shiftModal.isOpen} onClose={() => setShiftModal(null)} initialIngredients={shiftModal.ingredients} menuTitle={shiftModal.title} guestCount={proposal.guestCount} onUpdateDishCost={(dishName, newCost) => {
+        const n = [...proposal.menu];
+        const idx = n.findIndex(m => m.dish === dishName);
+        if (idx !== -1) {
+          n[idx].cost = newCost;
+          setProposal({ ...proposal, menu: n });
+        }
+      }} />}
     </div>
   );
 }
