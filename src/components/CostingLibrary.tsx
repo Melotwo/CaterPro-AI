@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { db } from './firebase';
 import { collection, query, where, onSnapshot, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
-import { useAuth } from './App';
+
+const DEMO_USER_ID = 'DEMO_USER';
 
 interface IngredientCost {
   id?: string;
@@ -12,7 +13,6 @@ interface IngredientCost {
 }
 
 const CostingLibrary: React.FC = () => {
-  const { user } = useAuth();
   const [ingredients, setIngredients] = useState<IngredientCost[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -25,12 +25,12 @@ const CostingLibrary: React.FC = () => {
   });
 
   useEffect(() => {
-    if (!user || !db) {
+    if (!db) {
       setLoading(false);
       return;
     }
 
-    const q = query(collection(db, 'ingredientCosts'), where('userId', '==', user.uid));
+    const q = query(collection(db, 'ingredientCosts'), where('userId', '==', DEMO_USER_ID));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as IngredientCost));
       setIngredients(data);
@@ -38,16 +38,16 @@ const CostingLibrary: React.FC = () => {
     });
 
     return unsubscribe;
-  }, [user]);
+  }, []);
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || !db) return;
+    if (!db) return;
     setLoading(true);
     try {
       await addDoc(collection(db, 'ingredientCosts'), {
         ...newIngredient,
-        userId: user.uid,
+        userId: DEMO_USER_ID,
         lastUpdated: Date.now()
       });
       setNewIngredient({ name: '', unit: 'kg', price: 0, lastUpdated: Date.now() });
@@ -71,14 +71,6 @@ const CostingLibrary: React.FC = () => {
 
   const filteredIngredients = ingredients.filter(i => 
     i.name.toLowerCase().includes(search.toLowerCase())
-  );
-
-  if (!user) return (
-    <div className="p-12 text-center bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-200 dark:border-slate-800 shadow-2xl">
-      <span className="text-6xl mb-4 block">📦</span>
-      <h3 className="text-2xl font-black text-slate-900 dark:text-white">Sign in to build your library</h3>
-      <p className="text-slate-500 mt-2 font-medium">Save your ingredient prices to get more accurate costing.</p>
-    </div>
   );
 
   return (
