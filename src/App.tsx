@@ -21,7 +21,10 @@ import {
   Zap,
   ShieldCheck,
   RefreshCw,
-  Camera
+  Camera,
+  ArrowRight,
+  PieChart,
+  Percent
 } from 'lucide-react';
 
 // --- TYPES & INTERFACES ---
@@ -39,7 +42,8 @@ export interface MenuItem {
   dish: string;
   notes: string;
   cat: 'Appetizers' | 'Main Courses' | 'Desserts';
-  cost: number; // Per-dish costing
+  cost: number; // Internal cost to produce
+  price: number; // Price charged to client
   recipe?: string[];
 }
 
@@ -53,6 +57,7 @@ export interface Menu {
   logistics: { deliveryFee: number };
   guestCount: number;
   heroImage?: string;
+  showDeposit?: boolean;
 }
 
 export interface Message {
@@ -65,7 +70,7 @@ export interface ShiftIngredient {
   quantity: number;
   unit: string;
   unitPrice: number;
-  linkedDish?: string; // Link to a specific dish name
+  linkedDish?: string;
 }
 
 export type SubscriptionPlan = 'free' | 'commis' | 'chef-de-partie' | 'sous-chef' | 'executive';
@@ -74,6 +79,7 @@ export type SubscriptionPlan = 'free' | 'commis' | 'chef-de-partie' | 'sous-chef
 
 const DEMO_USER_ID = 'DEMO_USER';
 const PAYPAL_CLIENT_ID = "Adp-3XYWNARTpkCw4rbtFUnFox3mMwZtWWRy-TprJ8sOrV8X9z4xtyobRHuCx848mseDoqATaUooheFz";
+const WHOP_CHECKOUT_URL = "https://whop.com/caterpro-ai"; 
 const HERO_FALLBACK = "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1200&q=80";
 
 // --- FIREBASE INITIALIZATION ---
@@ -93,11 +99,17 @@ const db = getFirestore(app);
 // --- UTILS ---
 
 const oklchToRgb = (oklchStr: string) => {
-  if (oklchStr.includes('oklch')) return '#10b981'; 
+  if (oklchStr.includes('oklch')) {
+    // Map common Tailwind v4 OKLCH values to Hex for PDF compatibility
+    if (oklchStr.includes('0.796 0.265 162.49')) return '#10b981'; // emerald-500
+    if (oklchStr.includes('0.129 0.042 264.695')) return '#020617'; // slate-950
+    if (oklchStr.includes('0.746 0.16 232.661')) return '#0ea5e9'; // sky-500
+    return '#10b981'; // Default fallback
+  }
   return oklchStr;
 };
 
-const OCTAGON_CLIP = 'polygon(20% 0%, 80% 0%, 100% 20%, 100% 80%, 80% 100%, 20% 100%, 0% 80%, 0% 20%)';
+const OCTAGON_CLIP = 'polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%)';
 
 // --- COMPONENTS ---
 
@@ -113,22 +125,57 @@ const NoiseOverlay = () => (
 );
 
 const ProfitGauge: React.FC<{ margin: number }> = ({ margin }) => {
-  const rotation = (margin / 100) * 180 - 90;
+  const rotation = (Math.min(Math.max(margin, 0), 100) / 100) * 180 - 90;
   return (
-    <div className="relative w-64 h-32 overflow-hidden mx-auto">
-      <div className="absolute bottom-0 left-0 w-64 h-64 border-[12px] border-slate-800 rounded-full" />
+    <div className="relative w-80 h-40 overflow-hidden mx-auto">
+      <div className="absolute bottom-0 left-0 w-80 h-80 border-[16px] border-slate-800 rounded-full" />
       <motion.div 
         initial={{ rotate: -90 }}
         animate={{ rotate: rotation }}
-        transition={{ type: 'spring', stiffness: 50 }}
-        className="absolute bottom-0 left-1/2 w-1 h-32 bg-emerald-500 origin-bottom -translate-x-1/2 z-10"
+        transition={{ type: 'spring', stiffness: 40, damping: 15 }}
+        className="absolute bottom-0 left-1/2 w-1.5 h-40 bg-emerald-500 origin-bottom -translate-x-1/2 z-10"
       >
-        <div className="w-4 h-4 bg-emerald-500 rounded-full -translate-x-[6px] -translate-y-2 shadow-lg shadow-emerald-500/50" />
+        <div className="w-6 h-6 bg-emerald-500 rounded-full -translate-x-[9px] -translate-y-3 shadow-2xl shadow-emerald-500/50 border-4 border-slate-950" />
       </motion.div>
-      <div className="absolute bottom-0 left-0 w-64 h-64 border-[12px] border-transparent border-t-emerald-500 rounded-full opacity-20" />
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center">
-        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 opacity-60">Profit Margin</span>
-        <p className="text-4xl font-black text-white tracking-tighter">{margin.toFixed(1)}%</p>
+      <div className="absolute bottom-0 left-0 w-80 h-80 border-[16px] border-transparent border-t-emerald-500 rounded-full opacity-20" />
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center">
+        <span className="text-[12px] font-black uppercase tracking-[0.3em] text-slate-500 opacity-60">Profit Margin</span>
+        <p className="text-6xl font-black text-white tracking-tighter leading-none mt-2">{margin.toFixed(1)}%</p>
+      </div>
+    </div>
+  );
+};
+
+const SavingsEstimator: React.FC = () => {
+  const [monthlySpend, setMonthlySpend] = useState(50000);
+  const savings = monthlySpend * 0.15; 
+  return (
+    <div className="bg-slate-900/40 backdrop-blur-xl p-12 rounded-[4rem] border border-white/10 shadow-2xl mt-12">
+      <div className="flex items-center gap-4 mb-10">
+        <div className="w-12 h-12 bg-sky-500/20 rounded-2xl flex items-center justify-center text-sky-400"><TrendingUp size={24} strokeWidth={3} /></div>
+        <h3 className="text-3xl font-black text-white uppercase tracking-tighter">Weight Audit Estimator</h3>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div className="space-y-6">
+          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 opacity-60">Monthly Food Spend (R)</label>
+          <input 
+            type="range" 
+            min="10000" 
+            max="500000" 
+            step="5000" 
+            value={monthlySpend} 
+            onChange={(e) => setMonthlySpend(Number(e.target.value))}
+            className="w-full h-3 bg-slate-800 rounded-full appearance-none cursor-pointer accent-emerald-500"
+          />
+          <div className="flex justify-between text-xl font-black text-white italic">
+            <span>R {monthlySpend.toLocaleString()}</span>
+          </div>
+        </div>
+        <div className="bg-emerald-600/10 border border-emerald-500/20 p-8 rounded-[3rem] text-center">
+          <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-2 opacity-60">Estimated Monthly Savings</p>
+          <h4 className="text-5xl font-black text-emerald-400 tracking-tighter">R {savings.toLocaleString()}</h4>
+          <p className="text-xs text-slate-400 italic mt-4 opacity-60">Based on 15% precision scaling efficiency</p>
+        </div>
       </div>
     </div>
   );
@@ -203,10 +250,14 @@ const HeroSection: React.FC<{ onStart: () => void; margin: number }> = ({ onStar
       </p>
 
       <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-        <button onClick={onStart} className="px-12 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-emerald-500 transition-all shadow-2xl shadow-emerald-600/20 flex items-center gap-3">
+        <button onClick={onStart} className="px-12 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-emerald-500 transition-all shadow-2xl shadow-emerald-600/20 flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
           <Zap size={18} strokeWidth={3} />
           Start New Proposal
         </button>
+        <a href={WHOP_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="px-12 py-6 bg-white text-slate-950 rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-emerald-500 hover:text-white transition-all shadow-2xl flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
+          <ShieldCheck size={18} strokeWidth={3} />
+          Upgrade to Pro
+        </a>
       </div>
     </div>
   </div>
@@ -258,7 +309,6 @@ const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; ini
     n[idx] = { ...n[idx], [field]: val }; 
     setIngredients(n);
     
-    // If linked to a dish, update that dish's cost
     if (n[idx].linkedDish) {
       const dishIngredients = n.filter(i => i.linkedDish === n[idx].linkedDish);
       const dishCostPerHead = dishIngredients.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
@@ -285,7 +335,7 @@ const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; ini
               {ingredients.map((item, idx) => (
                 <tr key={idx} className="hover:bg-white/5 transition-colors">
                   <td className="p-6 font-bold text-white"><input value={item.name} onChange={(e) => handleUpdate(idx, 'name', e.target.value)} className="bg-transparent outline-none focus:text-emerald-400 w-full" /></td>
-                  <td className="p-6 text-slate-500 text-xs font-black uppercase italic">{item.linkedDish || 'Unlinked'}</td>
+                  <td className="p-6 text-slate-500 text-xs font-black uppercase italic opacity-60">{item.linkedDish || 'Unlinked'}</td>
                   <td className="p-6 text-slate-400 opacity-60"><input type="number" value={item.quantity} onChange={(e) => handleUpdate(idx, 'quantity', Number(e.target.value))} className="bg-slate-800 border border-white/10 rounded px-2 py-1 w-20 text-white" /> {item.unit}</td>
                   <td className="p-6 text-slate-400 opacity-60">R <input type="number" value={item.unitPrice} onChange={(e) => handleUpdate(idx, 'unitPrice', Number(e.target.value))} className="bg-slate-800 border border-white/10 rounded px-2 py-1 w-24 text-white" /></td>
                   <td className="p-6 text-right font-black text-white">R {(item.quantity * guestCount * item.unitPrice).toFixed(2)}</td>
@@ -296,7 +346,7 @@ const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; ini
         </div>
         <div className="p-12 bg-slate-950/50 border-t border-white/10 flex items-center justify-between">
           <div><p className="text-[10px] font-black text-slate-400 uppercase mb-2 opacity-60">Total Shift Cost</p><h3 className="text-6xl font-black text-white tracking-tighter">R {total.toLocaleString()}</h3></div>
-          <button onClick={onClose} className="px-16 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-xl">Confirm & Close</button>
+          <button onClick={onClose} className="px-16 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-xl" style={{ clipPath: OCTAGON_CLIP }}>Confirm & Close</button>
         </div>
       </motion.div>
     </div>
@@ -319,7 +369,7 @@ const RecipeLab: React.FC<{ menu: Menu; onUpdate: (updated: Menu) => void }> = (
           <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400"><Utensils size={20} strokeWidth={3} /></div>
           <h3 className="text-2xl font-black text-white uppercase tracking-tighter">AI Recipe Lab</h3>
         </div>
-        <button onClick={generate} disabled={loading} className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-black uppercase text-[10px] disabled:opacity-50 hover:bg-emerald-500 transition-all flex items-center gap-2">
+        <button onClick={generate} disabled={loading} className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-black uppercase text-[10px] disabled:opacity-50 hover:bg-emerald-500 transition-all flex items-center gap-2" style={{ clipPath: OCTAGON_CLIP }}>
           {loading ? <RefreshCw className="animate-spin" size={14} strokeWidth={3} /> : <Zap size={14} strokeWidth={3} />}
           {loading ? 'Generating...' : 'Generate Mise en Place'}
         </button>
@@ -333,17 +383,22 @@ const RecipeLab: React.FC<{ menu: Menu; onUpdate: (updated: Menu) => void }> = (
   );
 };
 
-const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => void }> = ({ proposal, onUpdate }) => {
+const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => void; margin: number }> = ({ proposal, onUpdate, margin }) => {
   const updateItem = (idx: number, field: keyof MenuItem, val: any) => { const n = [...proposal.menu]; n[idx] = { ...n[idx], [field]: val }; onUpdate({ ...proposal, menu: n }); };
   const updateRoot = (field: keyof Menu, val: any) => onUpdate({ ...proposal, [field]: val });
   const updateLogistics = (val: number) => onUpdate({ ...proposal, logistics: { ...proposal.logistics, deliveryFee: val } });
 
-  const totalDishCost = proposal.menu.reduce((sum, m) => sum + m.cost, 0);
-  const totalProposalValue = (totalDishCost * proposal.guestCount) + proposal.logistics.deliveryFee;
+  const totalDishPrice = proposal.menu.reduce((sum, m) => sum + m.price, 0);
+  const totalProposalValue = (totalDishPrice * proposal.guestCount) + proposal.logistics.deliveryFee;
+  const depositAmount = (totalProposalValue * 0.5).toFixed(2);
 
   return (
     <div id="proposal-content" className="bg-slate-900/60 backdrop-blur-2xl p-16 rounded-[4rem] shadow-2xl border border-white/10 mb-12 relative overflow-hidden">
-      {/* HERO IMAGE SECTION */}
+      {/* Floating Profit Gauge for real-time feedback */}
+      <div className="absolute top-8 right-8 z-20 scale-50 origin-top-right opacity-80 hover:opacity-100 transition-opacity hidden lg:block">
+        <ProfitGauge margin={margin} />
+      </div>
+
       <div className="relative w-full h-[400px] mb-16 overflow-hidden">
         <img 
           src={proposal.heroImage || HERO_FALLBACK} 
@@ -385,14 +440,17 @@ const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => 
                           <span>R</span>
                           <input 
                             type="number" 
-                            value={item.cost} 
-                            onChange={(e) => updateItem(idx, 'cost', Number(e.target.value))}
+                            value={item.price} 
+                            onChange={(e) => updateItem(idx, 'price', Number(e.target.value))}
                             className="bg-transparent border-none outline-none w-16 text-right focus:text-white"
                           />
                           <span className="text-[10px] opacity-60">pp</span>
                         </div>
                       </div>
-                      <div contentEditable suppressContentEditableWarning onBlur={(e) => updateItem(idx, 'notes', e.currentTarget.textContent || '')} className="text-slate-400 text-sm italic outline-none focus:text-white p-1 opacity-60">{item.notes}</div>
+                      <div className="flex items-center justify-between">
+                        <div contentEditable suppressContentEditableWarning onBlur={(e) => updateItem(idx, 'notes', e.currentTarget.textContent || '')} className="text-slate-400 text-sm italic outline-none focus:text-white p-1 opacity-60">{item.notes}</div>
+                        <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest opacity-40">Cost: R{item.cost}</div>
+                      </div>
                     </div>
                   );
                 })}
@@ -420,10 +478,26 @@ const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => 
               <span className="text-4xl font-black">R</span>
               <div className="text-7xl font-black tracking-tighter w-full">{totalProposalValue.toLocaleString()}</div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="bg-white/10 p-4 rounded-2xl"><p className="text-[8px] font-black uppercase opacity-60">Food Cost pp</p><div className="flex items-center gap-1"><span className="text-xl font-black">R</span><span className="text-xl font-black">{totalDishCost}</span></div></div>
+            <div className="grid grid-cols-2 gap-4 mb-8">
+              <div className="bg-white/10 p-4 rounded-2xl"><p className="text-[8px] font-black uppercase opacity-60">Menu Price pp</p><div className="flex items-center gap-1"><span className="text-xl font-black">R</span><span className="text-xl font-black">{totalDishPrice}</span></div></div>
               <div className="bg-white/10 p-4 rounded-2xl"><p className="text-[8px] font-black uppercase opacity-60">Logistics (Edit)</p><div className="flex items-center gap-1"><span className="text-xl font-black">R</span><input type="number" value={proposal.logistics.deliveryFee} onChange={(e) => updateLogistics(Number(e.target.value))} className="bg-transparent border-none outline-none text-xl font-black w-full" /></div></div>
             </div>
+            
+            <div className="flex items-center justify-between mb-6">
+              <label className="text-[10px] font-black uppercase tracking-widest opacity-70">Enable Deposit Button</label>
+              <button onClick={() => updateRoot('showDeposit', !proposal.showDeposit)} className={`w-12 h-6 rounded-full transition-all relative ${proposal.showDeposit ? 'bg-white' : 'bg-white/20'}`}>
+                <div className={`absolute top-1 w-4 h-4 rounded-full transition-all ${proposal.showDeposit ? 'left-7 bg-emerald-600' : 'left-1 bg-white'}`} />
+              </button>
+            </div>
+
+            {proposal.showDeposit && (
+              <div className="bg-white p-6 rounded-3xl">
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 text-center">Pay 50% Deposit Now (R {depositAmount})</p>
+                <PayPalScriptProvider options={{ clientId: PAYPAL_CLIENT_ID, currency: "USD" }}>
+                  <PayPalButtons style={{ layout: "horizontal", height: 45, shape: "pill", label: "pay" }} createOrder={(data, actions) => actions.order.create({ intent: "CAPTURE", purchase_units: [{ amount: { currency_code: "USD", value: (Number(depositAmount) / 18).toFixed(2) } }] })} />
+                </PayPalScriptProvider>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -494,10 +568,10 @@ export default function App() {
 
   const currentMargin = useMemo(() => {
     if (!proposal) return 72.4;
-    const totalDishCost = proposal.menu.reduce((sum, m) => sum + m.cost, 0);
-    const totalCost = totalDishCost * proposal.guestCount;
-    const totalRevenue = (totalDishCost * 1.4) * proposal.guestCount; 
-    return ((totalRevenue - totalCost) / totalRevenue) * 100;
+    const totalCost = proposal.menu.reduce((sum, m) => sum + (m.cost * proposal.guestCount), 0);
+    const totalRevenue = proposal.menu.reduce((sum, m) => sum + (m.price * proposal.guestCount), 0) + proposal.logistics.deliveryFee;
+    const margin = ((totalRevenue - totalCost) / totalRevenue) * 100;
+    return isNaN(margin) ? 0 : margin;
   }, [proposal]);
 
   const generate = async () => {
@@ -507,18 +581,19 @@ export default function App() {
         title: "Gourmet Fusion Experience",
         description: "A high-end culinary journey blending local ingredients with modern techniques.",
         menu: [
-          { dish: "Truffle Arancini", notes: "Risotto balls with black truffle.", cat: "Appetizers", cost: 65 },
-          { dish: "Citrus Cured Salmon", notes: "Fresh Atlantic salmon with grapefruit.", cat: "Appetizers", cost: 85 },
-          { dish: "Pan-Seared Sea Bass", notes: "With lemon caper butter.", cat: "Main Courses", cost: 185 },
-          { dish: "Herb-Crusted Rack of Lamb", notes: "Slow-roasted with rosemary.", cat: "Main Courses", cost: 210 },
-          { dish: "Dark Chocolate Fondant", notes: "Warm center with vanilla bean gelato.", cat: "Desserts", cost: 75 }
+          { dish: "Truffle Arancini", notes: "Risotto balls with black truffle.", cat: "Appetizers", cost: 25, price: 65 },
+          { dish: "Citrus Cured Salmon", notes: "Fresh Atlantic salmon with grapefruit.", cat: "Appetizers", cost: 35, price: 85 },
+          { dish: "Pan-Seared Sea Bass", notes: "With lemon caper butter.", cat: "Main Courses", cost: 75, price: 185 },
+          { dish: "Herb-Crusted Rack of Lamb", notes: "Slow-roasted with rosemary.", cat: "Main Courses", cost: 95, price: 210 },
+          { dish: "Dark Chocolate Fondant", notes: "Warm center with vanilla bean gelato.", cat: "Desserts", cost: 25, price: 75 }
         ],
         miseEnPlace: [], 
         serviceNotes: ["Serve appetizers on slate boards", "Main course plates must be warmed"], 
         deliveryLogistics: ["Refrigerated transport required"], 
         logistics: { deliveryFee: 2500 }, 
         guestCount: 50,
-        heroImage: HERO_FALLBACK
+        heroImage: HERO_FALLBACK,
+        showDeposit: false
       });
       setGenerating(false); setView('proposal'); setToast('Proposal generated!');
     }, 2000);
@@ -582,14 +657,21 @@ export default function App() {
                 {item.label}
               </button>
             ))}
-            <button onClick={() => setView('generator')} className="bg-white text-slate-950 px-8 py-4 rounded-2xl font-black uppercase text-[10px] hover:bg-emerald-500 hover:text-white transition-all shadow-xl">Get Started</button>
+            <a href={WHOP_CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className="bg-white text-slate-950 px-8 py-4 rounded-2xl font-black uppercase text-[10px] hover:bg-emerald-500 hover:text-white transition-all shadow-xl" style={{ clipPath: OCTAGON_CLIP }}>Upgrade</a>
           </div>
         </div>
       </nav>
       
       <main className="relative z-10">
         <AnimatePresence mode="wait">
-          {view === 'landing' && <motion.div key="landing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}><HeroSection onStart={() => setView('generator')} margin={currentMargin} /></motion.div>}
+          {view === 'landing' && (
+            <motion.div key="landing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+              <HeroSection onStart={() => setView('generator')} margin={currentMargin} />
+              <div className="max-w-7xl mx-auto px-6 pb-32">
+                <SavingsEstimator />
+              </div>
+            </motion.div>
+          )}
           {view === 'generator' && (
             <motion.div key="generator" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="pt-40 pb-20 max-w-7xl mx-auto px-6">
               <div className="text-center mb-20">
@@ -612,7 +694,7 @@ export default function App() {
                       <input type="number" placeholder="50" className="w-full p-6 pl-16 rounded-[2rem] border border-white/10 bg-slate-800 text-white font-bold outline-none focus:border-emerald-500 transition-all" />
                     </div>
                   </div>
-                  <button onClick={generate} disabled={generating} className="w-full py-8 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-2xl disabled:opacity-50 flex items-center justify-center gap-3">
+                  <button onClick={generate} disabled={generating} className="w-full py-8 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-2xl disabled:opacity-50 flex items-center justify-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
                     {generating ? <RefreshCw className="animate-spin" size={20} strokeWidth={3} /> : <Zap size={20} strokeWidth={3} />}
                     {generating ? 'Chef AI is Drafting...' : 'Generate Proposal'}
                   </button>
@@ -622,14 +704,14 @@ export default function App() {
           )}
           {view === 'proposal' && proposal && (
             <motion.div key="proposal" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="pt-40 pb-20 max-w-7xl mx-auto px-6">
-              <ProposalDocument proposal={proposal} onUpdate={setProposal} />
+              <ProposalDocument proposal={proposal} onUpdate={setProposal} margin={currentMargin} />
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-12">
                 <RecipeLab menu={proposal} onUpdate={setProposal} />
                 <PlateCostEngine ingredients={ingredients} />
               </div>
               <div className="flex flex-col md:flex-row justify-center gap-6 mt-12">
-                <button onClick={() => setView('generator')} className="px-12 py-6 bg-slate-900/40 backdrop-blur-xl text-white border border-white/10 rounded-[2rem] font-black uppercase text-sm hover:bg-slate-800 transition-all">New Draft</button>
-                <button onClick={exportPDF} className="px-12 py-6 bg-white text-slate-950 rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 hover:text-white transition-all shadow-2xl flex items-center gap-3">
+                <button onClick={() => setView('generator')} className="px-12 py-6 bg-slate-900/40 backdrop-blur-xl text-white border border-white/10 rounded-[2rem] font-black uppercase text-sm hover:bg-slate-800 transition-all" style={{ clipPath: OCTAGON_CLIP }}>New Draft</button>
+                <button onClick={exportPDF} className="px-12 py-6 bg-white text-slate-950 rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 hover:text-white transition-all shadow-2xl flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
                   <Download size={18} strokeWidth={3} />
                   Download PDF
                 </button>
@@ -641,7 +723,7 @@ export default function App() {
                     { name: 'Rack of Lamb', quantity: 0.3, unit: 'kg', unitPrice: 420, linkedDish: 'Herb-Crusted Rack of Lamb' }
                   ], 
                   title: proposal.title 
-                })} className="px-12 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-2xl flex items-center gap-3">
+                })} className="px-12 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-2xl flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
                   <Calculator size={18} strokeWidth={3} />
                   Shift Breakdown
                 </button>
@@ -654,7 +736,7 @@ export default function App() {
                 <h2 className="text-6xl font-black text-white uppercase italic mb-4 tracking-tighter">Cost Calculator</h2>
               </div>
               <PlateCostEngine ingredients={ingredients} />
-              <button onClick={() => setView('landing')} className="w-full mt-8 py-6 bg-slate-900/40 backdrop-blur-xl text-white border border-white/10 rounded-[2rem] font-black uppercase text-sm hover:bg-slate-800 transition-all">Back to Home</button>
+              <button onClick={() => setView('landing')} className="w-full mt-8 py-6 bg-slate-900/40 backdrop-blur-xl text-white border border-white/10 rounded-[2rem] font-black uppercase text-sm hover:bg-slate-800 transition-all" style={{ clipPath: OCTAGON_CLIP }}>Back to Home</button>
             </motion.div>
           )}
         </AnimatePresence>
@@ -674,7 +756,6 @@ export default function App() {
 
       <Toast message={toast} onDismiss={() => setToast(null)} />
       <AiChatBot />
-      {payModal && <PaymentModal isOpen={payModal.isOpen} onClose={() => setPayModal(null)} plan={payModal.plan} price={payModal.price} onConfirm={() => { setPayModal(null); setToast(`Welcome to ${payModal.plan}!`); }} />}
       {shiftModal && proposal && <ShiftCalculatorModal isOpen={shiftModal.isOpen} onClose={() => setShiftModal(null)} initialIngredients={shiftModal.ingredients} menuTitle={shiftModal.title} guestCount={proposal.guestCount} onUpdateDishCost={(dishName, newCost) => {
         const n = [...proposal.menu];
         const idx = n.findIndex(m => m.dish === dishName);
