@@ -488,19 +488,19 @@ export const useAppSubscription = () => {
 // --- END INLINED INFRASTRUCTURE ---
 
 // --- INFRASTRUCTURE IMPORTS ---
-import PricingPage from './Pricingpage';
-import CostingLibrary from './CostingLibrary';
-import PartnerDashboard from './PartnerDashboard';
-import PrivacyPolicy from './PrivacyPolicy';
-import TermsOfService from './TermsOfService';
-import StudentYieldCalculator from './StudentYieldCalculator';
-import ShiftCalculatorModal from './ShiftCalculatorModal';
-import SuccessPage from './SuccessPage';
-import ProposalDocument from './ProposalDocument';
-import HeroSection from './HeroSection';
-import Dashboard from './Dashboard';
-import RecipeGenerator from './RecipeGenerator';
-import AiChatBot from './AiChatBot';
+const PricingPage = React.lazy(() => import('./PricingPage'));
+const CostingLibrary = React.lazy(() => import('./CostingLibrary'));
+const PartnerDashboard = React.lazy(() => import('./PartnerDashboard'));
+const PrivacyPolicy = React.lazy(() => import('./PrivacyPolicy'));
+const TermsOfService = React.lazy(() => import('./TermsOfService'));
+const StudentYieldCalculator = React.lazy(() => import('./StudentYieldCalculator'));
+const ShiftCalculatorModal = React.lazy(() => import('./ShiftCalculatorModal'));
+const SuccessPage = React.lazy(() => import('./SuccessPage'));
+const ProposalDocument = React.lazy(() => import('./ProposalDocument'));
+const HeroSection = React.lazy(() => import('./HeroSection'));
+const Dashboard = React.lazy(() => import('./Dashboard'));
+const RecipeGenerator = React.lazy(() => import('./RecipeGenerator'));
+const AiChatBot = React.lazy(() => import('./AiChatBot'));
 import { ShiftIngredient } from './types';
 
 // --- UTILS ---
