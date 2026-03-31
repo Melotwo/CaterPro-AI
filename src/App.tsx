@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, query, where, onSnapshot } from 'firebase/firestore';
+import { getFirestore, collection, query, where, onSnapshot, doc, setDoc } from 'firebase/firestore';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { motion, AnimatePresence } from 'framer-motion';
@@ -21,11 +21,11 @@ import {
   Zap,
   ShieldCheck,
   RefreshCw,
-  Camera,
+  Star,
   ArrowRight,
   PieChart,
   Percent,
-  Star
+  CheckCircle2
 } from 'lucide-react';
 
 // --- FIREBASE INITIALIZATION ---
@@ -64,6 +64,7 @@ export interface Menu {
   heroImage?: string;
   showDeposit?: boolean;
   manualTotal?: number; // Manual override for budget
+  manualPerHead?: number; // Manual override for per head
 }
 
 export interface Message {
@@ -82,6 +83,7 @@ export interface ShiftIngredient {
 // --- CONSTANTS ---
 
 const DEMO_USER_ID = 'DEMO_USER';
+// REPLACE THE STRING BELOW WITH YOUR LIVE PAYPAL CLIENT ID
 const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID || "Adp-3XYWNARTpkCw4rbtFUnFox3mMwZtWWRy-TprJ8sOrV8X9z4xtyobRHuCx848mseDoqATaUooheFz";
 const WHOP_CHECKOUT_URL = "https://whop.com/caterpro-ai"; 
 const HERO_FALLBACK = "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1200&q=80";
@@ -105,22 +107,45 @@ const oklchToRgb = (oklchStr: string) => {
 const ProfitGauge: React.FC<{ margin: number }> = ({ margin }) => {
   const rotation = (Math.min(Math.max(margin, 0), 100) / 100) * 180 - 90;
   return (
-    <div className="relative w-64 h-32 overflow-hidden mx-auto">
-      <div className="absolute bottom-0 left-0 w-64 h-64 border-[12px] border-slate-800 rounded-full" />
+    <div className="relative w-72 h-36 overflow-hidden mx-auto">
+      <div className="absolute bottom-0 left-0 w-72 h-72 border-[14px] border-slate-800 rounded-full" />
       <motion.div 
         initial={{ rotate: -90 }}
         animate={{ rotate: rotation }}
         transition={{ type: 'spring', stiffness: 40, damping: 15 }}
-        className="absolute bottom-0 left-1/2 w-1 h-32 bg-emerald-500 origin-bottom -translate-x-1/2 z-10"
+        className="absolute bottom-0 left-1/2 w-1.5 h-36 bg-emerald-500 origin-bottom -translate-x-1/2 z-10"
       >
-        <div className="w-4 h-4 bg-emerald-500 rounded-full -translate-x-[6px] -translate-y-2 shadow-2xl shadow-emerald-500/50 border-2 border-slate-950" />
+        <div className="w-5 h-5 bg-emerald-500 rounded-full -translate-x-[7.5px] -translate-y-2.5 shadow-2xl shadow-emerald-500/50 border-2 border-slate-950" />
       </motion.div>
-      <div className="absolute bottom-0 left-0 w-64 h-64 border-[12px] border-transparent border-t-emerald-500 rounded-full opacity-20" />
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-center">
+      <div className="absolute bottom-0 left-0 w-72 h-72 border-[14px] border-transparent border-t-emerald-500 rounded-full opacity-20" />
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center">
         <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 opacity-60">Profit Margin</span>
-        <p className="text-4xl font-black text-white tracking-tighter leading-none mt-1">{margin.toFixed(1)}%</p>
+        <p className="text-5xl font-black text-white tracking-tighter leading-none mt-1">{margin.toFixed(1)}%</p>
       </div>
     </div>
+  );
+};
+
+const Toast: React.FC<{ message: string | null; onDismiss: () => void }> = ({ message, onDismiss }) => {
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(onDismiss, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [message, onDismiss]);
+  if (!message) return null;
+  return (
+    <motion.div 
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 50 }}
+      className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[200]"
+    >
+      <div className="bg-emerald-600 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-white/20 backdrop-blur-xl">
+        <Zap size={18} strokeWidth={3} />
+        <p className="text-sm font-black uppercase tracking-widest">{message}</p>
+      </div>
+    </motion.div>
   );
 };
 
@@ -129,27 +154,27 @@ const PricingSection: React.FC = () => (
     <div className="max-w-7xl mx-auto px-6">
       <div className="text-center mb-16">
         <h2 className="text-5xl font-black text-white uppercase italic tracking-tighter">Executive Plans</h2>
-        <p className="text-slate-400 opacity-60 italic mt-4">Scale your catering empire with precision.</p>
+        <p className="text-slate-400 opacity-60 italic mt-4">Scale your catering empire with AI-driven precision.</p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {[
-          { name: 'Commis', price: '$29', features: ['5 Proposals/mo', 'Basic Costing', 'Email Support'] },
-          { name: 'Executive', price: '$99', features: ['Unlimited Proposals', 'AI Recipe Lab', 'Profit Gauges', 'Priority Support'], popular: true },
-          { name: 'Empire', price: '$249', features: ['Multi-User Access', 'Custom Branding', 'API Integration', 'Dedicated Account Manager'] }
+          { name: 'Commis', price: '$29', features: ['5 Proposals/mo', 'Basic Costing', 'Email Support'], link: WHOP_CHECKOUT_URL },
+          { name: 'Chef de Partie', price: '$59', features: ['20 Proposals/mo', 'Advanced Analytics', 'Priority Support'], link: WHOP_CHECKOUT_URL },
+          { name: 'Executive', price: '$99', features: ['Unlimited Proposals', 'AI Recipe Lab', 'Profit Gauges', 'Dedicated Manager'], popular: true, link: WHOP_CHECKOUT_URL }
         ].map((plan) => (
-          <div key={plan.name} className={`relative p-12 rounded-[3rem] border ${plan.popular ? 'border-emerald-500 bg-emerald-500/5' : 'border-white/10 bg-slate-900/40'} flex flex-col`}>
+          <div key={plan.name} className={`relative p-12 rounded-[3.5rem] border ${plan.popular ? 'border-emerald-500 bg-emerald-500/5' : 'border-white/10 bg-slate-900/40'} flex flex-col`}>
             {plan.popular && <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-slate-950 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">Most Popular</div>}
             <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-2">{plan.name}</h3>
             <div className="text-4xl font-black text-white mb-8">{plan.price}<span className="text-sm opacity-60">/mo</span></div>
             <ul className="space-y-4 mb-12 flex-grow">
               {plan.features.map(f => (
                 <li key={f} className="flex items-center gap-3 text-sm text-slate-400 opacity-60">
-                  <Zap size={14} className="text-emerald-500" /> {f}
+                  <CheckCircle2 size={14} className="text-emerald-500" /> {f}
                 </li>
               ))}
             </ul>
             <button 
-              onClick={() => window.location.href = WHOP_CHECKOUT_URL}
+              onClick={() => window.location.href = plan.link}
               className={`w-full py-6 rounded-2xl font-black uppercase text-xs tracking-widest transition-all ${plan.popular ? 'bg-emerald-600 text-white hover:bg-emerald-500' : 'bg-white text-slate-950 hover:bg-emerald-500 hover:text-white'}`}
               style={{ clipPath: OCTAGON_CLIP }}
             >
@@ -161,6 +186,59 @@ const PricingSection: React.FC = () => (
     </div>
   </section>
 );
+
+const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; initialIngredients: ShiftIngredient[]; guestCount: number; onUpdateDishCost: (dishName: string, newCost: number) => void }> = ({ isOpen, onClose, initialIngredients, guestCount, onUpdateDishCost }) => {
+  const [ingredients, setIngredients] = useState<ShiftIngredient[]>([]);
+  useEffect(() => { if (isOpen) setIngredients(initialIngredients); }, [isOpen, initialIngredients]);
+  
+  const handleUpdate = (idx: number, field: keyof ShiftIngredient, val: any) => {
+    const n = [...ingredients]; 
+    n[idx] = { ...n[idx], [field]: val }; 
+    setIngredients(n);
+    
+    if (n[idx].linkedDish) {
+      const dishIngredients = n.filter(i => i.linkedDish === n[idx].linkedDish);
+      const dishCostPerHead = dishIngredients.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+      onUpdateDishCost(n[idx].linkedDish, dishCostPerHead);
+    }
+  };
+
+  const total = ingredients.reduce((sum, item) => sum + (item.quantity * guestCount * item.unitPrice), 0);
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/95 p-4 backdrop-blur-md">
+      <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-6xl h-full max-h-[90vh] bg-slate-900/90 backdrop-blur-2xl border-2 border-emerald-500/30 rounded-[4rem] shadow-2xl overflow-hidden flex flex-col">
+        <div className="p-12 border-b border-white/10 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-400"><Calculator size={24} strokeWidth={3} /></div>
+            <h2 className="text-4xl font-black text-white uppercase tracking-tighter">Shift Breakdown</h2>
+          </div>
+          <button onClick={onClose} className="w-12 h-12 flex items-center justify-center text-slate-500 hover:text-white transition-colors"><Trash2 size={24} strokeWidth={3} /></button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-12">
+          <table className="w-full text-left">
+            <thead><tr className="text-emerald-500 text-[10px] font-black uppercase border-b border-white/10"><th className="p-6">Ingredient</th><th className="p-6">Dish Link</th><th className="p-6">Qty/Guest</th><th className="p-6">Unit Price</th><th className="p-6 text-right">Total</th></tr></thead>
+            <tbody className="divide-y divide-white/5">
+              {ingredients.map((item, idx) => (
+                <tr key={idx} className="hover:bg-white/5 transition-colors">
+                  <td className="p-6 font-bold text-white"><input value={item.name} onChange={(e) => handleUpdate(idx, 'name', e.target.value)} className="bg-transparent outline-none focus:text-emerald-400 w-full" /></td>
+                  <td className="p-6 text-slate-500 text-xs font-black uppercase italic opacity-60">{item.linkedDish || 'Unlinked'}</td>
+                  <td className="p-6 text-slate-400 opacity-60"><input type="number" value={item.quantity} onChange={(e) => handleUpdate(idx, 'quantity', Number(e.target.value))} className="bg-slate-800 border border-white/10 rounded px-2 py-1 w-20 text-white" /> {item.unit}</td>
+                  <td className="p-6 text-slate-400 opacity-60">R <input type="number" value={item.unitPrice} onChange={(e) => handleUpdate(idx, 'unitPrice', Number(e.target.value))} className="bg-slate-800 border border-white/10 rounded px-2 py-1 w-24 text-white" /></td>
+                  <td className="p-6 text-right font-black text-white">R {(item.quantity * guestCount * item.unitPrice).toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="p-12 bg-slate-950/50 border-t border-white/10 flex items-center justify-between">
+          <div><p className="text-[10px] font-black text-slate-400 uppercase mb-2 opacity-60">Total Shift Cost</p><h3 className="text-6xl font-black text-white tracking-tighter">R {total.toLocaleString()}</h3></div>
+          <button onClick={onClose} className="px-16 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-xl" style={{ clipPath: OCTAGON_CLIP }}>Confirm & Close</button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
 
 const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => void; margin: number }> = ({ proposal, onUpdate, margin }) => {
   const updateItem = (idx: number, field: keyof MenuItem, val: any) => { 
@@ -174,6 +252,7 @@ const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => 
   const totalDishPrice = proposal.menu.reduce((sum, m) => sum + m.price, 0);
   const calculatedTotal = (totalDishPrice * proposal.guestCount) + proposal.logistics.deliveryFee;
   const displayTotal = proposal.manualTotal !== undefined ? proposal.manualTotal : calculatedTotal;
+  const displayPerHead = proposal.manualPerHead !== undefined ? proposal.manualPerHead : totalDishPrice;
   const depositAmount = (displayTotal * 0.5).toFixed(2);
 
   return (
@@ -311,8 +390,16 @@ const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => 
 
             <div className="grid grid-cols-2 gap-6 mb-10">
               <div className="bg-white/10 p-6 rounded-3xl border border-white/5">
-                <p className="text-[10px] font-black uppercase opacity-60 mb-2">Menu Price pp</p>
-                <div className="flex items-center gap-2"><span className="text-2xl font-black">R</span><span className="text-2xl font-black">{totalDishPrice}</span></div>
+                <p className="text-[10px] font-black uppercase opacity-60 mb-2">Per Head (Edit)</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl font-black">R</span>
+                  <input 
+                    type="number" 
+                    value={displayPerHead} 
+                    onChange={(e) => updateRoot('manualPerHead', Number(e.target.value))} 
+                    className="bg-transparent border-none outline-none text-2xl font-black w-full" 
+                  />
+                </div>
               </div>
               <div className="bg-white/10 p-6 rounded-3xl border border-white/5">
                 <p className="text-[10px] font-black uppercase opacity-60 mb-2">Logistics (Edit)</p>
@@ -561,6 +648,28 @@ export default function App() {
               </div>
             </motion.div>
           )}
+
+          {view === 'calculator' && (
+            <motion.div key="calculator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="pt-40 pb-20 max-w-4xl mx-auto px-6">
+              <div className="text-center mb-16">
+                <h2 className="text-6xl font-black text-white uppercase italic mb-4 tracking-tighter">Cost Calculator</h2>
+              </div>
+              <div className="bg-slate-900/40 backdrop-blur-xl p-8 rounded-[4rem] border border-white/10 shadow-2xl">
+                <div className="flex items-center gap-4 mb-8">
+                  <div className="w-10 h-10 bg-sky-500/20 rounded-xl flex items-center justify-center text-sky-400"><Calculator size={20} strokeWidth={3} /></div>
+                  <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Quick Costing</h3>
+                </div>
+                <div className="space-y-6">
+                  <select onChange={(e) => { if (e.target.value) setToast('Ingredient added!'); e.target.value = ''; }} className="w-full p-4 rounded-2xl bg-slate-800 text-white font-bold outline-none border border-white/10 text-sm">
+                    <option value="">+ Add Ingredient...</option>
+                    {ingredients.map(ing => <option key={ing.id} value={ing.id}>{ing.name} ({ing.unit})</option>)}
+                  </select>
+                  <div className="p-12 text-center border-2 border-dashed border-white/10 rounded-[3rem] text-slate-500 font-bold italic opacity-60">Add ingredients to calculate plate costs.</div>
+                </div>
+              </div>
+              <button onClick={() => setView('landing')} className="w-full mt-8 py-6 bg-slate-900/40 backdrop-blur-xl text-white border border-white/10 rounded-[2rem] font-black uppercase text-sm hover:bg-slate-800 transition-all" style={{ clipPath: OCTAGON_CLIP }}>Back to Home</button>
+            </motion.div>
+          )}
         </AnimatePresence>
       </main>
 
@@ -583,7 +692,6 @@ export default function App() {
           isOpen={shiftModal.isOpen} 
           onClose={() => setShiftModal(null)} 
           initialIngredients={shiftModal.ingredients} 
-          menuTitle={shiftModal.title} 
           guestCount={proposal.guestCount} 
           onUpdateDishCost={(dishName, newCost) => {
             const n = [...proposal.menu];
@@ -598,81 +706,3 @@ export default function App() {
     </div>
   );
 }
-
-// --- SUB-COMPONENTS ---
-
-const Toast: React.FC<{ message: string | null; onDismiss: () => void }> = ({ message, onDismiss }) => {
-  useEffect(() => {
-    if (message) {
-      const timer = setTimeout(onDismiss, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [message, onDismiss]);
-  if (!message) return null;
-  return (
-    <motion.div 
-      initial={{ opacity: 0, y: 50 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 50 }}
-      className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[200]"
-    >
-      <div className="bg-emerald-600 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-white/20 backdrop-blur-xl">
-        <Zap size={18} strokeWidth={3} />
-        <p className="text-sm font-black uppercase tracking-widest">{message}</p>
-      </div>
-    </motion.div>
-  );
-};
-
-const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; initialIngredients: ShiftIngredient[]; menuTitle: string; guestCount: number; onUpdateDishCost: (dishName: string, newCost: number) => void }> = ({ isOpen, onClose, initialIngredients, menuTitle, guestCount, onUpdateDishCost }) => {
-  const [ingredients, setIngredients] = useState<ShiftIngredient[]>([]);
-  useEffect(() => { if (isOpen) setIngredients(initialIngredients); }, [isOpen, initialIngredients]);
-  
-  const handleUpdate = (idx: number, field: keyof ShiftIngredient, val: any) => {
-    const n = [...ingredients]; 
-    n[idx] = { ...n[idx], [field]: val }; 
-    setIngredients(n);
-    
-    if (n[idx].linkedDish) {
-      const dishIngredients = n.filter(i => i.linkedDish === n[idx].linkedDish);
-      const dishCostPerHead = dishIngredients.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
-      onUpdateDishCost(n[idx].linkedDish, dishCostPerHead);
-    }
-  };
-
-  const total = ingredients.reduce((sum, item) => sum + (item.quantity * guestCount * item.unitPrice), 0);
-  if (!isOpen) return null;
-  return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/95 p-4 backdrop-blur-md">
-      <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-6xl h-full max-h-[90vh] bg-slate-900/90 backdrop-blur-2xl border-2 border-emerald-500/30 rounded-[4rem] shadow-2xl overflow-hidden flex flex-col">
-        <div className="p-12 border-b border-white/10 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-400"><Calculator size={24} strokeWidth={3} /></div>
-            <h2 className="text-4xl font-black text-white uppercase tracking-tighter">Shift Breakdown</h2>
-          </div>
-          <button onClick={onClose} className="w-12 h-12 flex items-center justify-center text-slate-500 hover:text-white transition-colors"><Trash2 size={24} strokeWidth={3} /></button>
-        </div>
-        <div className="flex-1 overflow-y-auto p-12">
-          <table className="w-full text-left">
-            <thead><tr className="text-emerald-500 text-[10px] font-black uppercase border-b border-white/10"><th className="p-6">Ingredient</th><th className="p-6">Dish Link</th><th className="p-6">Qty/Guest</th><th className="p-6">Unit Price</th><th className="p-6 text-right">Total</th></tr></thead>
-            <tbody className="divide-y divide-white/5">
-              {ingredients.map((item, idx) => (
-                <tr key={idx} className="hover:bg-white/5 transition-colors">
-                  <td className="p-6 font-bold text-white"><input value={item.name} onChange={(e) => handleUpdate(idx, 'name', e.target.value)} className="bg-transparent outline-none focus:text-emerald-400 w-full" /></td>
-                  <td className="p-6 text-slate-500 text-xs font-black uppercase italic opacity-60">{item.linkedDish || 'Unlinked'}</td>
-                  <td className="p-6 text-slate-400 opacity-60"><input type="number" value={item.quantity} onChange={(e) => handleUpdate(idx, 'quantity', Number(e.target.value))} className="bg-slate-800 border border-white/10 rounded px-2 py-1 w-20 text-white" /> {item.unit}</td>
-                  <td className="p-6 text-slate-400 opacity-60">R <input type="number" value={item.unitPrice} onChange={(e) => handleUpdate(idx, 'unitPrice', Number(e.target.value))} className="bg-slate-800 border border-white/10 rounded px-2 py-1 w-24 text-white" /></td>
-                  <td className="p-6 text-right font-black text-white">R {(item.quantity * guestCount * item.unitPrice).toFixed(2)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="p-12 bg-slate-950/50 border-t border-white/10 flex items-center justify-between">
-          <div><p className="text-[10px] font-black text-slate-400 uppercase mb-2 opacity-60">Total Shift Cost</p><h3 className="text-6xl font-black text-white tracking-tighter">R {total.toLocaleString()}</h3></div>
-          <button onClick={onClose} className="px-16 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-xl" style={{ clipPath: OCTAGON_CLIP }}>Confirm & Close</button>
-        </div>
-      </motion.div>
-    </div>
-  );
-};
