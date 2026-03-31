@@ -1,20 +1,19 @@
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-// We are using the absolute most direct pathing possible here
-import Index from "./pages/Index.tsx"; 
-import NotFound from "./pages/NotFound.tsx";
-
-const queryClient = new QueryClient();
-
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-  </QueryClientProvider>
+  <div style={{ 
+    backgroundColor: '#0B0F19', 
+    color: '#22C55E', 
+    height: '100vh', 
+    display: 'flex', 
+    flexDirection: 'column',
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    fontFamily: 'sans-serif',
+    textAlign: 'center'
+  }}>
+    <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>CaterProAI</h1>
+    <h2 style={{ color: '#ffffff' }}>System Online & Deploying... ✅</h2>
+    <p style={{ marginTop: '2rem', color: '#94a3b8' }}>Melotwo Industrial Build: Run 855</p>
+  </div>
 );
 
 export default App;
