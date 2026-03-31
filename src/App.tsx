@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef, createContext, useContext, useCallback } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth';
 import { collection, query, where, onSnapshot } from 'firebase/firestore';
-import { auth, isConfigured, db } from './firebase';
+import { db } from './firebase';
 
 // --- PLATE COST CALCULATOR ---
 const PlateCostCalculator: React.FC<{ ingredients: IngredientCost[] }> = ({ ingredients }) => {
@@ -177,9 +176,7 @@ const Navbar: React.FC<{
   onViewCalculator?: () => void;
   onViewPartner?: () => void;
   onViewSuccess?: () => void;
-  onAuthClick?: () => void;
-  user?: FirebaseUser | null;
-}> = ({ whopUrl, facebookUrl, onThemeToggle, isDarkMode, onOpenSaved, savedCount, onOpenQrCode, onOpenInstall, onReset, onViewLanding, onViewPricing, onViewLibrary, onViewCalculator, onViewPartner, onViewSuccess, onAuthClick, user }) => (
+}> = ({ whopUrl, facebookUrl, onThemeToggle, isDarkMode, onOpenSaved, savedCount, onOpenQrCode, onOpenInstall, onReset, onViewLanding, onViewPricing, onViewLibrary, onViewCalculator, onViewPartner, onViewSuccess }) => (
   <nav role="navigation" aria-label="Main navigation" className="no-print bg-white sticky top-0 z-50 border-b border-slate-200 pt-[env(safe-area-inset-top)] shadow-sm">
     <div className="max-w-7xl mx-auto px-6">
       <div className="flex justify-between items-center h-24">
@@ -248,15 +245,6 @@ const Navbar: React.FC<{
             {savedCount > 0 && (
               <span className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-black text-white shadow-lg border-2 border-white">{savedCount}</span>
             )}
-          </button>
-          
-            <button 
-            onClick={onAuthClick}
-            className={`px-8 py-3.5 rounded-full flex items-center gap-3 transition-all font-anchor text-xs uppercase tracking-[0.2em] shadow-2xl ${user ? 'bg-slate-100 text-charcoal hover:bg-slate-200' : 'bg-gold text-charcoal hover:bg-amber-400 shadow-amber-200/20'}`}
-            title={user ? "Sign Out" : "Sign In"}
-          >
-            <span className="text-xl text-charcoal">{user ? '🚪' : '🔑'}</span>
-            <span className="hidden lg:inline text-charcoal">{user ? 'Sign Out' : 'Sign In'}</span>
           </button>
         </div>
       </div>
@@ -376,77 +364,6 @@ const Footer: React.FC<{
     </footer>
   );
 };
-
-// Auth Service
-export const authService = {
-  getCurrentUid(): string | null {
-    const isFounder = localStorage.getItem('caterpro_is_founder') === 'true';
-    if (isFounder) return 'FOUNDER_ADMIN';
-    return auth?.currentUser?.uid || null;
-  },
-  getCurrentUser() {
-    const isFounder = localStorage.getItem('caterpro_is_founder') === 'true';
-    if (isFounder) {
-      return {
-        uid: 'FOUNDER_ADMIN',
-        displayName: 'Founder Admin',
-        email: 'founder@caterproai.com',
-        isFounder: true
-      };
-    }
-    return auth?.currentUser || null;
-  },
-  isFounderSession(): boolean {
-    return localStorage.getItem('caterpro_is_founder') === 'true';
-  }
-};
-
-// Auth Context
-interface AuthContextType {
-  user: any;
-  loading: boolean;
-  isConfigured: boolean;
-}
-
-const AuthContext = createContext<AuthContextType>({ user: null, loading: true, isConfigured: false });
-
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (authService.isFounderSession()) {
-      setUser(authService.getCurrentUser());
-      setLoading(false);
-      return;
-    }
-
-    if (!isConfigured || !auth) {
-      setLoading(false);
-      return;
-    }
-
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (firebaseUser) {
-        setUser(firebaseUser);
-      } else if (authService.isFounderSession()) {
-        setUser(authService.getCurrentUser());
-      } else {
-        setUser(null);
-      }
-      setLoading(false);
-    });
-    return unsubscribe;
-  }, []);
-
-  return (
-    <AuthContext.Provider value={{ user, loading, isConfigured }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-export const useAuth = () => useContext(AuthContext);
 
 // Subscription Context
 export type SubscriptionPlan = 'free' | 'commis' | 'chef-de-partie' | 'sous-chef' | 'executive';
@@ -571,7 +488,6 @@ export const useAppSubscription = () => {
 // --- END INLINED INFRASTRUCTURE ---
 
 // --- INFRASTRUCTURE IMPORTS ---
-import AuthModal from './AuthModal';
 import PricingPage from './PricingPage';
 import CostingLibrary from './CostingLibrary';
 import PartnerDashboard from './PartnerDashboard';
@@ -630,21 +546,20 @@ const MOCK_PROPOSAL = {
 
 export default function App() {
   // --- STATE & HOOKS ---
-  const { user, loading: authLoading } = useAuth();
   const { selectPlan, canAccessFeature, recordGeneration } = useAppSubscription();
   
   const [viewMode, setViewMode] = useState<'landing' | 'generator' | 'pricing' | 'library' | 'privacy' | 'partner' | 'terms' | 'success' | 'recipe-lab' | 'calculator'>('landing');
   const [ingredients, setIngredients] = useState<IngredientCost[]>([]);
 
   useEffect(() => {
-    if (!user || !db) return;
-    const q = query(collection(db, 'ingredientCosts'), where('userId', '==', user.uid));
+    if (!db) return;
+    const q = query(collection(db, 'ingredientCosts'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setIngredients(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as IngredientCost)));
     });
     return unsubscribe;
-  }, [user]);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  }, []);
+
   const [isTrainingMode, setIsTrainingMode] = useState(false);
   
   // Generator State
@@ -1127,14 +1042,6 @@ export default function App() {
     }
   };
 
-  if (authLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <span className="w-16 h-16 text-emerald-500 animate-spin text-4xl flex items-center justify-center">⏳</span>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-white flex flex-col font-sans relative overflow-x-hidden">
       {/* Navbar Integration */}
@@ -1152,8 +1059,6 @@ export default function App() {
         onViewCalculator={() => setViewMode('calculator')}
         onViewPartner={() => setViewMode('partner')}
         onViewSuccess={() => setViewMode('success')}
-        onAuthClick={() => setIsAuthModalOpen(true)}
-        user={user}
       />
 
       {/* Main Content */}
@@ -1162,10 +1067,6 @@ export default function App() {
         
         <AiChatBot 
           onAttemptAccess={() => {
-            if (!user) {
-              setIsAuthModalOpen(true);
-              return false;
-            }
             if (!canAccessFeature('aiChatBot')) {
               setViewMode('pricing');
               return false;
@@ -1198,12 +1099,6 @@ export default function App() {
       <Footer 
         onViewPrivacy={() => setViewMode('privacy')}
         onViewTerms={() => setViewMode('terms')}
-      />
-
-      {/* Auth Modal */}
-      <AuthModal 
-        isOpen={isAuthModalOpen} 
-        onClose={() => setIsAuthModalOpen(false)} 
       />
 
       {/* Result View Header */}
