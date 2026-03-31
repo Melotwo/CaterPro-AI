@@ -2,16 +2,10 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, query, where, onSnapshot, doc, setDoc } from 'firebase/firestore';
+import { getFirestore, collection, query, where, onSnapshot } from 'firebase/firestore';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { motion, AnimatePresence } from 'framer-motion';
-
-// --- FIREBASE INITIALIZATION ---
-// This assumes the file exists in your environment
-import firebaseConfig from '../firebase-applet-config.json';
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 
 // --- TYPES & INTERFACES ---
 
@@ -28,8 +22,9 @@ export interface MenuItem {
   dish: string;
   notes: string;
   cat: 'Appetizers' | 'Main Courses' | 'Desserts';
-  cost: number; // Internal production cost
-  price: number; // Client-facing price
+  cost: number; // Internal cost to produce
+  price: number; // Price charged to client
+  recipe?: string[];
 }
 
 export interface Menu {
@@ -43,8 +38,8 @@ export interface Menu {
   guestCount: number;
   heroImage?: string;
   showDeposit?: boolean;
-  manualTotal?: number; // Manual override for budget
-  manualPerHead?: number; // Manual override for per head
+  manualTotal?: number;
+  manualPerHead?: number;
 }
 
 export interface Message {
@@ -60,47 +55,103 @@ export interface ShiftIngredient {
   linkedDish?: string;
 }
 
+export type SubscriptionPlan = 'free' | 'commis' | 'chef-de-partie' | 'sous-chef' | 'executive';
+
 // --- CONSTANTS ---
 
 const DEMO_USER_ID = 'DEMO_USER';
-// REPLACE THE STRING BELOW WITH YOUR LIVE PAYPAL CLIENT ID
-const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID || "Adp-3XYWNARTpkCw4rbtFUnFox3mMwZtWWRy-TprJ8sOrV8X9z4xtyobRHuCx848mseDoqATaUooheFz";
+// PRODUCTION PAYPAL CLIENT ID
+const PAYPAL_CLIENT_ID = "Adp-3XYWNARTpkCw4rbtFUnFox3mMwZtWWRy-TprJ8sOrV8X9z4xtyobRHuCx848mseDoqATaUooheFz";
 const WHOP_CHECKOUT_URL = "https://whop.com/caterpro-ai"; 
 const HERO_FALLBACK = "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1200&q=80";
-const OCTAGON_CLIP = 'polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%)';
+
+// --- FIREBASE INITIALIZATION ---
+
+import firebaseConfig from '../firebase-applet-config.json';
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
 
 // --- UTILS ---
 
 const oklchToRgb = (oklchStr: string) => {
   if (oklchStr.includes('oklch')) {
-    // Map common Tailwind v4 OKLCH values to Hex for PDF stability
+    // Map common Tailwind v4 OKLCH values to Hex for PDF compatibility
     if (oklchStr.includes('0.796 0.265 162.49')) return '#10b981'; // emerald-500
     if (oklchStr.includes('0.129 0.042 264.695')) return '#020617'; // slate-950
     if (oklchStr.includes('0.746 0.16 232.661')) return '#0ea5e9'; // sky-500
-    return '#10b981'; 
+    return '#10b981'; // Default fallback
   }
   return oklchStr;
 };
 
+const OCTAGON_CLIP = 'polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%)';
+
 // --- COMPONENTS ---
+
+const NoiseOverlay = () => (
+  <div className="fixed inset-0 pointer-events-none opacity-[0.03] z-[100] mix-blend-overlay">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <filter id="noiseFilter">
+        <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
+      </filter>
+      <rect width="100%" height="100%" filter="url(#noiseFilter)" />
+    </svg>
+  </div>
+);
 
 const ProfitGauge: React.FC<{ margin: number }> = ({ margin }) => {
   const rotation = (Math.min(Math.max(margin, 0), 100) / 100) * 180 - 90;
   return (
-    <div className="relative w-72 h-36 overflow-hidden mx-auto">
-      <div className="absolute bottom-0 left-0 w-72 h-72 border-[14px] border-slate-800 rounded-full" />
+    <div className="relative w-80 h-40 overflow-hidden mx-auto">
+      <div className="absolute bottom-0 left-0 w-80 h-80 border-[16px] border-slate-800 rounded-full" />
       <motion.div 
         initial={{ rotate: -90 }}
         animate={{ rotate: rotation }}
         transition={{ type: 'spring', stiffness: 40, damping: 15 }}
-        className="absolute bottom-0 left-1/2 w-1.5 h-36 bg-emerald-500 origin-bottom -translate-x-1/2 z-10"
+        className="absolute bottom-0 left-1/2 w-1.5 h-40 bg-emerald-500 origin-bottom -translate-x-1/2 z-10"
       >
-        <div className="w-5 h-5 bg-emerald-500 rounded-full -translate-x-[7.5px] -translate-y-2.5 shadow-2xl shadow-emerald-500/50 border-2 border-slate-950" />
+        <div className="w-6 h-6 bg-emerald-500 rounded-full -translate-x-[9px] -translate-y-3 shadow-2xl shadow-emerald-500/50 border-4 border-slate-950" />
       </motion.div>
-      <div className="absolute bottom-0 left-0 w-72 h-72 border-[14px] border-transparent border-t-emerald-500 rounded-full opacity-20" />
+      <div className="absolute bottom-0 left-0 w-80 h-80 border-[16px] border-transparent border-t-emerald-500 rounded-full opacity-20" />
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center">
-        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-500 opacity-60">Profit Margin</span>
-        <p className="text-5xl font-black text-white tracking-tighter leading-none mt-1">{margin.toFixed(1)}%</p>
+        <span className="text-[12px] font-black uppercase tracking-[0.3em] text-slate-500 opacity-60">Profit Margin</span>
+        <p className="text-6xl font-black text-white tracking-tighter leading-none mt-2">{margin.toFixed(1)}%</p>
+      </div>
+    </div>
+  );
+};
+
+const SavingsEstimator: React.FC = () => {
+  const [monthlySpend, setMonthlySpend] = useState(50000);
+  const savings = monthlySpend * 0.15; 
+  return (
+    <div className="bg-slate-900/40 backdrop-blur-xl p-12 rounded-[4rem] border border-white/10 shadow-2xl mt-12">
+      <div className="flex items-center gap-4 mb-10">
+        <div className="w-12 h-12 bg-sky-500/20 rounded-2xl flex items-center justify-center text-sky-400 text-2xl">📈</div>
+        <h3 className="text-3xl font-black text-white uppercase tracking-tighter">Weight Audit Estimator</h3>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div className="space-y-6">
+          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 opacity-60">Monthly Food Spend (R)</label>
+          <input 
+            type="range" 
+            min="10000" 
+            max="500000" 
+            step="5000" 
+            value={monthlySpend} 
+            onChange={(e) => setMonthlySpend(Number(e.target.value))}
+            className="w-full h-3 bg-slate-800 rounded-full appearance-none cursor-pointer accent-emerald-500"
+          />
+          <div className="flex justify-between text-xl font-black text-white italic">
+            <span>R {monthlySpend.toLocaleString()}</span>
+          </div>
+        </div>
+        <div className="bg-emerald-600/10 border border-emerald-500/20 p-8 rounded-[3rem] text-center">
+          <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-2 opacity-60">Estimated Monthly Savings</p>
+          <h4 className="text-5xl font-black text-emerald-400 tracking-tighter">R {savings.toLocaleString()}</h4>
+          <p className="text-xs text-slate-400 italic mt-4 opacity-60">Based on 15% precision scaling efficiency</p>
+        </div>
       </div>
     </div>
   );
@@ -122,52 +173,110 @@ const Toast: React.FC<{ message: string | null; onDismiss: () => void }> = ({ me
       className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[200]"
     >
       <div className="bg-emerald-600 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-white/20 backdrop-blur-xl">
-        <span className="text-lg">⚡</span>
+        <span className="text-xl">⚡</span>
         <p className="text-sm font-black uppercase tracking-widest">{message}</p>
       </div>
     </motion.div>
   );
 };
 
-const PricingSection: React.FC = () => (
-  <section className="py-24 bg-slate-950">
-    <div className="max-w-7xl mx-auto px-6">
-      <div className="text-center mb-16">
-        <h2 className="text-5xl font-black text-white uppercase italic tracking-tighter">Executive Plans</h2>
-        <p className="text-slate-400 opacity-60 italic mt-4">Scale your catering empire with AI-driven precision.</p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {[
-          { name: 'Commis', price: '$29', features: ['5 Proposals/mo', 'Basic Costing', 'Email Support'], link: WHOP_CHECKOUT_URL },
-          { name: 'Chef de Partie', price: '$59', features: ['20 Proposals/mo', 'Advanced Analytics', 'Priority Support'], link: WHOP_CHECKOUT_URL },
-          { name: 'Executive', price: '$99', features: ['Unlimited Proposals', 'AI Recipe Lab', 'Profit Gauges', 'Dedicated Manager'], popular: true, link: WHOP_CHECKOUT_URL }
-        ].map((plan) => (
-          <div key={plan.name} className={`relative p-12 rounded-[3.5rem] border ${plan.popular ? 'border-emerald-500 bg-emerald-500/5' : 'border-white/10 bg-slate-900/40'} flex flex-col`}>
-            {plan.popular && <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-slate-950 px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest">Most Popular</div>}
-            <h3 className="text-2xl font-black text-white uppercase tracking-tighter mb-2">{plan.name}</h3>
-            <div className="text-4xl font-black text-white mb-8">{plan.price}<span className="text-sm opacity-60">/mo</span></div>
-            <ul className="space-y-4 mb-12 flex-grow">
-              {plan.features.map(f => (
-                <li key={f} className="flex items-center gap-3 text-sm text-slate-400 opacity-60">
-                  <span className="text-emerald-500">✅</span> {f}
-                </li>
-              ))}
-            </ul>
-            <button 
-              onClick={() => window.location.href = plan.link}
-              className={`w-full py-6 rounded-2xl font-black uppercase text-xs tracking-widest transition-all ${plan.popular ? 'bg-emerald-600 text-white hover:bg-emerald-500' : 'bg-white text-slate-950 hover:bg-emerald-500 hover:text-white'}`}
-              style={{ clipPath: OCTAGON_CLIP }}
-            >
-              Select Plan
-            </button>
+const PaymentModal: React.FC<{ isOpen: boolean; onClose: () => void; plan: SubscriptionPlan; onConfirm: () => void; price: string }> = ({ isOpen, onClose, plan, onConfirm, price }) => {
+  const [isProcessing, setIsProcessing] = useState(false);
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+      <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="relative w-full max-w-md bg-slate-900/90 backdrop-blur-2xl rounded-[3rem] shadow-2xl border border-white/10 overflow-hidden p-8">
+        <div className="text-center mb-8">
+          <h3 className="text-2xl font-black text-white capitalize">Unlock {plan}</h3>
+          <p className="text-4xl font-black text-emerald-500 mt-2">{price}</p>
+        </div>
+        {isProcessing ? (
+          <div className="flex flex-col items-center py-10 space-y-4">
+            <span className="animate-spin text-4xl">🔄</span>
+            <p className="font-bold text-white uppercase tracking-widest text-xs">Verifying Transaction...</p>
           </div>
-        ))}
+        ) : (
+          <PayPalScriptProvider options={{ clientId: PAYPAL_CLIENT_ID, currency: "USD" }}>
+            <PayPalButtons style={{ layout: "vertical", shape: "pill" }} createOrder={(data, actions) => actions.order.create({ intent: "CAPTURE", purchase_units: [{ amount: { currency_code: "USD", value: price.replace('$', '') } }] })} onApprove={async (data, actions) => { setIsProcessing(true); await actions.order?.capture(); onConfirm(); }} onCancel={() => setIsProcessing(false)} />
+          </PayPalScriptProvider>
+        )}
+        <button onClick={onClose} className="w-full mt-4 text-slate-500 font-bold text-sm uppercase tracking-widest">Cancel</button>
+      </motion.div>
+    </div>
+  );
+};
+
+const HeroSection: React.FC<{ onStart: () => void; margin: number }> = ({ onStart, margin }) => (
+  <div className="relative pt-32 pb-20 overflow-hidden">
+    <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-2 bg-sky-500/10 rounded-full border border-sky-500/20 mb-12">
+        <span className="flex h-2 w-2 rounded-full bg-sky-500 animate-pulse" />
+        <span className="text-[10px] font-black uppercase tracking-widest text-sky-400">Culinary Logic Engine</span>
+      </motion.div>
+      
+      <div className="mb-16">
+        <ProfitGauge margin={margin} />
+      </div>
+
+      <motion.h1 initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-7xl md:text-9xl font-black text-white tracking-tighter leading-[0.8] mb-8 uppercase italic">
+        CaterPro<span className="text-emerald-500">AI</span>
+      </motion.h1>
+      <p className="text-xl font-medium text-slate-400 opacity-60 max-w-2xl mx-auto mb-12 italic">
+        Transparent costing. Stunning proposals. Zero-waste operations.
+      </p>
+
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+        <button onClick={onStart} className="px-12 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-emerald-500 transition-all shadow-2xl shadow-emerald-600/20 flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
+          <span className="text-xl">⚡</span>
+          Start New Proposal
+        </button>
+        <button onClick={() => window.location.href = WHOP_CHECKOUT_URL} className="px-12 py-6 bg-white text-slate-950 rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-emerald-500 hover:text-white transition-all shadow-2xl flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
+          <span className="text-xl">🛡️</span>
+          Upgrade to Pro
+        </button>
       </div>
     </div>
-  </section>
+  </div>
 );
 
-const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; initialIngredients: ShiftIngredient[]; guestCount: number; onUpdateDishCost: (dishName: string, newCost: number) => void }> = ({ isOpen, onClose, initialIngredients, guestCount, onUpdateDishCost }) => {
+const PlateCostEngine: React.FC<{ ingredients: IngredientCost[]; onUpdate?: (cost: number) => void }> = ({ ingredients, onUpdate }) => {
+  const [selected, setSelected] = useState<{ id: string; quantity: number }[]>([]);
+  const [markup, setMarkup] = useState(300);
+  const total = selected.reduce((sum, item) => sum + (ingredients.find(i => i.id === item.id)?.price || 0) * item.quantity, 0);
+  const suggested = total * (markup / 100);
+  useEffect(() => { if (onUpdate) onUpdate(suggested); }, [suggested, onUpdate]);
+  return (
+    <div className="bg-slate-900/40 backdrop-blur-xl p-8 rounded-[4rem] border border-white/10 shadow-2xl">
+      <div className="flex items-center gap-4 mb-8">
+        <div className="w-10 h-10 bg-sky-500/20 rounded-xl flex items-center justify-center text-sky-400 text-xl">🧮</div>
+        <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Quick Costing</h3>
+      </div>
+      <div className="space-y-6">
+        <select onChange={(e) => { if (e.target.value) setSelected([...selected, { id: e.target.value, quantity: 1 }]); e.target.value = ''; }} className="w-full p-4 rounded-2xl bg-slate-800 text-white font-bold outline-none border border-white/10 text-sm">
+          <option value="">+ Add Ingredient...</option>
+          {ingredients.map(ing => <option key={ing.id} value={ing.id}>{ing.name} ({ing.unit})</option>)}
+        </select>
+        <div className="space-y-3">
+          {selected.map((item, idx) => (
+            <div key={idx} className="flex items-center justify-between p-4 bg-slate-800/30 rounded-2xl border border-white/5">
+              <span className="font-bold text-white">{ingredients.find(i => i.id === item.id)?.name}</span>
+              <div className="flex items-center gap-4">
+                <input type="number" value={item.quantity} onChange={(e) => { const n = [...selected]; n[idx].quantity = Number(e.target.value); setSelected(n); }} className="w-16 bg-slate-900 border border-white/10 rounded-lg p-1 text-center font-bold text-white text-xs" />
+                <button onClick={() => setSelected(selected.filter((_, i) => i !== idx))} className="text-red-400 hover:text-red-300 transition-colors text-xl">🗑️</button>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="pt-8 border-t border-white/10 flex justify-between items-center">
+          <div><p className="text-[10px] font-black text-slate-400 uppercase opacity-60">Total Cost</p><p className="text-3xl font-black text-white tracking-tighter">R {total.toFixed(2)}</p></div>
+          <div className="text-right"><p className="text-[10px] font-black text-emerald-500 uppercase opacity-60">Suggested Price</p><p className="text-4xl font-black text-emerald-500 tracking-tighter">R {suggested.toFixed(2)}</p></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; initialIngredients: ShiftIngredient[]; menuTitle: string; guestCount: number; onUpdateDishCost: (dishName: string, newCost: number) => void }> = ({ isOpen, onClose, initialIngredients, menuTitle, guestCount, onUpdateDishCost }) => {
   const [ingredients, setIngredients] = useState<ShiftIngredient[]>([]);
   useEffect(() => { if (isOpen) setIngredients(initialIngredients); }, [isOpen, initialIngredients]);
   
@@ -190,7 +299,7 @@ const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; ini
       <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="w-full max-w-6xl h-full max-h-[90vh] bg-slate-900/90 backdrop-blur-2xl border-2 border-emerald-500/30 rounded-[4rem] shadow-2xl overflow-hidden flex flex-col">
         <div className="p-12 border-b border-white/10 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center text-2xl">🧮</div>
+            <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-400 text-2xl">🧮</div>
             <h2 className="text-4xl font-black text-white uppercase tracking-tighter">Shift Breakdown</h2>
           </div>
           <button onClick={onClose} className="w-12 h-12 flex items-center justify-center text-slate-500 hover:text-white transition-colors text-2xl">🗑️</button>
@@ -220,97 +329,108 @@ const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; ini
   );
 };
 
-const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => void; margin: number }> = ({ proposal, onUpdate, margin }) => {
-  const updateItem = (idx: number, field: keyof MenuItem, val: any) => { 
-    const n = [...proposal.menu]; 
-    n[idx] = { ...n[idx], [field]: val }; 
-    onUpdate({ ...proposal, menu: n }); 
+const RecipeLab: React.FC<{ menu: Menu; onUpdate: (updated: Menu) => void }> = ({ menu, onUpdate }) => {
+  const [loading, setLoading] = useState(false);
+  const generate = () => {
+    setLoading(true);
+    setTimeout(() => {
+      const updated = { ...menu, miseEnPlace: ["Clean proteins", "Prepare reductions", "Dice aromatics"] };
+      onUpdate(updated); setLoading(false);
+    }, 1500);
   };
+  return (
+    <div className="bg-slate-900/40 backdrop-blur-xl p-12 rounded-[4rem] border border-white/10 shadow-2xl">
+      <div className="flex items-center justify-between mb-10">
+        <div className="flex items-center gap-4">
+          <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 text-xl">🍴</div>
+          <h3 className="text-2xl font-black text-white uppercase tracking-tighter">AI Recipe Lab</h3>
+        </div>
+        <button onClick={generate} disabled={loading} className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-black uppercase text-[10px] disabled:opacity-50 hover:bg-emerald-500 transition-all flex items-center gap-2" style={{ clipPath: OCTAGON_CLIP }}>
+          {loading ? <span className="animate-spin">🔄</span> : <span className="text-xl">⚡</span>}
+          {loading ? 'Generating...' : 'Generate Mise en Place'}
+        </button>
+      </div>
+      <div className="space-y-8">
+        {menu.miseEnPlace.length > 0 ? (
+          <div><h4 className="text-xs font-black text-emerald-500 uppercase mb-4 tracking-widest opacity-60">Mise en Place</h4><ul className="space-y-4">{menu.miseEnPlace.map((s, i) => <li key={i} className="flex gap-4 p-6 bg-slate-800/30 rounded-3xl border border-white/5"><span className="text-emerald-500 font-black">0{i + 1}</span><p className="text-slate-300 italic">{s}</p></li>)}</ul></div>
+        ) : <div className="p-12 text-center border-2 border-dashed border-white/10 rounded-[3rem] text-slate-500 font-bold italic opacity-60">No recipes generated yet.</div>}
+      </div>
+    </div>
+  );
+};
+
+const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => void; margin: number }> = ({ proposal, onUpdate, margin }) => {
+  const updateItem = (idx: number, field: keyof MenuItem, val: any) => { const n = [...proposal.menu]; n[idx] = { ...n[idx], [field]: val }; onUpdate({ ...proposal, menu: n }); };
   const updateRoot = (field: keyof Menu, val: any) => onUpdate({ ...proposal, [field]: val });
   const updateLogistics = (val: number) => onUpdate({ ...proposal, logistics: { ...proposal.logistics, deliveryFee: val } });
 
   const totalDishPrice = proposal.menu.reduce((sum, m) => sum + m.price, 0);
   const calculatedTotal = (totalDishPrice * proposal.guestCount) + proposal.logistics.deliveryFee;
+  
   const displayTotal = proposal.manualTotal !== undefined ? proposal.manualTotal : calculatedTotal;
   const displayPerHead = proposal.manualPerHead !== undefined ? proposal.manualPerHead : totalDishPrice;
+  
   const depositAmount = (displayTotal * 0.5).toFixed(2);
 
   return (
     <div id="proposal-content" className="bg-slate-900/60 backdrop-blur-2xl p-16 rounded-[4rem] shadow-2xl border border-white/10 mb-12 relative overflow-hidden">
-      {/* Executive Dashboard: Profit Gauge */}
-      <div className="absolute top-12 right-12 z-20 scale-75 origin-top-right hidden lg:block">
+      {/* Floating Profit Gauge for real-time feedback */}
+      <div className="absolute top-8 right-8 z-20 scale-50 origin-top-right opacity-80 hover:opacity-100 transition-opacity hidden lg:block">
         <ProfitGauge margin={margin} />
       </div>
 
-      {/* Single Hero Image Layout */}
-      <div className="relative w-full h-[500px] mb-20 overflow-hidden">
+      <div className="relative w-full h-[400px] mb-16 overflow-hidden">
         <img 
           src={proposal.heroImage || HERO_FALLBACK} 
           alt="Hero" 
           className="w-full h-full object-cover"
           style={{ clipPath: OCTAGON_CLIP }}
+          onError={(e) => { (e.target as HTMLImageElement).src = HERO_FALLBACK; }}
           referrerPolicy="no-referrer"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent pointer-events-none" />
-        <div className="absolute bottom-12 left-12">
-           <h1 contentEditable suppressContentEditableWarning onBlur={(e) => updateRoot('title', e.currentTarget.textContent || '')} className="text-7xl font-black text-white uppercase tracking-tighter outline-none leading-none">
-             {proposal.title}
-           </h1>
-           <div className="flex items-center gap-4 mt-6">
-             <div className="h-px w-12 bg-emerald-500" />
-             <p className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em]">Executive Proposal</p>
-           </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent pointer-events-none" />
+        <div className="absolute bottom-8 left-8">
+           <div contentEditable suppressContentEditableWarning onBlur={(e) => updateRoot('title', e.currentTarget.textContent || '')} className="text-6xl font-black text-white uppercase tracking-tighter outline-none focus:ring-2 focus:ring-emerald-500/20 rounded-xl p-1">{proposal.title}</div>
         </div>
       </div>
 
-      <div className="flex flex-col md:flex-row justify-between items-start mb-20 gap-12">
-        <div className="max-w-xl">
-          <p contentEditable suppressContentEditableWarning onBlur={(e) => updateRoot('description', e.currentTarget.textContent || '')} className="text-lg font-medium text-slate-400 italic outline-none opacity-60 leading-relaxed">
-            {proposal.description}
-          </p>
+      <div className="flex flex-col md:flex-row justify-between items-start mb-16 gap-8">
+        <div className="flex-1">
+          <div contentEditable suppressContentEditableWarning onBlur={(e) => updateRoot('description', e.currentTarget.textContent || '')} className="text-slate-400 font-medium italic outline-none focus:ring-2 focus:ring-emerald-500/20 rounded-xl p-1 opacity-60">{proposal.description}</div>
         </div>
-        <div className="text-right space-y-2">
-          <div className="flex items-center gap-3 justify-end">
-            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest opacity-60">Guest Count:</span>
-            <input 
-              type="number" 
-              value={proposal.guestCount} 
-              onChange={(e) => updateRoot('guestCount', Number(e.target.value))} 
-              className="w-20 bg-slate-800 border border-white/10 rounded-xl p-2 text-center font-black text-white text-sm" 
-            />
-          </div>
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest opacity-40 italic">Ref: CP-{Date.now().toString().slice(-6)}</p>
+        <div className="text-right shrink-0">
+          <div className="flex items-center gap-2 justify-end mb-2"><span className="text-[10px] font-black text-slate-400 uppercase opacity-60">Guests:</span><input type="number" value={proposal.guestCount} onChange={(e) => updateRoot('guestCount', Number(e.target.value))} className="w-16 bg-slate-800 border border-white/10 rounded-lg p-1 text-center font-bold text-white text-xs" /></div>
+          <p className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em]">Drafted by CaterPro AI</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-20">
-        <div className="space-y-16">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
+        <div className="space-y-12">
           {['Appetizers', 'Main Courses', 'Desserts'].map(cat => (
-            <div key={cat} className="space-y-10">
-              <h4 className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.5em] border-b border-white/10 pb-6 opacity-60">{cat}</h4>
-              <div className="space-y-12">
+            <div key={cat} className="space-y-8">
+              <h4 className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em] border-b border-white/10 pb-4 opacity-60">{cat}</h4>
+              <div className="space-y-10">
                 {proposal.menu.filter(m => m.cat === cat).map((item, i) => {
                   const idx = proposal.menu.findIndex(x => x === item);
                   return (
-                    <div key={i} className="group relative">
-                      <div className="flex items-baseline justify-between gap-6 mb-3">
-                        <h3 contentEditable suppressContentEditableWarning onBlur={(e) => updateItem(idx, 'dish', e.currentTarget.textContent || '')} className="text-3xl font-black text-white uppercase tracking-tighter outline-none focus:text-emerald-400 transition-colors">
-                          {item.dish}
-                        </h3>
-                        <div className="flex items-center gap-2 text-emerald-500 font-black italic text-lg">
-                          <span className="opacity-60 text-sm">R</span>
+                    <div key={i} className="group">
+                      <div className="flex items-baseline justify-between gap-4 mb-2">
+                        <div contentEditable suppressContentEditableWarning onBlur={(e) => updateItem(idx, 'dish', e.currentTarget.textContent || '')} className="text-2xl font-black text-white uppercase outline-none focus:text-emerald-400 p-1 tracking-tighter">{item.dish}</div>
+                        <div className="flex items-center gap-1 text-emerald-500 font-black italic text-sm">
+                          <span>R</span>
                           <input 
                             type="number" 
                             value={item.price} 
                             onChange={(e) => updateItem(idx, 'price', Number(e.target.value))}
-                            className="bg-transparent border-none outline-none w-20 text-right focus:text-white"
+                            className="bg-transparent border-none outline-none w-16 text-right focus:text-white"
                           />
-                          <span className="text-[10px] opacity-40 uppercase tracking-widest">pp</span>
+                          <span className="text-[10px] opacity-60">pp</span>
                         </div>
                       </div>
-                      <p contentEditable suppressContentEditableWarning onBlur={(e) => updateItem(idx, 'notes', e.currentTarget.textContent || '')} className="text-slate-400 text-sm italic outline-none opacity-60 group-hover:opacity-100 transition-opacity">
-                        {item.notes}
-                      </p>
+                      <div className="flex items-center justify-between">
+                        <div contentEditable suppressContentEditableWarning onBlur={(e) => updateItem(idx, 'notes', e.currentTarget.textContent || '')} className="text-slate-400 text-sm italic outline-none focus:text-white p-1 opacity-60">{item.notes}</div>
+                        <div className="text-[10px] font-black text-slate-500 uppercase tracking-widest opacity-40">Cost: R{item.cost}</div>
+                      </div>
                     </div>
                   );
                 })}
@@ -318,104 +438,110 @@ const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => 
             </div>
           ))}
         </div>
-
-        <div className="space-y-16">
-          <div className="bg-slate-800/30 p-12 rounded-[3.5rem] border border-white/10 shadow-xl">
-            <div className="flex items-center gap-4 mb-10">
-              <span className="text-xl">🚚</span>
-              <h4 className="text-xs font-black uppercase text-emerald-500 tracking-[0.3em]">Logistics & Service</h4>
+        <div className="space-y-12">
+          <div className="bg-slate-800/40 p-10 rounded-[3rem] border border-white/10 shadow-xl">
+            <div className="flex items-center gap-3 mb-8">
+              <span className="text-emerald-500 text-xl">🚚</span>
+              <h4 className="text-xs font-black uppercase text-emerald-500 tracking-widest">Service & Logistics</h4>
             </div>
-            <div className="space-y-10">
-              <div>
-                <p className="text-[10px] font-black uppercase text-slate-500 mb-6 tracking-widest opacity-60">Service Protocol</p>
-                <ul className="space-y-5">
-                  {proposal.serviceNotes.map((s, i) => (
-                    <li key={i} contentEditable suppressContentEditableWarning onBlur={(e) => { const n = [...proposal.serviceNotes]; n[i] = e.currentTarget.textContent || ''; updateRoot('serviceNotes', n); }} className="text-sm font-medium text-slate-300 flex gap-4 outline-none group">
-                      <span className="text-emerald-500 font-black opacity-40 group-hover:opacity-100">0{i+1}</span> {s}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <div className="pt-10 border-t border-white/5">
-                <p className="text-[10px] font-black uppercase text-slate-500 mb-6 tracking-widest opacity-60">Delivery & Setup</p>
-                <ul className="space-y-5">
-                  {proposal.deliveryLogistics.map((d, i) => (
-                    <li key={i} contentEditable suppressContentEditableWarning onBlur={(e) => { const n = [...proposal.deliveryLogistics]; n[i] = e.currentTarget.textContent || ''; updateRoot('deliveryLogistics', n); }} className="text-sm font-medium text-slate-300 flex gap-4 outline-none group">
-                      <span className="text-emerald-500">🛡️</span> {d}
-                    </li>
-                  ))}
-                </ul>
-              </div>
+            <div className="space-y-8">
+              <div><p className="text-[10px] font-black uppercase text-slate-400 mb-4 opacity-60">Service Notes</p><ul className="space-y-4">{proposal.serviceNotes.map((s, i) => <li key={i} contentEditable suppressContentEditableWarning onBlur={(e) => { const n = [...proposal.serviceNotes]; n[i] = e.currentTarget.textContent || ''; updateRoot('serviceNotes', n); }} className="text-sm font-medium text-slate-300 flex gap-3 outline-none focus:text-white"><span className="text-emerald-500">•</span> {s}</li>)}</ul></div>
+              <div><p className="text-[10px] font-black uppercase text-slate-400 mb-4 opacity-60">Delivery Logistics</p><ul className="space-y-4">{proposal.deliveryLogistics.map((d, i) => <li key={i} contentEditable suppressContentEditableWarning onBlur={(e) => { const n = [...proposal.deliveryLogistics]; n[i] = e.currentTarget.textContent || ''; updateRoot('deliveryLogistics', n); }} className="text-sm font-medium text-slate-300 flex gap-3 outline-none focus:text-white"><span className="text-emerald-500">•</span> {d}</li>)}</ul></div>
             </div>
           </div>
-
-          {/* Transparent Costing: Total Value Override */}
-          <div className="bg-emerald-600 p-12 rounded-[3.5rem] shadow-2xl text-white relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-            
-            <div className="flex items-center gap-3 mb-6 opacity-60">
+          <div className="bg-emerald-600 p-10 rounded-[3rem] shadow-2xl text-white">
+            <div className="flex items-center gap-2 mb-4 opacity-70">
               <span className="text-sm">💰</span>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em]">Total Proposal Value</p>
+              <p className="text-[10px] font-black uppercase tracking-widest">Total Proposal Value</p>
             </div>
-            
-            <div className="flex items-center gap-4 mb-10">
-              <span className="text-5xl font-black">R</span>
+            <div className="flex items-center gap-2 mb-8">
+              <span className="text-4xl font-black">R</span>
               <input 
                 type="number" 
                 value={displayTotal} 
                 onChange={(e) => updateRoot('manualTotal', Number(e.target.value))}
-                className="text-8xl font-black tracking-tighter bg-transparent border-none outline-none w-full focus:ring-0"
+                className="text-7xl font-black tracking-tighter w-full bg-transparent border-none outline-none focus:ring-0"
               />
             </div>
-
-            <div className="grid grid-cols-2 gap-6 mb-10">
-              <div className="bg-white/10 p-6 rounded-3xl border border-white/5">
-                <p className="text-[10px] font-black uppercase opacity-60 mb-2">Per Head (Edit)</p>
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl font-black">R</span>
+            <div className="grid grid-cols-2 gap-4 mb-8">
+              <div className="bg-white/10 p-4 rounded-2xl">
+                <p className="text-[8px] font-black uppercase opacity-60">Menu Price pp</p>
+                <div className="flex items-center gap-1">
+                  <span className="text-xl font-black">R</span>
                   <input 
                     type="number" 
                     value={displayPerHead} 
-                    onChange={(e) => updateRoot('manualPerHead', Number(e.target.value))} 
-                    className="bg-transparent border-none outline-none text-2xl font-black w-full" 
+                    onChange={(e) => updateRoot('manualPerHead', Number(e.target.value))}
+                    className="bg-transparent border-none outline-none text-xl font-black w-full"
                   />
                 </div>
               </div>
-              <div className="bg-white/10 p-6 rounded-3xl border border-white/5">
-                <p className="text-[10px] font-black uppercase opacity-60 mb-2">Logistics (Edit)</p>
-                <div className="flex items-center gap-2">
-                  <span className="text-2xl font-black">R</span>
-                  <input 
-                    type="number" 
-                    value={proposal.logistics.deliveryFee} 
-                    onChange={(e) => updateLogistics(Number(e.target.value))} 
-                    className="bg-transparent border-none outline-none text-2xl font-black w-full" 
-                  />
-                </div>
-              </div>
+              <div className="bg-white/10 p-4 rounded-2xl"><p className="text-[8px] font-black uppercase opacity-60">Logistics (Edit)</p><div className="flex items-center gap-1"><span className="text-xl font-black">R</span><input type="number" value={proposal.logistics.deliveryFee} onChange={(e) => updateLogistics(Number(e.target.value))} className="bg-transparent border-none outline-none text-xl font-black w-full" /></div></div>
             </div>
-
-            <div className="flex items-center justify-between mb-8">
-              <label className="text-[10px] font-black uppercase tracking-[0.4em] opacity-70">Enable Deposit Button</label>
-              <button onClick={() => updateRoot('showDeposit', !proposal.showDeposit)} className={`w-14 h-7 rounded-full transition-all relative ${proposal.showDeposit ? 'bg-white' : 'bg-white/20'}`}>
-                <div className={`absolute top-1 w-5 h-5 rounded-full transition-all ${proposal.showDeposit ? 'left-8 bg-emerald-600' : 'left-1 bg-white'}`} />
+            
+            <div className="flex items-center justify-between mb-6">
+              <label className="text-[10px] font-black uppercase tracking-widest opacity-70">Enable Deposit Button</label>
+              <button onClick={() => updateRoot('showDeposit', !proposal.showDeposit)} className={`w-12 h-6 rounded-full transition-all relative ${proposal.showDeposit ? 'bg-white' : 'bg-white/20'}`}>
+                <div className={`absolute top-1 w-4 h-4 rounded-full transition-all ${proposal.showDeposit ? 'left-7 bg-emerald-600' : 'left-1 bg-white'}`} />
               </button>
             </div>
 
             {proposal.showDeposit && (
-              <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl">
-                <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.3em] mb-6 text-center">Pay 50% Deposit Now (R {depositAmount})</p>
+              <div className="bg-white p-6 rounded-3xl">
+                <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 text-center">Pay 50% Deposit Now (R {depositAmount})</p>
                 <PayPalScriptProvider options={{ clientId: PAYPAL_CLIENT_ID, currency: "USD" }}>
-                  <PayPalButtons 
-                    style={{ layout: "horizontal", height: 50, shape: "pill", label: "pay" }} 
-                    createOrder={(data, actions) => actions.order.create({ intent: "CAPTURE", purchase_units: [{ amount: { currency_code: "USD", value: (Number(depositAmount) / 18).toFixed(2) } }] })} 
-                  />
+                  <PayPalButtons style={{ layout: "horizontal", height: 45, shape: "pill", label: "pay" }} createOrder={(data, actions) => actions.order.create({ intent: "CAPTURE", purchase_units: [{ amount: { currency_code: "USD", value: (Number(depositAmount) / 18).toFixed(2) } }] })} />
                 </PayPalScriptProvider>
               </div>
             )}
           </div>
         </div>
       </div>
+    </div>
+  );
+};
+
+const AiChatBot: React.FC = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([{ role: 'model', content: "Hello Chef! How can I help with your menu?" }]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const chatRef = useRef<Chat | null>(null);
+  const endRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => { if (isOpen && !chatRef.current) { const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY }); chatRef.current = ai.chats.create({ model: 'gemini-3-flash-preview', config: { systemInstruction: 'You are a professional AI Catering Consultant.' } }); } }, [isOpen]);
+  useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+
+  const send = async (e: React.FormEvent) => {
+    e.preventDefault(); if (!input.trim() || loading) return;
+    const msg = input; setInput(''); setMessages(prev => [...prev, { role: 'user', content: msg }]); setLoading(true);
+    try {
+      const res = await chatRef.current!.sendMessageStream({ message: msg });
+      let full = ''; setMessages(prev => [...prev, { role: 'model', content: '' }]);
+      for await (const chunk of res) { full += chunk.text; setMessages(prev => { const n = [...prev]; n[n.length - 1].content = full; return n; }); }
+    } catch (err) { console.error(err); } finally { setLoading(false); }
+  };
+
+  return (
+    <div className="fixed bottom-8 right-8 z-[100] flex flex-col items-end gap-6">
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="w-[380px] h-[600px] flex flex-col shadow-2xl border border-white/10 bg-slate-900/90 backdrop-blur-2xl rounded-[3rem] overflow-hidden">
+            <header className="p-8 bg-slate-950 flex items-center justify-between border-b border-white/5">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 text-xl">👨‍🍳</div>
+                <h2 className="text-white font-black text-sm uppercase tracking-widest">Chef Mentor</h2>
+              </div>
+              <button onClick={() => setIsOpen(false)} className="text-slate-500 hover:text-white transition-colors text-xl">🗑️</button>
+            </header>
+            <div className="flex-grow p-8 overflow-y-auto space-y-6 bg-slate-900/50">{messages.map((m, i) => <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[85%] rounded-[2rem] px-6 py-4 text-sm font-medium ${m.role === 'user' ? 'bg-emerald-600 text-white rounded-tr-none' : 'bg-slate-800 text-slate-200 border border-white/5 rounded-tl-none'}`}>{m.content}</div></div>)}<div ref={endRef} /></div>
+            <footer className="p-8 bg-slate-950 border-t border-white/5"><form onSubmit={send} className="relative"><input type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask Chef AI..." className="w-full bg-slate-800 border border-white/10 rounded-2xl px-6 py-4 pr-16 text-sm text-white outline-none focus:border-emerald-500" /><button type="submit" className="absolute right-2 top-2 w-12 h-12 bg-emerald-600 text-white rounded-xl flex items-center justify-center hover:bg-emerald-500 transition-all text-xl">➡️</button></form></footer>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => setIsOpen(!isOpen)} className="w-20 h-20 bg-emerald-600 text-white rounded-[2rem] flex items-center justify-center shadow-2xl shadow-emerald-600/30 text-2xl">
+        {isOpen ? '🗑️' : '💬'}
+      </motion.button>
     </div>
   );
 };
@@ -428,6 +554,7 @@ export default function App() {
   const [toast, setToast] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [proposal, setProposal] = useState<Menu | null>(null);
+  const [payModal, setPayModal] = useState<{ isOpen: boolean; plan: SubscriptionPlan; price: string } | null>(null);
   const [shiftModal, setShiftModal] = useState<{ isOpen: boolean; ingredients: ShiftIngredient[]; title: string } | null>(null);
 
   useEffect(() => {
@@ -438,7 +565,9 @@ export default function App() {
   const currentMargin = useMemo(() => {
     if (!proposal) return 72.4;
     const totalCost = proposal.menu.reduce((sum, m) => sum + (m.cost * proposal.guestCount), 0);
-    const totalRevenue = proposal.manualTotal !== undefined ? proposal.manualTotal : (proposal.menu.reduce((sum, m) => sum + (m.price * proposal.guestCount), 0) + proposal.logistics.deliveryFee);
+    const totalDishPrice = proposal.menu.reduce((sum, m) => sum + m.price, 0);
+    const calculatedTotal = (totalDishPrice * proposal.guestCount) + proposal.logistics.deliveryFee;
+    const totalRevenue = proposal.manualTotal !== undefined ? proposal.manualTotal : calculatedTotal;
     const margin = ((totalRevenue - totalCost) / totalRevenue) * 100;
     return isNaN(margin) ? 0 : margin;
   }, [proposal]);
@@ -502,6 +631,8 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-emerald-500/30 relative">
+      <NoiseOverlay />
+      
       <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-950/40 backdrop-blur-2xl border-b border-white/5">
         <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
           <div onClick={() => setView('landing')} className="flex items-center gap-3 cursor-pointer group">
@@ -520,17 +651,11 @@ export default function App() {
                 onClick={() => setView(item.id)} 
                 className={`text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2 ${view === item.id ? 'text-emerald-500' : 'text-slate-500 hover:text-white'}`}
               >
-                <span>{item.icon}</span>
+                <span className="text-sm">{item.icon}</span>
                 {item.label}
               </button>
             ))}
-            <button 
-              onClick={() => window.location.href = WHOP_CHECKOUT_URL}
-              className="bg-white text-slate-950 px-8 py-4 rounded-2xl font-black uppercase text-[10px] hover:bg-emerald-500 hover:text-white transition-all shadow-xl" 
-              style={{ clipPath: OCTAGON_CLIP }}
-            >
-              Upgrade
-            </button>
+            <button onClick={() => window.location.href = WHOP_CHECKOUT_URL} className="bg-white text-slate-950 px-8 py-4 rounded-2xl font-black uppercase text-[10px] hover:bg-emerald-500 hover:text-white transition-all shadow-xl" style={{ clipPath: OCTAGON_CLIP }}>Upgrade</button>
           </div>
         </div>
       </nav>
@@ -539,65 +664,12 @@ export default function App() {
         <AnimatePresence mode="wait">
           {view === 'landing' && (
             <motion.div key="landing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <div className="relative pt-40 pb-20 overflow-hidden">
-                <div className="max-w-7xl mx-auto px-6 relative z-10 text-center">
-                  <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-2 bg-sky-500/10 rounded-full border border-sky-500/20 mb-12">
-                    <span className="flex h-2 w-2 rounded-full bg-sky-500 animate-pulse" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-sky-400">Executive Dashboard</span>
-                  </motion.div>
-                  
-                  <div className="mb-16">
-                    <ProfitGauge margin={currentMargin} />
-                  </div>
-
-                  <motion.h1 initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-7xl md:text-9xl font-black text-white tracking-tighter leading-[0.8] mb-8 uppercase italic">
-                    CaterPro<span className="text-emerald-500">AI</span>
-                  </motion.h1>
-                  <p className="text-xl font-medium text-slate-400 opacity-60 max-w-2xl mx-auto mb-12 italic">
-                    Transparent costing. Stunning proposals. Zero-waste operations.
-                  </p>
-
-                  <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                    <button onClick={() => setView('generator')} className="px-12 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-emerald-500 transition-all shadow-2xl shadow-emerald-600/20 flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
-                      <span>⚡</span>
-                      Start New Proposal
-                    </button>
-                    <button onClick={() => window.location.href = WHOP_CHECKOUT_URL} className="px-12 py-6 bg-white text-slate-950 rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-emerald-500 hover:text-white transition-all shadow-2xl flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
-                      <span>🛡️</span>
-                      Upgrade to Pro
-                    </button>
-                  </div>
-                </div>
-              </div>
-              <PricingSection />
-            </motion.div>
-          )}
-          
-          {view === 'proposal' && proposal && (
-            <motion.div key="proposal" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="pt-40 pb-20 max-w-7xl mx-auto px-6">
-              <ProposalDocument proposal={proposal} onUpdate={setProposal} margin={currentMargin} />
-              <div className="flex flex-col md:flex-row justify-center gap-6 mt-12">
-                <button onClick={() => setView('generator')} className="px-12 py-6 bg-slate-900/40 backdrop-blur-xl text-white border border-white/10 rounded-[2rem] font-black uppercase text-sm hover:bg-slate-800 transition-all" style={{ clipPath: OCTAGON_CLIP }}>New Draft</button>
-                <button onClick={exportPDF} className="px-12 py-6 bg-white text-slate-950 rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 hover:text-white transition-all shadow-2xl flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
-                  <span>📥</span>
-                  Download PDF
-                </button>
-                <button onClick={() => setShiftModal({ 
-                  isOpen: true, 
-                  ingredients: [
-                    { name: 'Sea Bass', quantity: 0.2, unit: 'kg', unitPrice: 350, linkedDish: 'Pan-Seared Sea Bass' }, 
-                    { name: 'Truffles', quantity: 0.01, unit: 'kg', unitPrice: 2500, linkedDish: 'Truffle Arancini' }, 
-                    { name: 'Rack of Lamb', quantity: 0.3, unit: 'kg', unitPrice: 420, linkedDish: 'Herb-Crusted Rack of Lamb' }
-                  ], 
-                  title: proposal.title 
-                })} className="px-12 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-2xl flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
-                  <span>🧮</span>
-                  Shift Breakdown
-                </button>
+              <HeroSection onStart={() => setView('generator')} margin={currentMargin} />
+              <div className="max-w-7xl mx-auto px-6 pb-32">
+                <SavingsEstimator />
               </div>
             </motion.div>
           )}
-
           {view === 'generator' && (
             <motion.div key="generator" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="pt-40 pb-20 max-w-7xl mx-auto px-6">
               <div className="text-center mb-20">
@@ -621,32 +693,47 @@ export default function App() {
                     </div>
                   </div>
                   <button onClick={generate} disabled={generating} className="w-full py-8 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-2xl disabled:opacity-50 flex items-center justify-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
-                    {generating ? <span className="animate-spin">🔄</span> : <span>⚡</span>}
+                    {generating ? <span className="animate-spin">🔄</span> : <span className="text-xl">⚡</span>}
                     {generating ? 'Chef AI is Drafting...' : 'Generate Proposal'}
                   </button>
                 </div>
               </div>
             </motion.div>
           )}
-
+          {view === 'proposal' && proposal && (
+            <motion.div key="proposal" initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.95 }} className="pt-40 pb-20 max-w-7xl mx-auto px-6">
+              <ProposalDocument proposal={proposal} onUpdate={setProposal} margin={currentMargin} />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-12">
+                <RecipeLab menu={proposal} onUpdate={setProposal} />
+                <PlateCostEngine ingredients={ingredients} />
+              </div>
+              <div className="flex flex-col md:flex-row justify-center gap-6 mt-12">
+                <button onClick={() => setView('generator')} className="px-12 py-6 bg-slate-900/40 backdrop-blur-xl text-white border border-white/10 rounded-[2rem] font-black uppercase text-sm hover:bg-slate-800 transition-all" style={{ clipPath: OCTAGON_CLIP }}>New Draft</button>
+                <button onClick={exportPDF} className="px-12 py-6 bg-white text-slate-950 rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 hover:text-white transition-all shadow-2xl flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
+                  <span className="text-xl">📥</span>
+                  Download PDF
+                </button>
+                <button onClick={() => setShiftModal({ 
+                  isOpen: true, 
+                  ingredients: [
+                    { name: 'Sea Bass', quantity: 0.2, unit: 'kg', unitPrice: 350, linkedDish: 'Pan-Seared Sea Bass' }, 
+                    { name: 'Truffles', quantity: 0.01, unit: 'kg', unitPrice: 2500, linkedDish: 'Truffle Arancini' }, 
+                    { name: 'Rack of Lamb', quantity: 0.3, unit: 'kg', unitPrice: 420, linkedDish: 'Herb-Crusted Rack of Lamb' }
+                  ], 
+                  title: proposal.title 
+                })} className="px-12 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-2xl flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
+                  <span className="text-xl">🧮</span>
+                  Shift Breakdown
+                </button>
+              </div>
+            </motion.div>
+          )}
           {view === 'calculator' && (
             <motion.div key="calculator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="pt-40 pb-20 max-w-4xl mx-auto px-6">
               <div className="text-center mb-16">
                 <h2 className="text-6xl font-black text-white uppercase italic mb-4 tracking-tighter">Cost Calculator</h2>
               </div>
-              <div className="bg-slate-900/40 backdrop-blur-xl p-8 rounded-[4rem] border border-white/10 shadow-2xl">
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="w-10 h-10 bg-sky-500/20 rounded-xl flex items-center justify-center text-xl">🧮</div>
-                  <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Quick Costing</h3>
-                </div>
-                <div className="space-y-6">
-                  <select onChange={(e) => { if (e.target.value) setToast('Ingredient added!'); e.target.value = ''; }} className="w-full p-4 rounded-2xl bg-slate-800 text-white font-bold outline-none border border-white/10 text-sm">
-                    <option value="">+ Add Ingredient...</option>
-                    {ingredients.map(ing => <option key={ing.id} value={ing.id}>{ing.name} ({ing.unit})</option>)}
-                  </select>
-                  <div className="p-12 text-center border-2 border-dashed border-white/10 rounded-[3rem] text-slate-500 font-bold italic opacity-60">Add ingredients to calculate plate costs.</div>
-                </div>
-              </div>
+              <PlateCostEngine ingredients={ingredients} />
               <button onClick={() => setView('landing')} className="w-full mt-8 py-6 bg-slate-900/40 backdrop-blur-xl text-white border border-white/10 rounded-[2rem] font-black uppercase text-sm hover:bg-slate-800 transition-all" style={{ clipPath: OCTAGON_CLIP }}>Back to Home</button>
             </motion.div>
           )}
@@ -665,24 +752,16 @@ export default function App() {
         </div>
       </footer>
 
-      {/* Modals & Overlays */}
       <Toast message={toast} onDismiss={() => setToast(null)} />
-      {shiftModal && proposal && (
-        <ShiftCalculatorModal 
-          isOpen={shiftModal.isOpen} 
-          onClose={() => setShiftModal(null)} 
-          initialIngredients={shiftModal.ingredients} 
-          guestCount={proposal.guestCount} 
-          onUpdateDishCost={(dishName, newCost) => {
-            const n = [...proposal.menu];
-            const idx = n.findIndex(m => m.dish === dishName);
-            if (idx !== -1) {
-              n[idx].cost = newCost;
-              setProposal({ ...proposal, menu: n });
-            }
-          }} 
-        />
-      )}
+      <AiChatBot />
+      {shiftModal && proposal && <ShiftCalculatorModal isOpen={shiftModal.isOpen} onClose={() => setShiftModal(null)} initialIngredients={shiftModal.ingredients} menuTitle={shiftModal.title} guestCount={proposal.guestCount} onUpdateDishCost={(dishName, newCost) => {
+        const n = [...proposal.menu];
+        const idx = n.findIndex(m => m.dish === dishName);
+        if (idx !== -1) {
+          n[idx].cost = newCost;
+          setProposal({ ...proposal, menu: n });
+        }
+      }} />}
     </div>
   );
 }
