@@ -372,11 +372,37 @@ const PlateCostCalculator: React.FC<{ ingredients: IngredientCost[]; onUpdate?: 
   );
 };
 
-const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; initialIngredients: ShiftIngredient[]; menuTitle: string; guestCount: number }> = ({ isOpen, onClose, initialIngredients, menuTitle, guestCount }) => {
+const ShiftCalculatorModal: React.FC<{ 
+  isOpen: boolean; 
+  onClose: () => void; 
+  initialIngredients: ShiftIngredient[]; 
+  menuTitle: string; 
+  guestCount: number;
+  onUpdateCost: (newCostPerHead: number) => void;
+}> = ({ isOpen, onClose, initialIngredients, menuTitle, guestCount, onUpdateCost }) => {
   const [ingredients, setIngredients] = useState<ShiftIngredient[]>([]);
-  useEffect(() => { if (isOpen) { setIngredients(initialIngredients); } }, [isOpen, initialIngredients]);
+  
+  useEffect(() => { 
+    if (isOpen) { 
+      setIngredients(initialIngredients); 
+    } 
+  }, [isOpen, initialIngredients]);
+
+  const handleIngredientChange = (index: number, field: keyof ShiftIngredient, value: any) => {
+    const newIngredients = [...ingredients];
+    newIngredients[index] = { ...newIngredients[index], [field]: value };
+    setIngredients(newIngredients);
+    
+    // Update total cost per head in the proposal
+    const totalShiftCost = newIngredients.reduce((sum, item) => sum + (item.quantity * guestCount * item.unitPrice), 0);
+    const newCostPerHead = totalShiftCost / guestCount;
+    onUpdateCost(newCostPerHead);
+  };
+
   const calculateTotal = () => ingredients.reduce((sum, item) => sum + (item.quantity * guestCount * item.unitPrice), 0);
+  
   if (!isOpen) return null;
+  
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/95 p-4">
       <motion.div 
@@ -405,10 +431,36 @@ const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; ini
             <tbody className="divide-y divide-white/5">
               {ingredients.map((item, idx) => (
                 <tr key={idx} className="hover:bg-white/5 transition-colors">
-                  <td className="p-6 font-bold text-white">{item.name}</td>
-                  <td className="p-6 text-slate-400">{item.quantity} {item.unit}</td>
+                  <td className="p-6 font-bold text-white">
+                    <input 
+                      value={item.name} 
+                      onChange={(e) => handleIngredientChange(idx, 'name', e.target.value)}
+                      className="bg-transparent border-none outline-none focus:text-emerald-400 w-full"
+                    />
+                  </td>
+                  <td className="p-6 text-slate-400">
+                    <div className="flex items-center gap-2">
+                      <input 
+                        type="number"
+                        value={item.quantity} 
+                        onChange={(e) => handleIngredientChange(idx, 'quantity', Number(e.target.value))}
+                        className="bg-slate-800 border border-white/10 rounded px-2 py-1 w-20 text-white"
+                      />
+                      <span>{item.unit}</span>
+                    </div>
+                  </td>
                   <td className="p-6 text-slate-400">{(item.quantity * guestCount).toFixed(2)} {item.unit}</td>
-                  <td className="p-6 text-slate-400">R {item.unitPrice.toFixed(2)}</td>
+                  <td className="p-6 text-slate-400">
+                    <div className="flex items-center gap-1">
+                      <span>R</span>
+                      <input 
+                        type="number"
+                        value={item.unitPrice} 
+                        onChange={(e) => handleIngredientChange(idx, 'unitPrice', Number(e.target.value))}
+                        className="bg-slate-800 border border-white/10 rounded px-2 py-1 w-24 text-white"
+                      />
+                    </div>
+                  </td>
                   <td className="p-6 text-right font-black text-white text-xl">R {(item.quantity * guestCount * item.unitPrice).toFixed(2)}</td>
                 </tr>
               ))}
@@ -530,6 +582,7 @@ const ProposalDocument: React.FC<{
   const handleGuestChange = (value: number) => onUpdate({ ...proposal, guestCount: value });
 
   const getFoodImage = (dish: string) => `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80&sig=${encodeURIComponent(dish)}`;
+  const fallbackImage = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=80';
 
   return (
     <div id="proposal-content" className="bg-slate-900/80 backdrop-blur-2xl p-16 rounded-[4rem] shadow-2xl border border-white/10 mb-12 relative overflow-hidden">
@@ -537,18 +590,22 @@ const ProposalDocument: React.FC<{
       
       <div className="flex flex-col md:flex-row justify-between items-start mb-16 gap-8">
         <div className="flex-1">
-          <input 
-            value={proposal.title}
-            onChange={(e) => handleTitleChange(e.target.value)}
-            className="text-5xl font-black text-white uppercase tracking-tight mb-4 bg-transparent border-none outline-none w-full focus:ring-2 focus:ring-emerald-500/20 rounded-xl"
-            placeholder="Menu Title"
-          />
-          <textarea 
-            value={proposal.description}
-            onChange={(e) => handleDescChange(e.target.value)}
-            className="text-slate-400 font-medium italic bg-transparent border-none outline-none w-full resize-none h-20 focus:ring-2 focus:ring-emerald-500/20 rounded-xl"
-            placeholder="Description"
-          />
+          <div 
+            contentEditable
+            suppressContentEditableWarning
+            onBlur={(e) => handleTitleChange(e.currentTarget.textContent || '')}
+            className="text-5xl font-black text-white uppercase tracking-tight mb-4 bg-transparent border-none outline-none w-full focus:ring-2 focus:ring-emerald-500/20 rounded-xl p-1"
+          >
+            {proposal.title}
+          </div>
+          <div 
+            contentEditable
+            suppressContentEditableWarning
+            onBlur={(e) => handleDescChange(e.currentTarget.textContent || '')}
+            className="text-slate-400 font-medium italic bg-transparent border-none outline-none w-full focus:ring-2 focus:ring-emerald-500/20 rounded-xl p-1"
+          >
+            {proposal.description}
+          </div>
         </div>
         <div className="text-right shrink-0">
           <div className="flex items-center gap-2 justify-end mb-2">
@@ -580,27 +637,33 @@ const ProposalDocument: React.FC<{
                           src={item.imageUrl || getFoodImage(item.dish)} 
                           alt={item.dish} 
                           className="w-32 h-32 rounded-[2rem] object-cover border border-white/10 shadow-lg"
-                          onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80'; }}
+                          onError={(e) => { (e.target as HTMLImageElement).src = fallbackImage; }}
                           referrerPolicy="no-referrer"
                         />
                         <div className="flex-1">
                           <div className="flex justify-between items-start gap-4 mb-2">
-                            <input 
-                              value={item.dish}
-                              onChange={(e) => handleItemChange(realIndex, 'dish', e.target.value)}
-                              className="text-2xl font-black text-white uppercase tracking-tight bg-transparent border-none outline-none w-full focus:text-emerald-400 transition-colors"
-                            />
+                            <div 
+                              contentEditable
+                              suppressContentEditableWarning
+                              onBlur={(e) => handleItemChange(realIndex, 'dish', e.currentTarget.textContent || '')}
+                              className="text-2xl font-black text-white uppercase tracking-tight bg-transparent border-none outline-none w-full focus:text-emerald-400 transition-colors p-1"
+                            >
+                              {item.dish}
+                            </div>
                             {item.qctoModule && (
                               <span className="bg-emerald-500/10 text-emerald-400 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border border-emerald-500/20">
                                 {item.qctoModule}
                               </span>
                             )}
                           </div>
-                          <textarea 
-                            value={item.notes}
-                            onChange={(e) => handleItemChange(realIndex, 'notes', e.target.value)}
-                            className="text-slate-400 text-sm leading-relaxed font-medium italic bg-transparent border-none outline-none w-full resize-none h-12 focus:text-white transition-colors"
-                          />
+                          <div 
+                            contentEditable
+                            suppressContentEditableWarning
+                            onBlur={(e) => handleItemChange(realIndex, 'notes', e.currentTarget.textContent || '')}
+                            className="text-slate-400 text-sm leading-relaxed font-medium italic bg-transparent border-none outline-none w-full focus:text-white transition-colors p-1"
+                          >
+                            {item.notes}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1009,6 +1072,7 @@ export default function App() {
           initialIngredients={shiftModal.ingredients} 
           menuTitle={shiftModal.title} 
           guestCount={proposal.guestCount}
+          onUpdateCost={(newCost) => setProposal(prev => prev ? { ...prev, costPerHead: newCost } : null)}
         />
       )}
     </div>
