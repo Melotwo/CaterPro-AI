@@ -1,6 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
-import App, { AuthProvider } from './App';
+import App from './App';
 import './index.css';
 
 // --- INLINE ERROR BOUNDARY ---
@@ -74,21 +74,19 @@ const root = ReactDOM.createRoot(rootElement);
 root.render(
   <React.StrictMode>
     <ErrorBoundary>
-      <AuthProvider>
-        <React.Suspense fallback={
-          <div className="bg-[#0B0F19] text-white min-h-screen flex flex-col items-center justify-center">
-            <div className="relative">
-              <div className="w-24 h-24 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
-              <div className="absolute inset-0 flex items-center justify-center text-2xl">👨‍🍳</div>
-            </div>
-            <div className="mt-8 font-black uppercase tracking-[0.5em] text-[10px] text-emerald-500 animate-pulse">
-              CaterProAI Loading Station
-            </div>
+      <React.Suspense fallback={
+        <div className="bg-[#0B0F19] text-white min-h-screen flex flex-col items-center justify-center">
+          <div className="relative">
+            <div className="w-24 h-24 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin"></div>
+            <div className="absolute inset-0 flex items-center justify-center text-2xl">👨‍🍳</div>
           </div>
-        }>
-          <App />
-        </React.Suspense>
-      </AuthProvider>
+          <div className="mt-8 font-black uppercase tracking-[0.5em] text-[10px] text-emerald-500 animate-pulse">
+            CaterProAI Loading Station
+          </div>
+        </div>
+      }>
+        <App />
+      </React.Suspense>
     </ErrorBoundary>
   </React.StrictMode>
 );
