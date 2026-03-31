@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { db } from './firebase';
 import { collection, query, where, onSnapshot, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import Toast from './Toast';
 
 const DEMO_USER_ID = 'DEMO_USER';
 
@@ -17,6 +18,8 @@ const CostingLibrary: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [isAdding, setIsAdding] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
   const [newIngredient, setNewIngredient] = useState<IngredientCost>({
     name: '',
     unit: 'kg',
@@ -60,12 +63,14 @@ const CostingLibrary: React.FC = () => {
   };
 
   const handleDelete = async (id: string) => {
-    if (!window.confirm('Are you sure you want to delete this ingredient?')) return;
     if (!db) return;
     try {
       await deleteDoc(doc(db, 'ingredientCosts', id));
+      setToast('Ingredient deleted successfully');
+      setDeleteConfirmId(null);
     } catch (err) {
       console.error(err);
+      setToast('Error deleting ingredient');
     }
   };
 
@@ -126,7 +131,7 @@ const CostingLibrary: React.FC = () => {
                     <td className="px-8 py-5 text-emerald-600 dark:text-emerald-400 font-black">R {ing.price.toFixed(2)}</td>
                     <td className="px-8 py-5 text-slate-400 text-xs font-bold">{new Date(ing.lastUpdated).toLocaleDateString()}</td>
                     <td className="px-8 py-5 text-right">
-                      <button onClick={() => handleDelete(ing.id!)} className="p-2 text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors">
+                      <button onClick={() => setDeleteConfirmId(ing.id!)} className="p-2 text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors">
                         <span className="text-lg">🗑️</span>
                       </button>
                     </td>
@@ -215,6 +220,37 @@ const CostingLibrary: React.FC = () => {
           </div>
         </div>
       )}
+
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+          <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-[2.5rem] shadow-2xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-slide-in">
+            <div className="p-8 text-center">
+              <div className="text-5xl mb-6">⚠️</div>
+              <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-4">Delete Ingredient?</h2>
+              <p className="text-slate-500 mb-8">This action cannot be undone. Are you sure you want to remove this from your library?</p>
+              <div className="flex gap-4">
+                <button 
+                  onClick={() => setDeleteConfirmId(null)}
+                  className="flex-1 py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-2xl font-bold hover:bg-slate-200 transition-all"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={() => handleDelete(deleteConfirmId)}
+                  className="flex-1 py-4 bg-red-500 text-white rounded-2xl font-bold hover:bg-red-600 transition-all"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <Toast 
+        message={toast || ''} 
+        onDismiss={() => setToast(null)} 
+      />
     </div>
   );
 };
