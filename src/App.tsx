@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, query, where, onSnapshot } from 'firebase/firestore';
+import { getFirestore, collection, query, where, onSnapshot, doc, getDoc } from 'firebase/firestore';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { motion, AnimatePresence } from 'framer-motion';
@@ -47,6 +47,13 @@ export interface ErrorState {
 export interface Message {
   role: 'user' | 'model';
   content: string;
+}
+
+export interface ShiftIngredient {
+  name: string;
+  quantity: number;
+  unit: string;
+  unitPrice: number;
 }
 
 export type SubscriptionPlan = 'free' | 'commis' | 'chef-de-partie' | 'sous-chef' | 'executive';
@@ -153,7 +160,7 @@ const PaymentModal: React.FC<{ isOpen: boolean; onClose: () => void; plan: Subsc
         <div className="p-8">
             <div className="text-center mb-8">
                 <h3 className="text-2xl font-black text-white capitalize tracking-tight">Unlock {plan}</h3>
-                <p className="text-4xl font-black text-emerald-500 mt-2">{price}</p>
+                <p className="text-4xl font-black text-emerald-600 mt-2">{price}</p>
             </div>
             {isProcessing ? (
                 <div className="flex flex-col items-center justify-center py-10 space-y-4">
@@ -358,6 +365,115 @@ const PlateCostCalculator: React.FC<{ ingredients: IngredientCost[] }> = ({ ingr
   );
 };
 
+const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; initialIngredients: ShiftIngredient[]; menuTitle: string }> = ({ isOpen, onClose, initialIngredients, menuTitle }) => {
+  const [ingredients, setIngredients] = useState<ShiftIngredient[]>([]);
+  useEffect(() => { if (isOpen) { setIngredients(initialIngredients); } }, [isOpen, initialIngredients]);
+  const calculateTotal = () => ingredients.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/95 p-4">
+      <motion.div 
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="w-full max-w-6xl h-full max-h-[90vh] bg-slate-900 border-2 border-emerald-500 rounded-[4rem] shadow-2xl overflow-hidden flex flex-col"
+      >
+        <div className="p-12 border-b border-white/10 flex items-center justify-between">
+          <div>
+            <h2 className="text-4xl font-black text-white uppercase tracking-tight">Executive Shift Breakdown</h2>
+            <p className="text-emerald-500 font-bold uppercase tracking-widest text-xs mt-2">{menuTitle}</p>
+          </div>
+          <button onClick={onClose} className="p-6 hover:bg-white/10 rounded-full text-slate-500 transition-all">✕</button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-12">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="text-emerald-500 text-[10px] font-black uppercase tracking-[0.3em] border-b border-white/10">
+                <th className="p-6">Ingredient</th>
+                <th className="p-6">Quantity Needed</th>
+                <th className="p-6">Unit Price</th>
+                <th className="p-6 text-right">Total Cost</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {ingredients.map((item, idx) => (
+                <tr key={idx} className="hover:bg-white/5 transition-colors">
+                  <td className="p-6 font-bold text-white">{item.name}</td>
+                  <td className="p-6 text-slate-400">{item.quantity} {item.unit}</td>
+                  <td className="p-6 text-slate-400">R {item.unitPrice.toFixed(2)}</td>
+                  <td className="p-6 text-right font-black text-white text-xl">R {(item.quantity * item.unitPrice).toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="p-12 bg-slate-950 border-t border-white/10 flex items-center justify-between">
+          <div>
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Total Shift Cost</p>
+            <h3 className="text-6xl font-black text-white tracking-tighter">
+              <span className="text-2xl text-emerald-500 mr-2">R</span>{calculateTotal().toLocaleString()}
+            </h3>
+          </div>
+          <button onClick={onClose} className="px-16 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-emerald-500 transition-all shadow-2xl shadow-emerald-600/20">Close Breakdown</button>
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+const RecipeGenerator: React.FC<{ menu: Menu; onUpdate: (updated: Menu) => void }> = ({ menu, onUpdate }) => {
+  const [isGenerating, setIsGenerating] = useState(false);
+  
+  const generateRecipes = async () => {
+    setIsGenerating(true);
+    // Simulate AI logic for Mise en Place generation
+    setTimeout(() => {
+      const newMise = [
+        "Clean and portion all proteins to exact weight specifications.",
+        "Prepare the base reductions for all sauces (4-hour simmer).",
+        "Fine-dice all aromatics (mirepoix) for the main courses.",
+        "Temper the chocolate for the desserts at exactly 31°C.",
+        "Infuse the oils with fresh herbs for the appetizer garnishes."
+      ];
+      onUpdate({ ...menu, miseEnPlace: newMise });
+      setIsGenerating(false);
+    }, 1500);
+  };
+
+  return (
+    <div className="bg-slate-900/50 backdrop-blur-xl p-12 rounded-[4rem] border border-white/10 shadow-2xl">
+      <div className="flex items-center justify-between mb-10">
+        <div className="flex items-center gap-4">
+          <div className="p-3 bg-emerald-500/20 rounded-2xl text-emerald-400">👨‍🍳</div>
+          <h3 className="text-2xl font-black text-white uppercase tracking-tight">AI Recipe Lab</h3>
+        </div>
+        <button 
+          onClick={generateRecipes}
+          disabled={isGenerating}
+          className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-emerald-500 transition-all shadow-xl disabled:opacity-50"
+        >
+          {isGenerating ? 'Generating...' : 'Generate Mise en Place'}
+        </button>
+      </div>
+      <div className="space-y-6">
+        {menu.miseEnPlace.length > 0 ? (
+          <ul className="space-y-4">
+            {menu.miseEnPlace.map((step, i) => (
+              <li key={i} className="flex gap-4 p-6 bg-slate-800/50 rounded-3xl border border-white/5 transition-all hover:border-emerald-500/30">
+                <span className="text-emerald-500 font-black text-lg">0{i + 1}</span>
+                <p className="text-slate-300 font-medium italic leading-relaxed">{step}</p>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="p-12 text-center border-2 border-dashed border-white/10 rounded-[3rem]">
+            <p className="text-slate-500 font-bold italic">No recipes generated yet. Click the button above to start.</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const ProposalDocument: React.FC<{ 
   proposal: Menu; 
   onUpdate: (updated: Menu) => void;
@@ -407,12 +523,12 @@ const ProposalDocument: React.FC<{
                   const realIndex = proposal.menu.findIndex(x => x === item);
                   return (
                     <div key={i} className="group relative">
-                      <div className="flex gap-4 items-start mb-4">
+                      <div className="flex gap-6 items-start mb-4">
                         {item.imageUrl && (
                           <img 
                             src={item.imageUrl} 
                             alt={item.dish} 
-                            className="w-24 h-24 rounded-2xl object-cover border border-white/10 shadow-lg"
+                            className="w-32 h-32 rounded-[2rem] object-cover border border-white/10 shadow-lg"
                             referrerPolicy="no-referrer"
                           />
                         )}
@@ -587,6 +703,7 @@ export default function App() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [proposal, setProposal] = useState<Menu | null>(null);
   const [paymentModal, setPaymentModal] = useState<{ isOpen: boolean; plan: SubscriptionPlan; price: string } | null>(null);
+  const [shiftModal, setShiftModal] = useState<{ isOpen: boolean; ingredients: ShiftIngredient[]; title: string } | null>(null);
 
   useEffect(() => {
     const q = query(collection(db, 'ingredientCosts'), where('userId', '==', DEMO_USER_ID));
@@ -603,22 +720,22 @@ export default function App() {
     setIsGenerating(true);
     setToastMessage('Chef AI is drafting your menu...');
     
-    // Simulate high-quality image fetching
-    const getFoodImage = (query: string) => `https://picsum.photos/seed/${query.replace(/\s+/g, '-')}/800/600`;
+    // Logic to fetch high-quality food images
+    const getFoodImage = (query: string) => `https://images.unsplash.com/photo-${query.includes('salmon') ? '1467003909585-2f8a72700288' : query.includes('lamb') ? '1544025162-d76694265947' : query.includes('bass') ? '1534604973900-c41ab4c5d036' : '1559339352-11d035aa65de'}?auto=format&fit=crop&w=800&q=80`;
 
     setTimeout(() => {
       setProposal({
         title: "Gourmet Fusion Experience",
         description: "A high-end culinary journey blending local ingredients with modern techniques.",
         menu: [
-          { dish: "Truffle Arancini", notes: "Crispy risotto balls with black truffle and parmesan.", cat: "Appetizers", qctoModule: "Module 4", imageUrl: getFoodImage("truffle-arancini") },
-          { dish: "Citrus Cured Salmon", notes: "Fresh Atlantic salmon with grapefruit and dill.", cat: "Appetizers", imageUrl: getFoodImage("cured-salmon") },
-          { dish: "Pan-Seared Sea Bass", notes: "With lemon caper butter and seasonal greens.", cat: "Main Courses", qctoModule: "Module 7", imageUrl: getFoodImage("sea-bass") },
-          { dish: "Herb-Crusted Rack of Lamb", notes: "Slow-roasted with rosemary and garlic.", cat: "Main Courses", imageUrl: getFoodImage("rack-of-lamb") },
-          { dish: "Dark Chocolate Fondant", notes: "Warm center with vanilla bean gelato.", cat: "Desserts", imageUrl: getFoodImage("chocolate-fondant") },
-          { dish: "Passion Fruit Sorbet", notes: "Refreshing palate cleanser.", cat: "Desserts", imageUrl: getFoodImage("passion-fruit-sorbet") }
+          { dish: "Truffle Arancini", notes: "Crispy risotto balls with black truffle and parmesan.", cat: "Appetizers", qctoModule: "Module 4", imageUrl: getFoodImage("arancini") },
+          { dish: "Citrus Cured Salmon", notes: "Fresh Atlantic salmon with grapefruit and dill.", cat: "Appetizers", imageUrl: getFoodImage("salmon") },
+          { dish: "Pan-Seared Sea Bass", notes: "With lemon caper butter and seasonal greens.", cat: "Main Courses", qctoModule: "Module 7", imageUrl: getFoodImage("bass") },
+          { dish: "Herb-Crusted Rack of Lamb", notes: "Slow-roasted with rosemary and garlic.", cat: "Main Courses", imageUrl: getFoodImage("lamb") },
+          { dish: "Dark Chocolate Fondant", notes: "Warm center with vanilla bean gelato.", cat: "Desserts", imageUrl: getFoodImage("chocolate") },
+          { dish: "Passion Fruit Sorbet", notes: "Refreshing palate cleanser.", cat: "Desserts", imageUrl: getFoodImage("sorbet") }
         ],
-        miseEnPlace: ["Clean and portion fish", "Prepare arancini base", "Temper chocolate"],
+        miseEnPlace: [],
         serviceNotes: ["Serve appetizers on slate boards", "Main course plates must be warmed"],
         deliveryLogistics: ["Refrigerated transport required", "On-site setup 2 hours prior"],
         costPerHead: 450,
@@ -730,10 +847,30 @@ export default function App() {
                 onUpdate={setProposal} 
                 formatCurrency={formatCurrency} 
               />
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-12">
+                <RecipeGenerator menu={proposal} onUpdate={setProposal} />
+                <PlateCostCalculator ingredients={ingredients} />
+              </div>
+
               <div className="flex flex-col md:flex-row justify-center gap-6 mt-12">
                 <button onClick={() => setViewMode('generator')} className="px-12 py-6 bg-slate-900 text-white border border-white/10 rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-slate-800 transition-all shadow-xl">New Draft</button>
                 <button onClick={downloadPDF} className="px-12 py-6 bg-white text-slate-950 rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-emerald-500 hover:text-white transition-all shadow-2xl">Download PDF</button>
-                <button onClick={() => setViewMode('calculator')} className="px-12 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-emerald-500 transition-all shadow-2xl shadow-emerald-600/20">Live Costing</button>
+                <button 
+                  onClick={() => setShiftModal({ 
+                    isOpen: true, 
+                    ingredients: [
+                      { name: 'Sea Bass', quantity: 10, unit: 'kg', unitPrice: 350 },
+                      { name: 'Truffles', quantity: 0.5, unit: 'kg', unitPrice: 2500 },
+                      { name: 'Rack of Lamb', quantity: 15, unit: 'kg', unitPrice: 420 },
+                      { name: 'Microgreens', quantity: 2, unit: 'kg', unitPrice: 150 }
+                    ], 
+                    title: proposal.title 
+                  })} 
+                  className="px-12 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-emerald-500 transition-all shadow-2xl shadow-emerald-600/20"
+                >
+                  Shift Breakdown
+                </button>
               </div>
             </motion.div>
           )}
@@ -751,7 +888,7 @@ export default function App() {
                 <p className="text-slate-500 font-medium italic">Precision costing for maximum profitability.</p>
               </div>
               <PlateCostCalculator ingredients={ingredients} />
-              <button onClick={() => setViewMode('proposal')} className="w-full mt-8 py-6 bg-slate-900 text-white border border-white/10 rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-slate-800 transition-all">Back to Proposal</button>
+              <button onClick={() => setViewMode('landing')} className="w-full mt-8 py-6 bg-slate-900 text-white border border-white/10 rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-slate-800 transition-all">Back to Home</button>
             </motion.div>
           )}
 
@@ -775,11 +912,6 @@ export default function App() {
             <span className="text-xl font-black tracking-tighter uppercase italic">CaterPro<span className="text-emerald-500">AI</span></span>
           </div>
           <p className="text-slate-500 font-medium italic mb-8">Empowering chefs with AI-driven precision. Built for the Modern Kitchen.</p>
-          <div className="flex justify-center gap-8 text-xs font-black uppercase tracking-widest text-slate-600">
-            <span className="hover:text-emerald-500 cursor-pointer transition-colors">Privacy</span>
-            <span className="hover:text-emerald-500 cursor-pointer transition-colors">Terms</span>
-            <span className="hover:text-emerald-500 cursor-pointer transition-colors">Support</span>
-          </div>
         </div>
       </footer>
 
@@ -796,6 +928,15 @@ export default function App() {
             setPaymentModal(null);
             setToastMessage(`Welcome to the ${paymentModal.plan} tier!`);
           }} 
+        />
+      )}
+
+      {shiftModal && (
+        <ShiftCalculatorModal 
+          isOpen={shiftModal.isOpen} 
+          onClose={() => setShiftModal(null)} 
+          initialIngredients={shiftModal.ingredients} 
+          menuTitle={shiftModal.title} 
         />
       )}
     </div>
