@@ -66,18 +66,30 @@ const HERO_FALLBACK = "https://images.unsplash.com/photo-1555244162-803834f70033
 
 // --- FIREBASE INITIALIZATION (NO EXTERNAL CONFIG) ---
 
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-};
+let app: any;
+let db: any;
+let auth: any;
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app, import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID || '(default)');
-const auth = getAuth(app);
+try {
+  const firebaseConfig = {
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || '',
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
+    appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
+  };
+
+  if (firebaseConfig.apiKey) {
+    app = initializeApp(firebaseConfig);
+    db = getFirestore(app, import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID || '(default)');
+    auth = getAuth(app);
+  } else {
+    console.warn("Firebase API Key missing. Database features will be disabled.");
+  }
+} catch (error) {
+  console.error("Firebase initialization failed:", error);
+}
 
 // --- PAYPAL CONFIG ---
 const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID || "Adp-3XYWNARTpkCw4rbtFUnFox3mMwZtWWRy-TprJ8sOrV8X9z4xtyobRHuCx848mseDoqATaUooheFz";
@@ -511,7 +523,17 @@ const AiChatBot: React.FC = () => {
   const chatRef = useRef<Chat | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => { if (isOpen && !chatRef.current) { const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY }); chatRef.current = ai.chats.create({ model: 'gemini-3-flash-preview', config: { systemInstruction: 'You are a professional AI Catering Consultant.' } }); } }, [isOpen]);
+  useEffect(() => { 
+    if (isOpen && !chatRef.current) { 
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+      if (!apiKey) {
+        setMessages(prev => [...prev, { role: 'model', content: "Gemini API Key is missing. AI features are disabled." }]);
+        return;
+      }
+      const ai = new GoogleGenAI({ apiKey }); 
+      chatRef.current = ai.chats.create({ model: 'gemini-3-flash-preview', config: { systemInstruction: 'You are a professional AI Catering Consultant.' } }); 
+    } 
+  }, [isOpen]);
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
   const send = async (e: React.FormEvent) => {
@@ -559,6 +581,7 @@ export default function App() {
   const [shiftModal, setShiftModal] = useState<{ isOpen: boolean; ingredients: ShiftIngredient[]; title: string } | null>(null);
 
   useEffect(() => {
+    if (!db) return;
     const q = query(collection(db, 'ingredientCosts'), where('userId', '==', DEMO_USER_ID));
     return onSnapshot(q, (snap) => setIngredients(snap.docs.map(d => ({ id: d.id, ...d.data() } as IngredientCost))));
   }, []);
