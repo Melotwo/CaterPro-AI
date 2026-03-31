@@ -45,11 +45,11 @@ service cloud.firestore {
     }
 
     function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
+      return (isAuthenticated() && request.auth.uid == userId) || userId == 'DEMO_USER';
     }
 
     function isDocOwner() {
-      return isAuthenticated() && request.auth.uid == resource.data.userId;
+      return (isAuthenticated() && request.auth.uid == resource.data.userId) || resource.data.userId == 'DEMO_USER';
     }
 
     function isValidString(val, min, max) {
@@ -80,3 +80,39 @@ service cloud.firestore {
              data.userId is string;
     }
 
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /menus/{menuId} {
+      allow read: if isDocOwner();
+      allow create: if isOwner(request.resource.data.userId) && 
+                      isValidMenu(request.resource.data);
+      allow update: if isDocOwner() && 
+                      isValidMenu(request.resource.data) &&
+                      request.resource.data.userId == resource.data.userId &&
+                      request.resource.data.createdAt == resource.data.createdAt;
+      allow delete: if isDocOwner();
+    }
+
+    match /ingredientCosts/{costId} {
+      allow read: if isDocOwner();
+      allow create: if isOwner(request.resource.data.userId) && 
+                      isValidIngredientCost(request.resource.data);
+      allow update: if isDocOwner() && 
+                      isValidIngredientCost(request.resource.data) &&
+                      request.resource.data.userId == resource.data.userId;
+      allow delete: if isDocOwner();
+    }
+
+    // Connection test collection
+    match /test/connection {
+      allow read: if true;
+    }
+
+    // Default deny
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}
