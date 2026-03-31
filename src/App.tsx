@@ -25,6 +25,7 @@ export interface MenuItem {
   cat: 'Appetizers' | 'Main Courses' | 'Desserts';
   qctoModule?: string;
   imageUrl?: string;
+  recipe?: string[];
 }
 
 export interface Menu {
@@ -37,6 +38,7 @@ export interface Menu {
   costPerHead: number;
   logistics: { deliveryFee: number };
   imageQuery?: string;
+  guestCount: number;
 }
 
 export interface ErrorState {
@@ -307,7 +309,7 @@ const PricingPage: React.FC<{ onSelectPlan: (plan: SubscriptionPlan, price: stri
   );
 };
 
-const PlateCostCalculator: React.FC<{ ingredients: IngredientCost[] }> = ({ ingredients }) => {
+const PlateCostCalculator: React.FC<{ ingredients: IngredientCost[]; onUpdate?: (cost: number) => void }> = ({ ingredients, onUpdate }) => {
   const [selectedIngredients, setSelectedIngredients] = useState<{ id: string; quantity: number }[]>([]);
   const [markup, setMarkup] = useState(300);
   const totalCost = selectedIngredients.reduce((sum, item) => {
@@ -315,6 +317,11 @@ const PlateCostCalculator: React.FC<{ ingredients: IngredientCost[] }> = ({ ingr
     return sum + (ing ? ing.price * item.quantity : 0);
   }, 0);
   const suggestedPrice = totalCost * (markup / 100);
+
+  useEffect(() => {
+    if (onUpdate) onUpdate(suggestedPrice);
+  }, [suggestedPrice, onUpdate]);
+
   return (
     <div className="bg-slate-900/50 backdrop-blur-xl p-8 rounded-[4rem] border border-white/10 shadow-2xl">
       <div className="flex items-center gap-4 mb-8">
@@ -365,10 +372,10 @@ const PlateCostCalculator: React.FC<{ ingredients: IngredientCost[] }> = ({ ingr
   );
 };
 
-const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; initialIngredients: ShiftIngredient[]; menuTitle: string }> = ({ isOpen, onClose, initialIngredients, menuTitle }) => {
+const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; initialIngredients: ShiftIngredient[]; menuTitle: string; guestCount: number }> = ({ isOpen, onClose, initialIngredients, menuTitle, guestCount }) => {
   const [ingredients, setIngredients] = useState<ShiftIngredient[]>([]);
   useEffect(() => { if (isOpen) { setIngredients(initialIngredients); } }, [isOpen, initialIngredients]);
-  const calculateTotal = () => ingredients.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+  const calculateTotal = () => ingredients.reduce((sum, item) => sum + (item.quantity * guestCount * item.unitPrice), 0);
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/95 p-4">
@@ -380,7 +387,7 @@ const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; ini
         <div className="p-12 border-b border-white/10 flex items-center justify-between">
           <div>
             <h2 className="text-4xl font-black text-white uppercase tracking-tight">Executive Shift Breakdown</h2>
-            <p className="text-emerald-500 font-bold uppercase tracking-widest text-xs mt-2">{menuTitle}</p>
+            <p className="text-emerald-500 font-bold uppercase tracking-widest text-xs mt-2">{menuTitle} ({guestCount} Guests)</p>
           </div>
           <button onClick={onClose} className="p-6 hover:bg-white/10 rounded-full text-slate-500 transition-all">✕</button>
         </div>
@@ -389,7 +396,8 @@ const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; ini
             <thead>
               <tr className="text-emerald-500 text-[10px] font-black uppercase tracking-[0.3em] border-b border-white/10">
                 <th className="p-6">Ingredient</th>
-                <th className="p-6">Quantity Needed</th>
+                <th className="p-6">Qty / Guest</th>
+                <th className="p-6">Total Qty</th>
                 <th className="p-6">Unit Price</th>
                 <th className="p-6 text-right">Total Cost</th>
               </tr>
@@ -399,8 +407,9 @@ const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; ini
                 <tr key={idx} className="hover:bg-white/5 transition-colors">
                   <td className="p-6 font-bold text-white">{item.name}</td>
                   <td className="p-6 text-slate-400">{item.quantity} {item.unit}</td>
+                  <td className="p-6 text-slate-400">{(item.quantity * guestCount).toFixed(2)} {item.unit}</td>
                   <td className="p-6 text-slate-400">R {item.unitPrice.toFixed(2)}</td>
-                  <td className="p-6 text-right font-black text-white text-xl">R {(item.quantity * item.unitPrice).toFixed(2)}</td>
+                  <td className="p-6 text-right font-black text-white text-xl">R {(item.quantity * guestCount * item.unitPrice).toFixed(2)}</td>
                 </tr>
               ))}
             </tbody>
@@ -425,7 +434,7 @@ const RecipeGenerator: React.FC<{ menu: Menu; onUpdate: (updated: Menu) => void 
   
   const generateRecipes = async () => {
     setIsGenerating(true);
-    // Simulate AI logic for Mise en Place generation
+    // Simulate AI logic for Mise en Place and Recipe generation
     setTimeout(() => {
       const newMise = [
         "Clean and portion all proteins to exact weight specifications.",
@@ -434,7 +443,16 @@ const RecipeGenerator: React.FC<{ menu: Menu; onUpdate: (updated: Menu) => void 
         "Temper the chocolate for the desserts at exactly 31°C.",
         "Infuse the oils with fresh herbs for the appetizer garnishes."
       ];
-      onUpdate({ ...menu, miseEnPlace: newMise });
+      const updatedMenu = { ...menu, miseEnPlace: newMise };
+      updatedMenu.menu = updatedMenu.menu.map(item => ({
+        ...item,
+        recipe: [
+          `Step 1: Prepare ${item.dish} ingredients.`,
+          `Step 2: Execute cooking technique for ${item.dish}.`,
+          `Step 3: Plate and garnish according to chef standards.`
+        ]
+      }));
+      onUpdate(updatedMenu);
       setIsGenerating(false);
     }, 1500);
   };
@@ -451,19 +469,39 @@ const RecipeGenerator: React.FC<{ menu: Menu; onUpdate: (updated: Menu) => void 
           disabled={isGenerating}
           className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-emerald-500 transition-all shadow-xl disabled:opacity-50"
         >
-          {isGenerating ? 'Generating...' : 'Generate Mise en Place'}
+          {isGenerating ? 'Generating...' : 'Generate Recipes & Mise'}
         </button>
       </div>
-      <div className="space-y-6">
+      <div className="space-y-8">
         {menu.miseEnPlace.length > 0 ? (
-          <ul className="space-y-4">
-            {menu.miseEnPlace.map((step, i) => (
-              <li key={i} className="flex gap-4 p-6 bg-slate-800/50 rounded-3xl border border-white/5 transition-all hover:border-emerald-500/30">
-                <span className="text-emerald-500 font-black text-lg">0{i + 1}</span>
-                <p className="text-slate-300 font-medium italic leading-relaxed">{step}</p>
-              </li>
-            ))}
-          </ul>
+          <>
+            <div>
+              <h4 className="text-xs font-black text-emerald-500 uppercase tracking-widest mb-4">Mise en Place</h4>
+              <ul className="space-y-4">
+                {menu.miseEnPlace.map((step, i) => (
+                  <li key={i} className="flex gap-4 p-6 bg-slate-800/50 rounded-3xl border border-white/5 transition-all hover:border-emerald-500/30">
+                    <span className="text-emerald-500 font-black text-lg">0{i + 1}</span>
+                    <p className="text-slate-300 font-medium italic leading-relaxed">{step}</p>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-xs font-black text-emerald-500 uppercase tracking-widest mb-4">Dish Instructions</h4>
+              <div className="space-y-6">
+                {menu.menu.map((item, idx) => (
+                  <div key={idx} className="p-6 bg-slate-800/30 rounded-3xl border border-white/5">
+                    <p className="font-black text-white uppercase text-sm mb-3">{item.dish}</p>
+                    <ul className="space-y-2">
+                      {item.recipe?.map((r, ri) => (
+                        <li key={ri} className="text-xs text-slate-400 italic">• {r}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </>
         ) : (
           <div className="p-12 text-center border-2 border-dashed border-white/10 rounded-[3rem]">
             <p className="text-slate-500 font-bold italic">No recipes generated yet. Click the button above to start.</p>
@@ -487,6 +525,11 @@ const ProposalDocument: React.FC<{
 
   const handleTitleChange = (value: string) => onUpdate({ ...proposal, title: value });
   const handleDescChange = (value: string) => onUpdate({ ...proposal, description: value });
+  const handleCostChange = (value: number) => onUpdate({ ...proposal, costPerHead: value });
+  const handleLogisticsChange = (value: number) => onUpdate({ ...proposal, logistics: { ...proposal.logistics, deliveryFee: value } });
+  const handleGuestChange = (value: number) => onUpdate({ ...proposal, guestCount: value });
+
+  const getFoodImage = (dish: string) => `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=400&q=80&sig=${encodeURIComponent(dish)}`;
 
   return (
     <div id="proposal-content" className="bg-slate-900/80 backdrop-blur-2xl p-16 rounded-[4rem] shadow-2xl border border-white/10 mb-12 relative overflow-hidden">
@@ -508,6 +551,15 @@ const ProposalDocument: React.FC<{
           />
         </div>
         <div className="text-right shrink-0">
+          <div className="flex items-center gap-2 justify-end mb-2">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Guests:</span>
+            <input 
+              type="number"
+              value={proposal.guestCount}
+              onChange={(e) => handleGuestChange(Number(e.target.value))}
+              className="w-16 bg-slate-800 border border-white/10 rounded-lg p-1 text-center font-bold text-white text-xs"
+            />
+          </div>
           <p className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em]">Drafted by CaterPro AI</p>
           <p className="text-sm font-bold text-slate-500">{new Date().toLocaleDateString()}</p>
         </div>
@@ -524,14 +576,13 @@ const ProposalDocument: React.FC<{
                   return (
                     <div key={i} className="group relative">
                       <div className="flex gap-6 items-start mb-4">
-                        {item.imageUrl && (
-                          <img 
-                            src={item.imageUrl} 
-                            alt={item.dish} 
-                            className="w-32 h-32 rounded-[2rem] object-cover border border-white/10 shadow-lg"
-                            referrerPolicy="no-referrer"
-                          />
-                        )}
+                        <img 
+                          src={item.imageUrl || getFoodImage(item.dish)} 
+                          alt={item.dish} 
+                          className="w-32 h-32 rounded-[2rem] object-cover border border-white/10 shadow-lg"
+                          onError={(e) => { (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=400&q=80'; }}
+                          referrerPolicy="no-referrer"
+                        />
                         <div className="flex-1">
                           <div className="flex justify-between items-start gap-4 mb-2">
                             <input 
@@ -590,16 +641,32 @@ const ProposalDocument: React.FC<{
           <div className="bg-emerald-600 p-10 rounded-[3rem] shadow-2xl shadow-emerald-600/20 text-white">
             <p className="text-[10px] font-black uppercase tracking-widest mb-4 opacity-70">Total Proposal Value</p>
             <div className="text-6xl font-black tracking-tighter mb-8">
-              {formatCurrency((proposal.costPerHead * 50) + proposal.logistics.deliveryFee)}
+              {formatCurrency((proposal.costPerHead * proposal.guestCount) + proposal.logistics.deliveryFee)}
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="bg-white/10 p-4 rounded-2xl">
-                <p className="text-[8px] font-black uppercase opacity-60">Per Head</p>
-                <p className="text-xl font-black">{formatCurrency(proposal.costPerHead)}</p>
+                <p className="text-[8px] font-black uppercase opacity-60">Per Head (Edit)</p>
+                <div className="flex items-center gap-1">
+                  <span className="text-xl font-black">R</span>
+                  <input 
+                    type="number"
+                    value={proposal.costPerHead}
+                    onChange={(e) => handleCostChange(Number(e.target.value))}
+                    className="bg-transparent border-none outline-none text-xl font-black w-full"
+                  />
+                </div>
               </div>
               <div className="bg-white/10 p-4 rounded-2xl">
-                <p className="text-[8px] font-black uppercase opacity-60">Logistics</p>
-                <p className="text-xl font-black">{formatCurrency(proposal.logistics.deliveryFee)}</p>
+                <p className="text-[8px] font-black uppercase opacity-60">Logistics (Edit)</p>
+                <div className="flex items-center gap-1">
+                  <span className="text-xl font-black">R</span>
+                  <input 
+                    type="number"
+                    value={proposal.logistics.deliveryFee}
+                    onChange={(e) => handleLogisticsChange(Number(e.target.value))}
+                    className="bg-transparent border-none outline-none text-xl font-black w-full"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -739,7 +806,8 @@ export default function App() {
         serviceNotes: ["Serve appetizers on slate boards", "Main course plates must be warmed"],
         deliveryLogistics: ["Refrigerated transport required", "On-site setup 2 hours prior"],
         costPerHead: 450,
-        logistics: { deliveryFee: 2500 }
+        logistics: { deliveryFee: 2500 },
+        guestCount: 50
       });
       setIsGenerating(false);
       setViewMode('proposal');
@@ -850,7 +918,10 @@ export default function App() {
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-12">
                 <RecipeGenerator menu={proposal} onUpdate={setProposal} />
-                <PlateCostCalculator ingredients={ingredients} />
+                <PlateCostCalculator ingredients={ingredients} onUpdate={(suggested) => {
+                  // Live link: update proposal cost if chef wants to use calculator result
+                  // setProposal(prev => prev ? {...prev, costPerHead: suggested} : null);
+                }} />
               </div>
 
               <div className="flex flex-col md:flex-row justify-center gap-6 mt-12">
@@ -860,10 +931,10 @@ export default function App() {
                   onClick={() => setShiftModal({ 
                     isOpen: true, 
                     ingredients: [
-                      { name: 'Sea Bass', quantity: 10, unit: 'kg', unitPrice: 350 },
-                      { name: 'Truffles', quantity: 0.5, unit: 'kg', unitPrice: 2500 },
-                      { name: 'Rack of Lamb', quantity: 15, unit: 'kg', unitPrice: 420 },
-                      { name: 'Microgreens', quantity: 2, unit: 'kg', unitPrice: 150 }
+                      { name: 'Sea Bass', quantity: 0.2, unit: 'kg', unitPrice: 350 },
+                      { name: 'Truffles', quantity: 0.01, unit: 'kg', unitPrice: 2500 },
+                      { name: 'Rack of Lamb', quantity: 0.3, unit: 'kg', unitPrice: 420 },
+                      { name: 'Microgreens', quantity: 0.05, unit: 'kg', unitPrice: 150 }
                     ], 
                     title: proposal.title 
                   })} 
@@ -931,12 +1002,13 @@ export default function App() {
         />
       )}
 
-      {shiftModal && (
+      {shiftModal && proposal && (
         <ShiftCalculatorModal 
           isOpen={shiftModal.isOpen} 
           onClose={() => setShiftModal(null)} 
           initialIngredients={shiftModal.ingredients} 
           menuTitle={shiftModal.title} 
+          guestCount={proposal.guestCount}
         />
       )}
     </div>
