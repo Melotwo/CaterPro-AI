@@ -1,1147 +1,854 @@
+
 import React, { useState, useEffect, useRef, createContext, useContext, useCallback } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { collection, query, where, onSnapshot, getFirestore } from 'firebase/firestore';
-import { db } from './firebase';
-import Toast from './Toast';
+import { initializeApp } from 'firebase/app';
+import { getFirestore, collection, query, where, onSnapshot, doc, getDoc } from 'firebase/firestore';
+import { GoogleGenAI, Chat } from '@google/genai';
+import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 
-// --- PLATE COST CALCULATOR ---
-const PlateCostCalculator: React.FC<{ ingredients: IngredientCost[] }> = ({ ingredients }) => {
-  const [selectedIngredients, setSelectedIngredients] = useState<{ id: string; qty: number }[]>([]);
-  const [isAdding, setIsAdding] = useState(false);
+// --- TYPES & INTERFACES ---
 
-  const totalCost = selectedIngredients.reduce((acc, curr) => {
-    const ing = ingredients.find(i => i.id === curr.id);
-    return acc + (ing ? ing.price * curr.qty : 0);
-  }, 0);
-
-  const addIngredient = (id: string) => {
-    setSelectedIngredients([...selectedIngredients, { id, qty: 1 }]);
-    setIsAdding(false);
-  };
-
-  const updateQty = (index: number, qty: number) => {
-    const newItems = [...selectedIngredients];
-    newItems[index].qty = qty;
-    setSelectedIngredients(newItems);
-  };
-
-  const removeIngredient = (index: number) => {
-    setSelectedIngredients(selectedIngredients.filter((_, i) => i !== index));
-  };
-
-  return (
-    <div className="bg-white dark:bg-dark p-12 rounded-[4rem] border border-slate-200 dark:border-white/10 shadow-2xl relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 mask-logo -z-10" />
-      <div className="flex items-center gap-4 mb-12 text-emerald-600">
-        <span className="text-4xl">🧮</span>
-        <h3 className="font-black text-4xl tracking-tighter text-charcoal dark:text-white uppercase">Plate Cost Engine</h3>
-      </div>
-      
-      <div className="space-y-6 mb-12">
-        {selectedIngredients.map((item, index) => {
-          const ing = ingredients.find(i => i.id === item.id);
-          return (
-            <div key={index} className="flex items-center justify-between p-6 bg-slate-50 dark:bg-dark-soft rounded-3xl border border-slate-100 dark:border-white/5 group hover:border-emerald-500/30 transition-all">
-              <div className="flex-grow">
-                <span className="text-[10px] font-black text-charcoal dark:text-white uppercase tracking-widest block mb-1">{ing?.unit}</span>
-                <span className="text-xl font-black text-charcoal dark:text-white uppercase tracking-tight">{ing?.name}</span>
-              </div>
-              <div className="flex items-center gap-6">
-                <div className="flex flex-col items-end">
-                  <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Quantity</span>
-                  <input 
-                    type="number" 
-                    value={item.qty} 
-                    onChange={(e) => updateQty(index, parseFloat(e.target.value))}
-                    className="w-24 bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-xl p-2 text-right font-black text-charcoal dark:text-white outline-none focus:border-emerald-500"
-                  />
-                </div>
-                <div className="flex flex-col items-end min-w-[100px]">
-                  <span className="text-[10px] font-black text-charcoal dark:text-white uppercase tracking-widest mb-1">Subtotal</span>
-                  <span className="text-xl font-black text-charcoal dark:text-white">R{(ing ? ing.price * item.qty : 0).toFixed(2)}</span>
-                </div>
-                <button onClick={() => removeIngredient(index)} className="p-3 text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-xl transition-colors">
-                  <span className="text-lg">🗑️</span>
-                </button>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-8 pt-12 border-t border-slate-100 dark:border-slate-800">
-        <button 
-          onClick={() => setIsAdding(true)}
-          className="px-10 py-5 bg-slate-100 dark:bg-dark-soft hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400 text-charcoal dark:text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center gap-3 border-2 border-transparent hover:border-emerald-500/30"
-        >
-          <span className="text-xl">➕</span> Add Ingredient
-        </button>
-        
-        <div className="text-right relative plate-cost-calc">
-          <span className="text-[10px] font-black text-charcoal dark:text-white uppercase tracking-[0.4em] block mb-2">Final Plate Cost</span>
-          <div className="text-6xl font-black text-emerald-600 dark:text-emerald-400 tracking-tighter">
-            R{totalCost.toFixed(2)}
-          </div>
-        </div>
-      </div>
-
-      {isAdding && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm">
-          <div className="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[3rem] shadow-3xl border border-slate-200 dark:border-slate-800 overflow-hidden animate-slide-in">
-            <div className="p-12">
-              <div className="flex justify-between items-center mb-10">
-                <h2 className="text-4xl font-black text-charcoal dark:text-white tracking-tighter uppercase">Select Ingredient</h2>
-                <button onClick={() => setIsAdding(false)} className="p-3 hover:bg-slate-100 dark:hover:bg-dark-soft rounded-full transition-colors">
-                  <span className="text-2xl text-charcoal dark:text-white">❌</span>
-                </button>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-h-[50vh] overflow-y-auto pr-4 custom-scrollbar">
-                {ingredients.map(ing => (
-                  <button 
-                    key={ing.id} 
-                    onClick={() => addIngredient(ing.id!)}
-                    className="p-6 text-left bg-slate-50 dark:bg-slate-800/50 rounded-2xl border-2 border-slate-100 dark:border-slate-800 hover:border-emerald-500 hover:bg-emerald-500/5 transition-all group"
-                  >
-                    <span className="text-[10px] font-black text-charcoal dark:text-white uppercase tracking-widest block mb-1">{ing.unit}</span>
-                    <div className="text-lg font-black text-charcoal dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors uppercase">{ing.name}</div>
-                    <div className="text-emerald-600 dark:text-emerald-400 font-black mt-2">R{ing.price.toFixed(2)}</div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// --- END PLATE COST CALCULATOR ---
-
-// --- INLINED INFRASTRUCTURE ---
 export interface IngredientCost {
   id?: string;
   name: string;
   unit: string;
   price: number;
-  lastUpdated: number;
+  lastUpdated: any;
+  userId: string;
 }
 
-// Automation Service
-export interface AutomationUser {
-  name: string;
-  email: string;
-  businessType?: string;
+export interface DeliveryFeeStructure {
+  baseFee: number;
+  perUnitRate: number;
+  unit: 'mile' | 'km';
+  currency: string;
 }
+
+export interface MenuItemAnalysis {
+  name: string;
+  category: 'Star' | 'Plow Horse' | 'Puzzle' | 'Dog';
+  profitMargin: number;
+  popularityPotential: number;
+  evocativeDescription: string;
+}
+
+export interface SalesScript {
+  phase: 'before' | 'during' | 'after';
+  hook: string;
+  script: string;
+}
+
+export interface BeveragePairing {
+  menuItem: string;
+  pairingSuggestion: string;
+}
+
+export interface ShoppingListItem {
+  store: string;
+  category: string;
+  item: string;
+  quantity: string;
+  description?: string;
+  affiliateSearchTerm?: string;
+  estimatedCost?: string;
+  brandSuggestion?: string;
+}
+
+export interface RecommendedEquipment {
+  item: string;
+  description: string;
+}
+
+export interface Menu {
+  menuTitle: string;
+  description: string;
+  appetizers: string[];
+  mainCourses: string[];
+  sideDishes: string[];
+  dessert: string[];
+  beveragePairings: BeveragePairing[];
+  miseEnPlace: string[];
+  serviceNotes: string[];
+  deliveryLogistics: string[];
+  shoppingList: ShoppingListItem[];
+  recommendedEquipment: RecommendedEquipment[];
+  dietaryNotes?: string[];
+  image?: string;
+  dishImages?: string[];
+  theme?: string;
+  deliveryFeeStructure?: DeliveryFeeStructure;
+  businessAnalysis?: MenuItemAnalysis[];
+  safetyProtocols?: string[];
+  haccpSafety?: { point: string; requirement: string }[];
+  salesScripts?: SalesScript[];
+  aiKeywords?: string[];
+  costPerHead?: number;
+  logistics?: { deliveryFee: number };
+}
+
+export interface ScannedMenuCosting {
+  menuItems: {
+    name: string;
+    identifiedIngredients: string[];
+    estimatedPortionCost: string;
+    suggestedSupplier: string;
+  }[];
+  totalEstimatedMenuCost: string;
+  marginAdvice: string;
+}
+
+export interface ErrorState {
+  title: string;
+  message: string | React.ReactNode;
+}
+
+export interface Message {
+  role: 'user' | 'model';
+  content: string;
+}
+
+export interface ShiftIngredient {
+  name: string;
+  quantity: number;
+  unit: string;
+  unitPrice: number;
+}
+
+export type SubscriptionPlan = 'free' | 'commis' | 'chef-de-partie' | 'sous-chef' | 'executive';
+
+// --- CONSTANTS ---
+
+const DEMO_USER_ID = 'DEMO_USER';
+const PAYPAL_CLIENT_ID = "Adp-3XYWNARTpkCw4rbtFUnFox3mMwZtWWRy-TprJ8sOrV8X9z4xtyobRHuCx848mseDoqATaUooheFz";
+
+// --- FIREBASE INITIALIZATION ---
+
+const firebaseConfig = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// --- SERVICES & UTILS ---
 
 export const automationService = {
-  async triggerSignupWebhook(user: AutomationUser): Promise<void> {
+  triggerSignupWebhook: async (data: { email: string; name: string; businessType: string }) => {
     const webhookUrl = import.meta.env.VITE_MAKE_WEBHOOK_URL;
-    if (!user || !webhookUrl) {
-      console.warn("Automation Service: User data or VITE_MAKE_WEBHOOK_URL is missing.");
-      return;
-    }
+    if (!webhookUrl) return;
     try {
-      const response = await fetch(webhookUrl, {
+      await fetch(webhookUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...user,
-          source: 'CaterProAI_App',
-          timestamp: new Date().toISOString(),
-          environment: import.meta.env.MODE,
-        }),
+        body: JSON.stringify({ ...data, source: 'CaterProAI_Signup', timestamp: new Date().toISOString() }),
       });
-      if (!response.ok) console.error(`Webhook failed with status: ${response.status}`);
-    } catch (error) {
-      console.error("Automation Service Error:", error);
+    } catch (err) {
+      console.error("Webhook failed", err);
     }
   }
 };
 
-// Navbar Component
-const Navbar: React.FC<{
-  whopUrl: string;
-  facebookUrl?: string;
-  onThemeToggle: () => void;
-  isDarkMode: boolean;
-  onOpenSaved: () => void;
-  savedCount: number;
-  onOpenQrCode: () => void;
-  onOpenInstall: () => void;
-  onReset?: () => void;
-  onViewLanding?: () => void;
-  onViewPricing?: () => void;
-  onViewLibrary?: () => void;
-  onViewCalculator?: () => void;
-  onViewPartner?: () => void;
-  onViewSuccess?: () => void;
-}> = ({ whopUrl, facebookUrl, onThemeToggle, isDarkMode, onOpenSaved, savedCount, onOpenQrCode, onOpenInstall, onReset, onViewLanding, onViewPricing, onViewLibrary, onViewCalculator, onViewPartner, onViewSuccess }) => (
-  <nav role="navigation" aria-label="Main navigation" className="no-print bg-white sticky top-0 z-50 border-b border-slate-200 pt-[env(safe-area-inset-top)] shadow-sm">
-    <div className="max-w-7xl mx-auto px-6">
-      <div className="flex justify-between items-center h-24">
-        <div 
-            className={`flex items-center space-x-4 ${onViewLanding ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}`} 
-            onClick={onViewLanding}
-            role={onViewLanding ? "button" : undefined}
-            tabIndex={0}
-        >
-          <div className="relative group">
-             <div className="absolute -inset-2 bg-emerald-500/20 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-             <span className="text-4xl relative z-10" aria-label="CaterProAi Logo Icon">👨‍🍳</span>
-             <div className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-charcoal rounded-full animate-pulse border-2 border-white"></div>
-          </div>
-          <div>
-            <span className="text-3xl tracking-tighter whitespace-nowrap flex items-center font-anchor uppercase">
-              <span className="text-charcoal">CaterPro</span>
-              <span className="bg-gradient-to-br from-emerald-500 to-emerald-400 bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(16,185,129,0.3)]">Ai</span>
-            </span>
-          </div>
+export const getApiErrorState = (err: unknown): ErrorState => {
+    console.error("API Error Trace:", err);
+    let errorState: ErrorState = {
+      title: 'Action Required',
+      message: 'The AI encountered an issue generating your proposal. Please refresh and try again.',
+    };
+    if (err instanceof Error) {
+      const lowerCaseMessage = err.message.toLowerCase();
+      if (lowerCaseMessage.includes('api key') || lowerCaseMessage.includes('permission denied')) {
+          errorState = {
+              title: 'API Configuration Alert',
+              message: 'The AI service is unreachable. This usually means the API key is invalid or missing from the deployment environment.',
+          };
+      } else if (lowerCaseMessage.includes('billing') || lowerCaseMessage.includes('quota')) {
+          errorState = {
+              title: 'Service Limit Reached',
+              message: "Your AI generation quota for today has been reached or your billing account is inactive.",
+          };
+      } else {
+        errorState.message = String(err.message);
+      }
+    }
+    return errorState;
+};
+
+// Mock Gemini Service Logic
+const mockGeminiService = {
+  analyzeMenuForCosting: async (_base64: string, _suppliers: string, currency: string): Promise<ScannedMenuCosting> => {
+    return {
+        menuItems: [
+            { name: "Truffle Infused King Oyster Mushroom", identifiedIngredients: ["King Oyster Mushroom", "Truffle Oil"], estimatedPortionCost: "45.00", suggestedSupplier: "Local Organic Farm" },
+            { name: "Pan-Seared Sea Bass", identifiedIngredients: ["Sea Bass", "Lemon", "Capers"], estimatedPortionCost: "85.00", suggestedSupplier: "Ocean Fresh" }
+        ],
+        totalEstimatedMenuCost: "130.00",
+        marginAdvice: "Maintain a 75% margin for fine dining standards."
+    };
+  },
+  analyzeReceiptFromApi: async (_base64: string) => ({ merchant: "Chef's Pantry", date: "2026-03-29", total: "1250.00", categories: ["Ingredients", "Kitchen Supplies"] }),
+  analyzeLabelFromApi: async (_base64: string, _dietary: string[]) => ({ suitabilityScore: 9, flaggedIngredients: [], reasoning: "All ingredients are natural." }),
+  extractIngredientsForShift: async (_miseEnPlace: string[], _menuTitle: string) => [
+    { name: 'King Oyster Mushroom', quantity: 2, unit: 'kg', unitPrice: 150 },
+    { name: 'Truffle Oil', quantity: 0.5, unit: 'L', unitPrice: 450 },
+    { name: 'Sea Bass Fillets', quantity: 5, unit: 'kg', unitPrice: 320 }
+  ]
+};
+
+// --- INLINED COMPONENTS ---
+
+const Toast: React.FC<{ message: string | null; onDismiss: () => void }> = ({ message, onDismiss }) => {
+  useEffect(() => {
+    if (message) {
+      const timer = setTimeout(onDismiss, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [message, onDismiss]);
+  if (!message) return null;
+  return (
+    <div className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[200] animate-slide-up">
+      <div className="bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-white/10">
+        <span className="text-emerald-400">✨</span>
+        <p className="text-sm font-black uppercase tracking-widest">{message}</p>
+      </div>
+    </div>
+  );
+};
+
+const QuickInfoModal: React.FC<{ isOpen: boolean; onClose: () => void; title: string; description: string; type: 'cost' | 'waste' | 'compliance' | 'general' }> = ({ isOpen, onClose, title, description, type }) => {
+  if (!isOpen) return null;
+  const getIcon = () => {
+    switch (type) {
+      case 'cost': return <span className="text-3xl">🧮</span>;
+      case 'waste': return <span className="text-3xl">♻️</span>;
+      case 'compliance': return <span className="text-3xl">🛡️</span>;
+      default: return <span className="text-3xl">ℹ️</span>;
+    }
+  };
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-900/90 animate-fade-in">
+      <div onClick={onClose} className="absolute inset-0" />
+      <div className="bg-white w-full max-w-lg rounded-[3rem] p-12 relative overflow-hidden shadow-2xl border-2 border-slate-200 animate-scale-up">
+        <button onClick={onClose} className="absolute top-8 right-8 text-slate-400 hover:text-slate-900 transition-colors p-2">✕</button>
+        <div className="flex flex-col items-center text-center">
+          <div className="w-20 h-20 bg-white rounded-[1.5rem] flex items-center justify-center mb-8 shadow-xl border border-slate-100">{getIcon()}</div>
+          <h3 className="text-3xl font-black text-slate-900 mb-6 tracking-tighter uppercase">{title}</h3>
+          <p className="text-slate-600 text-lg leading-relaxed font-medium italic">{description}</p>
+          <button onClick={onClose} className="mt-12 bg-slate-900 text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-emerald-600 transition-all shadow-xl">Got it, Chef</button>
         </div>
+      </div>
+    </div>
+  );
+};
 
-        <div className="flex items-center space-x-3 sm:space-x-6">
-          {onViewLibrary && (
-            <button 
-              onClick={onViewLibrary}
-              className="p-3.5 rounded-2xl text-charcoal dark:text-white hover:text-emerald-600 hover:bg-emerald-500/5 transition-all group"
-              title="Costing Library"
-            >
-              <span className="text-2xl group-hover:scale-110 transition-transform">📦</span>
-            </button>
-          )}
-
-          {onViewCalculator && (
-            <button 
-              onClick={onViewCalculator}
-              className="p-3.5 rounded-2xl text-charcoal dark:text-white hover:text-emerald-600 hover:bg-emerald-500/5 transition-all group"
-              title="Plate Cost Calculator"
-            >
-              <span className="text-2xl group-hover:scale-110 transition-transform">🧮</span>
-            </button>
-          )}
-
-          {onViewPartner && (
-            <button 
-              onClick={onViewPartner}
-              className="p-3.5 rounded-2xl text-charcoal dark:text-white hover:text-emerald-600 hover:bg-emerald-500/5 transition-all group"
-              title="Partner Dashboard"
-            >
-              <span className="text-2xl text-emerald-500 group-hover:scale-110 transition-transform">⚡</span>
-            </button>
-          )}
-
-          {onViewSuccess && (
-            <button 
-              onClick={onViewSuccess}
-              className="px-6 py-3 rounded-full border border-slate-200 dark:border-white/10 text-charcoal dark:text-white hover:border-emerald-500 hover:text-emerald-600 transition-all font-anchor text-[10px] uppercase tracking-[0.2em] bg-white dark:bg-dark shadow-sm"
-              title="My Results"
-            >
-              My Results
-            </button>
-          )}
-
-          <button onClick={onOpenSaved} className="relative p-3.5 rounded-2xl text-charcoal dark:text-white hover:text-emerald-600 hover:bg-emerald-500/5 transition-all group" aria-label={`Saved menus (${savedCount})`}>
-            <span className="text-2xl group-hover:scale-110 transition-transform">🔖</span>
-            {savedCount > 0 && (
-              <span className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-[10px] font-black text-white shadow-lg border-2 border-white">{savedCount}</span>
+const PaymentModal: React.FC<{ isOpen: boolean; onClose: () => void; plan: SubscriptionPlan; onConfirm: () => void; price: string }> = ({ isOpen, onClose, plan, onConfirm, price }) => {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const numericPrice = price.replace(/[^0-9.]/g, '');
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div onClick={onClose} className="fixed inset-0 bg-slate-900 opacity-70"></div>
+      <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden animate-scale-up">
+        <div className="bg-slate-50 p-4 border-b border-slate-200 flex justify-between items-center">
+            <div className="flex items-center gap-2 text-green-600">
+                <span className="text-sm">🔒</span>
+                <span className="text-xs font-black uppercase tracking-widest">Secure Checkout</span>
+            </div>
+            <button onClick={onClose} className="p-1 rounded-full text-slate-400 hover:bg-slate-100 transition-colors">✕</button>
+        </div>
+        <div className="p-8">
+            <div className="text-center mb-8">
+                <h3 className="text-2xl font-black text-slate-900 capitalize tracking-tight">Unlock {plan}</h3>
+                <p className="text-4xl font-black text-emerald-600 mt-2">{price}</p>
+            </div>
+            {isProcessing ? (
+                <div className="flex flex-col items-center justify-center py-10 space-y-4">
+                    <span className="text-4xl animate-spin">⏳</span>
+                    <p className="font-bold text-slate-900">Verifying Transaction...</p>
+                </div>
+            ) : (
+                <div className="min-h-[150px] flex flex-col justify-center">
+                    <PayPalScriptProvider options={{ clientId: PAYPAL_CLIENT_ID, currency: "USD" }}>
+                        <PayPalButtons 
+                            style={{ layout: "vertical", color: "black", shape: "pill", label: "pay" }}
+                            createOrder={(data, actions) => {
+                                return actions.order.create({
+                                    intent: "CAPTURE",
+                                    purchase_units: [{ amount: { currency_code: "USD", value: numericPrice }, description: `CaterPro AI - ${plan} Plan Subscription` }],
+                                });
+                            }}
+                            onApprove={async (data, actions) => {
+                                if (actions.order) {
+                                    setIsProcessing(true);
+                                    await actions.order.capture();
+                                    onConfirm();
+                                }
+                            }}
+                            onCancel={() => setIsProcessing(false)}
+                            onError={(err) => { console.error("PayPal Error:", err); setIsProcessing(false); }}
+                        />
+                    </PayPalScriptProvider>
+                </div>
             )}
-          </button>
         </div>
+      </div>
+    </div>
+  );
+};
+
+const Dashboard: React.FC<{ onOpenModal: (type: 'cost' | 'waste' | 'compliance') => void }> = ({ onOpenModal }) => (
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16 animate-fade-in">
+    <div onClick={() => onOpenModal('cost')} className="cursor-pointer bg-white p-8 rounded-[2.5rem] border-2 border-slate-100 shadow-xl hover:border-emerald-500 transition-all group">
+      <div className="flex items-center justify-between mb-6">
+        <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 group-hover:scale-110 transition-transform">🧮</div>
+        <span className="text-[10px] font-black text-emerald-600 uppercase tracking-widest">Live Costing</span>
+      </div>
+      <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Plate Margin</h4>
+      <p className="text-4xl font-black text-slate-900 tracking-tighter">72.4%</p>
+    </div>
+    <div onClick={() => onOpenModal('waste')} className="cursor-pointer bg-white p-8 rounded-[2.5rem] border-2 border-slate-100 shadow-xl hover:border-amber-500 transition-all group">
+      <div className="flex items-center justify-between mb-6">
+        <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 group-hover:scale-110 transition-transform">♻️</div>
+        <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Waste Tracker</span>
+      </div>
+      <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">Food Waste</h4>
+      <p className="text-4xl font-black text-slate-900 tracking-tighter">-12%</p>
+    </div>
+    <div onClick={() => onOpenModal('compliance')} className="cursor-pointer bg-white p-8 rounded-[2.5rem] border-2 border-slate-100 shadow-xl hover:border-blue-500 transition-all group">
+      <div className="flex items-center justify-between mb-6">
+        <div className="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 group-hover:scale-110 transition-transform">🛡️</div>
+        <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Compliance</span>
+      </div>
+      <h4 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">HACCP Score</h4>
+      <p className="text-4xl font-black text-slate-900 tracking-tighter">98/100</p>
+    </div>
+  </div>
+);
+
+const HeroSection: React.FC<{ onStart: () => void; onOpenModal: (type: 'cost' | 'waste' | 'compliance') => void }> = ({ onStart, onOpenModal }) => (
+  <div className="relative pt-32 pb-20 overflow-hidden">
+    <div className="max-w-7xl mx-auto px-6 relative z-10">
+      <div className="text-center max-w-4xl mx-auto mb-20">
+        <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-50 rounded-full border border-emerald-100 mb-8 animate-fade-in">
+          <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-emerald-700">AI-Powered Culinary Intelligence</span>
+        </div>
+        <h1 className="text-6xl md:text-8xl font-black text-slate-900 tracking-tighter leading-[0.9] mb-8 uppercase italic">
+          Cook with <span className="text-emerald-600">Precision</span>, Lead with <span className="text-emerald-600">Profit</span>.
+        </h1>
+        <p className="text-xl text-slate-600 font-medium mb-12 max-w-2xl mx-auto leading-relaxed italic">The world's first AI-driven catering engine that automates costing, menu design, and compliance for modern chefs.</p>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+          <button onClick={onStart} className="w-full sm:w-auto px-12 py-6 bg-slate-900 text-white rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-emerald-600 transition-all shadow-2xl hover:scale-105 active:scale-95">Start Generating</button>
+          <button onClick={() => onOpenModal('cost')} className="w-full sm:w-auto px-12 py-6 bg-white text-slate-900 border-2 border-slate-200 rounded-[2rem] font-black uppercase tracking-widest text-sm hover:border-emerald-500 transition-all shadow-xl">View Demo</button>
+        </div>
+      </div>
+      <Dashboard onOpenModal={onOpenModal} />
+    </div>
+  </div>
+);
+
+const PricingPage: React.FC<{ onSelectPlan: (plan: SubscriptionPlan, price: string) => void }> = ({ onSelectPlan }) => {
+  const tiers = [
+    { name: 'Commis', price: '$19', features: ['5 AI Generations/mo', 'Basic Costing', 'Standard Support'], id: 'commis' },
+    { name: 'Chef de Partie', price: '$49', features: ['20 AI Generations/mo', 'Advanced Costing', 'Priority Support', 'Recipe Lab Access'], id: 'chef-de-partie', popular: true },
+    { name: 'Executive', price: '$149', features: ['Unlimited Generations', 'Full CRM Integration', 'Custom Branding', 'Dedicated Mentor'], id: 'executive' }
+  ];
+  return (
+    <div className="py-24 bg-slate-50">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="text-center mb-20">
+          <h2 className="text-5xl font-black text-slate-900 tracking-tight uppercase italic mb-4">Choose Your Rank</h2>
+          <p className="text-slate-500 font-medium italic">Scale your catering business with professional AI tools.</p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {tiers.map((tier) => (
+            <div key={tier.id} className={`bg-white p-10 rounded-[3rem] border-2 transition-all hover:scale-105 ${tier.popular ? 'border-emerald-500 shadow-2xl relative' : 'border-slate-100 shadow-xl'}`}>
+              {tier.popular && <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">Most Popular</span>}
+              <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight mb-2">{tier.name}</h3>
+              <p className="text-5xl font-black text-slate-900 mb-8">{tier.price}<span className="text-sm font-bold text-slate-400">/mo</span></p>
+              <ul className="space-y-4 mb-10">
+                {tier.features.map(f => <li key={f} className="text-sm font-medium text-slate-600 flex items-center gap-3"><span>✅</span> {f}</li>)}
+              </ul>
+              <button onClick={() => onSelectPlan(tier.id as SubscriptionPlan, tier.price)} className={`w-full py-5 rounded-2xl font-black uppercase tracking-widest text-xs transition-all ${tier.popular ? 'bg-emerald-600 text-white shadow-xl hover:bg-emerald-700' : 'bg-slate-900 text-white hover:bg-slate-800'}`}>Select Plan</button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const PlateCostCalculator: React.FC<{ ingredients: IngredientCost[] }> = ({ ingredients }) => {
+  const [selectedIngredients, setSelectedIngredients] = useState<{ id: string; quantity: number }[]>([]);
+  const [markup, setMarkup] = useState(300);
+  const totalCost = selectedIngredients.reduce((sum, item) => {
+    const ing = ingredients.find(i => i.id === item.id);
+    return sum + (ing ? ing.price * item.quantity : 0);
+  }, 0);
+  const suggestedPrice = totalCost * (markup / 100);
+  return (
+    <div className="bg-white p-8 rounded-[2.5rem] border-2 border-slate-100 shadow-2xl">
+      <div className="flex items-center gap-4 mb-8">
+        <div className="p-3 bg-emerald-50 rounded-2xl text-emerald-600">🧮</div>
+        <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">Plate Cost Engine</h3>
+      </div>
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <select 
+            onChange={(e) => { if (e.target.value) { setSelectedIngredients([...selectedIngredients, { id: e.target.value, quantity: 1 }]); e.target.value = ''; } }}
+            className="w-full p-4 rounded-xl border-2 border-slate-100 bg-slate-50 text-sm font-bold focus:border-emerald-500 outline-none"
+          >
+            <option value="">Add Ingredient...</option>
+            {ingredients.map(ing => <option key={ing.id} value={ing.id}>{ing.name} ({ing.unit})</option>)}
+          </select>
+          <div className="flex items-center gap-4 bg-slate-50 p-4 rounded-xl border-2 border-slate-100">
+            <span className="text-xs font-black text-slate-400 uppercase">Markup %</span>
+            <input type="number" value={markup} onChange={(e) => setMarkup(Number(e.target.value))} className="bg-transparent font-black text-slate-900 w-20 outline-none" />
+          </div>
+        </div>
+        <div className="space-y-3">
+          {selectedIngredients.map((item, idx) => {
+            const ing = ingredients.find(i => i.id === item.id);
+            return (
+              <div key={idx} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl border border-slate-100">
+                <span className="font-bold text-slate-900">{ing?.name}</span>
+                <div className="flex items-center gap-4">
+                  <input type="number" value={item.quantity} onChange={(e) => { const newItems = [...selectedIngredients]; newItems[idx].quantity = Number(e.target.value); setSelectedIngredients(newItems); }} className="w-16 bg-white border border-slate-200 rounded-lg p-1 text-center font-bold" />
+                  <span className="text-xs font-bold text-slate-400">{ing?.unit}</span>
+                  <button onClick={() => setSelectedIngredients(selectedIngredients.filter((_, i) => i !== idx))} className="text-red-400">✕</button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="pt-8 border-t-2 border-dashed border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="text-center md:text-left">
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Cost</p>
+            <p className="text-3xl font-black text-slate-900">R {totalCost.toFixed(2)}</p>
+          </div>
+          <div className="text-center md:text-right">
+            <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Suggested Price</p>
+            <p className="text-4xl font-black text-emerald-600">R {suggestedPrice.toFixed(2)}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const RecipeGenerator: React.FC<{ dietaryRestrictions: string[], currency: string }> = ({ dietaryRestrictions, currency }) => {
+  const [activeTab, setActiveTab] = useState<'receipt' | 'label' | 'menu'>('receipt');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [result, setResult] = useState<any>(null);
+  const [menuResult, setMenuResult] = useState<ScannedMenuCosting | null>(null);
+  const [suppliers, setSuppliers] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setIsAnalyzing(true);
+    setResult(null);
+    setMenuResult(null);
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const base64 = e.target?.result?.toString().split(',')[1];
+      if (!base64) return;
+      try {
+        if (activeTab === 'receipt') { setResult(await mockGeminiService.analyzeReceiptFromApi(base64)); }
+        else if (activeTab === 'label') { setResult(await mockGeminiService.analyzeLabelFromApi(base64, dietaryRestrictions)); }
+        else if (activeTab === 'menu') { setMenuResult(await mockGeminiService.analyzeMenuForCosting(base64, suppliers, currency)); }
+      } catch (err) { console.error("Analysis failed", err); }
+      finally { setIsAnalyzing(false); }
+    };
+    reader.readAsDataURL(file);
+  };
+  return (
+    <section className="mt-16 animate-slide-in">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2 bg-amber-500 rounded-lg text-white"><span className="text-2xl">✨</span></div>
+        <div>
+          <h2 className="text-2xl font-black text-black opacity-100">Recipe Lab (Beta)</h2>
+          <p className="text-sm text-black font-medium opacity-100">Vision AI Powered by Gemini 3</p>
+        </div>
+      </div>
+      <div className="bg-white border-2 border-slate-200 rounded-3xl shadow-xl overflow-hidden">
+        <div className="flex border-b border-slate-200 overflow-x-auto no-scrollbar">
+          {['receipt', 'menu', 'label'].map(tab => (
+            <button key={tab} onClick={() => { setActiveTab(tab as any); setResult(null); setMenuResult(null); }} className={`flex-1 min-w-[150px] p-5 text-sm font-bold flex items-center justify-center gap-2 transition-all ${activeTab === tab ? 'bg-slate-50 text-amber-600 border-b-4 border-amber-600' : 'text-slate-500'}`}>
+              {tab === 'receipt' ? '📄 Expenses' : tab === 'menu' ? '🍴 Menu Vision' : '🛡️ Allergens'}
+            </button>
+          ))}
+        </div>
+        <div className="p-8">
+          {!result && !menuResult && !isAnalyzing ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50">
+              <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg mb-4 text-slate-400"><span className="text-3xl">📷</span></div>
+              <h4 className="text-lg font-bold text-slate-900">Upload Photo to Analyze</h4>
+              <button onClick={() => fileInputRef.current?.click()} className="mt-8 px-8 py-3 bg-slate-900 text-white rounded-xl font-black text-sm shadow-xl hover:scale-105 transition-all">Upload Photo</button>
+              <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
+            </div>
+          ) : isAnalyzing ? (
+            <div className="flex flex-col items-center justify-center py-20 animate-pulse">
+              <span className="text-5xl animate-spin mb-4 text-amber-500">⏳</span>
+              <p className="text-lg font-bold text-slate-900">Gemini Vision is Analyzing...</p>
+            </div>
+          ) : menuResult ? (
+            <div className="animate-fade-in space-y-8">
+              <div className="p-8 bg-pink-50 border-2 border-pink-100 rounded-[2rem]">
+                <h5 className="text-2xl font-black text-pink-700 mb-6">Costing Intelligence</h5>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {menuResult.menuItems.map((item, i) => (
+                    <div key={i} className="p-5 bg-white rounded-2xl border border-pink-100 shadow-sm">
+                      <h6 className="font-black text-slate-900 uppercase text-xs mb-2">{item.name}</h6>
+                      <p className="text-[10px] font-black text-pink-500">{currency} {item.estimatedPortionCost} / p</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <button onClick={() => setMenuResult(null)} className="w-full py-4 text-xs font-black uppercase text-slate-400 border-2 border-dashed border-slate-200 rounded-2xl hover:bg-slate-50 transition-all">Scan New Menu</button>
+            </div>
+          ) : (
+            <div className="animate-fade-in">
+              <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200">
+                <h5 className="text-2xl font-black text-slate-900">{result.merchant || 'Analysis Result'}</h5>
+                <p className="text-4xl font-black text-amber-600 mt-4">R {result.total || result.suitabilityScore}</p>
+              </div>
+              <button onClick={() => setResult(null)} className="w-full py-4 mt-8 border-2 border-slate-200 text-slate-500 font-bold rounded-2xl hover:bg-slate-50 transition-all text-xs uppercase">Scan Another</button>
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const AiChatBot: React.FC<{ onAttemptAccess: () => boolean; isPro: boolean }> = ({ onAttemptAccess, isPro }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const [messages, setMessages] = useState<Message[]>([{ role: 'model', content: "Hello! I'm your AI Catering Consultant. Ask me for advice!" }]);
+    const [userInput, setUserInput] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<ErrorState | null>(null);
+    const chatRef = useRef<Chat | null>(null);
+    const messagesEndRef = useRef<HTMLDivElement | null>(null);
+    const inputRef = useRef<HTMLInputElement | null>(null);
+    useEffect(() => { if (isOpen && isPro) { inputRef.current?.focus(); if (!chatRef.current) { initializeChat(); } } }, [isOpen, isPro]);
+    const handleToggleOpen = () => { if (isOpen) { setIsOpen(false); } else { if (onAttemptAccess()) { setIsOpen(true); } } };
+    const scrollToBottom = () => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); };
+    useEffect(() => { scrollToBottom(); }, [messages, isLoading]);
+    const initializeChat = () => {
+        try {
+            const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
+            chatRef.current = ai.chats.create({ model: 'gemini-3-flash-preview', config: { systemInstruction: 'You are a friendly AI Catering Consultant.' } });
+        } catch (e) { setError(getApiErrorState(e)); }
+    };
+    const handleSendMessage = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const trimmedInput = userInput.trim();
+        if (!trimmedInput || isLoading) return;
+        setError(null);
+        setMessages(prev => [...prev, { role: 'user', content: trimmedInput }]);
+        setUserInput('');
+        setIsLoading(true);
+        if (!chatRef.current) { setIsLoading(false); setError({ title: "Initialization Failed", message: "Chat has not been initialized." }); return; }
+        try {
+            const responseStream = await chatRef.current.sendMessageStream({ message: trimmedInput });
+            let currentResponse = '';
+            setMessages(prev => [...prev, { role: 'model', content: '' }]);
+            for await (const chunk of responseStream) {
+                currentResponse += chunk.text;
+                setMessages(prev => {
+                    const newMessages = [...prev];
+                    if (newMessages.length > 0 && newMessages[newMessages.length - 1].role === 'model') { newMessages[newMessages.length - 1].content = currentResponse; }
+                    return newMessages;
+                });
+            }
+        } catch (err) { setError(getApiErrorState(err)); } finally { setIsLoading(false); inputRef.current?.focus(); }
+    };
+    return (
+        <div className="no-print fixed bottom-8 right-8 z-50 flex flex-col items-end gap-6">
+            {isOpen && isPro && (
+                <div className="w-[380px] h-[600px] flex flex-col shadow-2xl border border-slate-200 bg-white rounded-[3rem] overflow-hidden relative animate-slide-in">
+                    <header className="flex-shrink-0 p-8 bg-slate-900 flex items-center justify-between">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center border border-emerald-500/30">👨‍🍳</div>
+                            <div><h2 className="text-white font-black text-lg uppercase">Chef Mentor</h2></div>
+                        </div>
+                        <button onClick={() => setIsOpen(false)} className="text-white/40 hover:text-white">✕</button>
+                    </header>
+                    <div className="flex-grow p-8 overflow-y-auto space-y-6 bg-slate-50">
+                        {messages.map((msg, index) => (
+                            <div key={index} className={`flex items-start gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
+                                <div className={`max-w-[85%] rounded-[2rem] px-6 py-4 text-sm font-medium leading-relaxed shadow-sm ${msg.role === 'user' ? 'bg-emerald-600 text-white rounded-tr-none' : 'bg-white text-slate-900 border border-slate-200 rounded-tl-none'}`}>{msg.content}</div>
+                            </div>
+                        ))}
+                        <div ref={messagesEndRef} />
+                    </div>
+                    <footer className="flex-shrink-0 p-8 bg-white border-t border-slate-200">
+                        <form onSubmit={handleSendMessage} className="relative">
+                            <input ref={inputRef} type="text" value={userInput} onChange={(e) => setUserInput(e.target.value)} placeholder="Ask about costing..." disabled={isLoading} className="w-full bg-white border border-slate-200 rounded-2xl px-6 py-4 pr-16 text-sm font-medium outline-none" />
+                            <button type="submit" disabled={isLoading || !userInput.trim()} className="absolute right-2 top-2 w-12 h-12 bg-slate-900 text-white rounded-xl flex items-center justify-center">➡️</button>
+                        </form>
+                    </footer>
+                </div>
+            )}
+            <button onClick={handleToggleOpen} className="w-20 h-20 bg-slate-900 text-white rounded-[2rem] flex items-center justify-center shadow-2xl hover:scale-110 transition-all">
+                {isOpen ? <span>✕</span> : <span>💬</span>}
+            </button>
+        </div>
+    );
+};
+
+const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; initialIngredients: ShiftIngredient[]; menuTitle: string }> = ({ isOpen, onClose, initialIngredients, menuTitle }) => {
+  const [ingredients, setIngredients] = useState<ShiftIngredient[]>([]);
+  useEffect(() => { if (isOpen) { setIngredients(initialIngredients); } }, [isOpen, initialIngredients]);
+  const calculateTotal = () => ingredients.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+  if (!isOpen) return null;
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/95 p-4">
+      <div className="w-full max-w-6xl h-full max-h-[90vh] bg-white border-2 border-emerald-500 rounded-[3rem] shadow-2xl overflow-hidden flex flex-col">
+        <div className="p-8 border-b border-slate-100 flex items-center justify-between">
+          <h2 className="text-3xl font-black text-slate-900">Executive Shift Breakdown</h2>
+          <button onClick={onClose} className="p-4 hover:bg-slate-100 rounded-full text-slate-400 transition-all">✕</button>
+        </div>
+        <div className="flex-1 overflow-y-auto p-8">
+          <table className="w-full text-left">
+            <thead><tr className="text-emerald-600 text-xs font-black uppercase tracking-widest"><th className="p-6">Ingredient</th><th className="p-6">Quantity</th><th className="p-6">Price</th><th className="p-6 text-right">Total</th></tr></thead>
+            <tbody className="divide-y divide-slate-100">
+              {ingredients.map((item, idx) => (
+                <tr key={idx} className="hover:bg-slate-50">
+                  <td className="p-6 font-bold">{item.name}</td>
+                  <td className="p-6">{item.quantity} {item.unit}</td>
+                  <td className="p-6">R {item.unitPrice}</td>
+                  <td className="p-6 text-right font-black">R {(item.quantity * item.unitPrice).toFixed(2)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="p-8 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
+          <h3 className="text-5xl font-black text-slate-900"><span className="text-2xl text-emerald-600 mr-2">R</span>{calculateTotal().toFixed(2)}</h3>
+          <button onClick={onClose} className="px-12 py-6 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-sm">Close</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ProposalDocument: React.FC<{ proposal: Menu; guests: string; formatCurrency: (amount: number) => string }> = ({ proposal, guests, formatCurrency }) => (
+  <div id="proposal-content" className="bg-white p-16 rounded-[3rem] shadow-2xl border-2 border-slate-100 mb-12">
+    <div className="flex justify-between items-start mb-12">
+      <div>
+        <h3 className="text-4xl font-black text-slate-900 uppercase tracking-tight mb-2">{proposal.menuTitle}</h3>
+        <p className="text-slate-500 font-medium italic">{proposal.description}</p>
+      </div>
+      <div className="text-right">
+        <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Drafted by CaterPro AI</p>
+        <p className="text-sm font-bold text-slate-400">{new Date().toLocaleDateString()}</p>
+      </div>
+    </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+      <div>
+        <h4 className="text-xs font-black uppercase tracking-widest text-emerald-600 mb-6">Menu Selection</h4>
+        <div className="space-y-8">
+          <div><p className="text-[10px] font-black uppercase text-slate-400 mb-2">Appetizers</p><ul className="space-y-2">{proposal.appetizers.map(a => <li key={a} className="font-bold text-slate-900">{a}</li>)}</ul></div>
+          <div><p className="text-[10px] font-black uppercase text-slate-400 mb-2">Main Courses</p><ul className="space-y-2">{proposal.mainCourses.map(m => <li key={m} className="font-bold text-slate-900">{m}</li>)}</ul></div>
+        </div>
+      </div>
+      <div>
+        <h4 className="text-xs font-black uppercase tracking-widest text-emerald-600 mb-6">Service & Logistics</h4>
+        <div className="space-y-8">
+          <div><p className="text-[10px] font-black uppercase text-slate-400 mb-2">Service Notes</p><ul className="space-y-2">{proposal.serviceNotes.map(s => <li key={s} className="text-sm font-medium text-slate-600 italic">{s}</li>)}</ul></div>
+          <div><p className="text-[10px] font-black uppercase text-slate-400 mb-2">Delivery</p><ul className="space-y-2">{proposal.deliveryLogistics.map(d => <li key={d} className="text-sm font-medium text-slate-600 italic">{d}</li>)}</ul></div>
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
+const Navbar: React.FC<{ onViewChange: (view: string) => void; currentView: string }> = ({ onViewChange, currentView }) => (
+  <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-100">
+    <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+      <div onClick={() => onViewChange('landing')} className="flex items-center gap-3 cursor-pointer group">
+        <div className="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white group-hover:bg-emerald-600 transition-colors">👨‍🍳</div>
+        <span className="text-xl font-black text-slate-900 tracking-tighter uppercase italic">CaterPro<span className="text-emerald-600">AI</span></span>
+      </div>
+      <div className="hidden md:flex items-center gap-8">
+        {['Generator', 'Calculator', 'Pricing'].map(item => (
+          <button key={item} onClick={() => onViewChange(item.toLowerCase())} className={`text-xs font-black uppercase tracking-widest transition-colors ${currentView === item.toLowerCase() ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-900'}`}>{item}</button>
+        ))}
+        <button onClick={() => onViewChange('generator')} className="bg-slate-900 text-white px-6 py-3 rounded-xl font-black uppercase tracking-widest text-[10px] hover:bg-emerald-600 transition-all shadow-lg">Get Started</button>
       </div>
     </div>
   </nav>
 );
 
-// Footer Component
-const Footer: React.FC<{ 
-  facebookUrl?: string;
-  onViewPrivacy?: () => void;
-  onViewTerms?: () => void;
-}> = ({ facebookUrl, onViewPrivacy, onViewTerms }) => {
-  const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSubscribed, setIsSubscribed] = useState(false);
-
-  const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email || !name || isSubmitting) return;
-
-    setIsSubmitting(true);
-    try {
-      await automationService.triggerSignupWebhook({
-        email,
-        name,
-        businessType: 'Newsletter Subscriber',
-      });
-      setIsSubscribed(true);
-      setEmail('');
-      setName('');
-    } catch (error) {
-      console.error("Subscription error:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <footer className="no-print bg-white border-t border-slate-100 mt-16">
-      <div className="max-w-7xl mx-auto py-12 px-6">
-        <div className="mb-12 bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 relative overflow-hidden">
-          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
-            <div className="text-center md:text-left">
-              <h3 className="text-xl font-black text-charcoal tracking-tight flex items-center justify-center md:justify-start gap-2">
-                <span className="text-xl text-emerald">✨</span>
-                Stay in the Loop
-              </h3>
-              <p className="text-sm text-charcoal font-medium mt-1">
-                Get the latest culinary AI trends and scaling strategies.
-              </p>
-            </div>
-
-            {isSubscribed ? (
-              <div className="bg-emerald/10 border border-emerald/20 px-6 py-3 rounded-xl text-emerald font-bold text-sm animate-fade-in">
-                You're on the list! 👨‍🍳
-              </div>
-            ) : (
-              <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row w-full md:w-auto gap-2">
-                <input
-                  type="text"
-                  placeholder="Your Name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  className="flex-grow sm:w-40 px-4 py-3 rounded-xl border border-slate-200 bg-white focus:border-emerald outline-none transition-all text-sm font-medium"
-                />
-                <input
-                  type="email"
-                  placeholder="chef@kitchen.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="flex-grow sm:w-56 px-4 py-3 rounded-xl border border-slate-200 bg-white focus:border-emerald outline-none transition-all text-sm font-medium"
-                />
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="px-6 py-3 bg-emerald hover:brightness-110 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-                >
-                  {isSubmitting ? <span className="animate-spin">⏳</span> : <span className="text-lg">✉️</span>}
-                  Join
-                </button>
-              </form>
-            )}
+const Footer: React.FC<{ onViewChange: (view: string) => void }> = ({ onViewChange }) => (
+  <footer className="bg-slate-900 text-white py-20">
+    <div className="max-w-7xl mx-auto px-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
+        <div className="col-span-1 md:col-span-2">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 bg-emerald-600 rounded-xl flex items-center justify-center text-white">👨‍🍳</div>
+            <span className="text-xl font-black tracking-tighter uppercase italic">CaterPro<span className="text-emerald-400">AI</span></span>
           </div>
+          <p className="text-slate-400 font-medium max-w-sm leading-relaxed italic">Empowering chefs and caterers with AI-driven precision.</p>
         </div>
-
-        <div className="text-center text-sm text-charcoal">
-          <p className="text-charcoal font-bold">&copy; 2026 <span className="font-bold">CaterPro</span><span className="font-medium text-emerald">Ai</span>. All rights reserved.</p>
-          <p className="mt-1">Intelligent menu planning for catering professionals at caterproai.com</p>
-          <p className="mt-2 font-bold text-charcoal">Contact: info@caterproai.com</p>
-          
-          <div className="mt-4 flex justify-center gap-4">
-            <button onClick={() => onViewPrivacy?.()} className="hover:text-emerald transition-colors">Privacy Policy</button>
-            <span className="text-emerald-500">|</span>
-            <button onClick={() => onViewTerms?.()} className="hover:text-emerald transition-colors">Terms of Service</button>
-          </div>
-          
-          {facebookUrl && (
-            <a 
-              href={facebookUrl} 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-2 text-blue-600 font-bold hover:underline"
-            >
-              <span className="text-lg">📘</span> Join the Facebook Group
-            </a>
-          )}
-
-          <p className="mt-4 text-[10px] text-charcoal dark:text-white font-mono">
-            v1.0.3 &bull; 2026 Launch Build
-          </p>
+        <div>
+          <h4 className="text-xs font-black uppercase tracking-widest text-emerald-400 mb-6">Platform</h4>
+          <ul className="space-y-4 text-sm font-bold text-slate-400">
+            <li><button onClick={() => onViewChange('generator')} className="hover:text-white transition-colors">Menu Generator</button></li>
+            <li><button onClick={() => onViewChange('calculator')} className="hover:text-white transition-colors">Cost Calculator</button></li>
+            <li><button onClick={() => onViewChange('pricing')} className="hover:text-white transition-colors">Pricing Plans</button></li>
+          </ul>
         </div>
       </div>
-    </footer>
-  );
-};
+      <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
+        <p className="text-xs font-bold text-slate-500">© 2026 CaterPro AI. Built for the Modern Kitchen.</p>
+      </div>
+    </div>
+  </footer>
+);
 
-// Subscription Context
-export type SubscriptionPlan = 'free' | 'commis' | 'chef-de-partie' | 'sous-chef' | 'executive';
-
-export interface SubscriptionState {
-  plan: SubscriptionPlan;
-  generationsToday: number;
-  lastGenerationDate: string | null;
-}
-
-const MAX_FREE_GENERATIONS = 5;
-
-const getInitialState = (): SubscriptionState => {
-  try {
-    const storedState = localStorage.getItem('caterpro-subscription');
-    if (storedState) {
-      const parsed = JSON.parse(storedState);
-      const today = new Date().toDateString();
-      if (parsed.lastGenerationDate !== today) {
-        parsed.generationsToday = 0;
-        parsed.lastGenerationDate = today;
-      }
-      if (!['free', 'commis', 'chef-de-partie', 'sous-chef', 'executive'].includes(parsed.plan)) {
-          parsed.plan = 'chef-de-partie';
-      }
-      return parsed;
-    }
-  } catch (e) {
-    console.error("Failed to parse subscription state", e);
-  }
-  return {
-    plan: 'chef-de-partie',
-    generationsToday: 0,
-    lastGenerationDate: new Date().toDateString(),
-  };
-};
-
-export const useAppSubscription = () => {
-  const [subscription, setSubscription] = useState<SubscriptionState>(getInitialState());
-  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-
-  useEffect(() => {
-    localStorage.setItem('caterpro-subscription', JSON.stringify(subscription));
-  }, [subscription]);
-
-  const selectPlan = (plan: SubscriptionPlan) => {
-    setSubscription(prev => ({ ...prev, plan }));
-  };
-
-  const canAccessFeature = useCallback((feature: string): boolean => {
-    const p = subscription.plan;
-    const isPaid = p !== 'free';
-    const isCommis = p === 'commis';
-    const isChef = p === 'chef-de-partie';
-    const isSous = p === 'sous-chef';
-    const isExec = p === 'executive';
-    
-    const isProPlus = ['chef-de-partie', 'sous-chef', 'executive'].includes(p);
-    const isGrowthPlus = ['sous-chef', 'executive'].includes(p);
-
-    switch (feature) {
-      case 'unlimitedGenerations': return isPaid;
-      case 'noWatermark': return isProPlus; 
-      case 'aiChatBot': return isPaid; 
-      case 'saveMenus': return isPaid;
-      case 'educationTools': return isCommis || isExec; 
-      case 'costingEngine': return isProPlus;
-      case 'shoppingLists': return isProPlus;
-      case 'multiUser': return isGrowthPlus;
-      case 'cloudStorage': return isGrowthPlus;
-      case 'clientDashboard': return isGrowthPlus;
-      case 'reelsMode': return isExec;
-      case 'viralVideoCreator': return isExec;
-      case 'beveragePairings': return isProPlus;
-      default: return false;
-    }
-  }, [subscription.plan]);
-
-  const recordGeneration = useCallback((): boolean => {
-    const today = new Date().toDateString();
-    let currentGenerations = subscription.generationsToday;
-    
-    if (subscription.lastGenerationDate !== today) {
-        currentGenerations = 0;
-    }
-    
-    if (canAccessFeature('unlimitedGenerations')) {
-        setSubscription(prev => ({ ...prev, lastGenerationDate: today }));
-        return true;
-    }
-    
-    if (currentGenerations < MAX_FREE_GENERATIONS) {
-        setSubscription(prev => ({ 
-            ...prev, 
-            generationsToday: currentGenerations + 1, 
-            lastGenerationDate: today 
-        }));
-        return true;
-    }
-    
-    setShowUpgradeModal(true);
-    return false;
-  }, [subscription, canAccessFeature]);
-
-  const attemptAccess = (feature: string): boolean => {
-      if (canAccessFeature(feature)) return true;
-      setShowUpgradeModal(true);
-      return false;
-  };
-
-  return { 
-    subscription, 
-    selectPlan,
-    canAccessFeature,
-    recordGeneration,
-    showUpgradeModal,
-    setShowUpgradeModal,
-    attemptAccess
-  };
-};
-
-// --- END INLINED INFRASTRUCTURE ---
-
-// --- INFRASTRUCTURE IMPORTS ---
-const PricingPage = React.lazy(() => import('./PricingPage'));
-const CostingLibrary = React.lazy(() => import('./CostingLibrary'));
-const PartnerDashboard = React.lazy(() => import('./PartnerDashboard'));
-const PrivacyPolicy = React.lazy(() => import('./PrivacyPolicy'));
-const TermsOfService = React.lazy(() => import('./TermsOfService'));
-const StudentYieldCalculator = React.lazy(() => import('./StudentYieldCalculator'));
-const ShiftCalculatorModal = React.lazy(() => import('./ShiftCalculatorModal'));
-const SuccessPage = React.lazy(() => import('./SuccessPage'));
-const ProposalDocument = React.lazy(() => import('./ProposalDocument'));
-const HeroSection = React.lazy(() => import('./HeroSection'));
-const Dashboard = React.lazy(() => import('./Dashboard'));
-const RecipeGenerator = React.lazy(() => import('./RecipeGenerator'));
-const AiChatBot = React.lazy(() => import('./AiChatBot'));
-import { ShiftIngredient } from './types';
-
-// --- UTILS ---
-const formatCurrency = (amount: number) => {
-  return `R${amount.toLocaleString('en-ZA', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
-};
-
-// --- MOCK DATA FOR DEMO ---
-const MOCK_PROPOSAL = { 
-  "title": "Michelin-Star Herb Crusted Lamb", 
-  "imageQuery": "Michelin-Star Herb Crusted Lamb fine dining", 
-  "menu": [
-    {"cat": "Appetizers", "dish": "Truffle Infused King Oyster Mushroom", "notes": "With garlic butter and microgreens"},
-    {"cat": "Main Courses", "dish": "Michelin-Star Herb Crusted Lamb", "notes": "With red wine jus and seasonal root vegetables"},
-    {"cat": "Desserts", "dish": "Dark Chocolate Fondant", "notes": "With vanilla bean panna cotta"}
-  ], 
-  "miseEnPlace": ["Clean and slice mushrooms", "Prepare herb crust for lamb", "Reduce red wine for jus"], 
-  "serviceNotes": ["Serve lamb immediately after resting", "Garnish with fresh microgreens"],
-  "haccpSafety": [
-    {"point": "Critical Control Point", "requirement": "Internal temp 63°C for medium-rare lamb", "category": "Temp"},
-    {"point": "Storage", "requirement": "Store mushrooms at < 5°C", "category": "Storage"}
-  ],
-  "wasteYieldAnalysis": {
-    "apCost": 2500,
-    "epCost": 3333,
-    "costDifference": 833,
-    "yieldPercentage": 75,
-    "qctoCriteria": "Level 5 assessment compliance met through detailed yield tracking."
-  },
-  "shoppingList": {
-    "Proteins": ["Rack of Lamb"],
-    "Produce": ["King Oyster Mushroom", "Microgreens", "Root Vegetables"],
-    "Pantry": ["Truffle Oil", "Garlic Butter", "Red Wine"]
-  },
-  "logistics": {
-    "deliveryFee": 500,
-    "setupTime": "1 hour",
-    "staffRequired": 2
-  },
-  "winePairings": ["Cabernet Sauvignon", "Pinot Noir"],
-  "costPerHead": 450
-};
+// --- MAIN APP COMPONENT ---
 
 export default function App() {
-  // --- STATE & HOOKS ---
-  const { selectPlan, canAccessFeature, recordGeneration } = useAppSubscription();
-  
-  const [viewMode, setViewMode] = useState<'landing' | 'generator' | 'pricing' | 'library' | 'privacy' | 'partner' | 'terms' | 'success' | 'recipe-lab' | 'calculator'>('landing');
+  const [viewMode, setViewMode] = useState('landing');
   const [ingredients, setIngredients] = useState<IngredientCost[]>([]);
-
-  const DEMO_USER_ID = 'DEMO_USER';
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [proposal, setProposal] = useState<Menu | null>(null);
+  const [activeModal, setActiveModal] = useState<{ type: 'cost' | 'waste' | 'compliance' | 'general'; isOpen: boolean } | null>(null);
+  const [paymentModal, setPaymentModal] = useState<{ isOpen: boolean; plan: SubscriptionPlan; price: string } | null>(null);
+  const [shiftModal, setShiftModal] = useState<{ isOpen: boolean; ingredients: ShiftIngredient[]; title: string } | null>(null);
 
   useEffect(() => {
-    if (!db) return;
     const q = query(collection(db, 'ingredientCosts'), where('userId', '==', DEMO_USER_ID));
     const unsubscribe = onSnapshot(q, (snapshot) => {
-      setIngredients(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as IngredientCost)));
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as IngredientCost));
+      setIngredients(data);
     });
-    return unsubscribe;
+    return () => unsubscribe();
   }, []);
 
-  const [isTrainingMode, setIsTrainingMode] = useState(false);
-  
-  // Generator State
-  const [guests, setGuests] = useState('50');
-  const [style, setStyle] = useState('');
-  const [dietary, setDietary] = useState('');
-  const [eventType, setEventType] = useState('Corporate Event');
-  const [apCost, setApCost] = useState('');
-  const [epYield, setEpYield] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [proposal, setProposal] = useState<any>(null);
-  const [proposalImage, setProposalImage] = useState<string | null>(null);
-  const [isTotalUpdating, setIsTotalUpdating] = useState(false);
-  const [isShiftCalculatorOpen, setIsShiftCalculatorOpen] = useState(false);
-  const [shiftIngredients, setShiftIngredients] = useState<ShiftIngredient[]>([]);
-  const [isShiftLoading, setIsShiftLoading] = useState(false);
-  const [toast, setToast] = useState<string | null>(null);
-  
-  const handleOpenShiftCalculator = async () => {
-    if (!proposal?.miseEnPlace) return;
-    setIsShiftLoading(true);
-    // Mock shift ingredients
+  const handleStart = () => setViewMode('generator');
+  const handleOpenModal = (type: 'cost' | 'waste' | 'compliance') => setActiveModal({ type, isOpen: true });
+  const handleSelectPlan = (plan: SubscriptionPlan, price: string) => setPaymentModal({ isOpen: true, plan, price });
+  const formatCurrency = (amount: number) => `R ${amount.toFixed(2)}`;
+
+  const generateProposal = async () => {
+    setIsGenerating(true);
+    setToastMessage('Chef AI is drafting your menu...');
     setTimeout(() => {
-      setShiftIngredients([
-        { name: 'Prawns', quantity: 5, unit: 'kg', unitPrice: 250 },
-        { name: 'Short Ribs', quantity: 10, unit: 'kg', unitPrice: 180 }
-      ]);
-      setIsShiftCalculatorOpen(true);
-      setIsShiftLoading(false);
-    }, 1000);
+      setProposal({
+        menuTitle: "Gourmet Fusion Experience",
+        description: "A high-end culinary journey blending local ingredients with modern techniques.",
+        appetizers: ["Truffle Arancini", "Citrus Cured Salmon"],
+        mainCourses: ["Pan-Seared Sea Bass", "Herb-Crusted Rack of Lamb"],
+        sideDishes: ["Roasted Root Vegetables", "Wild Mushroom Risotto"],
+        dessert: ["Dark Chocolate Fondant", "Passion Fruit Sorbet"],
+        beveragePairings: [{ menuItem: "Sea Bass", pairingSuggestion: "Chardonnay" }],
+        miseEnPlace: ["Prep fish", "Make risotto base"],
+        serviceNotes: ["Serve hot", "Garnish with microgreens"],
+        deliveryLogistics: ["Refrigerated transport"],
+        shoppingList: [{ store: "Local Market", category: "Produce", item: "Mushrooms", quantity: "2kg" }],
+        recommendedEquipment: [{ item: "Sous Vide", description: "For lamb" }],
+        costPerHead: 450,
+        logistics: { deliveryFee: 250 }
+      });
+      setIsGenerating(false);
+      setToastMessage('Proposal generated successfully!');
+    }, 2000);
   };
-
-  const proposalRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (proposal) {
-      setIsTotalUpdating(true);
-      const timer = setTimeout(() => setIsTotalUpdating(false), 300);
-      return () => clearTimeout(timer);
-    }
-  }, [guests, proposal?.logistics?.deliveryFee]);
-
-  // --- WHOP LINKS ---
-  const whopLinks = {
-    commis: "https://whop.com/checkout/plan_1",
-    chefDePartie: "https://whop.com/checkout/plan_2",
-    sousChef: "https://whop.com/checkout/plan_3",
-    executive: "https://whop.com/checkout/plan_4"
-  };
-
-  // --- GENERATION LOGIC (MOCKED FOR DEMO) ---
-  async function generateProposal() {
-    if (isTrainingMode && (!apCost || !epYield)) {
-      setToast("Please enter AP Cost and EP Yield for QCTO compliance.");
-      return;
-    }
-
-    if (!recordGeneration()) return;
-
-    setLoading(true);
-    // Instant AI Generation Mock
-    setProposal(MOCK_PROPOSAL);
-    setProposalImage("https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=800&q=80");
-    setViewMode('generator');
-    setLoading(false);
-  }
 
   const downloadPDF = async () => {
-    if (!proposalRef.current) return;
-    const canvas = await html2canvas(proposalRef.current, { 
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#ffffff',
-      onclone: (clonedDoc) => {
-        const elements = clonedDoc.getElementsByTagName('*');
-        for (let i = 0; i < elements.length; i++) {
-          const el = elements[i] as HTMLElement;
-          const style = window.getComputedStyle(el);
-          // Convert OKLCH or any other color to standard RGB for PDF stability
-          // This fixes the Tailwind v4 OKLCH bug in html2canvas
-          if (style.color.includes('oklch') || style.color.includes('var')) {
-            el.style.color = 'rgb(17, 24, 39)';
-          }
-          if (style.backgroundColor.includes('oklch') || style.backgroundColor.includes('var')) {
-            el.style.backgroundColor = 'rgb(255, 255, 255)';
-          }
-        }
-      }
-    });
-    const imgData = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const imgProps = pdf.getImageProperties(imgData);
-    const pdfWidth = pdf.internal.pageSize.getWidth();
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-    pdf.save(`${proposal.title.replace(/\s+/g, '_')}_Proposal.pdf`);
+    const element = document.getElementById('proposal-content');
+    if (!element) return;
+    setToastMessage('Preparing your PDF...');
+    try {
+      const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgProps = pdf.getImageProperties(imgData);
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      pdf.save('CaterProAI_Proposal.pdf');
+      setToastMessage('PDF downloaded!');
+    } catch (err) { console.error(err); setToastMessage('PDF generation failed.'); }
   };
 
-  // --- RENDER HELPERS ---
   const renderView = () => {
     switch (viewMode) {
+      case 'generator':
+        return (
+          <div className="pt-32 pb-20 max-w-7xl mx-auto px-6">
+            <div className="text-center mb-16">
+              <h2 className="text-5xl font-black text-slate-900 tracking-tight uppercase italic mb-4">Menu Generator</h2>
+              <p className="text-slate-500 font-medium italic">Describe your event and let AI handle the heavy lifting.</p>
+            </div>
+            {!proposal ? (
+              <div className="max-w-2xl mx-auto bg-white p-12 rounded-[3rem] shadow-2xl border-2 border-slate-100">
+                <div className="space-y-8">
+                  <div><label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Event Type</label><input type="text" placeholder="e.g. Wedding..." className="w-full p-5 rounded-2xl border-2 border-slate-100 bg-slate-50 text-sm font-bold outline-none" /></div>
+                  <div><label className="block text-xs font-black uppercase tracking-widest text-slate-400 mb-3">Guest Count</label><input type="number" placeholder="50" className="w-full p-5 rounded-2xl border-2 border-slate-100 bg-slate-50 text-sm font-bold outline-none" /></div>
+                  <button onClick={generateProposal} disabled={isGenerating} className="w-full py-6 bg-slate-900 text-white rounded-2xl font-black uppercase tracking-widest text-sm hover:bg-emerald-600 transition-all shadow-xl disabled:opacity-50">{isGenerating ? 'Generating...' : 'Generate Proposal'}</button>
+                </div>
+              </div>
+            ) : (
+              <div className="animate-fade-in">
+                <ProposalDocument proposal={proposal} guests="50" formatCurrency={formatCurrency} />
+                <div className="flex justify-center gap-6">
+                  <button onClick={() => setProposal(null)} className="px-12 py-6 bg-white text-slate-900 border-2 border-slate-200 rounded-[2rem] font-black uppercase tracking-widest text-sm hover:border-emerald-500 transition-all shadow-xl">New Draft</button>
+                  <button onClick={downloadPDF} className="px-12 py-6 bg-slate-900 text-white rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-emerald-600 transition-all shadow-2xl">Download PDF</button>
+                  <button onClick={async () => {
+                    const ingredients = await mockGeminiService.extractIngredientsForShift(proposal.miseEnPlace, proposal.menuTitle);
+                    setShiftModal({ isOpen: true, ingredients, title: proposal.menuTitle });
+                  }} className="px-12 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-emerald-700 transition-all shadow-2xl">Shift Breakdown</button>
+                </div>
+              </div>
+            )}
+            <RecipeGenerator dietaryRestrictions={[]} currency="R" />
+          </div>
+        );
       case 'calculator':
         return (
-          <div className="max-w-7xl mx-auto px-6 py-12">
-            <div className="mb-12 flex justify-between items-end">
-              <div>
-                <h2 className="text-6xl font-black text-charcoal dark:text-white tracking-tighter uppercase mb-2">Plate Costing</h2>
-                <p className="text-charcoal dark:text-white font-bold text-xl">Precision engineering for your culinary margins.</p>
-              </div>
-              <button onClick={() => setViewMode('generator')} className="px-8 py-4 bg-slate-100 dark:bg-slate-800 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all">
-                Back to Generator
-              </button>
-            </div>
+          <div className="pt-32 pb-20 max-w-4xl mx-auto px-6">
+            <div className="text-center mb-16"><h2 className="text-5xl font-black text-slate-900 tracking-tight uppercase italic mb-4">Cost Calculator</h2></div>
             <PlateCostCalculator ingredients={ingredients} />
           </div>
         );
-      case 'landing':
-        return (
-          <div className="min-h-screen bg-slate-50 text-charcoal flex flex-col">
-            <HeroSection onStart={() => setViewMode('generator')} />
-
-            {/* QCTO Student Success Guide Section */}
-            <div className="max-w-7xl mx-auto px-6 py-24 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 mask-triangle -z-10" />
-              <div className="bg-dark p-12 rounded-[4rem] flex flex-col md:flex-row items-center gap-12 border border-emerald-500/30 shadow-[0_40px_80px_rgba(0,0,0,0.3)]">
-                <div className="w-24 h-24 bg-emerald-500/20 rounded-[2rem] flex items-center justify-center shrink-0 border border-emerald-500/30">
-                  <span className="text-4xl">🎓</span>
-                </div>
-                <div>
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-4">
-                    <span className="text-emerald-500">⚡</span>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500">Educational Excellence</span>
-                  </div>
-                  <h3 className="text-4xl font-anchor tracking-tighter uppercase mb-6 text-white">QCTO Student Success Guide</h3>
-                  <p className="text-white font-medium leading-relaxed text-xl">
-                    CaterProAi is specifically engineered to support South African TVET students. Use the <span className="text-emerald-400 font-bold">'Training Mode'</span> to map your practicals to QCTO Occupational Certificate: Chef (ID 101697) modules. Every proposal automatically generates the Costing (ZAR), AP/EP Yield Analysis, and HACCP documentation required for Level 5 Assessment compliance.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Dual-Tier Section */}
-            <div className="max-w-7xl mx-auto w-full px-6 py-24">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                {/* For Students */}
-                <div className="bg-white p-16 rounded-[4rem] border border-emerald-500/30 hover:shadow-2xl transition-all group relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 mask-triangle -z-10" />
-                  <div className="w-20 h-20 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center mb-10 group-hover:scale-110 transition-transform border border-emerald-500/20">
-                    <span className="text-4xl">🎓</span>
-                  </div>
-                  <h3 className="text-4xl font-anchor mb-6 tracking-tighter text-charcoal">For Students</h3>
-                  <p className="text-charcoal font-medium mb-10 leading-relaxed text-lg">
-                    Master the art of food math and international standards with our specialized student toolkit.
-                  </p>
-                  <ul className="space-y-6 mb-12">
-                    <li className="flex items-center gap-4 text-base font-bold text-charcoal">
-                      <div className="w-2 h-2 rounded-full bg-emerald-600" />
-                      Yield Sandbox for precision testing
-                    </li>
-                    <li className="flex items-center gap-4 text-base font-bold text-charcoal">
-                      <div className="w-2 h-2 rounded-full bg-emerald-600" />
-                      International Curriculum Modules
-                    </li>
-                    <li className="flex items-center gap-4 text-base font-bold text-charcoal">
-                      <div className="w-2 h-2 rounded-full bg-emerald-600" />
-                      PoE Admin Automation
-                    </li>
-                  </ul>
-                  <button onClick={() => setViewMode('recipe-lab')} className="flex items-center gap-3 text-emerald-700 font-black uppercase tracking-widest text-xs group-hover:gap-5 transition-all">
-                    <span className="text-emerald-700">Explore Recipe Lab</span> <span className="text-emerald-700">→</span>
-                  </button>
-                </div>
-
-                {/* For Professionals */}
-                <div className="bg-dark p-16 rounded-[4rem] border border-emerald-500/30 hover:shadow-2xl transition-all group text-white relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 mask-triangle -z-10" />
-                  <div className="w-20 h-20 bg-emerald-500/20 rounded-[2rem] flex items-center justify-center mb-10 group-hover:scale-110 transition-transform border border-emerald-500/30">
-                    <span className="text-4xl">💼</span>
-                  </div>
-                  <h3 className="text-4xl font-anchor mb-6 tracking-tighter text-white">For Professionals</h3>
-                  <p className="text-white font-medium mb-10 leading-relaxed text-lg">
-                    Scale your catering operation with enterprise-grade intelligence and automated logistics.
-                  </p>
-                  <ul className="space-y-6 mb-12">
-                    <li className="flex items-center gap-4 text-base font-bold text-white">
-                      <div className="w-2 h-2 rounded-full bg-emerald-400" />
-                      Live ZAR Costing & Smart Shopping
-                    </li>
-                    <li className="flex items-center gap-4 text-base font-bold text-white">
-                      <div className="w-2 h-2 rounded-full bg-emerald-400" />
-                      HACCP Safety Automation
-                    </li>
-                    <li className="flex items-center gap-4 text-base font-bold text-white">
-                      <div className="w-2 h-2 rounded-full bg-emerald-400" />
-                      One-Click PDF Proposal Exports
-                    </li>
-                  </ul>
-                  <button onClick={() => setViewMode('generator')} className="flex items-center gap-3 text-emerald-400 font-black uppercase tracking-widest text-xs group-hover:gap-5 transition-all">
-                    Launch Professional Suite <span>→</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Culinary Excellence Section */}
-            <div className="bg-slate-100/50 py-32 relative">
-              <div className="absolute inset-0 bg-emerald-500/5 mask-triangle opacity-20 -z-10" />
-              <div className="max-w-7xl mx-auto px-6">
-                <div className="flex flex-col md:flex-row items-center justify-between mb-20 gap-12">
-                  <div className="max-w-2xl">
-                    <h3 className="text-5xl font-anchor tracking-tighter uppercase mb-6 text-charcoal">Culinary Excellence</h3>
-                    <p className="text-charcoal font-medium text-xl leading-relaxed">
-                      Precision tools for the modern executive chef. Elevate your operations with AI-driven intelligence and Michelin-star standards.
-                    </p>
-                  </div>
-                  <div className="flex gap-6">
-                    <div className="w-4 h-4 rounded-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
-                    <div className="w-4 h-4 rounded-full bg-slate-300" />
-                    <div className="w-4 h-4 rounded-full bg-slate-300" />
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                  {[
-                    { title: "Menu Intelligence", desc: "AI-driven menu engineering and profit margin analysis.", icon: <span className="text-3xl">🍴</span> },
-                    { title: "Operational Safety", desc: "Automated HACCP checklists and safety protocol generation.", icon: <span className="text-3xl">🛡️</span> },
-                    { title: "Costing Precision", desc: "Live ZAR costing and smart shopping list automation.", icon: <span className="text-3xl">🧮</span> }
-                  ].map((feature, i) => (
-                    <div key={i} className="bg-dark p-12 rounded-[3.5rem] border border-emerald-500/30 shadow-2xl hover:shadow-3xl transition-all group">
-                      <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center mb-10 group-hover:bg-emerald-500/20 transition-colors border border-emerald-500/20">
-                        {feature.icon}
-                      </div>
-                  <h4 className="text-2xl font-anchor mb-6 tracking-tighter text-white">{feature.title}</h4>
-                      <p className="text-white font-medium text-base leading-relaxed">
-                        {feature.desc}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Common Culinary Queries Section */}
-            <div className="bg-white py-32">
-              <div className="max-w-5xl mx-auto px-6">
-                <div className="bg-dark p-16 rounded-[4rem] border border-emerald-500/30 shadow-3xl relative overflow-hidden">
-                  <div className="absolute top-0 left-0 w-64 h-64 bg-emerald-500/5 mask-triangle -z-10" />
-                  <h2 className="text-5xl font-anchor tracking-tighter uppercase mb-16 text-center text-white">Common Culinary Queries</h2>
-                  <div className="grid md:grid-cols-2 gap-16">
-                    <div>
-                      <h3 className="text-2xl font-anchor mb-6 tracking-tighter text-emerald-400">What is the best AI tool for South African catering?</h3>
-                      <p className="text-white font-medium leading-relaxed text-lg">
-                        <span className="font-bold text-white">CaterPro</span><span className="font-medium text-emerald-400">Ai</span> provides live ZAR costing and automated HACCP safety for professional chefs.
-                      </p>
-                    </div>
-                    <div>
-                      <h3 className="text-2xl font-anchor mb-6 tracking-tighter text-emerald-400">How do I calculate culinary yield for City & Guilds exams?</h3>
-                      <p className="text-white font-medium leading-relaxed text-lg">
-                        Use the <span className="font-bold text-white">CaterPro</span><span className="font-medium text-emerald-400">Ai</span> Student Sandbox to apply the formula EP = AP x Yield% with 100% accuracy.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 'generator':
-        if (proposal) {
-          return (
-            <div className="bg-slate-50 min-h-screen pb-20">
-              <ProposalDocument 
-                proposal={proposal}
-                proposalImage={proposalImage}
-                eventType={eventType}
-                guests={guests}
-                formatCurrency={formatCurrency}
-              />
-            </div>
-          );
-        }
-
-        return (
-          <div className="min-h-screen bg-slate-50 p-6 py-24">
-            <div className="max-w-7xl mx-auto golden-triangle-grid gap-12">
-              {/* Top Left: Logo/Brand Rhyming */}
-              <div className="bg-white dark:bg-slate-900 p-12 rounded-[4rem] border border-slate-200 dark:border-slate-800 shadow-2xl relative overflow-hidden flex flex-col justify-center items-center text-center">
-                <div className="absolute top-0 left-0 w-32 h-32 bg-emerald-500/5 mask-logo -z-10" />
-                <div className="w-24 h-24 bg-emerald-500/10 rounded-[2rem] flex items-center justify-center mb-6 border border-emerald-500/20">
-                  <span className="text-5xl">👨‍🍳</span>
-                </div>
-                <h2 className="text-3xl font-anchor text-charcoal dark:text-white tracking-tighter uppercase mb-2">CaterProAi</h2>
-                <p className="text-charcoal dark:text-white font-black text-[10px] uppercase tracking-[0.4em]">Elite Engineering</p>
-              </div>
-
-              {/* Middle: Command Center (The Core) */}
-              <div className="md:col-span-2 bg-dark p-16 rounded-[4rem] shadow-[0_50px_100px_rgba(0,0,0,0.3)] border border-emerald-500/30 relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 mask-triangle -z-10" />
-              <h2 className="text-5xl font-anchor text-white mb-4 text-center tracking-tighter uppercase">Command Center</h2>
-              <p className="text-gold text-center mb-12 uppercase tracking-[0.5em] text-[10px] font-black">Chef Operations v12.0 • Luxury Edition</p>
-              
-              <div className="flex justify-center mb-12">
-                <button 
-                  onClick={() => setIsTrainingMode(!isTrainingMode)}
-                  className={`flex items-center gap-4 px-8 py-4 rounded-[2rem] transition-all border-2 ${isTrainingMode ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400 shadow-xl' : 'bg-white/5 border-slate-200 dark:border-white/10 text-charcoal dark:text-white'}`}
-                >
-                  <span className="text-xl">🎓</span>
-                  <span className="font-black uppercase tracking-widest text-xs">Training Mode {isTrainingMode ? 'ON' : 'OFF'}</span>
-                  <div className={`w-12 h-6 rounded-full relative transition-colors ${isTrainingMode ? 'bg-emerald-500' : 'bg-slate-700'}`}>
-                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${isTrainingMode ? 'left-7' : 'left-1'}`} />
-                  </div>
-                </button>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-12">
-                <div className="space-y-10">
-                  <div>
-                    <label className="text-[10px] font-black text-gold uppercase tracking-[0.3em] ml-2 mb-2 block">Event Selection</label>
-                    <select 
-                      value={eventType} 
-                      onChange={e => setEventType(e.target.value)} 
-                      className="w-full bg-slate-900 p-6 rounded-[2rem] text-white outline-none border border-slate-800 focus:border-emerald-500 transition-all appearance-none cursor-pointer font-bold text-sm shadow-sm"
-                    >
-                      <option>Corporate Event</option>
-                      <option>Wedding Banquet</option>
-                      <option>Private Fine Dining</option>
-                      <option>Cocktail Soirée</option>
-                      <option>Boutique Catering</option>
-                      <option>Product Launch</option>
-                      <option>Gala Dinner</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="text-[10px] font-black text-gold uppercase tracking-[0.3em] ml-2 mb-2 block">Guest Volume</label>
-                    <select 
-                      value={guests} 
-                      onChange={e => setGuests(e.target.value)} 
-                      className="w-full bg-slate-900 p-6 rounded-[2rem] text-white outline-none border border-slate-800 focus:border-emerald-500 transition-all appearance-none cursor-pointer font-bold text-sm shadow-sm"
-                    >
-                      <option value="10">1-10 Guests</option>
-                      <option value="20">11-20 Guests</option>
-                      <option value="50">21-50 Guests</option>
-                      <option value="100">51-100 Guests</option>
-                      <option value="200">101-200 Guests</option>
-                      <option value="500">200+ Guests</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="space-y-10">
-                  <div>
-                    <label className="text-[10px] font-black text-gold uppercase tracking-[0.3em] ml-2 mb-2 block">Culinary Style</label>
-                    <input 
-                      type="text"
-                      value={style} 
-                      onChange={e => setStyle(e.target.value)} 
-                      placeholder="e.g., Thai Fusion Fine Dining"
-                      className="w-full bg-slate-900 p-6 rounded-[2rem] text-white outline-none border border-slate-800 focus:border-emerald-500 transition-all font-bold text-sm shadow-sm"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-black text-gold uppercase tracking-[0.3em] ml-2 mb-2 block">Dietary Requirements</label>
-                    <textarea 
-                      value={dietary}
-                      onChange={e => setDietary(e.target.value)}
-                      placeholder="Type specific requirements here..."
-                      className="w-full bg-slate-900 p-6 rounded-[2rem] text-white outline-none border border-slate-800 focus:border-emerald-500 transition-all h-[178px] resize-none font-bold text-sm shadow-sm"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {isTrainingMode && (
-                <div className="mt-12 p-10 bg-emerald-500/10 rounded-[3rem] border border-emerald-500/30 animate-in fade-in slide-in-from-top-4">
-                  <div className="flex items-center gap-4 mb-8 text-emerald-400">
-                    <span className="text-xl">%</span>
-                    <h3 className="font-anchor uppercase tracking-widest text-sm">QCTO Level 5 Waste/Yield Input</h3>
-                  </div>
-                  <div className="grid md:grid-cols-2 gap-8">
-                    <div>
-                      <label className="text-[10px] font-black text-gold uppercase tracking-[0.3em] ml-2 mb-2 block">AP Cost (Total R)</label>
-                      <input 
-                        type="number"
-                        value={apCost}
-                        onChange={e => setApCost(e.target.value)}
-                        placeholder="e.g., 2500"
-                        className="w-full bg-slate-800 p-5 rounded-2xl text-white outline-none border border-slate-700 focus:border-emerald-500 transition-all font-bold text-sm shadow-sm"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] font-black text-gold uppercase tracking-[0.3em] ml-2 mb-2 block">Estimated EP Yield (%)</label>
-                      <input 
-                        type="number"
-                        value={epYield}
-                        onChange={e => setEpYield(e.target.value)}
-                        placeholder="e.g., 75"
-                        className="w-full bg-slate-800 p-5 rounded-2xl text-white outline-none border border-slate-700 focus:border-emerald-500 transition-all font-bold text-sm shadow-sm"
-                      />
-                    </div>
-                  </div>
-                  <p className="text-[10px] text-charcoal dark:text-white mt-6 italic font-medium text-center">
-                    * Mandatory for QCTO ID 101697 Module 5 compliance.
-                  </p>
-                </div>
-              )}
-
-              <button 
-                onClick={generateProposal} 
-                disabled={loading} 
-                className="w-full bg-emerald-600 text-white py-8 rounded-[2.5rem] font-anchor uppercase text-lg tracking-[0.2em] hover:bg-emerald-500 transition-all disabled:opacity-50 flex items-center justify-center gap-6 mt-16 shadow-[0_30px_60px_rgba(0,0,0,0.4)] group"
-              >
-                {loading ? (
-                  <>
-                    <span className="animate-spin text-2xl">⏳</span>
-                    Engineering...
-                  </>
-                ) : (
-                  <>
-                    <span className="text-2xl group-hover:scale-125 transition-transform">⚡</span>
-                    Launch AI Culinary Planner
-                  </>
-                )}
-              </button>
-            </div>
-            <div className="w-full max-w-3xl mt-12">
-              <StudentYieldCalculator />
-            </div>
-          </div>
-        </div>
-      );
-
-      case 'recipe-lab':
-        return (
-          <div className="min-h-screen bg-white dark:bg-dark p-6 pt-24">
-            <div className="max-w-4xl mx-auto">
-              <button 
-                onClick={() => setViewMode('landing')}
-                className="mb-8 flex items-center gap-2 text-charcoal dark:text-white font-bold uppercase tracking-widest text-xs hover:text-emerald-600 transition-colors"
-              >
-                <span className="rotate-180">→</span> Back to Dashboard
-              </button>
-              <RecipeGenerator dietaryRestrictions={[]} currency="R" />
-            </div>
-          </div>
-        );
-
-      case 'pricing':
-        return <PricingPage onSelectPlan={selectPlan} whopLinks={whopLinks} />;
-      
-      case 'library':
-        return <CostingLibrary />;
-      
-      case 'partner':
-        return <PartnerDashboard />;
-      
-      case 'privacy':
-        return <PrivacyPolicy onBack={() => setViewMode('landing')} />;
-      
-      case 'terms':
-        return <TermsOfService onBack={() => setViewMode('landing')} />;
-
-      case 'success':
-        return (
-          <SuccessPage 
-            proposal={proposal}
-            onNewProposal={() => {
-              setProposal(null);
-              setProposalImage(null);
-              setViewMode('generator');
-            }}
-            onExit={() => setViewMode('landing')}
-            onDownloadPDF={downloadPDF}
-          />
-        );
-
-      default:
-        return null;
+      case 'pricing': return <PricingPage onSelectPlan={handleSelectPlan} />;
+      default: return <HeroSection onStart={handleStart} onOpenModal={handleOpenModal} />;
     }
   };
 
   return (
-    <div className="min-h-screen bg-white flex flex-col font-sans relative overflow-x-hidden">
-      {/* Navbar Integration */}
-      <Navbar 
-        whopUrl={whopLinks.executive}
-        isDarkMode={false} // Force light mode as requested
-        onThemeToggle={() => {}} // Disabled for now
-        onOpenSaved={() => {}} // Placeholder
-        savedCount={0}
-        onOpenQrCode={() => {}}
-        onOpenInstall={() => {}}
-        onViewLanding={() => setViewMode('landing')}
-        onViewPricing={() => setViewMode('pricing')}
-        onViewLibrary={() => setViewMode('library')}
-        onViewCalculator={() => setViewMode('calculator')}
-        onViewPartner={() => setViewMode('partner')}
-        onViewSuccess={() => setViewMode('success')}
-      />
-
-      {/* Main Content */}
-      <main className="flex-grow relative">
-        {renderView()}
-        
-        <AiChatBot 
-          onAttemptAccess={() => {
-            if (!canAccessFeature('aiChatBot')) {
-              setViewMode('pricing');
-              return false;
-            }
-            return true;
-          }}
-          isPro={canAccessFeature('aiChatBot')}
+    <div className="min-h-screen bg-white font-sans selection:bg-emerald-200">
+      <Navbar onViewChange={setViewMode} currentView={viewMode} />
+      <main>{renderView()}</main>
+      <Footer onViewChange={setViewMode} />
+      <Toast message={toastMessage} onDismiss={() => setToastMessage(null)} />
+      <AiChatBot onAttemptAccess={() => true} isPro={true} />
+      {activeModal && (
+        <QuickInfoModal 
+          isOpen={activeModal.isOpen} 
+          onClose={() => setActiveModal(null)} 
+          title={activeModal.type === 'cost' ? 'Live Costing Engine' : activeModal.type === 'waste' ? 'Waste Management' : 'HACCP Compliance'}
+          description={activeModal.type === 'cost' ? 'Real-time ingredient price tracking.' : activeModal.type === 'waste' ? 'AI-driven inventory tracking.' : 'Digital safety logs.'}
+          type={activeModal.type}
         />
-
-        {/* Hidden Proposal for PDF Export */}
-        {proposal && (
-          <div 
-            ref={proposalRef} 
-            className="fixed left-[-9999px] top-0 w-[1200px] bg-white pointer-events-none"
-            aria-hidden="true"
-          >
-            <ProposalDocument 
-              proposal={proposal}
-              proposalImage={proposalImage}
-              eventType={eventType}
-              guests={guests}
-              formatCurrency={formatCurrency}
-              isExporting={true}
-            />
-          </div>
-        )}
-      </main>
-
-      {/* Footer Integration */}
-      <Footer 
-        onViewPrivacy={() => setViewMode('privacy')}
-        onViewTerms={() => setViewMode('terms')}
-      />
-
-      {/* Result View Header */}
-      {viewMode === 'generator' && proposal && (
-        <div className="fixed top-24 transition-all duration-500 z-[55] flex flex-col sm:flex-row gap-3 right-4 md:right-8">
-          <button 
-            onClick={handleOpenShiftCalculator}
-            disabled={isShiftLoading}
-            className="bg-dark text-white px-6 py-3 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:bg-dark-soft transition-all flex items-center gap-2 shadow-2xl border border-emerald-500/20 disabled:opacity-50"
-          >
-            {isShiftLoading ? <span className="animate-spin text-lg">⏳</span> : <span className="text-lg">🧮</span>}
-            <span className="whitespace-nowrap">Shift Calculator</span>
-          </button>
-          <button 
-            onClick={downloadPDF}
-            className="bg-white text-charcoal px-6 py-3 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:bg-slate-100 transition-all flex items-center gap-2 shadow-2xl border border-slate-200"
-          >
-            <span className="text-lg">📥</span> <span className="whitespace-nowrap">Export PDF</span>
-          </button>
-          <button 
-            onClick={() => setViewMode('success')}
-            className="bg-gold text-charcoal px-8 py-3 rounded-xl font-black text-[10px] sm:text-xs uppercase tracking-widest hover:scale-105 transition-all shadow-2xl"
-          >
-            <span className="whitespace-nowrap">My Results</span>
-          </button>
-        </div>
       )}
-
-      <ShiftCalculatorModal 
-        isOpen={isShiftCalculatorOpen}
-        onClose={() => setIsShiftCalculatorOpen(false)}
-        initialIngredients={shiftIngredients}
-        menuTitle={proposal?.menuTitle || ''}
-      />
-
-      <Toast 
-        message={toast || ''} 
-        onDismiss={() => setToast(null)} 
-      />
+      {paymentModal && (
+        <PaymentModal isOpen={paymentModal.isOpen} onClose={() => setPaymentModal(null)} plan={paymentModal.plan} price={paymentModal.price} onConfirm={() => { setPaymentModal(null); setToastMessage(`Welcome to ${paymentModal.plan}!`); }} />
+      )}
+      {shiftModal && (
+        <ShiftCalculatorModal isOpen={shiftModal.isOpen} onClose={() => setShiftModal(null)} initialIngredients={shiftModal.ingredients} menuTitle={shiftModal.title} />
+      )}
     </div>
   );
 }
