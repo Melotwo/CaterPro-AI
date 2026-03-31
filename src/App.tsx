@@ -488,7 +488,7 @@ export const useAppSubscription = () => {
 // --- END INLINED INFRASTRUCTURE ---
 
 // --- INFRASTRUCTURE IMPORTS ---
-import PricingPage from './PricingPage';
+import PricingPage from './Pricingpage';
 import CostingLibrary from './CostingLibrary';
 import PartnerDashboard from './PartnerDashboard';
 import PrivacyPolicy from './PrivacyPolicy';
@@ -551,9 +551,11 @@ export default function App() {
   const [viewMode, setViewMode] = useState<'landing' | 'generator' | 'pricing' | 'library' | 'privacy' | 'partner' | 'terms' | 'success' | 'recipe-lab' | 'calculator'>('landing');
   const [ingredients, setIngredients] = useState<IngredientCost[]>([]);
 
+  const DEMO_USER_ID = 'DEMO_USER';
+
   useEffect(() => {
     if (!db) return;
-    const q = query(collection(db, 'ingredientCosts'));
+    const q = query(collection(db, 'ingredientCosts'), where('userId', '==', DEMO_USER_ID));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       setIngredients(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as IngredientCost)));
     });
