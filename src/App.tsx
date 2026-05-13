@@ -7,7 +7,7 @@ import { getAuth } from 'firebase/auth';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { motion, AnimatePresence } from 'framer-motion';
-import { generateMenuFromApi, generateMenuImageFromApi } from './geminiService';
+import { generateMenuFromApi, generateMenuImageFromApi } from './services/geminiService'
 
 // --- TYPES & INTERFACES ---
 
