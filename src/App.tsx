@@ -7,6 +7,7 @@ import { getAuth } from 'firebase/auth';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { motion, AnimatePresence } from 'framer-motion';
+import { generateMenuFromApi, generateMenuImageFromApi } from './geminiService';
 
 // --- TYPES & INTERFACES ---
 
@@ -26,6 +27,7 @@ export interface MenuItem {
   cost: number; // Internal cost to produce
   price: number; // Price charged to client
   recipe?: string[];
+  ingredients?: any[];
 }
 
 export interface Menu {
@@ -41,6 +43,7 @@ export interface Menu {
   showDeposit?: boolean;
   manualTotal?: number;
   manualPerHead?: number;
+  shoppingList?: ShiftIngredient[];
 }
 
 export interface Message {
@@ -54,6 +57,25 @@ export interface ShiftIngredient {
   unit: string;
   unitPrice: number;
   linkedDish?: string;
+}
+
+export interface EngineeringItem {
+  id: string;
+  name: string;
+  category: 'Appetizers' | 'Main Courses' | 'Desserts';
+  price: number;
+  unitsSold: number;
+  ingredients: { name: string; cost: number; qty: number; unit: string }[];
+  totalCost: number;
+  foodCostPct: number;
+  margin: number;
+}
+
+export interface DashboardStats {
+  totalProposals: number;
+  totalRevenue: number;
+  avgMargin: number;
+  lastEventType: string;
 }
 
 export type SubscriptionPlan = 'free' | 'commis' | 'chef-de-partie' | 'sous-chef' | 'executive';
@@ -123,22 +145,55 @@ const NoiseOverlay = () => (
 );
 
 const Logo = ({ className = "" }: { className?: string }) => (
-  <div className={`flex items-center gap-3 ${className}`}>
-    <div className="relative w-12 h-12 flex items-center justify-center">
-      {/* Circular 'C' with Chef Hat */}
-      <div className="absolute inset-0 border-2 border-emerald-500 rounded-full" />
-      <div className="absolute inset-0 flex items-center justify-center text-2xl font-black text-emerald-500">
-        C
-      </div>
-      <div className="absolute -top-1 -right-1 bg-slate-950 rounded-full p-0.5">
-        <span className="text-lg">👨‍🍳</span>
+  <div className={`flex items-center gap-4 ${className}`}>
+    <div className="h-12 w-12 rounded-full border-2 border-emerald-500 overflow-hidden bg-white flex items-center justify-center shadow-lg relative">
+      <div className="flex flex-col items-center justify-center scale-110">
+        <span className="text-2xl leading-none">👨‍🍳</span>
+        <span className="text-3xl font-black text-emerald-600 leading-none -mt-2">C</span>
       </div>
     </div>
-    <span className="text-3xl font-black tracking-tighter uppercase italic text-white">
+    <span className="text-2xl font-black tracking-tighter uppercase italic text-white">
       CaterPro<span className="text-emerald-500">AI</span>
     </span>
   </div>
 );
+
+const SocialShareHub = ({ title }: { title: string }) => {
+  const url = "caterproai.com";
+  const text = `Check out this professional catering proposal from CaterProAi: ${title} - View at ${url}`;
+  
+  const share = (platform: string) => {
+    let link = "";
+    switch(platform) {
+      case 'linkedin': link = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&summary=${encodeURIComponent(text)}`; break;
+      case 'facebook': link = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`; break;
+      case 'whatsapp': link = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`; break;
+      case 'x': link = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`; break;
+      case 'instagram': link = `https://www.instagram.com/`; break;
+      default: break;
+    }
+    if (link) window.open(link, '_blank');
+  };
+
+  return (
+    <div className="mt-12 p-10 bg-slate-800/40 rounded-[3rem] border border-white/10 text-center">
+      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-8 opacity-60">Share Proposal Hub</p>
+      <div className="flex flex-wrap justify-center gap-4">
+        {[
+          { id: 'linkedin', label: 'LinkedIn', color: 'bg-blue-600', icon: '🔗' },
+          { id: 'facebook', label: 'Facebook', color: 'bg-blue-800', icon: '👥' },
+          { id: 'instagram', label: 'Instagram', color: 'bg-pink-600', icon: '📸' },
+          { id: 'whatsapp', label: 'WhatsApp', color: 'bg-green-600', icon: '💬' },
+          { id: 'x', label: 'X', color: 'bg-black', icon: '✖️' }
+        ].map(p => (
+          <button key={p.id} onClick={() => share(p.id)} className={`${p.color} text-white px-6 py-3 rounded-2xl font-black uppercase text-[10px] flex items-center gap-2 hover:scale-105 transition-transform shadow-xl`}>
+            <span>{p.icon}</span> {p.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const ProfitGauge: React.FC<{ margin: number }> = ({ margin }) => {
   const rotation = (Math.min(Math.max(margin, 0), 100) / 100) * 180 - 90;
@@ -263,7 +318,7 @@ const PlateCostEngine: React.FC<{ ingredients: IngredientCost[]; onUpdate?: (cos
     <div className="bg-slate-900/40 backdrop-blur-xl p-8 rounded-[4rem] border border-white/10 shadow-2xl">
       <div className="flex items-center gap-4 mb-8">
         <div className="w-10 h-10 bg-sky-500/20 rounded-xl flex items-center justify-center text-sky-400 text-xl">🧮</div>
-        <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Quick Costing</h3>
+        <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Small Batch Costing</h3>
       </div>
       <div className="space-y-6">
         <select onChange={(e) => { if (e.target.value) setSelected([...selected, { id: e.target.value, quantity: 1 }]); e.target.value = ''; }} className="w-full p-4 rounded-2xl bg-slate-800 text-white font-bold outline-none border border-white/10 text-sm">
@@ -289,6 +344,255 @@ const PlateCostEngine: React.FC<{ ingredients: IngredientCost[]; onUpdate?: (cos
     </div>
   );
 };
+
+const EnhancedPlateCostCalculator: React.FC<{ onAddToMatrix: (item: EngineeringItem) => void }> = ({ onAddToMatrix }) => {
+  const [dishName, setDishName] = useState('');
+  const [category, setCategory] = useState<'Appetizers' | 'Main Courses' | 'Desserts'>('Main Courses');
+  const [menuPrice, setMenuPrice] = useState(0);
+  const [unitsSold, setUnitsSold] = useState(0);
+  const [ingredients, setIngredients] = useState<{ name: string; cost: number; qty: number; unit: string }[]>([
+    { name: '', cost: 0, qty: 0, unit: 'kg' }
+  ]);
+
+  const plateCost = ingredients.reduce((sum, ing) => sum + (ing.cost * ing.qty), 0);
+  const foodCostPct = menuPrice > 0 ? (plateCost / menuPrice) * 100 : 0;
+  const margin = menuPrice - plateCost;
+
+  const addIngredient = () => setIngredients([...ingredients, { name: '', cost: 0, qty: 0, unit: 'kg' }]);
+  const removeIngredient = (index: number) => setIngredients(ingredients.filter((_, i) => i !== index));
+  const updateIngredient = (index: number, field: string, value: any) => {
+    const n = [...ingredients];
+    n[index] = { ...n[index], [field]: value };
+    setIngredients(n);
+  };
+
+  const handleAdd = () => {
+    if (!dishName) return;
+    onAddToMatrix({
+      id: Math.random().toString(36).substr(2, 9),
+      name: dishName,
+      category,
+      price: menuPrice,
+      unitsSold,
+      ingredients,
+      totalCost: plateCost,
+      foodCostPct,
+      margin
+    });
+    setDishName('');
+    setMenuPrice(0);
+    setUnitsSold(0);
+    setIngredients([{ name: '', cost: 0, qty: 0, unit: 'kg' }]);
+  };
+
+  return (
+    <div className="bg-slate-900/40 backdrop-blur-xl p-12 rounded-[4rem] border border-white/10 shadow-2xl space-y-10">
+      <div className="flex items-center gap-4">
+        <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-400 text-2xl">⚖️</div>
+        <h3 className="text-3xl font-black text-white uppercase tracking-tighter">Enhanced Cost Engine</h3>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="space-y-4">
+          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 opacity-60">Dish Identity</label>
+          <input type="text" placeholder="Dish Name" value={dishName} onChange={(e) => setDishName(e.target.value)} className="w-full p-4 rounded-2xl bg-slate-800 border border-white/10 text-white font-bold outline-none" />
+          <select value={category} onChange={(e) => setCategory(e.target.value as any)} className="w-full p-4 rounded-2xl bg-slate-800 border border-white/10 text-white font-bold outline-none">
+            <option value="Appetizers">Appetizers</option>
+            <option value="Main Courses">Main Courses</option>
+            <option value="Desserts">Desserts</option>
+          </select>
+        </div>
+        <div className="space-y-4">
+          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 opacity-60">Sales Performance</label>
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <p className="text-[8px] font-black text-slate-500 uppercase mb-2">Price (ZAR)</p>
+              <input type="number" value={menuPrice} onChange={(e) => setMenuPrice(Number(e.target.value))} className="w-full p-4 rounded-2xl bg-slate-800 border border-white/10 text-white font-bold outline-none" />
+            </div>
+            <div className="flex-1">
+              <p className="text-[8px] font-black text-slate-500 uppercase mb-2">Units Sold</p>
+              <input type="number" value={unitsSold} onChange={(e) => setUnitsSold(Number(e.target.value))} className="w-full p-4 rounded-2xl bg-slate-800 border border-white/10 text-white font-bold outline-none" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 opacity-60">Ingredient Breakdown</label>
+          <button onClick={addIngredient} className="text-emerald-400 font-bold text-xs hover:text-emerald-300 transition-colors">+ Add Row</button>
+        </div>
+        {ingredients.map((ing, idx) => (
+          <div key={idx} className="flex flex-wrap gap-4 items-end p-6 bg-slate-950/30 rounded-3xl border border-white/5">
+            <div className="flex-1 min-w-[200px]">
+              <p className="text-[8px] font-black text-slate-500 uppercase mb-2">Ingredient</p>
+              <input type="text" value={ing.name} onChange={(e) => updateIngredient(idx, 'name', e.target.value)} className="w-full bg-transparent border-b border-white/10 px-0 py-2 font-bold text-white outline-none" />
+            </div>
+            <div className="w-24">
+              <p className="text-[8px] font-black text-slate-500 uppercase mb-2">Cost (ZAR)</p>
+              <input type="number" value={ing.cost} onChange={(e) => updateIngredient(idx, 'cost', Number(e.target.value))} className="w-full bg-transparent border-b border-white/10 px-0 py-2 font-bold text-white outline-none text-center" />
+            </div>
+            <div className="w-20">
+              <p className="text-[8px] font-black text-slate-500 uppercase mb-2">Qty</p>
+              <input type="number" value={ing.qty} onChange={(e) => updateIngredient(idx, 'qty', Number(e.target.value))} className="w-full bg-transparent border-b border-white/10 px-0 py-2 font-bold text-white outline-none text-center" />
+            </div>
+            <div className="w-16">
+              <p className="text-[8px] font-black text-slate-500 uppercase mb-2">Unit</p>
+              <select value={ing.unit} onChange={(e) => updateIngredient(idx, 'unit', e.target.value)} className="w-full bg-transparent border-b border-white/10 px-0 py-2 font-bold text-white outline-none cursor-pointer">
+                <option value="kg">kg</option>
+                <option value="L">L</option>
+                <option value="ea">ea</option>
+              </select>
+            </div>
+            {ingredients.length > 1 && (
+              <button onClick={() => removeIngredient(idx)} className="pb-2 text-red-400/50 hover:text-red-400 transition-colors">🗑️</button>
+            )}
+          </div>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-10 border-t border-white/10">
+        <div className="bg-slate-950/50 p-6 rounded-3xl border border-white/5">
+          <p className="text-[10px] font-black text-slate-500 uppercase mb-2">Plate Cost</p>
+          <h4 className="text-3xl font-black text-white">R {plateCost.toFixed(2)}</h4>
+        </div>
+        <div className="bg-emerald-600/10 p-6 rounded-3xl border border-emerald-500/20">
+          <p className="text-[10px] font-black text-emerald-500 uppercase mb-2">Food Cost %</p>
+          <h4 className="text-3xl font-black text-emerald-400">{foodCostPct.toFixed(1)}%</h4>
+        </div>
+        <div className="bg-sky-600/10 p-6 rounded-3xl border border-sky-500/20">
+          <p className="text-[10px] font-black text-sky-500 uppercase mb-2">Contribution Margin</p>
+          <h4 className="text-3xl font-black text-sky-400">R {margin.toFixed(2)}</h4>
+        </div>
+      </div>
+
+      <button onClick={handleAdd} className="w-full py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-xl" style={{ clipPath: OCTAGON_CLIP }}>
+        Add to Menu Matrix
+      </button>
+    </div>
+  );
+};
+
+const MenuEngineeringMatrix: React.FC<{ items: EngineeringItem[]; onRemove: (id: string) => void }> = ({ items, onRemove }) => {
+  const avgProfit = items.length > 0 ? items.reduce((sum, i) => sum + i.margin, 0) / items.length : 0;
+  const avgPopularity = items.length > 0 ? items.reduce((sum, i) => sum + i.unitsSold, 0) / items.length : 0;
+
+  const quadrants = {
+    stars: items.filter(i => i.margin >= avgProfit && i.unitsSold >= avgPopularity),
+    plow_horses: items.filter(i => i.margin < avgProfit && i.unitsSold >= avgPopularity),
+    puzzles: items.filter(i => i.margin >= avgProfit && i.unitsSold < avgPopularity),
+    dogs: items.filter(i => i.margin < avgProfit && i.unitsSold < avgPopularity)
+  };
+
+  const Quadrant = ({ title, sub, icon, data, color }: { title: string; sub: string; icon: string; data: EngineeringItem[]; color: string }) => (
+    <div className={`p-8 bg-slate-900/40 rounded-[3rem] border border-white/5 flex flex-col h-full min-h-[400px]`}>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h4 className={`text-2xl font-black tracking-tighter uppercase ${color}`}>{title}</h4>
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{sub}</p>
+        </div>
+        <span className="text-4xl filter grayscale opacity-20">{icon}</span>
+      </div>
+      <div className="flex-1 space-y-4">
+        {data.map(item => (
+          <div key={item.id} className="p-4 bg-slate-800/40 rounded-2xl border border-white/5 group hover:border-emerald-500/30 transition-all">
+            <div className="flex justify-between items-start mb-2">
+              <p className="font-bold text-white text-sm uppercase italic">{item.name}</p>
+              <button onClick={() => onRemove(item.id)} className="text-xs opacity-0 group-hover:opacity-100 transition-opacity">🗑️</button>
+            </div>
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <p className="text-[8px] font-black text-slate-500 uppercase">Margin</p>
+                <p className="text-xs font-black text-emerald-400">R {item.margin.toFixed(0)}</p>
+              </div>
+              <div className="flex-1">
+                <p className="text-[8px] font-black text-slate-500 uppercase">FC %</p>
+                <p className="text-xs font-black text-sky-400">{item.foodCostPct.toFixed(0)}%</p>
+              </div>
+              <div className="flex-1">
+                <p className="text-[8px] font-black text-slate-500 uppercase">Sold</p>
+                <p className="text-xs font-black text-white">{item.unitsSold}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+        {data.length === 0 && <div className="h-full flex items-center justify-center border-2 border-dashed border-white/5 rounded-3xl text-slate-700 font-bold uppercase italic text-[10px] tracking-widest">No Items</div>}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-12 pb-20">
+      <div className="text-center">
+        <h3 className="text-5xl font-black text-white uppercase italic tracking-tighter">Profit Matrix</h3>
+        <p className="text-slate-500 font-medium italic opacity-60">Visualizing menu engineering performance metrics.</p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-7xl mx-auto px-6">
+        <Quadrant title="Stars" sub="High Profit / High Popularity" icon="⭐" data={quadrants.stars} color="text-emerald-400" />
+        <Quadrant title="Puzzles" sub="High Profit / Low Popularity" icon="🧩" data={quadrants.puzzles} color="text-sky-400" />
+        <Quadrant title="Plow Horses" sub="Low Profit / High Popularity" icon="🐴" data={quadrants.plow_horses} color="text-orange-400" />
+        <Quadrant title="Dogs" sub="Low Profit / Low Popularity" icon="🦴" data={quadrants.dogs} color="text-red-400" />
+      </div>
+    </div>
+  );
+};
+
+const DashboardView: React.FC<{ stats: DashboardStats; recent: Menu[]; onGenerate: () => void; onSelectProposal: (menu: Menu) => void }> = ({ stats, recent, onGenerate, onSelectProposal }) => (
+  <div className="pt-32 max-w-7xl mx-auto px-6 space-y-12">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {[
+        { label: 'Proposals Generated', value: stats.totalProposals, sub: 'All time', icon: '📝' },
+        { label: 'Est. Total Revenue', value: `R ${stats.totalRevenue.toLocaleString()}`, sub: 'ZAR', icon: '💰' },
+        { label: 'Avg Profit Margin', value: `${stats.avgMargin.toFixed(1)}%`, sub: 'Calculated', icon: '📈' },
+        { label: 'Last Event Type', value: stats.lastEventType || 'None Yet', sub: 'Recent', icon: '🏢' }
+      ].map((stat, idx) => (
+        <div key={idx} className="bg-slate-900/40 backdrop-blur-xl p-8 rounded-[3rem] border border-white/10 shadow-xl group hover:border-emerald-500/30 transition-all">
+          <div className="flex items-center gap-4 mb-6">
+            <span className="text-2xl">{stat.icon}</span>
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">{stat.label}</p>
+          </div>
+          <h4 className="text-3xl font-black text-white tracking-tighter">{stat.value}</h4>
+          <p className="text-[10px] font-black text-emerald-500 uppercase opacity-40 mt-2">{stat.sub}</p>
+        </div>
+      ))}
+    </div>
+
+    <div className="bg-emerald-600/10 border border-emerald-500/20 p-16 rounded-[4rem] text-center relative overflow-hidden group">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-emerald-500/10 to-transparent opacity-50" />
+      <div className="relative z-10">
+        <h3 className="text-5xl font-black text-white uppercase italic tracking-tighter mb-8 leading-none">Draft your next <span className="text-emerald-500">Masterpiece</span></h3>
+        <button onClick={onGenerate} className="px-16 py-8 bg-emerald-600 text-white rounded-[2.5rem] font-black uppercase text-sm hover:scale-105 transition-all shadow-2xl flex items-center gap-4 mx-auto" style={{ clipPath: OCTAGON_CLIP }}>
+          <span className="text-2xl">⚡</span>
+          Generate New Proposal
+        </button>
+      </div>
+    </div>
+
+    <div className="space-y-8">
+      <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.4em]">Recent Proposals</h3>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {recent.map((menu, idx) => (
+          <div key={idx} onClick={() => onSelectProposal(menu)} className="bg-slate-900/40 backdrop-blur-md rounded-[3rem] border border-white/10 overflow-hidden cursor-pointer group hover:scale-[1.02] transition-all">
+            <div className="h-40 relative">
+              <img src={menu.heroImage || HERO_FALLBACK} alt="" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all opacity-40 group-hover:opacity-80" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6">
+                <h5 className="font-black text-white uppercase italic truncate">{menu.title}</h5>
+              </div>
+            </div>
+            <div className="p-8 space-y-4">
+              <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-500">
+                <span>{menu.guestCount} Guests</span>
+                <span className="text-emerald-500">R {(menu.manualTotal || 0).toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+        ))}
+        {recent.length === 0 && <div className="col-span-3 py-20 text-center border-2 border-dashed border-white/10 rounded-[3rem] text-slate-700 font-black italic uppercase tracking-widest">No history yet. Start creating!</div>}
+      </div>
+    </div>
+  </div>
+);
 
 const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; initialIngredients: ShiftIngredient[]; menuTitle: string; guestCount: number; onUpdateDishCost: (dishName: string, newCost: number) => void }> = ({ isOpen, onClose, initialIngredients, menuTitle, guestCount, onUpdateDishCost }) => {
   const [ingredients, setIngredients] = useState<ShiftIngredient[]>([]);
@@ -345,6 +649,8 @@ const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; ini
 
 const RecipeLab: React.FC<{ menu: Menu; onUpdate: (updated: Menu) => void }> = ({ menu, onUpdate }) => {
   const [loading, setLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+
   const generate = () => {
     setLoading(true);
     setTimeout(() => {
@@ -352,6 +658,42 @@ const RecipeLab: React.FC<{ menu: Menu; onUpdate: (updated: Menu) => void }> = (
       onUpdate(updated); setLoading(false);
     }, 1500);
   };
+
+  const suggestVariations = async () => {
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+    if (!apiKey) {
+      setAiLoading(true);
+      setTimeout(() => {
+        const variations = [
+          "Vegan: Sub Salmon for Beetroot Carpaccio",
+          "Gluten-Free: Use GF breadcrumbs for Arancini",
+          "Halal: Ensure all meat is certified Halal"
+        ];
+        const updated = { ...menu, serviceNotes: [...menu.serviceNotes, ...variations] };
+        onUpdate(updated);
+        setAiLoading(false);
+      }, 1500);
+      return;
+    }
+
+    setAiLoading(true);
+    try {
+      const ai = new GoogleGenAI({ apiKey });
+      const result = await ai.models.generateContent({
+        model: 'gemini-2.0-flash',
+        contents: `As a professional chef, suggest 3 dietary variations (Vegan, Halal, Gluten-Free) for this menu: ${JSON.stringify(menu.menu)}. Provide only the variations as a list of strings.`,
+      });
+      const text = result.text || '';
+      const variations = text.split('\n').filter((line: string) => line.trim());
+      const updated = { ...menu, serviceNotes: [...menu.serviceNotes, ...variations] };
+      onUpdate(updated);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   return (
     <div className="bg-slate-900/40 backdrop-blur-xl p-12 rounded-[4rem] border border-white/10 shadow-2xl">
       <div className="flex items-center justify-between mb-10">
@@ -359,10 +701,15 @@ const RecipeLab: React.FC<{ menu: Menu; onUpdate: (updated: Menu) => void }> = (
           <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 text-xl">🍴</div>
           <h3 className="text-2xl font-black text-white uppercase tracking-tighter">AI Recipe Lab</h3>
         </div>
-        <button onClick={generate} disabled={loading} className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-black uppercase text-[10px] disabled:opacity-50 hover:bg-emerald-500 transition-all flex items-center gap-2" style={{ clipPath: OCTAGON_CLIP }}>
-          {loading ? <span className="animate-spin">🔄</span> : <span className="text-xl">⚡</span>}
-          {loading ? 'Generating...' : 'Generate Mise en Place'}
-        </button>
+        <div className="flex gap-2">
+          <button onClick={suggestVariations} disabled={aiLoading} className="px-4 py-2 bg-sky-600 text-white rounded-xl font-black uppercase text-[8px] hover:bg-sky-500 transition-all flex items-center gap-2">
+            {aiLoading ? '🔄' : '✨'} Variations
+          </button>
+          <button onClick={generate} disabled={loading} className="px-8 py-4 bg-emerald-600 text-white rounded-2xl font-black uppercase text-[10px] disabled:opacity-50 hover:bg-emerald-500 transition-all flex items-center gap-2" style={{ clipPath: OCTAGON_CLIP }}>
+            {loading ? <span className="animate-spin">🔄</span> : <span className="text-xl">⚡</span>}
+            {loading ? 'Generating...' : 'Generate Mise en Place'}
+          </button>
+        </div>
       </div>
       <div className="space-y-8">
         {menu.miseEnPlace.length > 0 ? (
@@ -511,6 +858,7 @@ const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => 
           </div>
         </div>
       </div>
+      <SocialShareHub title={proposal.title} />
     </div>
   );
 };
@@ -531,7 +879,7 @@ const AiChatBot: React.FC = () => {
         return;
       }
       const ai = new GoogleGenAI({ apiKey }); 
-      chatRef.current = ai.chats.create({ model: 'gemini-3-flash-preview', config: { systemInstruction: 'You are a professional AI Catering Consultant.' } }); 
+      chatRef.current = ai.chats.create({ model: 'gemini-2.0-flash', config: { systemInstruction: 'You are a professional AI Catering Consultant.' } }); 
     } 
   }, [isOpen]);
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
@@ -579,12 +927,40 @@ export default function App() {
   const [generating, setGenerating] = useState(false);
   const [proposal, setProposal] = useState<Menu | null>(null);
   const [shiftModal, setShiftModal] = useState<{ isOpen: boolean; ingredients: ShiftIngredient[]; title: string } | null>(null);
+  const [eventType, setEventType] = useState('');
+  const [guestCount, setGuestCount] = useState(50);
+
+  // New features state
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
+    totalProposals: 0,
+    totalRevenue: 0,
+    avgMargin: 0,
+    lastEventType: ''
+  });
+  const [recentProposals, setRecentProposals] = useState<Menu[]>([]);
+  const [engineeringItems, setEngineeringItems] = useState<EngineeringItem[]>([]);
 
   useEffect(() => {
+    // Load from localStorage
+    const storedStats = localStorage.getItem('caterpro_stats');
+    if (storedStats) setDashboardStats(JSON.parse(storedStats));
+
+    const storedRecent = localStorage.getItem('caterpro_recent');
+    if (storedRecent) setRecentProposals(JSON.parse(storedRecent));
+
+    const storedItems = localStorage.getItem('caterpro_matrix');
+    if (storedItems) setEngineeringItems(JSON.parse(storedItems));
+
     if (!db) return;
     const q = query(collection(db, 'ingredientCosts'), where('userId', '==', DEMO_USER_ID));
     return onSnapshot(q, (snap) => setIngredients(snap.docs.map(d => ({ id: d.id, ...d.data() } as IngredientCost))));
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('caterpro_stats', JSON.stringify(dashboardStats));
+    localStorage.setItem('caterpro_recent', JSON.stringify(recentProposals));
+    localStorage.setItem('caterpro_matrix', JSON.stringify(engineeringItems));
+  }, [dashboardStats, recentProposals, engineeringItems]);
 
   const currentMargin = useMemo(() => {
     if (!proposal) return 72.4;
@@ -592,33 +968,75 @@ export default function App() {
     const totalDishPrice = proposal.menu.reduce((sum, m) => sum + m.price, 0);
     const calculatedTotal = (totalDishPrice * proposal.guestCount) + proposal.logistics.deliveryFee;
     const totalRevenue = proposal.manualTotal !== undefined ? proposal.manualTotal : calculatedTotal;
-    const margin = ((totalRevenue - totalCost) / totalRevenue) * 100;
+    const margin = ((totalRevenue - totalCost) / (totalRevenue || 1)) * 100;
     return isNaN(margin) ? 0 : margin;
   }, [proposal]);
 
   const generate = async () => {
+    if (!eventType) { setToast('Please enter an event type.'); return; }
     setGenerating(true); setToast('Chef AI is drafting your menu...');
-    setTimeout(() => {
-      setProposal({
-        title: "Gourmet Fusion Experience",
-        description: "A high-end culinary journey blending local ingredients with modern techniques.",
-        menu: [
-          { dish: "Truffle Arancini", notes: "Risotto balls with black truffle.", cat: "Appetizers", cost: 25, price: 65 },
-          { dish: "Citrus Cured Salmon", notes: "Fresh Atlantic salmon with grapefruit.", cat: "Appetizers", cost: 35, price: 85 },
-          { dish: "Pan-Seared Sea Bass", notes: "With lemon caper butter.", cat: "Main Courses", cost: 75, price: 185 },
-          { dish: "Herb-Crusted Rack of Lamb", notes: "Slow-roasted with rosemary.", cat: "Main Courses", cost: 95, price: 210 },
-          { dish: "Dark Chocolate Fondant", notes: "Warm center with vanilla bean gelato.", cat: "Desserts", cost: 25, price: 75 }
-        ],
-        miseEnPlace: [], 
-        serviceNotes: ["Serve appetizers on slate boards", "Main course plates must be warmed"], 
-        deliveryLogistics: ["Refrigerated transport required"], 
-        logistics: { deliveryFee: 2500 }, 
-        guestCount: 50,
-        heroImage: HERO_FALLBACK,
-        showDeposit: false
+    try {
+      const data = await generateMenuFromApi({ eventType, guestCount });
+      // The generateMenuFromApi returns the full JSON object
+      const menuData = data.menu || data; 
+      
+      const menuItems: MenuItem[] = [
+        ...(menuData.appetizers || []).map((m: any) => ({ ...m, cat: 'Appetizers' })),
+        ...(menuData.mainCourses || []).map((m: any) => ({ ...m, cat: 'Main Courses' })),
+        ...(menuData.desserts || menuData.dessert || []).map((m: any) => ({ ...m, cat: 'Desserts' }))
+      ];
+
+      const heroImage = await generateMenuImageFromApi(
+        menuData.menuTitle || "Catering Event", 
+        menuData.description || "", 
+        menuData.mainCourses?.map((m: any) => m.dish)
+      );
+
+      const totalDishPrice = menuItems.reduce((sum, m) => sum + (m.price || 0), 0);
+      const deliveryFee = (menuData.logistics?.deliveryFee || 0);
+      const totalRevenue = (totalDishPrice * guestCount) + deliveryFee;
+
+      const newProposal: Menu = {
+        title: menuData.menuTitle || eventType,
+        description: menuData.description || "A custom tailored experience.",
+        menu: menuItems,
+        miseEnPlace: menuData.miseEnPlace || [],
+        serviceNotes: menuData.serviceNotes || [],
+        deliveryLogistics: menuData.deliveryLogistics || [],
+        logistics: menuData.logistics || { deliveryFee: 0 },
+        guestCount: guestCount,
+        heroImage: heroImage || HERO_FALLBACK,
+        shoppingList: menuData.shoppingList || [],
+        manualTotal: totalRevenue,
+        manualPerHead: totalDishPrice
+      };
+
+      setProposal(newProposal);
+
+      // Update Dashboard Stats
+      setDashboardStats(prev => {
+        const newTotal = prev.totalProposals + 1;
+        const newRevenue = prev.totalRevenue + totalRevenue;
+        const currentPropMargin = 72.4; 
+        const newAvgMargin = prev.avgMargin === 0 ? currentPropMargin : (prev.avgMargin * (newTotal - 1) + currentPropMargin) / newTotal;
+        return {
+          totalProposals: newTotal,
+          totalRevenue: newRevenue,
+          avgMargin: newAvgMargin,
+          lastEventType: eventType
+        };
       });
-      setGenerating(false); setView('proposal'); setToast('Proposal generated!');
-    }, 2000);
+
+      setRecentProposals(prev => [newProposal, ...prev].slice(0, 3));
+
+      setView('proposal');
+      setToast('Proposal generated!');
+    } catch (error) {
+      console.error(error);
+      setToast('Generation failed. Please check your API key.');
+    } finally {
+      setGenerating(false);
+    }
   };
 
   const exportPDF = async () => {
@@ -664,6 +1082,7 @@ export default function App() {
           </div>
           <div className="hidden md:flex items-center gap-10">
             {[
+              { id: 'dashboard', label: 'Dashboard', icon: '📊' },
               { id: 'generator', label: 'Generator', icon: '⚡' },
               { id: 'calculator', label: 'Calculator', icon: '🧮' }
             ].map(item => (
@@ -685,10 +1104,20 @@ export default function App() {
         <AnimatePresence mode="wait">
           {view === 'landing' && (
             <motion.div key="landing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <HeroSection onStart={() => setView('generator')} margin={currentMargin} />
+              <HeroSection onStart={() => setView('dashboard')} margin={currentMargin} />
               <div className="max-w-7xl mx-auto px-6 pb-32">
                 <SavingsEstimator />
               </div>
+            </motion.div>
+          )}
+          {view === 'dashboard' && (
+            <motion.div key="dashboard" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="pb-32">
+              <DashboardView 
+                stats={dashboardStats} 
+                recent={recentProposals} 
+                onGenerate={() => setView('generator')}
+                onSelectProposal={(m) => { setProposal(m); setView('proposal'); }}
+              />
             </motion.div>
           )}
           {view === 'generator' && (
@@ -703,14 +1132,26 @@ export default function App() {
                     <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 opacity-60">Event Type</label>
                     <div className="relative">
                       <span className="absolute left-6 top-1/2 -translate-y-1/2 text-xl">🍴</span>
-                      <input type="text" placeholder="e.g. Wedding Gala..." className="w-full p-6 pl-16 rounded-[2rem] border border-white/10 bg-slate-800 text-white font-bold outline-none focus:border-emerald-500 transition-all" />
+                      <input 
+                        type="text" 
+                        value={eventType}
+                        onChange={(e) => setEventType(e.target.value)}
+                        placeholder="e.g. Wedding Gala..." 
+                        className="w-full p-6 pl-16 rounded-[2rem] border border-white/10 bg-slate-800 text-white font-bold outline-none focus:border-emerald-500 transition-all" 
+                      />
                     </div>
                   </div>
                   <div>
                     <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 opacity-60">Guest Count</label>
                     <div className="relative">
                       <span className="absolute left-6 top-1/2 -translate-y-1/2 text-xl">👥</span>
-                      <input type="number" placeholder="50" className="w-full p-6 pl-16 rounded-[2rem] border border-white/10 bg-slate-800 text-white font-bold outline-none focus:border-emerald-500 transition-all" />
+                      <input 
+                        type="number" 
+                        value={guestCount}
+                        onChange={(e) => setGuestCount(Number(e.target.value))}
+                        placeholder="50" 
+                        className="w-full p-6 pl-16 rounded-[2rem] border border-white/10 bg-slate-800 text-white font-bold outline-none focus:border-emerald-500 transition-all" 
+                      />
                     </div>
                   </div>
                   <button onClick={generate} disabled={generating} className="w-full py-8 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-2xl disabled:opacity-50 flex items-center justify-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
@@ -736,11 +1177,7 @@ export default function App() {
                 </button>
                 <button onClick={() => setShiftModal({ 
                   isOpen: true, 
-                  ingredients: [
-                    { name: 'Sea Bass', quantity: 0.2, unit: 'kg', unitPrice: 350, linkedDish: 'Pan-Seared Sea Bass' }, 
-                    { name: 'Truffles', quantity: 0.01, unit: 'kg', unitPrice: 2500, linkedDish: 'Truffle Arancini' }, 
-                    { name: 'Rack of Lamb', quantity: 0.3, unit: 'kg', unitPrice: 420, linkedDish: 'Herb-Crusted Rack of Lamb' }
-                  ], 
+                  ingredients: proposal.shoppingList || [], 
                   title: proposal.title 
                 })} className="px-12 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-2xl flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
                   <span className="text-xl">🧮</span>
@@ -750,12 +1187,19 @@ export default function App() {
             </motion.div>
           )}
           {view === 'calculator' && (
-            <motion.div key="calculator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="pt-40 pb-20 max-w-4xl mx-auto px-6">
+            <motion.div key="calculator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="pt-40 pb-20 max-w-7xl mx-auto px-6">
               <div className="text-center mb-16">
-                <h2 className="text-6xl font-black text-white uppercase italic mb-4 tracking-tighter">Cost Calculator</h2>
+                <h2 className="text-6xl font-black text-white uppercase italic mb-4 tracking-tighter">Kitchen Profits</h2>
+                <p className="text-slate-400 font-medium italic opacity-60">Engineered for absolute food service precision.</p>
               </div>
-              <PlateCostEngine ingredients={ingredients} />
-              <button onClick={() => setView('landing')} className="w-full mt-8 py-6 bg-slate-900/40 backdrop-blur-xl text-white border border-white/10 rounded-[2rem] font-black uppercase text-sm hover:bg-slate-800 transition-all" style={{ clipPath: OCTAGON_CLIP }}>Back to Home</button>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20 items-start">
+                <EnhancedPlateCostCalculator onAddToMatrix={(item) => setEngineeringItems([...engineeringItems, item])} />
+                <PlateCostEngine ingredients={ingredients} />
+              </div>
+
+              <MenuEngineeringMatrix items={engineeringItems} onRemove={(id) => setEngineeringItems(engineeringItems.filter(i => i.id !== id))} />
+
+              <button onClick={() => setView('dashboard')} className="w-full mt-8 py-6 bg-slate-900/40 backdrop-blur-xl text-white border border-white/10 rounded-[2rem] font-black uppercase text-sm hover:bg-slate-800 transition-all" style={{ clipPath: OCTAGON_CLIP }}>Back to Dashboard</button>
             </motion.div>
           )}
         </AnimatePresence>
