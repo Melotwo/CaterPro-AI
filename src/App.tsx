@@ -7,7 +7,7 @@ import { getAuth } from 'firebase/auth';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { motion, AnimatePresence } from 'framer-motion';
-import { generateMenuFromApi, generateMenuImageFromApi } from './services/geminiService'
+import { generateMenuFromApi, generateMenuImageFromApi } from './services/geminiService';
 
 // --- TYPES & INTERFACES ---
 
@@ -1017,7 +1017,7 @@ export default function App() {
       setDashboardStats(prev => {
         const newTotal = prev.totalProposals + 1;
         const newRevenue = prev.totalRevenue + totalRevenue;
-        const currentPropMargin = 72.4; 
+        const currentPropMargin = currentMargin; 
         const newAvgMargin = prev.avgMargin === 0 ? currentPropMargin : (prev.avgMargin * (newTotal - 1) + currentPropMargin) / newTotal;
         return {
           totalProposals: newTotal,
