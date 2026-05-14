@@ -1,6 +1,6 @@
 
 import { GoogleGenAI } from "@google/genai";
-import { ScannedMenuCosting } from "./types";
+import { ScannedMenuCosting } from "../types";
 
 const getGenAI = () => {
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
