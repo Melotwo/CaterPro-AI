@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { generateSocialCaption, generateVideoFromApi, generateWhatsAppStatus } from './geminiService';
+import { generateSocialCaption, generateVideoFromApi, generateWhatsAppStatus } from './services/geminiService';
 import Toast from './Toast';
 
 export type Mode = 'create' | 'pitch' | 'video' | 'status' | 'reel' | 'formula' | 'flex' | 'tiktok' | 'tags' | 'bio';
