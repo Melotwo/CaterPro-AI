@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MenuSection } from './types';
-import { regenerateMenuItemFromApi } from './geminiService';
+import { regenerateMenuItemFromApi } from './services/geminiService';
 import { getApiErrorState } from './apiErrorHandler';
 import { ErrorState } from './types';
 
