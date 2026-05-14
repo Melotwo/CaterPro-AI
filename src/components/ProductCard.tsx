@@ -1,9 +1,8 @@
 
 import React, { useState } from 'react';
-import { ShoppingCart, Sparkles, Loader2 } from 'lucide-react';
-import { PpeProduct } from '../types';
+import { PpeProduct } from './types';
 // Fixed: Using the correct exported function from geminiService
-import { generateMenuImageFromApi } from '../services/geminiService';
+import { generateMenuImageFromApi } from './services/geminiService';
 
 const FALLBACK_IMAGE = 'https://images.unsplash.com/photo-1556910103-1c02745a30bf?auto=format&fit=crop&w=800&q=80'; // Reliable fallback image (Kitchen/Cooking)
 
@@ -56,9 +55,9 @@ const ProductCard: React.FC<{
             title="Generate AI Image"
         >
             {isGenerating ? (
-                <Loader2 size={16} className="animate-spin" />
+                <span className="animate-spin block text-xs">⏳</span>
             ) : (
-                <Sparkles size={16} className="text-amber-300" />
+                <span className="text-amber-300 text-xs">✨</span>
             )}
         </button>
       </div>
@@ -75,7 +74,7 @@ const ProductCard: React.FC<{
           onClick={() => onGetQuote(product)}
           className="mt-4 w-full flex items-center justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-semibold text-slate-900 bg-amber-500 hover:bg-amber-600 focus:outline-none transition-colors"
         >
-          <ShoppingCart size={16} className="mr-2" />
+          <span className="mr-2">🛒</span>
           Get a Quote
         </button>
       </div>
