@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { generateCulinaryInfographic } from './geminiService';
+import { generateCulinaryInfographic } from './services/geminiService';
 
 const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowToast }) => {
   // Set 'lifecycle' as the default tab so the script is visible immediately
