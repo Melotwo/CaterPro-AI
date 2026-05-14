@@ -1,10 +1,9 @@
 
 import React, { useState } from 'react';
-import { BookOpen, GraduationCap, FileText, Download, Loader2, Lock, ChevronRight } from 'lucide-react';
-import { CURRICULUM_STANDARDS, EDUCATION_LEVELS, EDUCATION_TOPICS } from '../constants';
-import { generateStudyGuideFromApi } from '../services/geminiService';
-import { getApiErrorState } from '../services/apiErrorHandler';
-import { EducationContent, ErrorState } from '../types';
+import { CURRICULUM_STANDARDS, EDUCATION_LEVELS, EDUCATION_TOPICS } from './constants';
+import { generateStudyGuideFromApi } from './services/geminiService';
+import { getApiErrorState } from './apiErrorHandler';
+import { EducationContent, ErrorState } from './types';
 import { jsPDF } from 'jspdf';
 
 interface StudyGuideGeneratorProps {
@@ -92,7 +91,7 @@ const StudyGuideGenerator: React.FC<StudyGuideGeneratorProps> = ({ isPro, onAtte
     <section aria-labelledby="education-title" className="mt-16 animate-slide-in" style={{ animationDelay: '0.6s' }}>
       <div className="text-center mb-8">
         <h2 id="education-title" className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white flex items-center justify-center">
-          <GraduationCap className="w-8 h-8 mr-3 text-primary-500" />
+          <span className="mr-3 text-3xl">🎓</span>
           Education & Training Hub
         </h2>
         <p className="mt-2 max-w-2xl mx-auto text-slate-600 dark:text-slate-400">
@@ -165,12 +164,12 @@ const StudyGuideGenerator: React.FC<StudyGuideGeneratorProps> = ({ isPro, onAtte
               className="relative inline-flex items-center justify-center px-8 py-3 text-base font-bold text-white bg-primary-600 rounded-full shadow-lg hover:bg-primary-700 hover:shadow-xl transition-all disabled:opacity-70 disabled:cursor-not-allowed group overflow-hidden"
             >
               <span className="relative z-10 flex items-center">
-                {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : <BookOpen className="mr-2 h-5 w-5" />}
+                {isLoading ? <span className="mr-2 h-5 w-5 animate-spin">⏳</span> : <span className="mr-2 h-5 w-5">📖</span>}
                 {isLoading ? 'Creating Guide...' : `Generate ${type === 'guide' ? 'Study Guide' : 'Curriculum'}`}
               </span>
               {!isPro && (
                  <div className="absolute inset-0 bg-slate-900/80 flex items-center justify-center z-20 backdrop-blur-[1px]">
-                     <Lock className="w-5 h-5 text-white mr-2" />
+                     <span className="w-5 h-5 text-white mr-2">🔒</span>
                      <span className="text-sm font-medium">Business Plan</span>
                  </div>
               )}
@@ -193,13 +192,13 @@ const StudyGuideGenerator: React.FC<StudyGuideGeneratorProps> = ({ isPro, onAtte
                 <p className="text-primary-600 dark:text-primary-400 font-medium mt-1">{result.curriculum} • {result.level}</p>
               </div>
               <button onClick={downloadPDF} className="p-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 transition-colors" title="Download PDF">
-                <Download size={20} />
+                📥
               </button>
             </div>
 
             <div className="space-y-8">
               <section>
-                <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-2 flex items-center"><FileText size={18} className="mr-2" /> Overview</h4>
+                <h4 className="text-lg font-bold text-slate-800 dark:text-slate-200 mb-2 flex items-center"><span className="mr-2">📄</span> Overview</h4>
                 <p className="text-slate-600 dark:text-slate-400 leading-relaxed">{result.overview}</p>
               </section>
 
@@ -213,7 +212,7 @@ const StudyGuideGenerator: React.FC<StudyGuideGeneratorProps> = ({ isPro, onAtte
                                 <ul className="list-none space-y-1.5">
                                     {mod.content.map((c, i) => (
                                         <li key={i} className="text-sm text-slate-600 dark:text-slate-300 flex items-start">
-                                            <ChevronRight size={14} className="mt-1 mr-1.5 flex-shrink-0 text-slate-400" />
+                                            <span className="mt-1 mr-1.5 flex-shrink-0 text-slate-400 text-[10px]">▶️</span>
                                             {c}
                                         </li>
                                     ))}
