@@ -1,6 +1,6 @@
 
 import React, { useState, useRef } from 'react';
-import { analyzeReceiptFromApi, analyzeLabelFromApi, analyzeMenuForCosting } from './geminiService';
+import { analyzeReceiptFromApi, analyzeLabelFromApi, analyzeMenuForCosting } from './services/geminiService';
 import { ScannedMenuCosting } from './types';
 
 const RecipeGenerator: React.FC<{ dietaryRestrictions: string[], currency: string }> = ({ dietaryRestrictions, currency }) => {
