@@ -1,117 +1,20 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { initializeApp } from 'firebase/app';
-import { getFirestore, collection, query, where, onSnapshot } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
+import { db, auth } from './firebase';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { motion, AnimatePresence } from 'framer-motion';
 import { generateMenuFromApi, generateMenuImageFromApi } from './services/geminiService';
-
-// --- TYPES & INTERFACES ---
-
-export interface IngredientCost {
-  id?: string;
-  name: string;
-  unit: string;
-  price: number;
-  lastUpdated: any;
-  userId: string;
-}
-
-export interface MenuItem {
-  dish: string;
-  notes: string;
-  cat: 'Appetizers' | 'Main Courses' | 'Desserts';
-  cost: number; // Internal cost to produce
-  price: number; // Price charged to client
-  recipe?: string[];
-  ingredients?: any[];
-}
-
-export interface Menu {
-  title: string;
-  description: string;
-  menu: MenuItem[];
-  miseEnPlace: string[];
-  serviceNotes: string[];
-  deliveryLogistics: string[];
-  logistics: { deliveryFee: number };
-  guestCount: number;
-  heroImage?: string;
-  showDeposit?: boolean;
-  manualTotal?: number;
-  manualPerHead?: number;
-  shoppingList?: ShiftIngredient[];
-}
-
-export interface Message {
-  role: 'user' | 'model';
-  content: string;
-}
-
-export interface ShiftIngredient {
-  name: string;
-  quantity: number;
-  unit: string;
-  unitPrice: number;
-  linkedDish?: string;
-}
-
-export interface EngineeringItem {
-  id: string;
-  name: string;
-  category: 'Appetizers' | 'Main Courses' | 'Desserts';
-  price: number;
-  unitsSold: number;
-  ingredients: { name: string; cost: number; qty: number; unit: string }[];
-  totalCost: number;
-  foodCostPct: number;
-  margin: number;
-}
-
-export interface DashboardStats {
-  totalProposals: number;
-  totalRevenue: number;
-  avgMargin: number;
-  lastEventType: string;
-}
-
-export type SubscriptionPlan = 'free' | 'commis' | 'chef-de-partie' | 'sous-chef' | 'executive';
+import { firestoreService } from './firestoreService';
+import { Menu, MenuItem, Message, ShiftIngredient, DashboardStats, EngineeringItem, SubscriptionPlan, IngredientCost } from './types';
 
 // --- CONSTANTS ---
 
 const DEMO_USER_ID = 'DEMO_USER';
 const WHOP_CHECKOUT_URL = "https://whop.com/caterpro-ai"; 
 const HERO_FALLBACK = "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1200&q=80";
-
-// --- FIREBASE INITIALIZATION (NO EXTERNAL CONFIG) ---
-
-let app: any;
-let db: any;
-let auth: any;
-
-try {
-  const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || '',
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',
-    appId: import.meta.env.VITE_FIREBASE_APP_ID || '',
-  };
-
-  if (firebaseConfig.apiKey) {
-    app = initializeApp(firebaseConfig);
-    db = getFirestore(app, import.meta.env.VITE_FIREBASE_FIRESTORE_DATABASE_ID || '(default)');
-    auth = getAuth(app);
-  } else {
-    console.warn("Firebase API Key missing. Database features will be disabled.");
-  }
-} catch (error) {
-  console.error("Firebase initialization failed:", error);
-}
 
 // --- PAYPAL CONFIG ---
 const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID || "Adp-3XYWNARTpkCw4rbtFUnFox3mMwZtWWRy-TprJ8sOrV8X9z4xtyobRHuCx848mseDoqATaUooheFz";
@@ -147,10 +50,7 @@ const NoiseOverlay = () => (
 const Logo = ({ className = "" }: { className?: string }) => (
   <div className={`flex items-center gap-4 ${className}`}>
     <div className="h-12 w-12 rounded-full border-2 border-emerald-500 overflow-hidden bg-white flex items-center justify-center shadow-lg relative">
-      <div className="flex flex-col items-center justify-center scale-110">
-        <span className="text-2xl leading-none">👨‍🍳</span>
-        <span className="text-3xl font-black text-emerald-600 leading-none -mt-2">C</span>
-      </div>
+      <img src="/logo.png" alt="CaterPro AI" className="w-10 h-10 object-contain" />
     </div>
     <span className="text-2xl font-black tracking-tighter uppercase italic text-white">
       CaterPro<span className="text-emerald-500">AI</span>
@@ -604,9 +504,10 @@ const ShiftCalculatorModal: React.FC<{ isOpen: boolean; onClose: () => void; ini
     setIngredients(n);
     
     if (n[idx].linkedDish) {
-      const dishIngredients = n.filter(i => i.linkedDish === n[idx].linkedDish);
+      const dishName = n[idx].linkedDish as string;
+      const dishIngredients = n.filter(i => (i as any).linkedDish === dishName);
       const dishCostPerHead = dishIngredients.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
-      onUpdateDishCost(n[idx].linkedDish, dishCostPerHead);
+      onUpdateDishCost(dishName, dishCostPerHead);
     }
   };
 
@@ -721,12 +622,18 @@ const RecipeLab: React.FC<{ menu: Menu; onUpdate: (updated: Menu) => void }> = (
 };
 
 const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => void; margin: number }> = ({ proposal, onUpdate, margin }) => {
-  const updateItem = (idx: number, field: keyof MenuItem, val: any) => { const n = [...proposal.menu]; n[idx] = { ...n[idx], [field]: val }; onUpdate({ ...proposal, menu: n }); };
+  const updateItem = (idx: number, field: keyof MenuItem, val: any) => { 
+    const menu = proposal.menu || [];
+    const n = [...menu]; 
+    n[idx] = { ...n[idx], [field]: val }; 
+    onUpdate({ ...proposal, menu: n }); 
+  };
   const updateRoot = (field: keyof Menu, val: any) => onUpdate({ ...proposal, [field]: val });
-  const updateLogistics = (val: number) => onUpdate({ ...proposal, logistics: { ...proposal.logistics, deliveryFee: val } });
+  const updateLogistics = (val: number) => onUpdate({ ...proposal, logistics: { ...(proposal.logistics || { deliveryFee: 0 }), deliveryFee: val } });
 
-  const totalDishPrice = proposal.menu.reduce((sum, m) => sum + m.price, 0);
-  const calculatedTotal = (totalDishPrice * proposal.guestCount) + proposal.logistics.deliveryFee;
+  const menu = proposal.menu || [];
+  const totalDishPrice = menu.reduce((sum, m) => sum + (m.price || 0), 0);
+  const calculatedTotal = (totalDishPrice * (proposal.guestCount || 0)) + (proposal.logistics?.deliveryFee || 0);
   
   const displayTotal = proposal.manualTotal !== undefined ? proposal.manualTotal : calculatedTotal;
   const displayPerHead = proposal.manualPerHead !== undefined ? proposal.manualPerHead : totalDishPrice;
@@ -771,8 +678,8 @@ const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => 
             <div key={cat} className="space-y-8">
               <h4 className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.4em] border-b border-white/10 pb-4 opacity-60">{cat}</h4>
               <div className="space-y-10">
-                {proposal.menu.filter(m => m.cat === cat).map((item, i) => {
-                  const idx = proposal.menu.findIndex(x => x === item);
+                {(proposal.menu || []).filter(m => m.cat === cat).map((item, i) => {
+                  const idx = (proposal.menu || []).findIndex(x => x === item);
                   return (
                     <div key={i} className="group">
                       <div className="flex items-baseline justify-between gap-4 mb-2">
@@ -837,7 +744,7 @@ const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => 
                   />
                 </div>
               </div>
-              <div className="bg-white/10 p-4 rounded-2xl"><p className="text-[8px] font-black uppercase opacity-60">Logistics (Edit)</p><div className="flex items-center gap-1"><span className="text-xl font-black">R</span><input type="number" value={proposal.logistics.deliveryFee} onChange={(e) => updateLogistics(Number(e.target.value))} className="bg-transparent border-none outline-none text-xl font-black w-full" /></div></div>
+              <div className="bg-white/10 p-4 rounded-2xl"><p className="text-[8px] font-black uppercase opacity-60">Logistics (Edit)</p><div className="flex items-center gap-1"><span className="text-xl font-black">R</span><input type="number" value={proposal.logistics?.deliveryFee || 0} onChange={(e) => updateLogistics(Number(e.target.value))} className="bg-transparent border-none outline-none text-xl font-black w-full" /></div></div>
             </div>
             
             <div className="flex items-center justify-between mb-6">
@@ -846,7 +753,7 @@ const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => 
                 <div className={`absolute top-1 w-4 h-4 rounded-full transition-all ${proposal.showDeposit ? 'left-7 bg-emerald-600' : 'left-1 bg-white'}`} />
               </button>
             </div>
-
+            
             {proposal.showDeposit && (
               <div className="bg-white p-6 rounded-3xl">
                 <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4 text-center">Pay 50% Deposit Now (R {depositAmount})</p>
@@ -858,7 +765,7 @@ const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => 
           </div>
         </div>
       </div>
-      <SocialShareHub title={proposal.title} />
+      <SocialShareHub title={proposal.title || 'Catering Proposal'} />
     </div>
   );
 };
@@ -929,6 +836,8 @@ export default function App() {
   const [shiftModal, setShiftModal] = useState<{ isOpen: boolean; ingredients: ShiftIngredient[]; title: string } | null>(null);
   const [eventType, setEventType] = useState('');
   const [guestCount, setGuestCount] = useState(50);
+  const [budget, setBudget] = useState('Standard (R250-R500pp)');
+  const [cuisine, setCuisine] = useState('South African');
 
   // New features state
   const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
@@ -964,9 +873,9 @@ export default function App() {
 
   const currentMargin = useMemo(() => {
     if (!proposal) return 72.4;
-    const totalCost = proposal.menu.reduce((sum, m) => sum + (m.cost * proposal.guestCount), 0);
-    const totalDishPrice = proposal.menu.reduce((sum, m) => sum + m.price, 0);
-    const calculatedTotal = (totalDishPrice * proposal.guestCount) + proposal.logistics.deliveryFee;
+    const totalCost = (proposal.menu || []).reduce((sum, m) => sum + (m.cost * (proposal.guestCount || 0)), 0);
+    const totalDishPrice = (proposal.menu || []).reduce((sum, m) => sum + m.price, 0);
+    const calculatedTotal = (totalDishPrice * (proposal.guestCount || 0)) + (proposal.logistics?.deliveryFee || 0);
     const totalRevenue = proposal.manualTotal !== undefined ? proposal.manualTotal : calculatedTotal;
     const margin = ((totalRevenue - totalCost) / (totalRevenue || 1)) * 100;
     return isNaN(margin) ? 0 : margin;
@@ -976,7 +885,7 @@ export default function App() {
     if (!eventType) { setToast('Please enter an event type.'); return; }
     setGenerating(true); setToast('Chef AI is drafting your menu...');
     try {
-      const data = await generateMenuFromApi({ eventType, guestCount });
+      const data = await generateMenuFromApi({ eventType, guestCount, budget, cuisine });
       // The generateMenuFromApi returns the full JSON object
       const menuData = data.menu || data; 
       
@@ -1036,6 +945,20 @@ export default function App() {
       setToast('Generation failed. Please check your API key.');
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const saveProposalToCloud = async () => {
+    if (!proposal) return;
+    setToast('Saving to cloud...');
+    try {
+      if (proposal && proposal.menu) {
+        await firestoreService.saveMenu(proposal as Menu, proposal.guestCount || 0);
+        setToast('Proposal saved to cloud!');
+      }
+    } catch (error: any) {
+      console.error(error);
+      setToast('Failed to save to cloud.');
     }
   };
 
@@ -1154,6 +1077,35 @@ export default function App() {
                       />
                     </div>
                   </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 opacity-60">Budget Range</label>
+                      <select 
+                        value={budget}
+                        onChange={(e) => setBudget(e.target.value)}
+                        className="w-full p-6 rounded-[2rem] border border-white/10 bg-slate-800 text-white font-bold outline-none focus:border-emerald-500 transition-all appearance-none" 
+                      >
+                        <option>Budget (R150-R250pp)</option>
+                        <option>Standard (R250-R500pp)</option>
+                        <option>Premium (R500-R1000pp)</option>
+                        <option>Executive (R1000pp+)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 opacity-60">Cuisine Type</label>
+                      <select 
+                        value={cuisine}
+                        onChange={(e) => setCuisine(e.target.value)}
+                        className="w-full p-6 rounded-[2rem] border border-white/10 bg-slate-800 text-white font-bold outline-none focus:border-emerald-500 transition-all appearance-none" 
+                      >
+                        <option>South African</option>
+                        <option>Mediterranean</option>
+                        <option>Asian Fusion</option>
+                        <option>Continental</option>
+                        <option>BBQ and Braai</option>
+                      </select>
+                    </div>
+                  </div>
                   <button onClick={generate} disabled={generating} className="w-full py-8 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-2xl disabled:opacity-50 flex items-center justify-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
                     {generating ? <span className="animate-spin">🔄</span> : <span className="text-xl">⚡</span>}
                     {generating ? 'Chef AI is Drafting...' : 'Generate Proposal'}
@@ -1171,6 +1123,10 @@ export default function App() {
               </div>
               <div className="flex flex-col md:flex-row justify-center gap-6 mt-12">
                 <button onClick={() => setView('generator')} className="px-12 py-6 bg-slate-900/40 backdrop-blur-xl text-white border border-white/10 rounded-[2rem] font-black uppercase text-sm hover:bg-slate-800 transition-all" style={{ clipPath: OCTAGON_CLIP }}>New Draft</button>
+                <button onClick={saveProposalToCloud} className="px-12 py-6 bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-600/30 transition-all flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
+                  <span className="text-xl">☁️</span>
+                  Save to Cloud
+                </button>
                 <button onClick={exportPDF} className="px-12 py-6 bg-white text-slate-950 rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 hover:text-white transition-all shadow-2xl flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
                   <span className="text-xl">📥</span>
                   Download PDF
@@ -1178,7 +1134,7 @@ export default function App() {
                 <button onClick={() => setShiftModal({ 
                   isOpen: true, 
                   ingredients: proposal.shoppingList || [], 
-                  title: proposal.title 
+                  title: proposal.title || 'Proposal'
                 })} className="px-12 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-2xl flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
                   <span className="text-xl">🧮</span>
                   Shift Breakdown
@@ -1216,8 +1172,8 @@ export default function App() {
 
       <Toast message={toast} onDismiss={() => setToast(null)} />
       <AiChatBot />
-      {shiftModal && proposal && <ShiftCalculatorModal isOpen={shiftModal.isOpen} onClose={() => setShiftModal(null)} initialIngredients={shiftModal.ingredients} menuTitle={shiftModal.title} guestCount={proposal.guestCount} onUpdateDishCost={(dishName, newCost) => {
-        const n = [...proposal.menu];
+      {shiftModal && proposal && <ShiftCalculatorModal isOpen={shiftModal.isOpen} onClose={() => setShiftModal(null)} initialIngredients={shiftModal.ingredients} menuTitle={shiftModal.title} guestCount={proposal.guestCount || 0} onUpdateDishCost={(dishName, newCost) => {
+        const n = [...(proposal.menu || [])];
         const idx = n.findIndex(m => m.dish === dishName);
         if (idx !== -1) {
           n[idx].cost = newCost;
