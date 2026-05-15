@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { SubscriptionPlan } from './App';
+import { SubscriptionPlan } from './types';
 
 interface UpgradeModalProps {
   isOpen: boolean;
