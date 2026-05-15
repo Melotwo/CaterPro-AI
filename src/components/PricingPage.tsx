@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
-import { SubscriptionPlan } from './AppSubscription';
-import Footer from './Footer';
+import { SubscriptionPlan } from './types';
 import PaymentModal from './PaymentModal';
 
 interface PricingPageProps {
@@ -293,8 +292,6 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
         price={selectedPrice}
         onConfirm={handlePaymentSuccess}
       />
-      
-      <Footer />
     </div>
   );
 };
