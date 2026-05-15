@@ -32,13 +32,15 @@ export const extractIngredientsForShift = async (_miseEnPlace: string[], _menuTi
     ];
 };
 
-export const generateMenuFromApi = async (params: { eventType: string; guestCount: number }): Promise<any> => {
+export const generateMenuFromApi = async (params: { eventType: string; guestCount: number; budget?: string; cuisine?: string }): Promise<any> => {
     try {
         const ai = getGenAI();
         const result = await ai.models.generateContent({ 
             model: "gemini-2.0-flash",
             contents: `
                 As an expert catering consultant, generate a premium catering menu for a "${params.eventType}" for ${params.guestCount} guests.
+                ${params.budget ? `Target Budget: ${params.budget}.` : ""}
+                ${params.cuisine ? `Cuisine Style: ${params.cuisine}.` : ""}
                 Return ONLY a JSON object. Keep descriptions concise.
                 
                 REQUIREMENTS:
@@ -68,10 +70,13 @@ export const generateMenuFromApi = async (params: { eventType: string; guestCoun
         });
 
         const text = (result.text || "").replace(/```json|```/g, "").trim();
+        if (!text) throw new Error("The model returned an empty response.");
         return JSON.parse(text);
-    } catch (error) {
+    } catch (error: any) {
         console.error("AI Generation failed:", error);
-        throw error;
+        // Extract a more helpful error message
+        const message = error.message || "Unknown error";
+        throw new Error(`AI Generation Failed: ${message}`);
     }
 };
 
