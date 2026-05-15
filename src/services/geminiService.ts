@@ -139,5 +139,53 @@ export const generateCulinaryInfographic = async (_type: string): Promise<string
 };
 
 export const generateStudyGuideFromApi = async (topic: string, curriculum: string, level: string, type: string): Promise<any> => {
-    return { title: `${type} for ${topic}` };
+    try {
+        const ai = getGenAI();
+        const prompt = `
+            As an expert educational consultant specialized in culinary arts and hospitality training, generate a professional ${type} for the topic "${topic}".
+            
+            CONTEXT:
+            - Curriculum Standard: ${curriculum} (e.g., QCTO South Africa, City & Guilds)
+            - Education Level: ${level}
+            - Document Type: ${type === 'guide' ? 'Comprehensive Study Guide' : 'Detailed Curriculum Syllabus'}
+            
+            REQUIREMENTS:
+            1. Provide a clear, professional title.
+            2. Write a high-level overview (150-200 words) summarizing the importance and learning objectives.
+            3. Break down the content into 4-6 detailed modules. Each module needs a title and 5-8 bulleted key learning points.
+            4. Include a list of 10-15 key industry-specific vocabulary words.
+            5. List 5-8 assessment criteria that follow the ${curriculum} standard.
+            6. Suggest 3-5 practical exercises for hands-on learning.
+            
+            Return ONLY a JSON object in this strict format:
+            {
+              "title": "string",
+              "curriculum": "string",
+              "level": "string",
+              "overview": "string",
+              "modules": [
+                { "title": "string", "content": ["string"] }
+              ],
+              "keyVocabulary": ["string"],
+              "assessmentCriteria": ["string"],
+              "practicalExercises": ["string"]
+            }
+        `;
+
+        const result = await ai.models.generateContent({
+            model: "gemini-2.0-flash",
+            contents: prompt,
+            config: {
+                maxOutputTokens: 8000,
+                temperature: 0.7
+            }
+        });
+
+        const text = (result.text || "").replace(/```json|```/g, "").trim();
+        if (!text) throw new Error("The model returned an empty response.");
+        return JSON.parse(text);
+    } catch (error: any) {
+        console.error("Study Guide generation failed:", error);
+        throw new Error(`AI Generation Failed: ${error.message || "Unknown error"}`);
+    }
 };
