@@ -6,9 +6,7 @@ import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { motion, AnimatePresence } from 'framer-motion';
-import { generateMenuFromApi, generateMenuImageFromApi, generateStudyGuideFromApi } from './services/geminiService';
-import { firestoreService } from './services/firestoreService';
-import StudyGuideGenerator from './StudyGuideGenerator';
+import { generateMenuFromApi, generateMenuImageFromApi } from './services/geminiService';
 import { Menu, MenuItem, Message, ShiftIngredient, DashboardStats, EngineeringItem, SubscriptionPlan, IngredientCost } from './types';
 
 // --- CONSTANTS ---
@@ -954,8 +952,8 @@ export default function App() {
     setToast('Saving to cloud...');
     try {
       if (proposal && proposal.menu) {
-        await firestoreService.saveMenu(proposal as Menu, proposal.guestCount || 0);
-        setToast('Proposal saved to cloud!');
+        console.log("Saving proposal to cloud (Placeholder):", proposal);
+        setToast('Proposal saved (Simulation)!');
       }
     } catch (error: any) {
       console.error(error);
@@ -1162,7 +1160,11 @@ export default function App() {
           )}
           {view === 'education' && (
             <motion.div key="education" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="pt-40 pb-20 max-w-7xl mx-auto px-6">
-              <StudyGuideGenerator isPro={true} onAttemptAccess={() => setView('pricing')} />
+              <div className="bg-slate-900/60 backdrop-blur-3xl p-12 rounded-[3rem] border border-white/10 text-center">
+                <h2 className="text-4xl font-black text-white uppercase mb-4">Education Module</h2>
+                <p className="text-slate-400 mb-8 text-xl">The Study Guide Generator is currently unavailable in this build.</p>
+                <div className="w-20 h-1 bg-emerald-500 mx-auto rounded-full" />
+              </div>
               <button onClick={() => setView('dashboard')} className="w-full mt-12 py-6 bg-slate-900/40 backdrop-blur-xl text-white border border-white/10 rounded-[2rem] font-black uppercase text-sm hover:bg-slate-800 transition-all" style={{ clipPath: OCTAGON_CLIP }}>Back to Dashboard</button>
             </motion.div>
           )}
