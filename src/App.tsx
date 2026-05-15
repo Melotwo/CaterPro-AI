@@ -1183,3 +1183,12 @@ export default function App() {
       {shiftModal && proposal && <ShiftCalculatorModal isOpen={shiftModal.isOpen} onClose={() => setShiftModal(null)} initialIngredients={shiftModal.ingredients} menuTitle={shiftModal.title} guestCount={proposal.guestCount || 0} onUpdateDishCost={(dishName, newCost) => {
         const n = [...(proposal.menu || [])];
         const idx = n.findIndex(m => m.dish === dishName);
+        if (idx !== -1) {
+          n[idx].cost = newCost;
+          setProposal({ ...proposal, menu: n });
+        }
+      }} />
+    }
+    </div>
+  );
+}
