@@ -6,8 +6,9 @@ import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { motion, AnimatePresence } from 'framer-motion';
-import { generateMenuFromApi, generateMenuImageFromApi } from './services/geminiService';
-import { firestoreService } from './firestoreService';
+import { generateMenuFromApi, generateMenuImageFromApi, generateStudyGuideFromApi } from './services/geminiService';
+import { firestoreService } from './services/firestoreService';
+import StudyGuideGenerator from './StudyGuideGenerator';
 import { Menu, MenuItem, Message, ShiftIngredient, DashboardStats, EngineeringItem, SubscriptionPlan, IngredientCost } from './types';
 
 // --- CONSTANTS ---
@@ -1007,7 +1008,8 @@ export default function App() {
             {[
               { id: 'dashboard', label: 'Dashboard', icon: '📊' },
               { id: 'generator', label: 'Generator', icon: '⚡' },
-              { id: 'calculator', label: 'Calculator', icon: '🧮' }
+              { id: 'calculator', label: 'Calculator', icon: '🧮' },
+              { id: 'education', label: 'Education', icon: '🎓' }
             ].map(item => (
               <button 
                 key={item.id} 
@@ -1158,6 +1160,12 @@ export default function App() {
               <button onClick={() => setView('dashboard')} className="w-full mt-8 py-6 bg-slate-900/40 backdrop-blur-xl text-white border border-white/10 rounded-[2rem] font-black uppercase text-sm hover:bg-slate-800 transition-all" style={{ clipPath: OCTAGON_CLIP }}>Back to Dashboard</button>
             </motion.div>
           )}
+          {view === 'education' && (
+            <motion.div key="education" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="pt-40 pb-20 max-w-7xl mx-auto px-6">
+              <StudyGuideGenerator isPro={true} onAttemptAccess={() => setView('pricing')} />
+              <button onClick={() => setView('dashboard')} className="w-full mt-12 py-6 bg-slate-900/40 backdrop-blur-xl text-white border border-white/10 rounded-[2rem] font-black uppercase text-sm hover:bg-slate-800 transition-all" style={{ clipPath: OCTAGON_CLIP }}>Back to Dashboard</button>
+            </motion.div>
+          )}
         </AnimatePresence>
       </main>
 
@@ -1175,11 +1183,3 @@ export default function App() {
       {shiftModal && proposal && <ShiftCalculatorModal isOpen={shiftModal.isOpen} onClose={() => setShiftModal(null)} initialIngredients={shiftModal.ingredients} menuTitle={shiftModal.title} guestCount={proposal.guestCount || 0} onUpdateDishCost={(dishName, newCost) => {
         const n = [...(proposal.menu || [])];
         const idx = n.findIndex(m => m.dish === dishName);
-        if (idx !== -1) {
-          n[idx].cost = newCost;
-          setProposal({ ...proposal, menu: n });
-        }
-      }} />}
-    </div>
-  );
-}
