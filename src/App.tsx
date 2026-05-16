@@ -884,7 +884,15 @@ export default function App() {
     if (!eventType) { setToast('Please enter an event type.'); return; }
     setGenerating(true); setToast('Chef AI is drafting your menu...');
     try {
-      const data = await generateMenuFromApi({ eventType, guestCount, budget, cuisine });
+      const response = await generateMenuFromApi({ eventType, guestCount, budget, cuisine });
+      
+      if (response.error) {
+        console.error("Menu Generation Error Object:", response);
+        setToast(`Generation failed: ${response.error}`);
+        return;
+      }
+
+      const data = response.data;
       // The generateMenuFromApi returns the full JSON object
       const menuData = data.menu || data; 
       
@@ -939,9 +947,9 @@ export default function App() {
 
       setView('proposal');
       setToast('Proposal generated!');
-    } catch (error) {
-      console.error(error);
-      setToast('Generation failed. Please check your API key.');
+    } catch (error: any) {
+      console.error("Unexpected Application Error:", error);
+      setToast(`An unexpected error occurred: ${error.message || 'Check console'}`);
     } finally {
       setGenerating(false);
     }
