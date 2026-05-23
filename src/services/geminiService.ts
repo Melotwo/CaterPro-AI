@@ -1,11 +1,11 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenAI } from '@google/genai';
 
-const HERO_FALLBACK = "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1200&q=80";
+const HERO_FALLBACK = 'https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1200&q=80';
 
 const getApiKey = (): string => {
-  const key = (import.meta as any).env?.VITE_GEMINI_API_KEY ?? '';
-  console.log('API Key check - length:', key ? key.length : 0, '- first 4 chars:', key ? key.substring(0, 4) : 'EMPTY');
-  return key;
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  console.log('API Key status:', apiKey ? 'Found - length: ' + apiKey.length : 'MISSING');
+  return apiKey || '';
 };
 
 export interface ScannedMenuCosting {
@@ -24,22 +24,36 @@ export const generateMenuFromApi = async (params: {
   guestCount: number;
   budget?: string;
   cuisine?: string;
-}): Promise<any> => {
+}): Promise<{ data?: any; error?: string }> => {
   const apiKey = getApiKey();
   if (!apiKey) {
-    return { error: `API key not found. Available env keys: ${Object.keys((import.meta as any).env || {}).join(', ')}` };
+    return { error: 'API Key is missing. Please set VITE_GEMINI_API_KEY.' };
   }
   try {
     const ai = new GoogleGenAI({ apiKey });
+    const prompt = 'As an expert South African catering consultant, generate a premium catering menu for a ' +
+      params.eventType + ' for ' + params.guestCount + ' guests. ' +
+      'Budget: ' + (params.budget || 'Standard R250-R500pp') + '. ' +
+      'Cuisine: ' + (params.cuisine || 'South African') + '. ' +
+      'Return ONLY valid JSON with no markdown or backticks. Use this structure: ' +
+      '{"menuTitle":"string","description":"string",' +
+      '"appetizers":[{"dish":"string","notes":"string","price":0,"cost":0}],' +
+      '"mainCourses":[{"dish":"string","notes":"string","price":0,"cost":0}],' +
+      '"desserts":[{"dish":"string","notes":"string","price":0,"cost":0}],' +
+      '"shoppingList":[{"name":"string","quantity":0,"unit":"string","unitPrice":0,"linkedDish":"string"}],' +
+      '"miseEnPlace":["string"],' +
+      '"serviceNotes":["string"],' +
+      '"deliveryLogistics":["string"],' +
+      '"logistics":{"deliveryFee":0}}';
+
     const result = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
-      contents: `You are an expert South African catering consultant. Generate a premium catering menu for a "${params.eventType}" for ${params.guestCount} guests. Budget: ${params.budget || 'Standard (R250-R500pp)'}. Cuisine: ${params.cuisine || 'South African'}. Return ONLY valid JSON with no markdown, no backticks, no explanation. Use this exact structure:
-{"menuTitle":"string","description":"string","appetizers":[{"dish":"string","notes":"string","price":0,"cost":0}],"mainCourses":[{"dish":"string","notes":"string","price":0,"cost":0}],"desserts":[{"dish":"string","notes":"string","price":0,"cost":0}],"miseEnPlace":["string"],"serviceNotes":["string"],"deliveryLogistics":["string"],"shoppingList":[{"name":"string","quantity":0,"unit":"string","unitPrice":0,"linkedDish":"string"}],"logistics":{"deliveryFee":0}}`
+      model: 'gemini-2.0-flash',
+      contents: prompt
     });
-    const raw = result.text || '';
-    const text = raw.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(text);
-    return { data: parsed };
+
+    const text = (result.text || '').replace(/```json|```/g, '').trim();
+    if (!text) return { error: 'Empty response from AI' };
+    return { data: JSON.parse(text) };
   } catch (error: any) {
     console.error('generateMenuFromApi error:', error);
     return { error: error.message || 'Generation failed' };
@@ -47,24 +61,35 @@ export const generateMenuFromApi = async (params: {
 };
 
 export const generateMenuImageFromApi = async (
-  title: string,
-  description: string,
-  mainCourses?: string[]
+  _title: string,
+  _description: string,
+  _mainCourses?: string[]
 ): Promise<string> => {
-  try {
-    const apiKey = getApiKey();
-    if (!apiKey) return HERO_FALLBACK;
-    const ai = new GoogleGenAI({ apiKey });
-    const prompt = `Premium food photography of a high-end catering spread: ${title}. ${description}. Featuring: ${(mainCourses || []).join(', ')}. Luxurious, appetizing, moody professional lighting.`;
-    const result = await ai.models.generateContent({
-      model: "gemini-2.0-flash-preview-image-generation",
-      contents: prompt,
-      config: {
-        responseModalities: ["IMAGE", "TEXT"],
-        imageConfig: { aspectRatio: "16:9" }
-      }
-    });
-    for (const part of (result.candidates?.[0]?.content?.parts || [])) {
-      if ((part as any).inlineData?.data) {
-        return `data:${(part as any).inlineData.mimeType};base64,${(part as any).inlineData.data}`;
-      }
+  return HERO_FALLBACK;
+};
+
+export const analyzeMenuForCosting = async (
+  _base64: string,
+  _suppliers: string,
+  _currency: string
+): Promise<ScannedMenuCosting> => {
+  return { menuItems: [], totalEstimatedMenuCost: '0.00', marginAdvice: '' };
+};
+
+export const extractIngredientsForShift = async (
+  _miseEnPlace: string[],
+  _menuTitle: string
+): Promise<any[]> => { return []; };
+
+export const regenerateMenuItemFromApi = async (
+  oldText: string,
+  _prompt: string
+): Promise<string> => { return oldText; };
+
+export const generateVideoFromApi = async (_prompt: string): Promise<string> => { return ''; };
+export const generateWhatsAppStatus = async (_menuTitle: string): Promise<string> => { return ''; };
+export const generateSocialCaption = async (_title: string, _desc: string, _platform: string): Promise<string> => { return ''; };
+export const analyzeReceiptFromApi = async (_base64: string): Promise<any> => { return {}; };
+export const analyzeLabelFromApi = async (_base64: string, _dietary: string[]): Promise<any> => { return {}; };
+export const generateCulinaryInfographic = async (_type: string): Promise<string> => { return HERO_FALLBACK; };
+export const generateStudyGuideFromApi = async (_topic: string, _curriculum: string, _level: string, _type: string): Promise<any> => { return {}; };
