@@ -3,9 +3,12 @@ import { GoogleGenAI } from "@google/genai";
 import { ScannedMenuCosting } from "../types";
 
 const getGenAI = () => {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    if (!apiKey) throw new Error("GEMINI_API_KEY is not set. Please add it to your environment variables.");
-    return new GoogleGenAI(apiKey);
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  console.log('API Key status:', apiKey ? 'Found - length: ' + apiKey.length : 'MISSING');
+  if (!apiKey || apiKey.trim() === '') {
+    throw new Error(`API Key is missing. Environment: ${JSON.stringify(import.meta.env)}`);
+  }
+  return new GoogleGenAI(apiKey);
 };
 
 const HERO_FALLBACK = "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1200&q=80";
