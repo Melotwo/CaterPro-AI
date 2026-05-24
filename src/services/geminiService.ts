@@ -112,7 +112,7 @@ export const generateMenuFromApi = async (params: {
     const prompt = 'As an expert catering consultant, generate a premium catering menu for a ' + params.eventType + ' for ' + params.guestCount + ' guests. ' + budgetText + ' ' + cuisineText + ' Return ONLY a JSON object. Keep descriptions concise. REQUIREMENTS: 1. Max 2-3 unique dishes per category (appetizers, mainCourses, desserts). 2. Each dish must include a summary ingredient list for costing. 3. Costs in South African Rand (ZAR). 4. All weights in kg or L. Structure: ' + structurePrompt;
 
     const result = await ai.models.generateContent({
-      model: 'gemini-2.0-flash',
+      model: 'gemini-3.5-flash',
       contents: prompt,
       config: {
         maxOutputTokens: 8000,
@@ -127,7 +127,21 @@ export const generateMenuFromApi = async (params: {
     return { data: JSON.parse(text) };
   } catch (error: any) {
     console.error('AI Generation failed:', error);
-    const message = error.message || 'Unknown error occurred during AI generation.';
+    
+    let message = error.message || 'Unknown error occurred during AI generation.';
+    const errorStr = JSON.stringify(error) + ' ' + String(error) + ' ' + (error.message || '');
+    const isRateLimit = errorStr.includes('429') || 
+                        errorStr.toUpperCase().includes('RESOURCE_EXHAUSTED') || 
+                        errorStr.toLowerCase().includes('rate limit') ||
+                        errorStr.toUpperCase().includes('QUOTA');
+                        
+    if (isRateLimit) {
+      message = 'Quota Exceeded / Rate Limited (429 RESOURCE_EXHAUSTED). ' +
+                'Since you upgraded to the Blaze plan, please make sure you generated and configured a NEW API key ' +
+                'after linking billing, as older keys might still be restricted to the restricted Free Tier. ' +
+                'Also, verify that the key you are using has Google AI Studio access enabled and is correctly set as VITE_GEMINI_API_KEY.';
+    }
+    
     return { error: message };
   }
 };
