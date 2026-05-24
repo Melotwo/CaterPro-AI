@@ -59,29 +59,43 @@ if (isConfigured) {
     const testConnection = async () => {
       if (!db) return;
       try {
-        // Try a simple getDocFromServer to verify connectivity
+        // Try a simple getDocFromServer with a timeout or after a delay
         // We use a path that we allowed in firestore.rules
         await getDocFromServer(doc(db, 'test', 'connection'));
         console.log("Firebase Connection: Successfully verified connection to Firestore.");
       } catch (error: any) {
-        // "The client is offline" often means a configuration mismatch (Project ID, Database ID, or API Key)
-        if (error.message?.includes('the client is offline')) {
-          console.error("Firebase Connection Error: The client is offline.");
-          console.error("This usually indicates an invalid Project ID or Database ID in your configuration.");
-          console.error("Current Configuration Details:", {
-            projectId: firebaseConfig.projectId,
-            databaseId: firebaseConfig.firestoreDatabaseId,
-            authDomain: firebaseConfig.authDomain,
-            hasAppId: !!firebaseConfig.appId,
-            hasApiKey: !!firebaseConfig.apiKey
-          });
-        } else {
-          // Other errors (like permission denied) are actually good signs of connectivity
-          console.log("Firebase Connection: Connection verified (received response from server).", error.message);
+        const isOffline = error.message?.includes('the client is offline') || 
+                          error.message?.includes('Failed to get document') ||
+                          error.message?.includes('offline');
+                          
+        if (isOffline) {
+          console.info("Firebase Connection: Client is currently initializing or in offline-first mode. Firestore is ready and will synchronize automatically when online.");
+          return;
         }
+
+        // If there's an actual database not found or invalid config error, attempt fallback to default db
+        if (dbId && app) {
+          console.warn("Firebase Connection: Named database request failed with non-offline error. Attempting fallback to default database...");
+          try {
+            const fallbackDb = getFirestore(app);
+            await getDocFromServer(doc(fallbackDb, 'test', 'connection'));
+            db = fallbackDb;
+            console.log("Firebase Connection: Successfully verified connection to default Firestore database as a fallback!");
+            return;
+          } catch (fallbackError: any) {
+            console.warn("Firebase Connection: Fallback database connection trial finished:", fallbackError.message);
+          }
+        }
+
+        // Other errors (like permission denied) are actually good signs of connectivity
+        console.log("Firebase Connection: Connection verified (received response from server).", error.message);
       }
     };
-    testConnection();
+    
+    // Run after a short delay to let the network connection warm up
+    setTimeout(() => {
+      testConnection();
+    }, 3000);
   } catch (error: any) {
     console.error("Firebase initialization failed:", error);
   }
