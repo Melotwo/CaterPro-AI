@@ -567,24 +567,25 @@ const RecipeLab: React.FC<{ menu: Menu; onUpdate: (updated: Menu) => void }> = (
   const suggestVariations = async () => {
     setAiLoading(true);
     try {
-      const res = await fetch("/api/suggest-variations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ menu: menu.menu }),
-      });
-
-      if (!res.ok) {
-        throw new Error(`Server error ${res.status}`);
+      const apiKey = getApiKey();
+      if (!apiKey) {
+        throw new Error("VITE_GEMINI_API_KEY is not configured.");
       }
-
-      const data = await res.json();
-      const variations = data.variations || [];
+      const ai = new GoogleGenAI({ apiKey });
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.5-flash',
+        contents: `Given this menu JSON, suggest 3 elegant alternative variations (e.g. vegan, low-carb, allergen-free). Return only a JSON array of strings. Menu:\n${JSON.stringify(menu.menu)}`,
+        config: {
+          responseMimeType: 'application/json',
+        }
+      });
+      const text = (response.text || '').replace(/```json|```/g, '').trim();
+      const parsed = JSON.parse(text);
+      const variations = Array.isArray(parsed) ? parsed : [];
       const updated = { ...menu, serviceNotes: [...menu.serviceNotes, ...variations] };
       onUpdate(updated);
     } catch (err) {
-      console.warn("Server-side suggestVariations failed, falling back inline:", err);
+      console.warn("Client-side suggestVariations failed, falling back inline:", err);
       const variations = [
         "Vegan: Sub Salmon for Beetroot Carpaccio",
         "Gluten-Free: Use GF breadcrumbs for Arancini",
@@ -787,12 +788,10 @@ const AiChatBot: React.FC = () => {
 
   useEffect(() => { 
     if (isOpen && messages.length <= 1) { 
-      // Checked if we have a connection and active server env
-      fetch("/api/health").then(r => r.json()).then(data => {
-        if (!data.hasApiKey) {
-          setMessages(prev => [...prev, { role: 'model', content: "Notice: The server-side API Key is currently not set. Please add GEMINI_API_KEY to your environment variables." }]);
-        }
-      }).catch(() => {});
+      const apiKey = getApiKey();
+      if (!apiKey) {
+        setMessages(prev => [...prev, { role: 'model', content: "Notice: The client-side API Key (VITE_GEMINI_API_KEY) was not found. Please set it in Settings > Secrets." }]);
+      }
     } 
   }, [isOpen]);
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
@@ -801,53 +800,33 @@ const AiChatBot: React.FC = () => {
     e.preventDefault(); if (!input.trim() || loading) return;
     const msg = input; setInput(''); setMessages(prev => [...prev, { role: 'user', content: msg }]); setLoading(true);
     try {
-      const historyPayload = messages.map(m => ({ role: m.role, content: m.content }));
-      const response = await fetch(`/api/chat-stream?message=${encodeURIComponent(msg)}&history=${encodeURIComponent(JSON.stringify(historyPayload))}`);
+      const apiKey = getApiKey();
+      if (!apiKey) {
+        throw new Error("Client API Key is missing. Please configure VITE_GEMINI_API_KEY.");
+      }
+      const ai = new GoogleGenAI({ apiKey });
       
-      if (!response.ok) {
-        throw new Error(`Chat connection failed: status ${response.status}`);
-      }
+      const promptHistory = messages.map(m => ({
+        role: m.role === 'user' ? 'user' : 'model',
+        parts: [{ text: m.content }]
+      }));
 
-      setMessages(prev => [...prev, { role: 'model', content: '' }]);
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder("utf-8");
-      let full = '';
-
-      if (reader) {
-        let done = false;
-        while (!done) {
-          const { value, done: doneReading } = await reader.read();
-          done = doneReading;
-          const chunkStr = decoder.decode(value || new Uint8Array(), { stream: !done });
-          
-          const lines = chunkStr.split("\n");
-          for (const line of lines) {
-            if (line.startsWith("data: ")) {
-              const dataStr = line.slice(6).trim();
-              if (dataStr === "[DONE]") {
-                done = true;
-                break;
-              }
-              try {
-                const parsed = JSON.parse(dataStr);
-                if (parsed.text) {
-                  full += parsed.text;
-                  setMessages(prev => {
-                    const n = [...prev];
-                    n[n.length - 1].content = full;
-                    return n;
-                  });
-                }
-              } catch (e) {
-                // Ignore partial JSON parsing errors
-              }
-            }
-          }
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.5-flash',
+        contents: [
+          ...promptHistory,
+          { role: 'user', parts: [{ text: msg }] }
+        ],
+        config: {
+          systemInstruction: 'You are a friendly and professional AI Catering Consultant and culinary expert. Help users refine their menu proposal, suggest substitutions or wine pairings, and answer questions. Keep answers concise, helpful, and action-oriented.'
         }
-      }
+      });
+
+      const reply = response.text || 'Chef AI did not return a response. Please try again.';
+      setMessages(prev => [...prev, { role: 'model', content: reply }]);
     } catch (err: any) { 
-      console.error("Chat streaming failed:", err);
-      setMessages(prev => [...prev, { role: 'model', content: "Catering consultant is currently resting. Please verify your GEMINI_API_KEY is configured on the backend server." }]);
+      console.error("Chat failed:", err);
+      setMessages(prev => [...prev, { role: 'model', content: `Catering consultant error: ${err.message || 'Check your API Key.'}` }]);
     } finally { 
       setLoading(false); 
     }
