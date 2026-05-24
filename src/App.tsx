@@ -98,7 +98,7 @@ const ProfitGauge: React.FC<{ margin: number }> = ({ margin }) => {
   const rotation = (Math.min(Math.max(margin, 0), 100) / 100) * 180 - 90;
   return (
     <div className="relative w-80 h-40 overflow-hidden mx-auto">
-      <div className="absolute bottom-0 left-0 w-80 h-80 border-[16px] border-slate-800 rounded-full" />
+      <div className="absolute top-0 left-0 w-80 h-80 border-[16px] border-slate-800 rounded-full" />
       <motion.div 
         initial={{ rotate: -90 }}
         animate={{ rotate: rotation }}
@@ -107,7 +107,7 @@ const ProfitGauge: React.FC<{ margin: number }> = ({ margin }) => {
       >
         <div className="w-6 h-6 bg-emerald-500 rounded-full -translate-x-[9px] -translate-y-3 shadow-2xl shadow-emerald-500/50 border-4 border-slate-950" />
       </motion.div>
-      <div className="absolute bottom-0 left-0 w-80 h-80 border-[16px] border-transparent border-t-emerald-500 rounded-full opacity-20" />
+      <div className="absolute top-0 left-0 w-80 h-80 border-[16px] border-transparent border-t-emerald-500 rounded-full opacity-20" />
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 text-center">
         <span className="text-[12px] font-black uppercase tracking-[0.3em] text-slate-500 opacity-60">Profit Margin</span>
         <p className="text-6xl font-black text-white tracking-tighter leading-none mt-2">{margin.toFixed(1)}%</p>
@@ -580,7 +580,7 @@ const RecipeLab: React.FC<{ menu: Menu; onUpdate: (updated: Menu) => void }> = (
     try {
       const ai = new GoogleGenAI({ apiKey });
       const result = await ai.models.generateContent({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.5-flash',
         contents: `As a professional chef, suggest 3 dietary variations (Vegan, Halal, Gluten-Free) for this menu: ${JSON.stringify(menu.menu)}. Provide only the variations as a list of strings.`,
       });
       const text = result.text || '';
@@ -785,7 +785,7 @@ const AiChatBot: React.FC = () => {
         return;
       }
       const ai = new GoogleGenAI({ apiKey }); 
-      chatRef.current = ai.chats.create({ model: 'gemini-2.0-flash', config: { systemInstruction: 'You are a professional AI Catering Consultant.' } }); 
+      chatRef.current = ai.chats.create({ model: 'gemini-3.5-flash', config: { systemInstruction: 'You are a professional AI Catering Consultant.' } }); 
     } 
   }, [isOpen]);
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
