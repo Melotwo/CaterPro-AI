@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { GoogleGenAI, Chat } from '@google/genai';
+import { GoogleGenAI } from '@google/genai';
 import { Message, ErrorState } from './types';
 import { getApiErrorState } from './apiErrorHandler';
+import { getApiKey } from './services/geminiService';
 
 const AiChatBot: React.FC<{
   onAttemptAccess: () => boolean;
@@ -18,16 +19,12 @@ const AiChatBot: React.FC<{
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<ErrorState | null>(null);
 
-    const chatRef = useRef<Chat | null>(null);
     const messagesEndRef = useRef<HTMLDivElement | null>(null);
     const inputRef = useRef<HTMLInputElement | null>(null);
 
     useEffect(() => {
         if (isOpen && isPro) {
             inputRef.current?.focus();
-            if (!chatRef.current) {
-                initializeChat();
-            }
         }
     }, [isOpen, isPro]);
 
@@ -49,22 +46,11 @@ const AiChatBot: React.FC<{
         scrollToBottom();
     }, [messages, isLoading]);
     
-    /**
+     /**
      * Initializes the Gemini Chat session.
      */
     const initializeChat = () => {
-        try {
-            const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
-            chatRef.current = ai.chats.create({
-              model: 'gemini-3.5-flash',
-              config: {
-                systemInstruction: 'You are a friendly and professional AI Catering Consultant and culinary expert. Your primary role is to help users refine their generated menu proposals by providing specific, actionable advice about individual dishes. Focus on suggesting ingredient substitutions (e.g., "To make the risotto dairy-free, you can use a high-quality olive oil instead of butter and nutritional yeast for a cheesy flavor.") and alternative cooking methods (e.g., "For a lighter version of the chicken piccata, you could bake the chicken instead of pan-frying it."). Also, continue to offer advice on wine pairings and service logistics. Keep your answers concise, helpful, and encouraging. Do not generate full menu proposals, only answer questions about them.',
-              },
-            });
-        } catch (e) {
-            console.error("Failed to initialize chat:", e);
-            setError(getApiErrorState(e));
-        }
+        // Chat is processed server-side demand-by-demand now to be extremely robust.
     };
 
     const handleSendMessage = async (e: React.FormEvent) => {
@@ -77,34 +63,45 @@ const AiChatBot: React.FC<{
         setUserInput('');
         setIsLoading(true);
 
-        if (!chatRef.current) {
-             setIsLoading(false);
-             setError({
-                 title: "Initialization Failed",
-                 message: "Chat has not been initialized. Please close and reopen the chat window."
-             });
-             return;
-        }
-
         try {
-            const responseStream = await chatRef.current.sendMessageStream({ message: trimmedInput });
+            const apiKey = getApiKey();
+            if (!apiKey) {
+                throw new Error("Client-side Gemini API Key (VITE_GEMINI_API_KEY) was not found in Settings > Secrets.");
+            }
+            const ai = new GoogleGenAI({ apiKey });
             
-            let currentResponse = '';
+            const promptHistory = messages.map(m => ({
+                role: m.role === 'user' ? 'user' : 'model',
+                parts: [{ text: m.content }]
+            }));
+
             setMessages(prev => [...prev, { role: 'model', content: '' }]);
 
-            for await (const chunk of responseStream) {
-                currentResponse += chunk.text;
-                setMessages(prev => {
-                    const newMessages = [...prev];
-                    if (newMessages.length > 0 && newMessages[newMessages.length - 1].role === 'model') {
-                      newMessages[newMessages.length - 1].content = currentResponse;
-                    }
-                    return newMessages;
-                });
-            }
+            const response = await ai.models.generateContent({
+                model: 'gemini-3.5-flash',
+                contents: [
+                    ...promptHistory,
+                    { role: 'user', parts: [{ text: trimmedInput }] }
+                ],
+                config: {
+                    systemInstruction: 'You are a warm, friendly, and professional AI Catering Consultant and culinary expert. Your primary role is to help users refine their generated menu proposals. Suggest ingredient substitutions and alternative cooking methods. Offer advice on wine pairings and service logistics. Keep answers concise and helpful.'
+                }
+            });
 
-        } catch (err) {
-            setError(getApiErrorState(err));
+            const replyText = response.text || '';
+            setMessages(prev => {
+                const newMessages = [...prev];
+                if (newMessages.length > 0 && newMessages[newMessages.length - 1].role === 'model') {
+                    newMessages[newMessages.length - 1].content = replyText;
+                }
+                return newMessages;
+            });
+        } catch (err: any) {
+            console.error("Chat failure on client-side:", err);
+            setError({
+                title: "Inquiry Failed",
+                message: err.message || "Could not fetch advice from Gemini on the client side. Please check your key or try again."
+            });
             setMessages(prev => {
                 const lastMessage = prev[prev.length - 1];
                 if (lastMessage && lastMessage.role === 'model' && lastMessage.content === '') {
