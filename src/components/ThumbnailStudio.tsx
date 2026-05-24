@@ -1,6 +1,5 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Camera, Download, Layout, Type, Sparkles, Image as ImageIcon, ShieldCheck, Zap, ArrowRight, Loader2, Eye, Search, AlertCircle, CheckCircle2, Maximize, Smartphone, AlertTriangle, Star, Save, X } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
 const TEMPLATES = [
@@ -17,8 +16,8 @@ const ThumbnailStudio: React.FC = () => {
   const [bgImage, setBgImage] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [showSimulator, setShowSimulator] = useState(false);
-  const [showSafetyZone, setShowSafetyZone] = useState(false);
   const [capturedImageUrl, setCapturedImageUrl] = useState<string | null>(null);
+  const [showPhotoMode, setShowPhotoMode] = useState(false);
   
   const previewRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -29,7 +28,7 @@ const ThumbnailStudio: React.FC = () => {
       const reader = new FileReader();
       reader.onload = (event) => {
         setBgImage(event.target?.result as string);
-        setCapturedImageUrl(null); // Reset preview on change
+        setCapturedImageUrl(null);
       };
       reader.readAsDataURL(file);
     }
@@ -39,35 +38,26 @@ const ThumbnailStudio: React.FC = () => {
     if (!previewRef.current) return;
     setIsExporting(true);
     setCapturedImageUrl(null);
-    
-    const wasSafetyOn = showSafetyZone;
-    setShowSafetyZone(false);
 
     try {
-      // Small delay to ensure any layout changes are settled
-      await new Promise(r => setTimeout(r, 200));
+      await new Promise(r => setTimeout(r, 300));
       
       const canvas = await html2canvas(previewRef.current, {
-        scale: 3, // High quality for Fiverr
+        scale: 4, // Ultra-high quality for Fiverr
         useCORS: true,
         backgroundColor: null,
         logging: false,
+        allowTaint: true,
       });
 
-      const dataUrl = canvas.toDataURL('image/png');
+      const dataUrl = canvas.toDataURL('image/png', 1.0);
       setCapturedImageUrl(dataUrl);
-      
-      // Still try programmatic download for desktop users
-      const link = document.createElement('a');
-      link.download = `CaterPro_Fiverr_${Date.now()}.png`;
-      link.href = dataUrl;
-      link.click();
+      setShowPhotoMode(true); // Automatically open photo mode for easy saving
       
     } catch (err) {
       console.error('Export failed', err);
     } finally {
       setIsExporting(false);
-      setShowSafetyZone(wasSafetyOn);
     }
   };
 
@@ -76,7 +66,7 @@ const ThumbnailStudio: React.FC = () => {
       <div className="max-w-3xl">
         <div className="flex items-center gap-3 mb-4">
             <div className="p-2.5 bg-indigo-500 rounded-2xl text-white shadow-lg shadow-indigo-500/20">
-                <Layout size={28} />
+                <span className="text-2xl">🖼️</span>
             </div>
             <div>
                 <h3 className="text-3xl font-black text-slate-900 dark:text-white uppercase tracking-tight leading-none">Asset Studio</h3>
@@ -84,7 +74,7 @@ const ThumbnailStudio: React.FC = () => {
             </div>
         </div>
         <p className="text-lg text-slate-500 font-medium leading-relaxed mt-6">
-          Create high-contrast Fiverr Gig images. After clicking generate, **long-press the final image** to save it to your iPad Photos.
+          Create high-contrast Fiverr Gig images. Once generated, the **Photo Mode** will open. Hold down on the image to save it.
         </p>
       </div>
 
@@ -99,13 +89,13 @@ const ThumbnailStudio: React.FC = () => {
               >
                 {bgImage ? (
                     <div className="flex flex-col items-center gap-2">
-                        <CheckCircle2 size={40} className="text-emerald-500" />
-                        <span className="text-emerald-600">Screenshot Loaded</span>
+                        <span className="text-4xl">✅</span>
+                        <span className="text-emerald-600 font-black uppercase tracking-widest">Image Ready</span>
                     </div>
                 ) : (
                     <>
-                        <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-full group-hover:scale-110 transition-transform">
-                            <Camera size={32} className="opacity-40" />
+                        <div className="p-4 bg-slate-50 dark:bg-slate-800 rounded-full group-hover:scale-110 transition-transform text-3xl">
+                            📷
                         </div>
                         <span>Upload App Screenshot</span>
                     </>
@@ -137,13 +127,13 @@ const ThumbnailStudio: React.FC = () => {
                     type="text" 
                     value={title} 
                     onChange={(e) => { setTitle(e.target.value.toUpperCase()); setCapturedImageUrl(null); }}
-                    className="w-full px-5 py-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-black uppercase"
+                    className="w-full px-5 py-4 rounded-2xl bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-700 text-sm font-black uppercase focus:border-indigo-500 outline-none"
                 />
                 <input 
                     type="text" 
                     value={subtitle} 
                     onChange={(e) => { setSubtitle(e.target.value); setCapturedImageUrl(null); }}
-                    className="w-full px-5 py-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-sm font-bold"
+                    className="w-full px-5 py-4 rounded-2xl bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-700 text-sm font-bold focus:border-indigo-500 outline-none"
                 />
               </div>
             </div>
@@ -153,110 +143,84 @@ const ThumbnailStudio: React.FC = () => {
             <button 
                 onClick={exportThumbnail}
                 disabled={isExporting || !bgImage}
-                className="py-5 bg-amber-500 text-white rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50 transition-all hover:bg-amber-600"
+                className="py-6 bg-indigo-600 text-white rounded-[2rem] font-black text-xs uppercase tracking-widest shadow-2xl flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50 transition-all hover:bg-indigo-700"
             >
-                {isExporting ? <Loader2 className="animate-spin" /> : <Sparkles size={20} />}
+                {isExporting ? <span className="animate-spin">⏳</span> : <span className="text-xl">✨</span>}
                 Generate Final Image
             </button>
             <button 
                 onClick={() => setShowSimulator(!showSimulator)}
-                className={`py-5 rounded-2xl font-black text-xs uppercase tracking-widest border-2 transition-all flex items-center justify-center gap-3 ${showSimulator ? 'bg-slate-950 text-white' : 'bg-white text-slate-600 border-slate-200'}`}
+                className={`py-6 rounded-[2rem] font-black text-xs uppercase tracking-widest border-2 transition-all flex items-center justify-center gap-3 ${showSimulator ? 'bg-slate-950 text-white' : 'bg-white text-slate-600 border-slate-200'}`}
             >
-                <Maximize size={20} /> Preview Grid
+                <span className="text-xl">🔍</span> Preview Grid
             </button>
           </div>
-
-          {/* iPad Save Instructions Area */}
-          {capturedImageUrl && (
-              <div className="p-8 bg-emerald-50 dark:bg-emerald-900/20 border-4 border-emerald-500/30 rounded-[3rem] animate-slide-in">
-                  <div className="flex items-center gap-3 mb-4 text-emerald-700 dark:text-emerald-400">
-                      <Save size={24} />
-                      <h4 className="font-black uppercase tracking-tight">Step 2: Save to iPad</h4>
-                  </div>
-                  <p className="text-sm text-emerald-800 dark:text-emerald-300 font-medium mb-6">
-                      Your photo is ready below. **Hold your finger on the image** then select **"Save to Photos"**.
-                  </p>
-                  <div className="relative group">
-                      <img 
-                        src={capturedImageUrl} 
-                        alt="Final Gig Asset" 
-                        className="w-full rounded-2xl shadow-2xl border-4 border-white dark:border-slate-800"
-                      />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none rounded-2xl">
-                          <p className="text-white font-black text-xs uppercase tracking-widest">Hold to Save</p>
-                      </div>
-                  </div>
-                  <button 
-                    onClick={() => setCapturedImageUrl(null)}
-                    className="mt-6 w-full py-3 bg-white/50 text-emerald-800 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2"
-                  >
-                      <X size={14} /> Clear Preview
-                  </button>
-              </div>
-          )}
         </div>
 
         <div className="relative">
           <div className="sticky top-24 space-y-6">
+            {/* THE ACTUAL PREVIEW ELEMENT */}
             <div 
               ref={previewRef}
-              className={`relative aspect-[1280/769] w-full rounded-[2rem] overflow-hidden shadow-2xl border-[8px] border-white dark:border-slate-800 ${template.bg}`}
+              className={`relative aspect-[1280/769] w-full rounded-[2rem] overflow-hidden shadow-2xl border-[12px] border-white dark:border-slate-800 ${template.bg}`}
             >
               {bgImage && (
                 <div className="absolute inset-0 z-0">
-                  <img src={bgImage} className="w-full h-full object-cover opacity-40 scale-125" alt="App Content" />
-                  <div className={`absolute inset-0 bg-gradient-to-r ${template.bg} via-transparent to-transparent opacity-80`}></div>
+                  <img src={bgImage} className="w-full h-full object-cover opacity-30 scale-110" alt="App Content" />
+                  <div className={`absolute inset-0 bg-gradient-to-r ${template.bg} via-transparent to-transparent opacity-90`}></div>
                 </div>
               )}
 
-              <div className="relative z-10 p-12 h-full flex flex-col justify-center max-w-[85%]">
-                <div className="flex items-center gap-4 mb-6">
+              {/* Spacing Fix: Container max-width set to 70% to guarantee no logo overlap */}
+              <div className="relative z-10 p-12 h-full flex flex-col justify-center max-w-[70%]">
+                <div className="flex items-center gap-4 mb-8">
                     <div className="p-4 bg-white/20 backdrop-blur-xl rounded-2xl border border-white/20 shadow-xl">
-                        <Sparkles className={template.text} size={28} />
+                        <span className={`${template.text} text-3xl`}>✨</span>
                     </div>
-                    <span className={`text-xs font-black uppercase tracking-[0.5em] ${template.accent}`}>{tag}</span>
+                    <span className={`text-sm font-black uppercase tracking-[0.5em] ${template.accent}`}>{tag}</span>
                 </div>
                 
-                <h4 className={`text-6xl font-black leading-[0.85] tracking-tighter ${template.text} mb-8`}>
+                <h4 className={`text-6xl sm:text-7xl font-black leading-[0.8] tracking-tighter ${template.text} mb-10`}>
                   {title}
                 </h4>
                 
-                <p className={`text-2xl font-black italic opacity-95 ${template.text} leading-tight`}>
+                <p className={`text-2xl sm:text-3xl font-black italic opacity-95 ${template.text} leading-tight`}>
                   "{subtitle}"
                 </p>
 
                 {template.id === 'fiverr' && (
-                    <div className="mt-10 flex items-center gap-4">
-                        <div className="px-6 py-3 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest">PRO SELLER</div>
-                        <div className="flex text-slate-900 gap-1"><Star size={16} fill="currentColor"/><Star size={16} fill="currentColor"/><Star size={16} fill="currentColor"/><Star size={16} fill="currentColor"/><Star size={16} fill="currentColor"/></div>
+                    <div className="mt-12 flex items-center gap-4">
+                        <div className="px-8 py-3.5 bg-slate-900 text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] shadow-xl">PRO SELLER</div>
+                        <div className="flex text-slate-900 gap-1.5">⭐⭐⭐⭐⭐</div>
                     </div>
                 )}
               </div>
 
-              <div className="absolute bottom-10 right-10 flex flex-col items-end">
-                 <div className="bg-black/20 backdrop-blur-xl px-6 py-4 rounded-[2rem] border border-white/10 shadow-2xl flex items-center gap-4">
-                    <img src="/logo.svg" className="w-10 h-10 rounded-lg" alt="Logo" />
-                    <p className="text-xs font-black text-white uppercase tracking-widest">CaterPro AI</p>
+              {/* Logo Isolated at Bottom Right with padding */}
+              <div className="absolute bottom-12 right-12 flex flex-col items-end">
+                 <div className="bg-white/10 backdrop-blur-2xl px-6 py-5 rounded-[2.5rem] border border-white/20 shadow-2xl flex items-center gap-4">
+                    <img src="/logo.png" className="w-12 h-12 rounded-xl shadow-xl" alt="Logo" />
+                    <p className={`text-xs font-black uppercase tracking-[0.2em] ${template.text}`}>CaterPro AI</p>
                  </div>
               </div>
             </div>
 
             {showSimulator && (
-                <div className="p-8 bg-slate-100 dark:bg-slate-950 rounded-[2.5rem] border-4 border-dashed border-indigo-200 animate-slide-in">
-                    <div className="grid grid-cols-2 gap-6">
-                        <div className="bg-white dark:bg-slate-900 rounded-2xl overflow-hidden shadow-2xl border-4 border-indigo-500 scale-105 relative z-10">
-                            <div className={`h-24 ${template.bg} flex items-center justify-center`}>
-                                <p className={`text-[8px] font-black uppercase text-center px-4 ${template.text}`}>{title}</p>
+                <div className="p-10 bg-slate-100 dark:bg-slate-950 rounded-[3rem] border-4 border-dashed border-indigo-200 animate-slide-in">
+                    <div className="grid grid-cols-2 gap-8">
+                        <div className="bg-white dark:bg-slate-900 rounded-3xl overflow-hidden shadow-2xl border-[6px] border-indigo-500 scale-105 relative z-10">
+                            <div className={`h-32 ${template.bg} flex items-center justify-center p-4`}>
+                                <p className={`text-[10px] font-black uppercase text-center ${template.text} leading-tight`}>{title}</p>
                             </div>
-                            <div className="p-3">
-                                <h5 className="text-[10px] font-black">CaterPro AI: Business Systems</h5>
-                                <div className="text-amber-500 text-[8px] mt-1">★★★★★ (5.0)</div>
+                            <div className="p-4">
+                                <h5 className="text-[12px] font-black leading-none mb-1">CaterPro AI: Business Systems</h5>
+                                <div className="text-amber-500 text-[10px]">★★★★★ (5.0)</div>
                             </div>
                         </div>
-                        {[1, 2].map(i => (
-                            <div key={i} className="bg-white rounded-2xl overflow-hidden opacity-30 grayscale pointer-events-none">
-                                <div className="h-24 bg-slate-200"></div>
-                                <div className="p-3"><div className="h-2 bg-slate-100 w-3/4"></div></div>
+                        {[1].map(i => (
+                            <div key={i} className="bg-white rounded-3xl overflow-hidden opacity-30 grayscale pointer-events-none border-2 border-slate-200">
+                                <div className="h-32 bg-slate-200"></div>
+                                <div className="p-4"><div className="h-3 bg-slate-100 w-3/4 rounded"></div></div>
                             </div>
                         ))}
                     </div>
@@ -265,6 +229,54 @@ const ThumbnailStudio: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* FULL SCREEN PHOTO MODE MODAL FOR IPAD SAVING */}
+      {showPhotoMode && capturedImageUrl && (
+          <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-slate-950/95 backdrop-blur-2xl p-4 sm:p-10 animate-fade-in">
+              <div className="max-w-4xl w-full flex flex-col gap-6">
+                  <div className="flex justify-between items-center text-white">
+                      <div className="flex items-center gap-4">
+                          <div className="p-3 bg-indigo-600 rounded-2xl shadow-xl animate-bounce text-2xl">
+                              🖼️
+                          </div>
+                          <div>
+                              <h3 className="text-xl font-black uppercase tracking-tight">Photo Mode Active</h3>
+                              <p className="text-xs text-indigo-400 font-bold uppercase tracking-widest">Hold image below to save</p>
+                          </div>
+                      </div>
+                      <button 
+                        onClick={() => setShowPhotoMode(false)}
+                        className="p-4 bg-white/10 hover:bg-white/20 rounded-full transition-all text-white text-2xl"
+                      >
+                          ❌
+                      </button>
+                  </div>
+
+                  <div className="relative group rounded-[2.5rem] overflow-hidden border-4 border-white shadow-2xl bg-black">
+                      {/* This image tag is specifically styled for easy iOS context menu triggers */}
+                      <img 
+                        src={capturedImageUrl} 
+                        alt="Hold to Save" 
+                        className="w-full h-auto cursor-pointer select-none active:scale-[0.99] transition-transform"
+                        onContextMenu={(e) => e.preventDefault()} // Prevents accidental menu on long tap if using custom triggers
+                      />
+                      <div className="absolute inset-x-0 bottom-0 p-8 bg-gradient-to-t from-black/80 to-transparent pointer-events-none">
+                          <div className="flex items-center justify-center gap-3 text-white text-sm font-black uppercase tracking-widest">
+                              <span className="animate-pulse">📱</span>
+                              Long-press & Select "Save to Photos"
+                          </div>
+                      </div>
+                  </div>
+
+                  <button 
+                    onClick={() => setShowPhotoMode(false)}
+                    className="w-full py-5 bg-white text-slate-950 rounded-2xl font-black text-sm uppercase tracking-widest hover:scale-105 active:scale-95 transition-all shadow-2xl"
+                  >
+                      Close Photo Mode
+                  </button>
+              </div>
+          </div>
+      )}
     </div>
   );
 };
