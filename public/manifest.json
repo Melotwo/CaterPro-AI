@@ -9,14 +9,14 @@
   "description": "AI-powered menu planning for catering professionals.",
   "icons": [
     {
-      "src": "/logo.svg?v=20260101",
-      "type": "image/svg+xml",
+      "src": "/logo.png?v=20260101",
+      "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
     },
     {
-      "src": "/logo.svg?v=20260101",
-      "type": "image/svg+xml",
+      "src": "/logo.png?v=20260101",
+      "type": "image/png",
       "sizes": "192x192",
       "purpose": "any maskable"
     }
