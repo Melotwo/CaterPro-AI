@@ -6,7 +6,7 @@ import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { GoogleGenAI, Chat } from '@google/genai';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { motion, AnimatePresence } from 'framer-motion';
-import { generateMenuFromApi, generateMenuImageFromApi } from './services/geminiService';
+import { generateMenuFromApi, generateMenuImageFromApi, getApiKey } from './services/geminiService';
 import { Menu, MenuItem, Message, ShiftIngredient, DashboardStats, EngineeringItem, SubscriptionPlan, IngredientCost } from './types';
 
 // --- CONSTANTS ---
@@ -474,6 +474,11 @@ const DashboardView: React.FC<{ stats: DashboardStats; recent: Menu[]; onGenerat
           <div key={idx} onClick={() => onSelectProposal(menu)} className="bg-slate-900/40 backdrop-blur-md rounded-[3rem] border border-white/10 overflow-hidden cursor-pointer group hover:scale-[1.02] transition-all">
             <div className="h-40 relative">
               <img src={menu.heroImage || HERO_FALLBACK} alt="" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all opacity-40 group-hover:opacity-80" />
+              {menu.heroImage?.includes('is_fallback=true') && (
+                <div className="absolute top-4 left-4 z-20 bg-slate-950/85 backdrop-blur-sm text-[8px] uppercase tracking-wider px-2.5 py-1 rounded-lg text-slate-400 font-bold border border-white/5">
+                  Curated
+                </div>
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent" />
               <div className="absolute bottom-6 left-6 right-6">
                 <h5 className="font-black text-white uppercase italic truncate">{menu.title}</h5>
@@ -560,35 +565,33 @@ const RecipeLab: React.FC<{ menu: Menu; onUpdate: (updated: Menu) => void }> = (
   };
 
   const suggestVariations = async () => {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
-    if (!apiKey) {
-      setAiLoading(true);
-      setTimeout(() => {
-        const variations = [
-          "Vegan: Sub Salmon for Beetroot Carpaccio",
-          "Gluten-Free: Use GF breadcrumbs for Arancini",
-          "Halal: Ensure all meat is certified Halal"
-        ];
-        const updated = { ...menu, serviceNotes: [...menu.serviceNotes, ...variations] };
-        onUpdate(updated);
-        setAiLoading(false);
-      }, 1500);
-      return;
-    }
-
     setAiLoading(true);
     try {
-      const ai = new GoogleGenAI({ apiKey });
-      const result = await ai.models.generateContent({
-        model: 'gemini-3.5-flash',
-        contents: `As a professional chef, suggest 3 dietary variations (Vegan, Halal, Gluten-Free) for this menu: ${JSON.stringify(menu.menu)}. Provide only the variations as a list of strings.`,
+      const res = await fetch("/api/suggest-variations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ menu: menu.menu }),
       });
-      const text = result.text || '';
-      const variations = text.split('\n').filter((line: string) => line.trim());
+
+      if (!res.ok) {
+        throw new Error(`Server error ${res.status}`);
+      }
+
+      const data = await res.json();
+      const variations = data.variations || [];
       const updated = { ...menu, serviceNotes: [...menu.serviceNotes, ...variations] };
       onUpdate(updated);
     } catch (err) {
-      console.error(err);
+      console.warn("Server-side suggestVariations failed, falling back inline:", err);
+      const variations = [
+        "Vegan: Sub Salmon for Beetroot Carpaccio",
+        "Gluten-Free: Use GF breadcrumbs for Arancini",
+        "Halal: Ensure all meat is certified Halal"
+      ];
+      const updated = { ...menu, serviceNotes: [...menu.serviceNotes, ...variations] };
+      onUpdate(updated);
     } finally {
       setAiLoading(false);
     }
@@ -655,6 +658,12 @@ const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => 
           onError={(e) => { (e.target as HTMLImageElement).src = HERO_FALLBACK; }}
           referrerPolicy="no-referrer"
         />
+        {proposal.heroImage?.includes('is_fallback=true') && (
+          <div className="absolute top-8 left-8 z-20 bg-slate-950/80 backdrop-blur-md px-4 py-2 border border-emerald-500/25 rounded-2xl flex items-center gap-2 text-xs text-slate-300 font-bold tracking-wide shadow-lg">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            Curated Presentation Photo
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent pointer-events-none" />
         <div className="absolute bottom-8 left-8">
            <div contentEditable suppressContentEditableWarning onBlur={(e) => updateRoot('title', e.currentTarget.textContent || '')} className="text-6xl font-black text-white uppercase tracking-tighter outline-none focus:ring-2 focus:ring-emerald-500/20 rounded-xl p-1">{proposal.title}</div>
@@ -774,18 +783,16 @@ const AiChatBot: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([{ role: 'model', content: "Hello Chef! How can I help with your menu?" }]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
-  const chatRef = useRef<Chat | null>(null);
   const endRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => { 
-    if (isOpen && !chatRef.current) { 
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
-      if (!apiKey) {
-        setMessages(prev => [...prev, { role: 'model', content: "Gemini API Key is missing. AI features are disabled." }]);
-        return;
-      }
-      const ai = new GoogleGenAI({ apiKey }); 
-      chatRef.current = ai.chats.create({ model: 'gemini-3.5-flash', config: { systemInstruction: 'You are a professional AI Catering Consultant.' } }); 
+    if (isOpen && messages.length <= 1) { 
+      // Checked if we have a connection and active server env
+      fetch("/api/health").then(r => r.json()).then(data => {
+        if (!data.hasApiKey) {
+          setMessages(prev => [...prev, { role: 'model', content: "Notice: The server-side API Key is currently not set. Please add GEMINI_API_KEY to your environment variables." }]);
+        }
+      }).catch(() => {});
     } 
   }, [isOpen]);
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
@@ -794,10 +801,56 @@ const AiChatBot: React.FC = () => {
     e.preventDefault(); if (!input.trim() || loading) return;
     const msg = input; setInput(''); setMessages(prev => [...prev, { role: 'user', content: msg }]); setLoading(true);
     try {
-      const res = await chatRef.current!.sendMessageStream({ message: msg });
-      let full = ''; setMessages(prev => [...prev, { role: 'model', content: '' }]);
-      for await (const chunk of res) { full += chunk.text; setMessages(prev => { const n = [...prev]; n[n.length - 1].content = full; return n; }); }
-    } catch (err) { console.error(err); } finally { setLoading(false); }
+      const historyPayload = messages.map(m => ({ role: m.role, content: m.content }));
+      const response = await fetch(`/api/chat-stream?message=${encodeURIComponent(msg)}&history=${encodeURIComponent(JSON.stringify(historyPayload))}`);
+      
+      if (!response.ok) {
+        throw new Error(`Chat connection failed: status ${response.status}`);
+      }
+
+      setMessages(prev => [...prev, { role: 'model', content: '' }]);
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let full = '';
+
+      if (reader) {
+        let done = false;
+        while (!done) {
+          const { value, done: doneReading } = await reader.read();
+          done = doneReading;
+          const chunkStr = decoder.decode(value || new Uint8Array(), { stream: !done });
+          
+          const lines = chunkStr.split("\n");
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const dataStr = line.slice(6).trim();
+              if (dataStr === "[DONE]") {
+                done = true;
+                break;
+              }
+              try {
+                const parsed = JSON.parse(dataStr);
+                if (parsed.text) {
+                  full += parsed.text;
+                  setMessages(prev => {
+                    const n = [...prev];
+                    n[n.length - 1].content = full;
+                    return n;
+                  });
+                }
+              } catch (e) {
+                // Ignore partial JSON parsing errors
+              }
+            }
+          }
+        }
+      }
+    } catch (err: any) { 
+      console.error("Chat streaming failed:", err);
+      setMessages(prev => [...prev, { role: 'model', content: "Catering consultant is currently resting. Please verify your GEMINI_API_KEY is configured on the backend server." }]);
+    } finally { 
+      setLoading(false); 
+    }
   };
 
   return (
@@ -946,7 +999,11 @@ export default function App() {
       setRecentProposals(prev => [newProposal, ...prev].slice(0, 3));
 
       setView('proposal');
-      setToast('Proposal generated!');
+      if (heroImage && heroImage.includes('is_fallback=true')) {
+        setToast('Proposal generated! Matched with beautiful curated culinary photography (AI generation quota exhausted/limited).');
+      } else {
+        setToast('Proposal generated!');
+      }
     } catch (error: any) {
       console.error("Unexpected Application Error:", error);
       setToast(`An unexpected error occurred: ${error.message || 'Check console'}`);
