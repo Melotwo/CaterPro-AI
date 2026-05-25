@@ -282,25 +282,25 @@ export async function generateMenuImageFromApi(menuTitle: string, eventType: str
   const photographyStandards = "Award-winning editorial food portrait photography, luxury fine dining plating design, natural window side-lighting, macro crisp texture, realistic rich colors, zero text artifacts, set against a premium backdrop (slate, premium ceramic, or polished dark wood).";
 
   // Dynamic builder weaving the exact menu's title into the text string to guarantee unique graphics every single run
-  let promptString = `A unique, elegant culinary portrait of "${menuTitle}", curated for a luxury ${eventType}. ${photographyStandards}`;
+  let promptString = `Award-winning editorial food portrait photography, luxury fine dining plating design, natural window side-lighting, macro crisp texture, realistic rich colors, zero text artifacts, representing the catering menu: ${menuTitle}`;
 
   // Culture & Cuisine Guardrails
   const textContext = `${menuTitle} ${eventType}`.toLowerCase();
   if (textContext.includes('braai') || textContext.includes('premium south african')) {
-    promptString += " Elegant flame-char textures, high-grade Boerewors coils, polished brass elements, authentic South African luxury setting, sunset warmth.";
+    promptString += ". Elegant flame-char textures, high-grade Boerewors coils, polished brass elements, authentic South African luxury setting, sunset warmth.";
+  } else {
+    promptString += ` (curated for a luxury ${eventType})`;
   }
 
   try {
+    // Correct Google AI Studio REST payload format for imagen-3.0-generate-002
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:generateImages?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        prompt: promptString,
-        aspectRatio: "16:9",
-        numberOfImages: 1,
-        outputMimeType: "image/jpeg"
+        prompt: promptString
       }),
       signal: controller.signal
     });
