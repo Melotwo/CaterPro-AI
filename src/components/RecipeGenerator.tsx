@@ -4,7 +4,7 @@ import { GoogleGenAI } from '@google/genai';
 import { getApiKey } from '../services/geminiService';
 import { Menu } from '../types';
 
-interface RecipeGeneratorViewProps {
+interface RecipeGeneratorProps {
   generatedMenu: Menu | null;
   activeRecipe: any | null;
   setActiveRecipe: (recipe: any | null) => void;
@@ -14,7 +14,6 @@ interface RecipeGeneratorViewProps {
 
 const OCTAGON_CLIP = 'polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%)';
 
-// Helper function to clean and parse JSON
 const cleanAndParseJson = (rawText: string): any => {
   let cleaned = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
   const firstBrace = cleaned.indexOf('{');
@@ -37,7 +36,7 @@ const cleanAndParseJson = (rawText: string): any => {
   }
 };
 
-export const RecipeGeneratorView: React.FC<RecipeGeneratorViewProps> = ({
+export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
   generatedMenu,
   activeRecipe,
   setActiveRecipe,
@@ -51,7 +50,6 @@ export const RecipeGeneratorView: React.FC<RecipeGeneratorViewProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [completedSteps, setCompletedSteps] = useState<Record<number, boolean>>({});
 
-  // Dynamic menu item compiler
   const menuDishes = React.useMemo(() => {
     if (!generatedMenu) return [];
     const items = generatedMenu.menu || (generatedMenu as any).items || [];
@@ -61,7 +59,6 @@ export const RecipeGeneratorView: React.FC<RecipeGeneratorViewProps> = ({
     return [];
   }, [generatedMenu]);
 
-  // Set default selection if menu dishes exist
   useEffect(() => {
     if (menuDishes.length > 0 && !selectedDish) {
       setSelectedDish(menuDishes[0]);
@@ -79,7 +76,6 @@ export const RecipeGeneratorView: React.FC<RecipeGeneratorViewProps> = ({
     setError(null);
     setCompletedSteps({});
 
-    // Chef milestone progress updates to engage users
     const benchmarks = [
       "Paging through Larousse Gastronomique volumes...",
       "Consulting Classical Escoffier directories...",
@@ -191,7 +187,7 @@ Format the response strictly as a JSON object matching this schema. Provide no o
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 items-start">
         
-        {/* Selection / Parameters Sidebar Column */}
+        {/* Selection / Parameters Column */}
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-slate-900/60 backdrop-blur-3xl p-8 rounded-[3rem] border border-white/10 shadow-xl space-y-8">
             <div className="flex items-center gap-3 border-b border-white/5 pb-4">
@@ -476,4 +472,4 @@ Format the response strictly as a JSON object matching this schema. Provide no o
   );
 };
 
-export default RecipeGeneratorView;
+export default RecipeGenerator;
