@@ -6,10 +6,9 @@ import { Menu } from '../types';
 
 interface RecipeGeneratorProps {
   generatedMenu: Menu | null;
-  activeRecipe: any | null;
-  setActiveRecipe: (recipe: any | null) => void;
   region: string;
-  setView: (view: string) => void;
+  selectedItemName: string;
+  setSelectedItemName: (name: string) => void;
 }
 
 const OCTAGON_CLIP = 'polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%)';
@@ -38,18 +37,19 @@ const cleanAndParseJson = (rawText: string): any => {
 
 export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
   generatedMenu,
-  activeRecipe,
-  setActiveRecipe,
   region,
-  setView
+  selectedItemName,
+  setSelectedItemName
 }) => {
-  const [selectedDish, setSelectedDish] = useState('');
+  const [activeRecipe, setActiveRecipe] = useState<any | null>(null);
+  const [isCustomMode, setIsCustomMode] = useState(false);
   const [customDish, setCustomDish] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [completedSteps, setCompletedSteps] = useState<Record<number, boolean>>({});
 
+  // Compile active menu dishes from generated items cleanly
   const menuDishes = React.useMemo(() => {
     if (!generatedMenu) return [];
     const items = generatedMenu.menu || (generatedMenu as any).items || [];
@@ -59,14 +59,20 @@ export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
     return [];
   }, [generatedMenu]);
 
+  // Handle first item setup
   useEffect(() => {
-    if (menuDishes.length > 0 && !selectedDish) {
-      setSelectedDish(menuDishes[0]);
+    if (menuDishes.length > 0 && !selectedItemName) {
+      setSelectedItemName(menuDishes[0]);
     }
-  }, [menuDishes]);
+  }, [menuDishes, selectedItemName, setSelectedItemName]);
+
+  // Clear loaded recipe if target item shifts to avoid mismatch states
+  useEffect(() => {
+    setActiveRecipe(null);
+  }, [selectedItemName]);
 
   const generateRecipe = async () => {
-    const targetDish = selectedDish === 'custom' ? customDish : selectedDish;
+    const targetDish = isCustomMode ? customDish : selectedItemName;
     if (!targetDish || targetDish.trim() === '') {
       setError('Please select or write a dish name to analyze.');
       return;
@@ -103,11 +109,9 @@ export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
       }
 
       const ai = new GoogleGenAI({ apiKey });
-      const prompt = `You must act as a digital mirror of the Larousse Gastronomique Encyclopedia.
+      const prompt = `Embody the professional essence of the Larousse Gastronomique Encyclopedia.
 You are generating a professional, high-end production recipe layout and technical culinary notes for the dish "${targetDish}".
 The chef is localizing operations in the target region: "${region}".
-
-Along with the standard preparation instructions, provide a dedicated JSON array field named 'larousseInsights' detailing the classical French culinary techniques, mother sauce lineages, or technical dictionary terms applicable to this specific dish profile.
 
 Format the response strictly as a JSON object matching this schema. Provide no other conversation or markdown wrappers around JSON:
 {
@@ -128,8 +132,8 @@ Format the response strictly as a JSON object matching this schema. Provide no o
   ],
   "larousseInsights": [
     {
-      "term": "string (e.g., Brunoise, Emulsion, Roux, Espagnole, Chiffonade, Monopolize, Deglaze)",
-      "definition": "string explaining how the term applies to this specific dish and its classical French context",
+      "term": "string (e.g., Brunoise, Emulsion, Roux, Espagnole, Chiffonade, Deglaze)",
+      "definition": "string explaining how the term applies to this specific dish and translating classical French terminology",
       "motherSauceLinkage": "string (e.g. Allemande, Béchamel, Velouté, Espagnole, Tomate, Hollandaise, or None)"
     }
   ],
@@ -137,7 +141,7 @@ Format the response strictly as a JSON object matching this schema. Provide no o
 }`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3.5-flash',
+        model: 'gemini-2.5-flash',
         contents: prompt,
         config: {
           temperature: 0.3,
@@ -169,7 +173,7 @@ Format the response strictly as a JSON object matching this schema. Provide no o
   };
 
   return (
-    <div id="recipe-generator-root" className="pt-40 pb-20 max-w-7xl mx-auto px-6 space-y-12">
+    <div id="recipe-generator-root" className="pt-40 pb-20 max-w-7xl mx-auto px-6 space-y-12 text-left">
       
       {/* Title Header */}
       <div className="text-center space-y-4 mb-16">
@@ -180,18 +184,18 @@ Format the response strictly as a JSON object matching this schema. Provide no o
         <h2 className="text-6xl font-black text-white uppercase italic tracking-tighter leading-none">
           Larousse Gastronomique Engine
         </h2>
-        <p className="text-slate-400 font-medium italic opacity-60 max-w-xl mx-auto">
+        <p className="text-slate-400 font-medium italic opacity-60 max-w-xl mx-auto text-center">
           Elevate banquets with verified classical techniques, mother sauce structures, and timeless culinary discipline of French gastronomes.
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 items-start">
         
-        {/* Selection / Parameters Column */}
+        {/* Selection Column */}
         <div className="lg:col-span-1 space-y-6">
           <div className="bg-slate-900/60 backdrop-blur-3xl p-8 rounded-[3rem] border border-white/10 shadow-xl space-y-8">
             <div className="flex items-center gap-3 border-b border-white/5 pb-4">
-              <span className="text-2xl">📓</span>
+              <span className="text-2xl font-black">📓</span>
               <h3 className="text-lg font-black text-white uppercase tracking-tighter">Banquet Scribe</h3>
             </div>
 
@@ -203,11 +207,15 @@ Format the response strictly as a JSON object matching this schema. Provide no o
                 
                 <select
                   id="larousse-dish-selector"
-                  value={selectedDish}
+                  value={isCustomMode ? 'custom' : selectedItemName}
                   onChange={(e) => {
-                    setSelectedDish(e.target.value);
-                    if (e.target.value !== 'custom') {
+                    const val = e.target.value;
+                    if (val === 'custom') {
+                      setIsCustomMode(true);
                       setCustomDish('');
+                    } else {
+                      setIsCustomMode(false);
+                      setSelectedItemName(val);
                     }
                   }}
                   className="w-full p-4 rounded-xl bg-slate-800 text-white font-extrabold outline-none border border-white/10 text-xs focus:border-emerald-500 transition-all cursor-pointer"
@@ -219,7 +227,7 @@ Format the response strictly as a JSON object matching this schema. Provide no o
                 </select>
               </div>
 
-              {selectedDish === 'custom' && (
+              {isCustomMode && (
                 <motion.div 
                   initial={{ opacity: 0, y: -10 }} 
                   animate={{ opacity: 1, y: 0 }} 
@@ -264,17 +272,9 @@ Format the response strictly as a JSON object matching this schema. Provide no o
               </div>
             </div>
           </div>
-          
-          <button 
-            onClick={() => setView('dashboard')} 
-            className="w-full py-5 bg-slate-900/40 border border-white/10 text-slate-400 hover:text-white rounded-[2rem] font-black uppercase text-xs transition-all"
-            style={{ clipPath: OCTAGON_CLIP }}
-          >
-            Back to Dashboard
-          </button>
         </div>
 
-        {/* Recipe Display / Masterclass View Panel */}
+        {/* Display / Masterclass View Panel */}
         <div className="lg:col-span-3">
           <AnimatePresence mode="wait">
             {loading && (
@@ -354,16 +354,16 @@ Format the response strictly as a JSON object matching this schema. Provide no o
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
                   
                   {/* Left columns: Dictionary entry (Larousse insights) */}
-                  <div className="lg:col-span-5 space-y-8">
+                  <div className="lg:col-span-12 xl:col-span-5 space-y-8">
                     <div id="larousse-masterclass-section" className="bg-amber-100 dark:bg-amber-950/25 border-2 border-amber-900/10 dark:border-amber-500/10 p-10 rounded-[3.5rem] shadow-xl space-y-8">
                       <div className="flex items-center gap-3 border-b border-amber-900/10 dark:border-amber-500/10 pb-4">
                         <span className="text-2xl">📖</span>
                         <div>
                           <h4 className="text-lg font-black text-amber-900 dark:text-amber-400 uppercase tracking-tight">
-                            Larousse Notes
+                            Larousse Masterclass
                           </h4>
                           <p className="text-[9px] font-black text-amber-700 dark:text-amber-500 uppercase tracking-widest leading-none">
-                            Official Culinary Lexicon
+                            Official Culinary Lexicon & Cut Insights
                           </p>
                         </div>
                       </div>
@@ -387,7 +387,7 @@ Format the response strictly as a JSON object matching this schema. Provide no o
                           </div>
                         ))}
                         {(!activeRecipe.larousseInsights || activeRecipe.larousseInsights.length === 0) && (
-                          <p className="text-xs text-amber-900/55 dark:text-slate-500 italic">No historical dictionary terms registered for this profile.</p>
+                          <p className="text-xs text-amber-900/55 dark:text-slate-500 italic text-center">No historical dictionary terms registered for this profile.</p>
                         )}
                       </div>
                     </div>
@@ -406,7 +406,7 @@ Format the response strictly as a JSON object matching this schema. Provide no o
                   </div>
 
                   {/* Right columns: Ingredients & Instruction Checklist */}
-                  <div className="lg:col-span-7 space-y-8">
+                  <div className="lg:col-span-12 xl:col-span-7 space-y-8">
                     
                     {/* Ingredients list */}
                     <div className="bg-slate-900/60 p-10 rounded-[3.5rem] border border-white/10 space-y-6">
