@@ -309,16 +309,10 @@ export async function generateMenuImageFromApi(title: string, eventType: string,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        instances: [
-          {
-            prompt: "Bespoke luxury food photography of " + title + " for a gourmet " + eventType + ". Plated culinary masterpiece, 5-star Michelin presentation, high-end food styling, macro lens close-up, dramatic professional studio lighting, 8k resolution, crisp textures, vivid depth of field."
-          }
-        ],
-        parameters: {
-          sampleCount: 1,
-          aspectRatio: "16:9",
-          outputMimeType: "image/jpeg"
-        }
+        prompt: "Bespoke luxury food photography of " + title + " for a gourmet " + eventType + ". Plated culinary masterpiece, 5-star Michelin presentation, high-end food styling, macro lens close-up, dramatic professional studio lighting, 8k resolution, crisp textures, vivid depth of field.",
+        aspectRatio: "16:9",
+        numberOfImages: 1,
+        outputMimeType: "image/jpeg"
       }),
       signal: controller.signal
     });
@@ -330,7 +324,7 @@ export async function generateMenuImageFromApi(title: string, eventType: string,
     }
 
     const data = await response.json();
-    const base64Bytes = data?.predictions?.[0]?.bytesBase64Encoded;
+    const base64Bytes = data?.generatedImages?.[0]?.image?.imageBytes;
     if (base64Bytes) {
       return "data:image/jpeg;base64," + base64Bytes;
     }
