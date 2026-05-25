@@ -511,13 +511,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
         }
       });
       
-      if (response.error) {
-        setToast(`Generation failed: ${response.error}`);
+      if (response.error || !response.data) {
+        setToast(`Generation failed: ${response.error || 'No menu returned.'}`);
         return;
       }
 
-      const data = response.data;
-      const menuData = data.menu || data; 
+      const menuData = response.data;
       
       const menuItems: MenuItem[] = [
         ...(menuData.appetizers || []).map((m: any) => ({ ...m, cat: 'Appetizers' })),
@@ -531,26 +530,11 @@ export const Dashboard: React.FC<DashboardProps> = ({
         setSelectedItemName(firstItem);
       }
 
-      let heroImage = HERO_FALLBACK;
-      try {
-        const generatedImage = await generateMenuImageFromApi(
-          menuData.menuTitle || "Catering Event", 
-          menuData.description || "", 
-          menuData.mainCourses?.map((m: any) => m.dish)
-        );
-        if (generatedImage) {
-          heroImage = generatedImage;
-          setMenuImage(generatedImage);
-        }
-      } catch (err) {
-        console.warn("Image generation returned fallback", err);
-      }
-
       const totalDishPrice = menuItems.reduce((sum, m) => sum + (m.price || 0), 0);
       const deliveryFee = (menuData.logistics?.deliveryFee || 0);
       const totalRevenue = (totalDishPrice * guestCount) + deliveryFee;
 
-      const newProposal: Menu = {
+      const menu: any = {
         title: menuData.menuTitle || eventType,
         description: menuData.description || "A custom tailored experience.",
         menu: menuItems,
@@ -559,13 +543,24 @@ export const Dashboard: React.FC<DashboardProps> = ({
         deliveryLogistics: menuData.deliveryLogistics || [],
         logistics: menuData.logistics || { deliveryFee: 0 },
         guestCount: guestCount,
-        heroImage: heroImage,
+        heroImage: HERO_FALLBACK,
         shoppingList: menuData.shoppingList || [],
         manualTotal: totalRevenue,
         manualPerHead: totalDishPrice
       };
 
-      setGeneratedMenu(newProposal);
+      setGeneratedMenu(menu);
+
+      try {
+        const img = await generateMenuImageFromApi(menu.title, eventType);
+        if (img) {
+          menu.heroImage = img;
+          setMenuImage(img);
+          setGeneratedMenu({ ...menu });
+        }
+      } catch (err) {
+        console.warn("Image generation failed", err);
+      }
 
       // Local Stats Sizing Calculations
       const newStats = {
@@ -578,7 +573,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       setStats(newStats);
       localStorage.setItem('caterpro_stats', JSON.stringify(newStats));
 
-      const newRecent = [newProposal, ...recent].slice(0, 5);
+      const newRecent = [menu, ...recent].slice(0, 5);
       setRecent(newRecent);
       localStorage.setItem('caterpro_recent', JSON.stringify(newRecent));
 
