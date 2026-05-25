@@ -239,24 +239,66 @@ ${structurePrompt}`;
   }
 };
 
-export const generateMenuImageFromApi = async (title: string, description: string, mainCourses?: string[]): Promise<string> => {
-  const normalized = (title + " " + description + " " + (mainCourses?.join(" ") || "")).toLowerCase();
-  
+const getFallbackUrl = (normalizedText: string): string => {
   let selectedUrl = "https://images.unsplash.com/photo-1555244162-803834f70033"; // Default: catering/Other
 
-  if (normalized.includes("braai") || normalized.includes("bbq") || normalized.includes("spit braai")) {
+  if (normalizedText.includes("braai") || normalizedText.includes("bbq") || normalizedText.includes("spit braai")) {
     selectedUrl = "https://images.unsplash.com/photo-1555939594-58d7cb561ad1";
-  } else if (normalized.includes("wedding") || normalized.includes("marriage")) {
+  } else if (normalizedText.includes("wedding") || normalizedText.includes("marriage")) {
     selectedUrl = "https://images.unsplash.com/photo-1519225421980-715cb0215aed";
-  } else if (normalized.includes("cocktail") || normalized.includes("drink") || normalized.includes("bar") || normalized.includes("wine")) {
+  } else if (normalizedText.includes("cocktail") || normalizedText.includes("drink") || normalizedText.includes("bar") || normalizedText.includes("wine")) {
     selectedUrl = "https://images.unsplash.com/photo-1574071318508-1cdbab80d002";
-  } else if (normalized.includes("corporate") || normalized.includes("business") || normalized.includes("conference")) {
+  } else if (normalizedText.includes("corporate") || normalizedText.includes("business") || normalizedText.includes("conference") || normalizedText.includes("meeting")) {
     selectedUrl = "https://images.unsplash.com/photo-1414235077428-338989a2e8c0";
-  } else if (normalized.includes("birthday") || normalized.includes("party") || normalized.includes("anniversary") || normalized.includes("celebration")) {
+  } else if (normalizedText.includes("birthday") || normalizedText.includes("party") || normalizedText.includes("anniversary") || normalizedText.includes("celebration")) {
     selectedUrl = "https://images.unsplash.com/photo-1578985545062-69928b1d9587";
   }
 
-  return `${selectedUrl}?auto=format&fit=crop&w=1200&q=80`;
+  return `${selectedUrl}?auto=format&fit=crop&w=1200&q=80&is_fallback=true`;
+};
+
+export const generateMenuImageFromApi = async (title: string, description: string, mainCourses?: string[]): Promise<string> => {
+  const normalized = (title + " " + description + " " + (mainCourses?.join(" ") || "")).toLowerCase();
+  
+  try {
+    const ai = getGenAI();
+    let promptText = `Professional high-end gourmet food plating photography of ${title}. ${description}`;
+    if (mainCourses && mainCourses.length > 0) {
+      promptText += `. Feat. ${mainCourses.join(', ')}`;
+    }
+    promptText += `. High quality studio food styling, soft focus background, editorial presentation, daylight lighting.`;
+
+    const response = await ai.models.generateImages({
+      model: 'imagen-3.0-generate-002',
+      prompt: promptText,
+      config: {
+        numberOfImages: 1,
+        outputMimeType: 'image/jpeg',
+        aspectRatio: '1:1',
+      },
+    });
+
+    if (response.generatedImages && response.generatedImages.length > 0) {
+      const base64Bytes = response.generatedImages[0]?.image?.imageBytes;
+      if (base64Bytes) {
+        // App.tsx requires the full data URI (starts with data:image)
+        // ProductCard.tsx prepends `data:image/png;base64,` on its own.
+        // We look at the optional parameter mainCourses as a differentiator:
+        const isMenu = mainCourses !== undefined;
+        if (isMenu) {
+          return `data:image/jpeg;base64,${base64Bytes}`;
+        } else {
+          return base64Bytes;
+        }
+      }
+    }
+    
+    console.warn("Imagen generation returned empty images list. Falling back to Unsplash static mapping...");
+    return getFallbackUrl(normalized);
+  } catch (error: any) {
+    console.warn("Imagen generation failed (auth, limit, forbidden, or 403). Falling back cleanly to Unsplash mapping...", error);
+    return getFallbackUrl(normalized);
+  }
 };
 
 export const analyzeMenuForCosting = async (_base64: string, _suppliers: string, _currency: string): Promise<ScannedMenuCosting> => {
