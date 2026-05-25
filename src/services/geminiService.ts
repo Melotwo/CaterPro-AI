@@ -268,7 +268,7 @@ ${structurePrompt}
   }
 };
 
-export async function generateMenuImageFromApi(title: string, eventType: string): Promise<string> {
+export async function generateMenuImageFromApi(menuTitle: string, eventType: string): Promise<string> {
   const apiKey = getApiKey();
 
   if (!apiKey || apiKey.trim() === '') {
@@ -278,11 +278,17 @@ export async function generateMenuImageFromApi(title: string, eventType: string)
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 60000);
 
-  // Culture guard check for 'braai'
-  const hasBraai = title.toLowerCase().includes('braai') || eventType.toLowerCase().includes('braai');
-  const promptString = hasBraai 
-    ? `A professional high-resolution close-up culinary photograph of ${title} as a plated gourmet masterpiece. The scene MUST feature gourmet flame-grilled meats, boerewors, and open smoke textures instead of light salads. Show incredible texture, artisanal garnishes, native elements of ${eventType} styling, macro photography focus, daylight lighting, 8k resolution, editorial-quality food styling.`
-    : `A professional high-resolution close-up culinary photograph of ${title} as a plated gourmet masterpiece. Show incredible texture, artisanal garnishes, native elements of ${eventType} styling, macro photography focus, daylight lighting, 8k resolution, editorial-quality food styling.`;
+  // Professional food portraiture technical standard prompt instructions
+  const photographyStandards = "Award-winning editorial food portrait photography, high-end fine dining plating design, natural side window lighting, shallow depth of field, macro crisp detail on fresh ingredients, realistic rich colors, unique background styling specific to the dish profile (like slate, luxury ceramic, or polished dark wood), absolutely zero text or graphic overlay artifacts.";
+
+  // Dynamic builder injecting the exact menuTitle to completely eliminate generic buffet descriptions
+  let promptString = `A unique, elegant culinary portrait of "${menuTitle}", curated for a luxury ${eventType}. ${photographyStandards}`;
+
+  // Culture & Cuisine Guardrails
+  const textContext = `${menuTitle} ${eventType}`.toLowerCase();
+  if (textContext.includes('braai') || textContext.includes('premium south african')) {
+    promptString += " Elegant flame-char textures, high-grade Boerewors coils, polished brass elements, authentic South African luxury setting, sunset warmth.";
+  }
 
   try {
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:generateImages?key=${apiKey}`, {
@@ -325,7 +331,7 @@ export async function generateMenuImageFromApi(title: string, eventType: string)
  * and breaks it down into an exact array of raw ingredients, weight metrics,
  * and localized estimated wholesale pricing.
  */
-export const calculateIngredientBreakdown = async (itemName: string, region: string): Promise<any> => {
+export async function calculateIngredientBreakdown(itemName: string, region: string): Promise<any> {
   const apiKey = getApiKey();
   if (!apiKey || apiKey.trim() === '') {
     throw new Error('API Key is missing. Please set VITE_GEMINI_API_KEY inside system/env secrets.');
@@ -350,7 +356,7 @@ export const calculateIngredientBreakdown = async (itemName: string, region: str
 }`;
 
   const prompt = `As an elite executive chef and costing expert, break down the recipe/ingredients of the dish "${itemName}" for 1 portion, localized to the target region "${region}".
-Configure the raw price estimates and wholesale metric costs specifically for ${region}.
+Configure the raw price estimates and wholesale market rates/costs specifically for ${region}. Each item in the "ingredients" array must contain a clean "name", "quantity", "unit", and "totalItemCost" based on wholesale market rates in ${region}.
 
 Output ONLY a valid JSON object matching this exact schema:
 ${structurePrompt}`;
@@ -386,7 +392,7 @@ ${structurePrompt}`;
   }
 
   return cleanAndParseJson(text);
-};
+}
 
 export const analyzeMenuForCosting = async (_base64: string, _suppliers: string, _currency: string): Promise<ScannedMenuCosting> => {
   return {
