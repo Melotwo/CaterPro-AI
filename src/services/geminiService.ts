@@ -273,8 +273,8 @@ ${structurePrompt}`;
   }
 };
 
-export const generateMenuImageFromApi = async (title: string, description: string, mainCourses?: string[]): Promise<string> => {
-  const normalized = (title + " " + description + " " + (mainCourses?.join(" ") || "")).toLowerCase();
+export async function generateMenuImageFromApi(title: string, eventType: string, _legacyMainCourses?: string[]): Promise<string> {
+  const normalized = (title + " " + eventType).toLowerCase();
   const apiKey = getApiKey();
 
   // Premium, beautiful, watermark-free high-res backup images inside the catch/fallback block
@@ -311,7 +311,7 @@ export const generateMenuImageFromApi = async (title: string, description: strin
       body: JSON.stringify({
         instances: [
           {
-            prompt: "Bespoke luxury food photography of " + title + ". Plated gourmet culinary masterpiece, 5-star Michelin presentation, high-end food styling, macro lens close-up, dramatic professional studio lighting, 8k resolution, crisp textures."
+            prompt: "Bespoke luxury food photography of " + title + " for a gourmet " + eventType + ". Plated culinary masterpiece, 5-star Michelin presentation, high-end food styling, macro lens close-up, dramatic professional studio lighting, 8k resolution, crisp textures, vivid depth of field."
           }
         ],
         parameters: {
@@ -343,7 +343,7 @@ export const generateMenuImageFromApi = async (title: string, description: strin
   } finally {
     clearTimeout(timeoutId);
   }
-};
+}
 
 export const analyzeMenuForCosting = async (_base64: string, _suppliers: string, _currency: string): Promise<ScannedMenuCosting> => {
   return {
