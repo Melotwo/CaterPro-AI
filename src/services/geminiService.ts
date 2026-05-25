@@ -101,61 +101,36 @@ export const generateMenuFromApi = async (params: {
       budgetText = `Target Budget: ${params.budget}. Ensure dishes, ingredients, and realistic portions fit perfectly into this scale.`;
     }
 
-    const structurePrompt = '{\n' +
-      '  "menuTitle": "string",\n' +
-      '  "description": "string",\n' +
-      '  "appetizers": [\n' +
-      '    {\n' +
-      '      "dish": "string",\n' +
-      '      "notes": "string",\n' +
-      '      "price": 0,\n' +
-      '      "cost": 0,\n' +
-      '      "ingredients": [\n' +
-      '        { "name": "string", "quantity": 0, "unit": "kg|L", "unitCost": 0 }\n' +
-      '      ]\n' +
-      '    }\n' +
-      '  ],\n' +
-      '  "mainCourses": [\n' +
-      '    {\n' +
-      '      "dish": "string",\n' +
-      '      "notes": "string",\n' +
-      '      "price": 0,\n' +
-      '      "cost": 0,\n' +
-      '      "ingredients": [\n' +
-      '        { "name": "string", "quantity": 0, "unit": "kg|L", "unitCost": 0 }\n' +
-      '      ]\n' +
-      '    }\n' +
-      '  ],\n' +
-      '  "desserts": [\n' +
-      '    {\n' +
-      '      "dish": "string",\n' +
-      '      "notes": "string",\n' +
-      '      "price": 0,\n' +
-      '      "cost": 0,\n' +
-      '      "ingredients": [\n' +
-      '        { "name": "string", "quantity": 0, "unit": "kg|L", "unitCost": 0 }\n' +
-      '      ]\n' +
-      '    }\n' +
-      '  ],\n' +
-      '  "shoppingList": [\n' +
-      '    { "name": "string", "quantity": 0, "unit": "string", "unitPrice": 0, "linkedDish": "string" }\n' +
-      '  ],\n' +
-      '  "miseEnPlace": ["string"],\n' +
-      '  "serviceNotes": ["string"],\n' +
-      '  "deliveryLogistics": ["string"],\n' +
-      '  "logistics": { "deliveryFee": 0 }\n' +
-      '}';
+    const structurePrompt = `{
+  "title": "string",
+  "description": "string",
+  "targetProfitMargin": number,
+  "totalProposalValue": number,
+  "perHeadPrice": number,
+  "items": [
+    {
+      "name": "string",
+      "description": "string",
+      "costPerHead": number,
+      "type": "appetizer | main | dessert | beverage"
+    }
+  ],
+  "logistics": {
+    "staffRequired": "string",
+    "equipmentNeeded": ["string"],
+    "serviceNotes": ["string"]
+  }
+}`;
 
-    const prompt = `As an elite executive chef and high-end catering consultant, generate a premium custom catering menu for a ${params.eventType} with ${params.guestCount} guests.
+    const prompt = `As an elite executive chef and high-end catering consultant, generate a premium culinary proposal for a ${params.eventType} with ${params.guestCount} guests.
 ${cuisineText}
 ${budgetText}
 
 REQUIREMENTS:
-1. Max 2-3 unique, visually striking dishes per category (appetizers, mainCourses, desserts).
-2. Each dish must include realistic details, custom notes, estimated customer price, portion cost, and simple summary ingredients for precision costing.
-3. Denominate all pricing & raw costs in South African Rand (ZAR).
-4. Raw ingredient weights scaled correctly for ${params.guestCount} guests in kilograms (kg) or liters (L).
-5. Output ONLY a valid JSON object matching the exact schema. Do not enclose in markdown or preface with conversational text:
+1. Under "items", provide unique, gourmet dishes representing appetizers, main courses, and desserts.
+2. For each items, configure "costPerHead" realistic for South African Rand (ZAR) raw values.
+3. Denominate "totalProposalValue", "perHeadPrice", and raw costs in South African Rand (ZAR).
+4. Output ONLY a valid JSON object matching this exact schema. Do not enclose in markdown description wrappers, and provide no additional conversation:
 ${structurePrompt}`;
 
     const apiCallPromise = (async () => {
@@ -200,7 +175,67 @@ ${structurePrompt}`;
 
     // Aggressive clean parsing suite
     const parsedData = cleanAndParseJson(text);
-    return { data: parsedData };
+
+    // Deep mapping to make sure it contains EXACTLY what App.tsx wants to render without crashing
+    const mappedData = {
+      ...parsedData,
+      menuTitle: parsedData.title || parsedData.menuTitle || "Premium Catering Proposal",
+      description: parsedData.description || "A custom high-definition culinary journey.",
+      appetizers: (parsedData.items || [])
+        .filter((i: any) => i.type === 'appetizer')
+        .map((i: any) => ({
+          dish: i.name || "Gourmet Starter Plate",
+          notes: i.description || "Fresh chef appetizer selection.",
+          cost: Number(i.costPerHead) || 45,
+          price: Number(i.price) || Math.round((Number(i.costPerHead) || 45) * 4.5),
+          ingredients: i.ingredients || [
+            { name: "Organic starter base options", quantity: 0.2, unit: "kg", unitCost: Number(i.costPerHead) || 45 }
+          ]
+        })),
+      mainCourses: (parsedData.items || [])
+        .filter((i: any) => i.type === 'main')
+        .map((i: any) => ({
+          dish: i.name || "Executive Main Sensation",
+          notes: i.description || "Specially formulated recipe mains.",
+          cost: Number(i.costPerHead) || 120,
+          price: Number(i.price) || Math.round((Number(i.costPerHead) || 120) * 4.5),
+          ingredients: i.ingredients || [
+            { name: "Prime quality proteins and greens", quantity: 0.45, unit: "kg", unitCost: Number(i.costPerHead) || 120 }
+          ]
+        })),
+      desserts: (parsedData.items || [])
+        .filter((i: any) => i.type === 'dessert' || i.type === 'beverage')
+        .map((i: any) => ({
+          dish: i.name || "Decadent Confectionary Dessert",
+          notes: i.description || "Premium chocolate or pastry finish.",
+          cost: Number(i.costPerHead) || 35,
+          price: Number(i.price) || Math.round((Number(i.costPerHead) || 35) * 4.5),
+          ingredients: i.ingredients || [
+            { name: "Elite baking ingredients & sugars", quantity: 0.15, unit: "kg", unitCost: Number(i.costPerHead) || 35 }
+          ]
+        })),
+      shoppingList: (parsedData.items || []).map((i: any) => ({
+        name: `Primary raw supplies for ${i.name || 'dish item'}`,
+        quantity: Number(params.guestCount) || 10,
+        unit: i.type === 'beverage' ? 'L' : 'kg',
+        unitPrice: Math.round((Number(i.costPerHead) || 30) / 2),
+        linkedDish: i.name || 'Gourmet Selection'
+      })),
+      miseEnPlace: (parsedData.logistics?.serviceNotes || []).map((note: string) => `Prep task: ${note}`),
+      serviceNotes: parsedData.logistics?.serviceNotes || [],
+      deliveryLogistics: [
+        `Service Staff Assigned: ${parsedData.logistics?.staffRequired || "Head Chef & Catering Waiters"}`,
+        `Specialized Equipment: ${(parsedData.logistics?.equipmentNeeded || []).join(', ') || "Standard hot buffet trays"}`
+      ],
+      logistics: {
+        deliveryFee: 450, // Standard ZAR catering delivery logistics cost charge
+        staffRequired: parsedData.logistics?.staffRequired,
+        equipmentNeeded: parsedData.logistics?.equipmentNeeded,
+        serviceNotes: parsedData.logistics?.serviceNotes
+      }
+    };
+
+    return { data: mappedData };
 
   } catch (error: any) {
     clearTimeout(timeoutId);
