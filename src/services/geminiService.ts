@@ -268,24 +268,14 @@ ${structurePrompt}
 export async function generateMenuImageFromApi(title: string, eventType: string, _legacyMainCourses?: string[]): Promise<string> {
   const apiKey = getApiKey();
 
-  // Fresh, dynamic, high-res abstract non-watermarked culinary presentation placeholder URL so we can instantly see if the API is hitting an error vs running successfully.
-  const errorFallbackUrl = "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=1200&q=80&is_fallback=true";
-
   if (!apiKey || apiKey.trim() === '') {
-    console.warn("API Key is missing. Serving high-end visual backup placeholder...");
-    return errorFallbackUrl;
+    throw new Error("API Key is missing. Unable to generate menu image.");
   }
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 60000);
 
-  // Dynamic Prompt Routing Strategy: Ensure South African or Braai requests yield flame-grilled aesthetic details
-  const textToAnalyze = (title + " " + eventType).toLowerCase();
-  let basePrompt = "Bespoke luxury food photography of " + title + " for a gourmet " + eventType + ". Plated culinary masterpiece, 5-star Michelin presentation, high-end food styling, macro lens close-up, dramatic professional studio lighting, 8k resolution, vivid depth of field.";
-  
-  if (textToAnalyze.includes("braai") || textToAnalyze.includes("south african")) {
-    basePrompt += " showing authentic gourmet wood-fired braai, open flames, sizzling boerewors, premium meats, smoke, rustic luxury elements.";
-  }
+  const promptString = "A professional high-resolution close-up culinary photograph of " + title + " as a plated gourmet masterpiece. Show incredible texture, artisanal garnishes, native elements of " + eventType + " styling, macro photography focus, daylight lighting, 8k resolution, editorial-quality food styling.";
 
   try {
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:generateImages?key=${apiKey}`, {
@@ -294,7 +284,7 @@ export async function generateMenuImageFromApi(title: string, eventType: string,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        prompt: basePrompt,
+        prompt: promptString,
         aspectRatio: "16:9",
         numberOfImages: 1,
         outputMimeType: "image/jpeg"
@@ -316,8 +306,8 @@ export async function generateMenuImageFromApi(title: string, eventType: string,
 
     return "data:image/jpeg;base64," + base64Bytes;
   } catch (error: any) {
-    console.error("Imagen generation failed (auth, limit, forbidden, or 403). Falling back cleanly to Unsplash mapping...", error);
-    return errorFallbackUrl;
+    console.error("Imagen generation failed:", error);
+    throw error;
   } finally {
     clearTimeout(timeoutId);
   }
