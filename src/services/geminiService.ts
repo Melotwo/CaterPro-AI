@@ -1,5 +1,3 @@
-import { GoogleGenAI } from '@google/genai';
-
 export const getApiKey = (): string => {
   // Prints available keys to aid debugging
   console.log('Available import.meta.env keys:', Object.keys(import.meta.env || {}));
@@ -18,27 +16,6 @@ export const getApiKey = (): string => {
   }
 
   return apiKey || '';
-};
-
-const getGenAI = () => {
-  const apiKey = getApiKey();
-  
-  if (!apiKey || apiKey.trim() === '') {
-    throw new Error(
-      'API Key is missing. Tried reading VITE_GEMINI_API_KEY from environment, ' +
-      'then window.__APP_CONFIG__.geminiKey fallback. Please set VITE_GEMINI_API_KEY ' +
-      'in your system/env secrets.'
-    );
-  }
-  
-  return new GoogleGenAI({
-    apiKey: apiKey,
-    httpOptions: {
-      headers: {
-        'User-Agent': 'aistudio-build'
-      }
-    }
-  });
 };
 
 /**
@@ -107,17 +84,27 @@ export const generateMenuFromApi = async (params: {
     }
   }, 5000);
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 60000);
+
   try {
-    const ai = getGenAI();
-    
-    let budgetText = '';
-    if (params.budget) {
-      budgetText = `Target Budget: ${params.budget}. Ensure dishes, ingredients, and realistic portions fit perfectly into this scale.`;
+    const apiKey = getApiKey();
+    if (!apiKey || apiKey.trim() === '') {
+      throw new Error(
+        'API Key is missing. Tried reading VITE_GEMINI_API_KEY from environment, ' +
+        'then window.__APP_CONFIG__.geminiKey fallback. Please set VITE_GEMINI_API_KEY ' +
+        'in your system/env secrets.'
+      );
     }
     
     let cuisineText = '';
     if (params.cuisine) {
       cuisineText = `Cuisine Style/Culinary Theme: ${params.cuisine}. The dishes should reflect traditional seasonings, ingredients, and visual styles associated with ${params.cuisine}.`;
+    }
+
+    let budgetText = '';
+    if (params.budget) {
+      budgetText = `Target Budget: ${params.budget}. Ensure dishes, ingredients, and realistic portions fit perfectly into this scale.`;
     }
 
     const structurePrompt = '{\n' +
@@ -177,25 +164,42 @@ REQUIREMENTS:
 5. Output ONLY a valid JSON object matching the exact schema. Do not enclose in markdown or preface with conversational text:
 ${structurePrompt}`;
 
-    const apiCallPromise = ai.models.generateContent({
-      model: 'gemini-3.5-flash',
-      contents: prompt,
-      config: {
-        maxOutputTokens: 8000,
-        temperature: 0.7
+    const apiCallPromise = (async () => {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: prompt
+            }]
+          }],
+          generationConfig: {
+            maxOutputTokens: 8000,
+            temperature: 0.7
+          }
+        }),
+        signal: controller.signal
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`Gemini API Error (status ${response.status}):`, errorText);
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
-    });
 
-    // 60-second execution safety timeout barrier
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      setTimeout(() => reject(new Error('TIMEOUT_ERROR')), 60000);
-    });
+      const json = await response.json();
+      const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+      return text || '';
+    })();
 
-    const result = await Promise.race([apiCallPromise, timeoutPromise]);
-    
-    const text = result.text || '';
+    const text = await apiCallPromise;
+    clearTimeout(timeoutId);
+
     if (!text || text.trim() === '') {
-      return { error: 'The AI model returned an empty empty response. Please try modifying your query specifics.' };
+      return { error: 'The AI model returned an empty response. Please try modifying your query specifics.' };
     }
 
     clearInterval(intervalId);
@@ -205,13 +209,14 @@ ${structurePrompt}`;
     return { data: parsedData };
 
   } catch (error: any) {
+    clearTimeout(timeoutId);
     clearInterval(intervalId);
-    console.error("Chef AI Generator failed immediately:", error);
+    console.error("Chef AI Generator failed:", error);
     
     const errorStr = String(error) + ' ' + (error.message || '') + ' ' + JSON.stringify(error);
 
     // 1. Timeout Errors
-    if (errorStr.includes('TIMEOUT_ERROR')) {
+    if (error.name === 'AbortError' || errorStr.includes('TIMEOUT_ERROR')) {
       return { error: 'Catering Proposal Timeout (60-second limit exceeded). The digital kitchen taking too long. Please try again.' };
     }
 
@@ -259,45 +264,55 @@ const getFallbackUrl = (normalizedText: string): string => {
 
 export const generateMenuImageFromApi = async (title: string, description: string, mainCourses?: string[]): Promise<string> => {
   const normalized = (title + " " + description + " " + (mainCourses?.join(" ") || "")).toLowerCase();
-  
+  const apiKey = getApiKey();
+
+  if (!apiKey || apiKey.trim() === '') {
+    console.warn("API Key is missing. Falling back to Unsplash mapping...");
+    return getFallbackUrl(normalized);
+  }
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 60000);
+
   try {
-    const ai = getGenAI();
     let promptText = `Professional high-end gourmet food plating photography of ${title}. ${description}`;
     if (mainCourses && mainCourses.length > 0) {
       promptText += `. Feat. ${mainCourses.join(', ')}`;
     }
     promptText += `. High quality studio food styling, soft focus background, editorial presentation, daylight lighting.`;
 
-    const response = await ai.models.generateImages({
-      model: 'imagen-3.0-generate-002',
-      prompt: promptText,
-      config: {
-        numberOfImages: 1,
-        outputMimeType: 'image/jpeg',
-        aspectRatio: '1:1',
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:generateImages?key=${apiKey}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
       },
+      body: JSON.stringify({
+        prompt: promptText,
+        numberOfImages: 1,
+        aspectRatio: '16:9'
+      }),
+      signal: controller.signal
     });
 
-    if (response.generatedImages && response.generatedImages.length > 0) {
-      const base64Bytes = response.generatedImages[0]?.image?.imageBytes;
-      if (base64Bytes) {
-        // App.tsx requires the full data URI (starts with data:image)
-        // ProductCard.tsx prepends `data:image/png;base64,` on its own.
-        // We look at the optional parameter mainCourses as a differentiator:
-        const isMenu = mainCourses !== undefined;
-        if (isMenu) {
-          return `data:image/jpeg;base64,${base64Bytes}`;
-        } else {
-          return base64Bytes;
-        }
-      }
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error(`Imagen API Error (status ${response.status}):`, errText);
+      throw new Error(`HTTP ${response.status}: ${errText}`);
     }
-    
+
+    const data = await response.json();
+    const base64Bytes = data?.generatedImages?.[0]?.image?.imageBytes;
+    if (base64Bytes) {
+      return `data:image/jpeg;base64,${base64Bytes}`;
+    }
+
     console.warn("Imagen generation returned empty images list. Falling back to Unsplash static mapping...");
     return getFallbackUrl(normalized);
   } catch (error: any) {
-    console.warn("Imagen generation failed (auth, limit, forbidden, or 403). Falling back cleanly to Unsplash mapping...", error);
+    console.error("Imagen generation failed (auth, limit, forbidden, or 403). Falling back cleanly to Unsplash mapping...", error);
     return getFallbackUrl(normalized);
+  } finally {
+    clearTimeout(timeoutId);
   }
 };
 
