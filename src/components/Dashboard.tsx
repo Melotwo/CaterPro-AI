@@ -1,8 +1,7 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Menu, DashboardStats } from '../types';
 
-interface DashboardViewProps {
+interface DashboardProps {
   stats: DashboardStats;
   recent: Menu[];
   onGenerate: () => void;
@@ -14,7 +13,7 @@ interface DashboardViewProps {
 const OCTAGON_CLIP = 'polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%)';
 const HERO_FALLBACK = "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1200&q=80";
 
-export const DashboardView: React.FC<DashboardViewProps> = ({
+export const Dashboard: React.FC<DashboardProps> = ({
   stats,
   recent,
   onGenerate,
@@ -86,7 +85,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
               { label: 'Proposals Generated', value: stats.totalProposals, sub: 'All time', icon: '📝' },
-              { label: 'Est. Total Revenue', value: `R ${stats.totalRevenue.toLocaleString()}`, sub: 'ZAR', icon: '💰' },
+              { label: 'Est. Total Revenue', value: `${region.toLowerCase().includes('south africa') ? 'R' : region.toLowerCase().includes('uk') ? '£' : 'R'} ${stats.totalRevenue.toLocaleString()}`, sub: region.toLowerCase().includes('south africa') ? 'ZAR' : 'CURRENCY', icon: '💰' },
               { label: 'Avg Profit Margin', value: `${stats.avgMargin.toFixed(1)}%`, sub: 'Calculated', icon: '📈' },
               { label: 'Last Event Type', value: stats.lastEventType || 'None Yet', sub: 'Recent', icon: '🏢' }
             ].map((stat, idx) => (
@@ -143,7 +142,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   <div className="p-8 space-y-4">
                     <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-500">
                       <span>{menu.guestCount} Guests</span>
-                      <span className="text-emerald-500">R {(menu.manualTotal || 0).toLocaleString()}</span>
+                      <span className="text-emerald-500">
+                        {region.toLowerCase().includes('south africa') ? 'R' : region.toLowerCase().includes('uk') ? '£' : 'R'}{' '}
+                        {(menu.manualTotal || 0).toLocaleString()}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -162,4 +164,4 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   );
 };
 
-export default DashboardView;
+export default Dashboard;
