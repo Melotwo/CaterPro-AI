@@ -279,6 +279,14 @@ export async function generateMenuImageFromApi(title: string, eventType: string,
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 60000);
 
+  // Dynamic Prompt Routing Strategy: Ensure South African or Braai requests yield flame-grilled aesthetic details
+  const textToAnalyze = (title + " " + eventType).toLowerCase();
+  let basePrompt = "Bespoke luxury food photography of " + title + " for a gourmet " + eventType + ". Plated culinary masterpiece, 5-star Michelin presentation, high-end food styling, macro lens close-up, dramatic professional studio lighting, 8k resolution, vivid depth of field.";
+  
+  if (textToAnalyze.includes("braai") || textToAnalyze.includes("south african")) {
+    basePrompt += " showing authentic gourmet wood-fired braai, open flames, sizzling boerewors, premium meats, smoke, rustic luxury elements.";
+  }
+
   try {
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:generateImages?key=${apiKey}`, {
       method: 'POST',
@@ -286,7 +294,7 @@ export async function generateMenuImageFromApi(title: string, eventType: string,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        prompt: "Bespoke luxury food photography of " + title + " for a gourmet " + eventType + ". Plated culinary masterpiece, 5-star Michelin presentation, high-end food styling, macro lens close-up, dramatic professional studio lighting, 8k resolution, crisp textures, vivid depth of field.",
+        prompt: basePrompt,
         aspectRatio: "16:9",
         numberOfImages: 1,
         outputMimeType: "image/jpeg"
