@@ -278,10 +278,10 @@ export async function generateMenuImageFromApi(menuTitle: string, eventType: str
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 60000);
 
-  // Professional food portraiture technical standard prompt instructions
-  const photographyStandards = "Award-winning editorial food portrait photography, high-end fine dining plating design, natural side window lighting, shallow depth of field, macro crisp detail on fresh ingredients, realistic rich colors, unique background styling specific to the dish profile (like slate, luxury ceramic, or polished dark wood), absolutely zero text or graphic overlay artifacts.";
+  // Professional food portraiture technical standard prompt instructions mapping to Chef AI identity
+  const photographyStandards = "Award-winning editorial food portrait photography, luxury fine dining plating design, natural window side-lighting, macro crisp texture, realistic rich colors, zero text artifacts, set against a premium backdrop (slate, premium ceramic, or polished dark wood).";
 
-  // Dynamic builder injecting the exact menuTitle to completely eliminate generic buffet descriptions
+  // Dynamic builder weaving the exact menu's title into the text string to guarantee unique graphics every single run
   let promptString = `A unique, elegant culinary portrait of "${menuTitle}", curated for a luxury ${eventType}. ${photographyStandards}`;
 
   // Culture & Cuisine Guardrails
@@ -331,7 +331,23 @@ export async function generateMenuImageFromApi(menuTitle: string, eventType: str
  * and breaks it down into an exact array of raw ingredients, weight metrics,
  * and localized estimated wholesale pricing.
  */
-export async function calculateIngredientBreakdown(itemName: string, region: string): Promise<any> {
+export async function calculateIngredientBreakdown(
+  itemName: string,
+  region: string
+): Promise<{
+  dishName: string;
+  region: string;
+  currencyCode: string;
+  estimatedTotalCost: number;
+  regionalWholesaleAdvice: string;
+  ingredients: Array<{
+    name: string;
+    quantity: number;
+    unit: string;
+    totalItemCost: number;
+    notes?: string;
+  }>;
+}> {
   const apiKey = getApiKey();
   if (!apiKey || apiKey.trim() === '') {
     throw new Error('API Key is missing. Please set VITE_GEMINI_API_KEY inside system/env secrets.');
