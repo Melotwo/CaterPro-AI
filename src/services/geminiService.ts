@@ -274,29 +274,15 @@ ${structurePrompt}`;
 };
 
 export async function generateMenuImageFromApi(title: string, eventType: string, _legacyMainCourses?: string[]): Promise<string> {
-  const normalized = (title + " " + eventType).toLowerCase();
   const apiKey = getApiKey();
 
-  // Premium, beautiful, watermark-free high-res backup images inside the catch/fallback block
-  const triggerFallbackUrl = () => {
-    let selectedUrl = "https://images.unsplash.com/photo-1555244162-803834f70033"; // Default: high-end plated banquet
-    if (normalized.includes("braai") || normalized.includes("bbq") || normalized.includes("spit braai")) {
-      selectedUrl = "https://images.unsplash.com/photo-1555939594-58d7cb561ad1"; // Splendid grilling selection
-    } else if (normalized.includes("wedding") || normalized.includes("marriage")) {
-      selectedUrl = "https://images.unsplash.com/photo-1519225421980-715cb0215aed"; // Premium wedding feast style
-    } else if (normalized.includes("cocktail") || normalized.includes("drink") || normalized.includes("bar") || normalized.includes("wine")) {
-      selectedUrl = "https://images.unsplash.com/photo-1574071318508-1cdbab80d002"; // Sleek elegant cocktails
-    } else if (normalized.includes("corporate") || normalized.includes("business") || normalized.includes("conference") || normalized.includes("meeting")) {
-      selectedUrl = "https://images.unsplash.com/photo-1414235077428-338989a2e8c0"; // Exceptional plated catering
-    } else if (normalized.includes("birthday") || normalized.includes("party") || normalized.includes("anniversary") || normalized.includes("celebration")) {
-      selectedUrl = "https://images.unsplash.com/photo-1578985545062-69928b1d9587"; // Delectable desserts, celebration mood
-    }
-    return `${selectedUrl}?auto=format&fit=crop&w=1200&q=80&is_fallback=true`;
-  };
+  // Fresh, dynamic, high-res abstract gourmet fallback image if the live API fails or key is missing.
+  // It is explicitly non-watermarked and distinctive, ensuring we can immediately identify success vs error.
+  const errorFallbackUrl = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1200&q=80&is_fallback=true";
 
   if (!apiKey || apiKey.trim() === '') {
-    console.warn("API Key is missing. Falling back safely to high-res gourmet backups...");
-    return triggerFallbackUrl();
+    console.warn("API Key is missing. Serving high-end visual backup placeholder...");
+    return errorFallbackUrl;
   }
 
   const controller = new AbortController();
@@ -330,10 +316,10 @@ export async function generateMenuImageFromApi(title: string, eventType: string,
     }
 
     console.warn("Imagen generation predictions list empty. Utilizing fallback...");
-    return triggerFallbackUrl();
+    return errorFallbackUrl;
   } catch (error: any) {
-    console.error("Imagen generation failed (auth, limit, forbidden, or 403). Falling back cleanly to Unsplash mapping...", error);
-    return triggerFallbackUrl();
+    console.error("Imagen generation failed. Falling back cleanly to abstract placeholder...", error);
+    return errorFallbackUrl;
   } finally {
     clearTimeout(timeoutId);
   }
