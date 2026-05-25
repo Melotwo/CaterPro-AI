@@ -277,25 +277,25 @@ export const generateMenuImageFromApi = async (title: string, description: strin
   const normalized = (title + " " + description + " " + (mainCourses?.join(" ") || "")).toLowerCase();
   const apiKey = getApiKey();
 
-  // Bulletproof fallbacks configured inside the image function generator directly
+  // Premium, beautiful, watermark-free high-res backup images inside the catch/fallback block
   const triggerFallbackUrl = () => {
-    let selectedUrl = "https://images.unsplash.com/photo-1555244162-803834f70033"; // Default: catering/Other
+    let selectedUrl = "https://images.unsplash.com/photo-1555244162-803834f70033"; // Default: high-end plated banquet
     if (normalized.includes("braai") || normalized.includes("bbq") || normalized.includes("spit braai")) {
-      selectedUrl = "https://images.unsplash.com/photo-1555939594-58d7cb561ad1";
+      selectedUrl = "https://images.unsplash.com/photo-1555939594-58d7cb561ad1"; // Splendid grilling selection
     } else if (normalized.includes("wedding") || normalized.includes("marriage")) {
-      selectedUrl = "https://images.unsplash.com/photo-1519225421980-715cb0215aed";
+      selectedUrl = "https://images.unsplash.com/photo-1519225421980-715cb0215aed"; // Premium wedding feast style
     } else if (normalized.includes("cocktail") || normalized.includes("drink") || normalized.includes("bar") || normalized.includes("wine")) {
-      selectedUrl = "https://images.unsplash.com/photo-1574071318508-1cdbab80d002";
+      selectedUrl = "https://images.unsplash.com/photo-1574071318508-1cdbab80d002"; // Sleek elegant cocktails
     } else if (normalized.includes("corporate") || normalized.includes("business") || normalized.includes("conference") || normalized.includes("meeting")) {
-      selectedUrl = "https://images.unsplash.com/photo-1414235077428-338989a2e8c0";
+      selectedUrl = "https://images.unsplash.com/photo-1414235077428-338989a2e8c0"; // Exceptional plated catering
     } else if (normalized.includes("birthday") || normalized.includes("party") || normalized.includes("anniversary") || normalized.includes("celebration")) {
-      selectedUrl = "https://images.unsplash.com/photo-1578985545062-69928b1d9587";
+      selectedUrl = "https://images.unsplash.com/photo-1578985545062-69928b1d9587"; // Delectable desserts, celebration mood
     }
     return `${selectedUrl}?auto=format&fit=crop&w=1200&q=80&is_fallback=true`;
   };
 
   if (!apiKey || apiKey.trim() === '') {
-    console.warn("API Key is missing. Falling back to Unsplash mapping...");
+    console.warn("API Key is missing. Falling back safely to high-res gourmet backups...");
     return triggerFallbackUrl();
   }
 
@@ -303,30 +303,22 @@ export const generateMenuImageFromApi = async (title: string, description: strin
   const timeoutId = setTimeout(() => controller.abort(), 60000);
 
   try {
-    let eventType = "fine dining";
-    if (normalized.includes("wedding") || normalized.includes("marriage")) {
-      eventType = "wedding";
-    } else if (normalized.includes("birthday") || normalized.includes("anniversary") || normalized.includes("party") || normalized.includes("celebration")) {
-      eventType = "celebration";
-    } else if (normalized.includes("corporate") || normalized.includes("business") || normalized.includes("meeting") || normalized.includes("conference")) {
-      eventType = "corporate event";
-    } else if (normalized.includes("braai") || normalized.includes("bbq") || normalized.includes("spit")) {
-      eventType = "braai feast";
-    } else if (normalized.includes("cocktail") || normalized.includes("beverage") || normalized.includes("drinks")) {
-      eventType = "cocktail event";
-    }
-
-    const promptText = `A professional high-resolution close-up culinary photograph of ${title} as a plated gourmet masterpiece. It must look absolutely incredible and inspirational, suitable for a 5-star Michelin restaurant presentation. Show incredible texture, artisanal garnishes, native elements of ${eventType} styling, macro photography focus on the primary main course, and soft-focus background of an upscale catering venue. Daylight lighting, 8k resolution, editorial-quality food styling.`;
-
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:generateImages?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        prompt: promptText,
-        numberOfImages: 1,
-        aspectRatio: '16:9'
+        instances: [
+          {
+            prompt: "Bespoke luxury food photography of " + title + ". Plated gourmet culinary masterpiece, 5-star Michelin presentation, high-end food styling, macro lens close-up, dramatic professional studio lighting, 8k resolution, crisp textures."
+          }
+        ],
+        parameters: {
+          sampleCount: 1,
+          aspectRatio: "16:9",
+          outputMimeType: "image/jpeg"
+        }
       }),
       signal: controller.signal
     });
@@ -338,12 +330,12 @@ export const generateMenuImageFromApi = async (title: string, description: strin
     }
 
     const data = await response.json();
-    const base64Bytes = data?.generatedImages?.[0]?.image?.imageBytes;
+    const base64Bytes = data?.predictions?.[0]?.bytesBase64Encoded;
     if (base64Bytes) {
-      return `data:image/jpeg;base64,${base64Bytes}`;
+      return "data:image/jpeg;base64," + base64Bytes;
     }
 
-    console.warn("Imagen generation returned empty images list. Falling back to Unsplash static mapping...");
+    console.warn("Imagen generation predictions list empty. Utilizing fallback...");
     return triggerFallbackUrl();
   } catch (error: any) {
     console.error("Imagen generation failed (auth, limit, forbidden, or 403). Falling back cleanly to Unsplash mapping...", error);
