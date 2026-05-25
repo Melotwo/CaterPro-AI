@@ -29,7 +29,11 @@ const ProductCard: React.FC<{
     try {
         // Fixed: Using generateMenuImageFromApi instead of missing generateProductImageFromApi
         const base64Data = await generateMenuImageFromApi(product.name, product.description);
-        setImgSrc(`data:image/png;base64,${base64Data}`);
+        if (base64Data.startsWith('data:')) {
+          setImgSrc(base64Data);
+        } else {
+          setImgSrc(`data:image/png;base64,${base64Data}`);
+        }
     } catch (err) {
         console.error("Failed to generate image:", err);
     } finally {
