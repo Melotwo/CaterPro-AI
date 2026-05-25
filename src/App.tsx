@@ -8,6 +8,9 @@ import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { motion, AnimatePresence } from 'framer-motion';
 import { generateMenuFromApi, generateMenuImageFromApi, getApiKey } from './services/geminiService';
 import { Menu, MenuItem, Message, ShiftIngredient, DashboardStats, EngineeringItem, SubscriptionPlan, IngredientCost } from './types';
+import { DashboardView } from './components/DashboardView';
+import { CalculatorView, PlateCostEngine } from './components/CalculatorView';
+import { RecipeGeneratorView } from './components/RecipeGeneratorView';
 
 // --- CONSTANTS ---
 
@@ -202,297 +205,6 @@ const HeroSection: React.FC<{ onStart: () => void; margin: number }> = ({ onStar
           <span className="text-xl">🛡️</span>
           Upgrade to Pro
         </button>
-      </div>
-    </div>
-  </div>
-);
-
-const PlateCostEngine: React.FC<{ ingredients: IngredientCost[]; onUpdate?: (cost: number) => void }> = ({ ingredients, onUpdate }) => {
-  const [selected, setSelected] = useState<{ id: string; quantity: number }[]>([]);
-  const [markup, setMarkup] = useState(300);
-  const total = selected.reduce((sum, item) => sum + (ingredients.find(i => i.id === item.id)?.price || 0) * item.quantity, 0);
-  const suggested = total * (markup / 100);
-  useEffect(() => { if (onUpdate) onUpdate(suggested); }, [suggested, onUpdate]);
-  return (
-    <div className="bg-slate-900/40 backdrop-blur-xl p-8 rounded-[4rem] border border-white/10 shadow-2xl">
-      <div className="flex items-center gap-4 mb-8">
-        <div className="w-10 h-10 bg-sky-500/20 rounded-xl flex items-center justify-center text-sky-400 text-xl">🧮</div>
-        <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Small Batch Costing</h3>
-      </div>
-      <div className="space-y-6">
-        <select onChange={(e) => { if (e.target.value) setSelected([...selected, { id: e.target.value, quantity: 1 }]); e.target.value = ''; }} className="w-full p-4 rounded-2xl bg-slate-800 text-white font-bold outline-none border border-white/10 text-sm">
-          <option value="">+ Add Ingredient...</option>
-          {ingredients.map(ing => <option key={ing.id} value={ing.id}>{ing.name} ({ing.unit})</option>)}
-        </select>
-        <div className="space-y-3">
-          {selected.map((item, idx) => (
-            <div key={idx} className="flex items-center justify-between p-4 bg-slate-800/30 rounded-2xl border border-white/5">
-              <span className="font-bold text-white">{ingredients.find(i => i.id === item.id)?.name}</span>
-              <div className="flex items-center gap-4">
-                <input type="number" value={item.quantity} onChange={(e) => { const n = [...selected]; n[idx].quantity = Number(e.target.value); setSelected(n); }} className="w-16 bg-slate-900 border border-white/10 rounded-lg p-1 text-center font-bold text-white text-xs" />
-                <button onClick={() => setSelected(selected.filter((_, i) => i !== idx))} className="text-red-400 hover:text-red-300 transition-colors text-xl">🗑️</button>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="pt-8 border-t border-white/10 flex justify-between items-center">
-          <div><p className="text-[10px] font-black text-slate-400 uppercase opacity-60">Total Cost</p><p className="text-3xl font-black text-white tracking-tighter">R {total.toFixed(2)}</p></div>
-          <div className="text-right"><p className="text-[10px] font-black text-emerald-500 uppercase opacity-60">Suggested Price</p><p className="text-4xl font-black text-emerald-500 tracking-tighter">R {suggested.toFixed(2)}</p></div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const EnhancedPlateCostCalculator: React.FC<{ onAddToMatrix: (item: EngineeringItem) => void }> = ({ onAddToMatrix }) => {
-  const [dishName, setDishName] = useState('');
-  const [category, setCategory] = useState<'Appetizers' | 'Main Courses' | 'Desserts'>('Main Courses');
-  const [menuPrice, setMenuPrice] = useState(0);
-  const [unitsSold, setUnitsSold] = useState(0);
-  const [ingredients, setIngredients] = useState<{ name: string; cost: number; qty: number; unit: string }[]>([
-    { name: '', cost: 0, qty: 0, unit: 'kg' }
-  ]);
-
-  const plateCost = ingredients.reduce((sum, ing) => sum + (ing.cost * ing.qty), 0);
-  const foodCostPct = menuPrice > 0 ? (plateCost / menuPrice) * 100 : 0;
-  const margin = menuPrice - plateCost;
-
-  const addIngredient = () => setIngredients([...ingredients, { name: '', cost: 0, qty: 0, unit: 'kg' }]);
-  const removeIngredient = (index: number) => setIngredients(ingredients.filter((_, i) => i !== index));
-  const updateIngredient = (index: number, field: string, value: any) => {
-    const n = [...ingredients];
-    n[index] = { ...n[index], [field]: value };
-    setIngredients(n);
-  };
-
-  const handleAdd = () => {
-    if (!dishName) return;
-    onAddToMatrix({
-      id: Math.random().toString(36).substr(2, 9),
-      name: dishName,
-      category,
-      price: menuPrice,
-      unitsSold,
-      ingredients,
-      totalCost: plateCost,
-      foodCostPct,
-      margin
-    });
-    setDishName('');
-    setMenuPrice(0);
-    setUnitsSold(0);
-    setIngredients([{ name: '', cost: 0, qty: 0, unit: 'kg' }]);
-  };
-
-  return (
-    <div className="bg-slate-900/40 backdrop-blur-xl p-12 rounded-[4rem] border border-white/10 shadow-2xl space-y-10">
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-400 text-2xl">⚖️</div>
-        <h3 className="text-3xl font-black text-white uppercase tracking-tighter">Enhanced Cost Engine</h3>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="space-y-4">
-          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 opacity-60">Dish Identity</label>
-          <input type="text" placeholder="Dish Name" value={dishName} onChange={(e) => setDishName(e.target.value)} className="w-full p-4 rounded-2xl bg-slate-800 border border-white/10 text-white font-bold outline-none" />
-          <select value={category} onChange={(e) => setCategory(e.target.value as any)} className="w-full p-4 rounded-2xl bg-slate-800 border border-white/10 text-white font-bold outline-none">
-            <option value="Appetizers">Appetizers</option>
-            <option value="Main Courses">Main Courses</option>
-            <option value="Desserts">Desserts</option>
-          </select>
-        </div>
-        <div className="space-y-4">
-          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 opacity-60">Sales Performance</label>
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <p className="text-[8px] font-black text-slate-500 uppercase mb-2">Price (ZAR)</p>
-              <input type="number" value={menuPrice} onChange={(e) => setMenuPrice(Number(e.target.value))} className="w-full p-4 rounded-2xl bg-slate-800 border border-white/10 text-white font-bold outline-none" />
-            </div>
-            <div className="flex-1">
-              <p className="text-[8px] font-black text-slate-500 uppercase mb-2">Units Sold</p>
-              <input type="number" value={unitsSold} onChange={(e) => setUnitsSold(Number(e.target.value))} className="w-full p-4 rounded-2xl bg-slate-800 border border-white/10 text-white font-bold outline-none" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 opacity-60">Ingredient Breakdown</label>
-          <button onClick={addIngredient} className="text-emerald-400 font-bold text-xs hover:text-emerald-300 transition-colors">+ Add Row</button>
-        </div>
-        {ingredients.map((ing, idx) => (
-          <div key={idx} className="flex flex-wrap gap-4 items-end p-6 bg-slate-950/30 rounded-3xl border border-white/5">
-            <div className="flex-1 min-w-[200px]">
-              <p className="text-[8px] font-black text-slate-500 uppercase mb-2">Ingredient</p>
-              <input type="text" value={ing.name} onChange={(e) => updateIngredient(idx, 'name', e.target.value)} className="w-full bg-transparent border-b border-white/10 px-0 py-2 font-bold text-white outline-none" />
-            </div>
-            <div className="w-24">
-              <p className="text-[8px] font-black text-slate-500 uppercase mb-2">Cost (ZAR)</p>
-              <input type="number" value={ing.cost} onChange={(e) => updateIngredient(idx, 'cost', Number(e.target.value))} className="w-full bg-transparent border-b border-white/10 px-0 py-2 font-bold text-white outline-none text-center" />
-            </div>
-            <div className="w-20">
-              <p className="text-[8px] font-black text-slate-500 uppercase mb-2">Qty</p>
-              <input type="number" value={ing.qty} onChange={(e) => updateIngredient(idx, 'qty', Number(e.target.value))} className="w-full bg-transparent border-b border-white/10 px-0 py-2 font-bold text-white outline-none text-center" />
-            </div>
-            <div className="w-16">
-              <p className="text-[8px] font-black text-slate-500 uppercase mb-2">Unit</p>
-              <select value={ing.unit} onChange={(e) => updateIngredient(idx, 'unit', e.target.value)} className="w-full bg-transparent border-b border-white/10 px-0 py-2 font-bold text-white outline-none cursor-pointer">
-                <option value="kg">kg</option>
-                <option value="L">L</option>
-                <option value="ea">ea</option>
-              </select>
-            </div>
-            {ingredients.length > 1 && (
-              <button onClick={() => removeIngredient(idx)} className="pb-2 text-red-400/50 hover:text-red-400 transition-colors">🗑️</button>
-            )}
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-10 border-t border-white/10">
-        <div className="bg-slate-950/50 p-6 rounded-3xl border border-white/5">
-          <p className="text-[10px] font-black text-slate-500 uppercase mb-2">Plate Cost</p>
-          <h4 className="text-3xl font-black text-white">R {plateCost.toFixed(2)}</h4>
-        </div>
-        <div className="bg-emerald-600/10 p-6 rounded-3xl border border-emerald-500/20">
-          <p className="text-[10px] font-black text-emerald-500 uppercase mb-2">Food Cost %</p>
-          <h4 className="text-3xl font-black text-emerald-400">{foodCostPct.toFixed(1)}%</h4>
-        </div>
-        <div className="bg-sky-600/10 p-6 rounded-3xl border border-sky-500/20">
-          <p className="text-[10px] font-black text-sky-500 uppercase mb-2">Contribution Margin</p>
-          <h4 className="text-3xl font-black text-sky-400">R {margin.toFixed(2)}</h4>
-        </div>
-      </div>
-
-      <button onClick={handleAdd} className="w-full py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-xl" style={{ clipPath: OCTAGON_CLIP }}>
-        Add to Menu Matrix
-      </button>
-    </div>
-  );
-};
-
-const MenuEngineeringMatrix: React.FC<{ items: EngineeringItem[]; onRemove: (id: string) => void }> = ({ items, onRemove }) => {
-  const avgProfit = items.length > 0 ? items.reduce((sum, i) => sum + i.margin, 0) / items.length : 0;
-  const avgPopularity = items.length > 0 ? items.reduce((sum, i) => sum + i.unitsSold, 0) / items.length : 0;
-
-  const quadrants = {
-    stars: items.filter(i => i.margin >= avgProfit && i.unitsSold >= avgPopularity),
-    plow_horses: items.filter(i => i.margin < avgProfit && i.unitsSold >= avgPopularity),
-    puzzles: items.filter(i => i.margin >= avgProfit && i.unitsSold < avgPopularity),
-    dogs: items.filter(i => i.margin < avgProfit && i.unitsSold < avgPopularity)
-  };
-
-  const Quadrant = ({ title, sub, icon, data, color }: { title: string; sub: string; icon: string; data: EngineeringItem[]; color: string }) => (
-    <div className={`p-8 bg-slate-900/40 rounded-[3rem] border border-white/5 flex flex-col h-full min-h-[400px]`}>
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h4 className={`text-2xl font-black tracking-tighter uppercase ${color}`}>{title}</h4>
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{sub}</p>
-        </div>
-        <span className="text-4xl filter grayscale opacity-20">{icon}</span>
-      </div>
-      <div className="flex-1 space-y-4">
-        {data.map(item => (
-          <div key={item.id} className="p-4 bg-slate-800/40 rounded-2xl border border-white/5 group hover:border-emerald-500/30 transition-all">
-            <div className="flex justify-between items-start mb-2">
-              <p className="font-bold text-white text-sm uppercase italic">{item.name}</p>
-              <button onClick={() => onRemove(item.id)} className="text-xs opacity-0 group-hover:opacity-100 transition-opacity">🗑️</button>
-            </div>
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <p className="text-[8px] font-black text-slate-500 uppercase">Margin</p>
-                <p className="text-xs font-black text-emerald-400">R {item.margin.toFixed(0)}</p>
-              </div>
-              <div className="flex-1">
-                <p className="text-[8px] font-black text-slate-500 uppercase">FC %</p>
-                <p className="text-xs font-black text-sky-400">{item.foodCostPct.toFixed(0)}%</p>
-              </div>
-              <div className="flex-1">
-                <p className="text-[8px] font-black text-slate-500 uppercase">Sold</p>
-                <p className="text-xs font-black text-white">{item.unitsSold}</p>
-              </div>
-            </div>
-          </div>
-        ))}
-        {data.length === 0 && <div className="h-full flex items-center justify-center border-2 border-dashed border-white/5 rounded-3xl text-slate-700 font-bold uppercase italic text-[10px] tracking-widest">No Items</div>}
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="space-y-12 pb-20">
-      <div className="text-center">
-        <h3 className="text-5xl font-black text-white uppercase italic tracking-tighter">Profit Matrix</h3>
-        <p className="text-slate-500 font-medium italic opacity-60">Visualizing menu engineering performance metrics.</p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-7xl mx-auto px-6">
-        <Quadrant title="Stars" sub="High Profit / High Popularity" icon="⭐" data={quadrants.stars} color="text-emerald-400" />
-        <Quadrant title="Puzzles" sub="High Profit / Low Popularity" icon="🧩" data={quadrants.puzzles} color="text-sky-400" />
-        <Quadrant title="Plow Horses" sub="Low Profit / High Popularity" icon="🐴" data={quadrants.plow_horses} color="text-orange-400" />
-        <Quadrant title="Dogs" sub="Low Profit / Low Popularity" icon="🦴" data={quadrants.dogs} color="text-red-400" />
-      </div>
-    </div>
-  );
-};
-
-const DashboardView: React.FC<{ stats: DashboardStats; recent: Menu[]; onGenerate: () => void; onSelectProposal: (menu: Menu) => void }> = ({ stats, recent, onGenerate, onSelectProposal }) => (
-  <div className="pt-32 max-w-7xl mx-auto px-6 space-y-12">
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-      {[
-        { label: 'Proposals Generated', value: stats.totalProposals, sub: 'All time', icon: '📝' },
-        { label: 'Est. Total Revenue', value: `R ${stats.totalRevenue.toLocaleString()}`, sub: 'ZAR', icon: '💰' },
-        { label: 'Avg Profit Margin', value: `${stats.avgMargin.toFixed(1)}%`, sub: 'Calculated', icon: '📈' },
-        { label: 'Last Event Type', value: stats.lastEventType || 'None Yet', sub: 'Recent', icon: '🏢' }
-      ].map((stat, idx) => (
-        <div key={idx} className="bg-slate-900/40 backdrop-blur-xl p-8 rounded-[3rem] border border-white/10 shadow-xl group hover:border-emerald-500/30 transition-all">
-          <div className="flex items-center gap-4 mb-6">
-            <span className="text-2xl">{stat.icon}</span>
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">{stat.label}</p>
-          </div>
-          <h4 className="text-3xl font-black text-white tracking-tighter">{stat.value}</h4>
-          <p className="text-[10px] font-black text-emerald-500 uppercase opacity-40 mt-2">{stat.sub}</p>
-        </div>
-      ))}
-    </div>
-
-    <div className="bg-emerald-600/10 border border-emerald-500/20 p-16 rounded-[4rem] text-center relative overflow-hidden group">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-emerald-500/10 to-transparent opacity-50" />
-      <div className="relative z-10">
-        <h3 className="text-5xl font-black text-white uppercase italic tracking-tighter mb-8 leading-none">Draft your next <span className="text-emerald-500">Masterpiece</span></h3>
-        <button onClick={onGenerate} className="px-16 py-8 bg-emerald-600 text-white rounded-[2.5rem] font-black uppercase text-sm hover:scale-105 transition-all shadow-2xl flex items-center gap-4 mx-auto" style={{ clipPath: OCTAGON_CLIP }}>
-          <span className="text-2xl">⚡</span>
-          Generate New Proposal
-        </button>
-      </div>
-    </div>
-
-    <div className="space-y-8">
-      <h3 className="text-xs font-black text-slate-500 uppercase tracking-[0.4em]">Recent Proposals</h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {recent.map((menu, idx) => (
-          <div key={idx} onClick={() => onSelectProposal(menu)} className="bg-slate-900/40 backdrop-blur-md rounded-[3rem] border border-white/10 overflow-hidden cursor-pointer group hover:scale-[1.02] transition-all">
-            <div className="h-40 relative">
-              <img src={menu.heroImage || HERO_FALLBACK} alt="" className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all opacity-40 group-hover:opacity-80" />
-              {menu.heroImage?.includes('is_fallback=true') && (
-                <div className="absolute top-4 left-4 z-20 bg-slate-950/85 backdrop-blur-sm text-[8px] uppercase tracking-wider px-2.5 py-1 rounded-lg text-slate-400 font-bold border border-white/5">
-                  Curated
-                </div>
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 to-transparent" />
-              <div className="absolute bottom-6 left-6 right-6">
-                <h5 className="font-black text-white uppercase italic truncate">{menu.title}</h5>
-              </div>
-            </div>
-            <div className="p-8 space-y-4">
-              <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-500">
-                <span>{menu.guestCount} Guests</span>
-                <span className="text-emerald-500">R {(menu.manualTotal || 0).toLocaleString()}</span>
-              </div>
-            </div>
-          </div>
-        ))}
-        {recent.length === 0 && <div className="col-span-3 py-20 text-center border-2 border-dashed border-white/10 rounded-[3rem] text-slate-700 font-black italic uppercase tracking-widest">No history yet. Start creating!</div>}
       </div>
     </div>
   </div>
@@ -864,7 +576,15 @@ function App() {
   const [toast, setToast] = useState<string | null>(null);
   const [generating, setGenerating] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('Chef AI is drafting your menu...');
-  const [proposal, setProposal] = useState<Menu | null>(null);
+  const [generatedMenu, setGeneratedMenu] = useState<Menu | null>(null);
+  const [menuImage, setMenuImage] = useState<string | null>(null);
+  const [region, setRegion] = useState('South Africa');
+  const [activeRecipe, setActiveRecipe] = useState<any>(null);
+  
+  // Keep compatibility with any inline proposal code
+  const proposal = generatedMenu;
+  const setProposal = setGeneratedMenu;
+
   const [shiftModal, setShiftModal] = useState<{ isOpen: boolean; ingredients: ShiftIngredient[]; title: string } | null>(null);
   const [eventType, setEventType] = useState('');
   const [guestCount, setGuestCount] = useState(50);
@@ -924,6 +644,7 @@ function App() {
         guestCount, 
         budget, 
         cuisine,
+        region, // Pass the dynamic region state from our Sidebar's interactive tracker!
         onProgress: (msg) => {
           setLoadingMessage(msg);
           setToast(msg);
@@ -1063,7 +784,7 @@ function App() {
               { id: 'dashboard', label: 'Dashboard', icon: '📊' },
               { id: 'generator', label: 'Generator', icon: '⚡' },
               { id: 'calculator', label: 'Calculator', icon: '🧮' },
-              { id: 'education', label: 'Education', icon: '🎓' }
+              { id: 'recipe-generator', label: 'Recipe Generator', icon: '👨‍🍳' }
             ].map(item => (
               <button 
                 key={item.id} 
@@ -1096,6 +817,8 @@ function App() {
                 recent={recentProposals} 
                 onGenerate={() => setView('generator')}
                 onSelectProposal={(m) => { setProposal(m); setView('proposal'); }}
+                region={region}
+                setRegion={setRegion}
               />
             </motion.div>
           )}
@@ -1206,29 +929,26 @@ function App() {
             </motion.div>
           )}
           {view === 'calculator' && (
-            <motion.div key="calculator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="pt-40 pb-20 max-w-7xl mx-auto px-6">
-              <div className="text-center mb-16">
-                <h2 className="text-6xl font-black text-white uppercase italic mb-4 tracking-tighter">Kitchen Profits</h2>
-                <p className="text-slate-400 font-medium italic opacity-60">Engineered for absolute food service precision.</p>
-              </div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-20 items-start">
-                <EnhancedPlateCostCalculator onAddToMatrix={(item) => setEngineeringItems([...engineeringItems, item])} />
-                <PlateCostEngine ingredients={ingredients} />
-              </div>
-
-              <MenuEngineeringMatrix items={engineeringItems} onRemove={(id) => setEngineeringItems(engineeringItems.filter(i => i.id !== id))} />
-
-              <button onClick={() => setView('dashboard')} className="w-full mt-8 py-6 bg-slate-900/40 backdrop-blur-xl text-white border border-white/10 rounded-[2rem] font-black uppercase text-sm hover:bg-slate-800 transition-all" style={{ clipPath: OCTAGON_CLIP }}>Back to Dashboard</button>
+            <motion.div key="calculator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+              <CalculatorView
+                generatedMenu={generatedMenu}
+                region={region}
+                ingredients={ingredients}
+                engineeringItems={engineeringItems}
+                setEngineeringItems={setEngineeringItems}
+                setView={setView}
+              />
             </motion.div>
           )}
-          {view === 'education' && (
-            <motion.div key="education" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="pt-40 pb-20 max-w-7xl mx-auto px-6">
-              <div className="bg-slate-900/60 backdrop-blur-3xl p-12 rounded-[3rem] border border-white/10 text-center">
-                <h2 className="text-4xl font-black text-white uppercase mb-4">Education Module</h2>
-                <p className="text-slate-400 mb-8 text-xl">The Study Guide Generator is currently unavailable in this build.</p>
-                <div className="w-20 h-1 bg-emerald-500 mx-auto rounded-full" />
-              </div>
-              <button onClick={() => setView('dashboard')} className="w-full mt-12 py-6 bg-slate-900/40 backdrop-blur-xl text-white border border-white/10 rounded-[2rem] font-black uppercase text-sm hover:bg-slate-800 transition-all" style={{ clipPath: OCTAGON_CLIP }}>Back to Dashboard</button>
+          {view === 'recipe-generator' && (
+            <motion.div key="recipe-generator" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
+              <RecipeGeneratorView
+                generatedMenu={generatedMenu}
+                activeRecipe={activeRecipe}
+                setActiveRecipe={setActiveRecipe}
+                region={region}
+                setView={setView}
+              />
             </motion.div>
           )}
         </AnimatePresence>
