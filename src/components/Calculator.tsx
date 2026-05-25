@@ -41,7 +41,7 @@ export const PlateCostEngine: React.FC<{ ingredients: IngredientCost[]; onUpdate
       <div className="space-y-6">
         <select onChange={(e) => { if (e.target.value) setSelected([...selected, { id: e.target.value, quantity: 1 }]); e.target.value = ''; }} className="w-full p-4 rounded-2xl bg-slate-800 text-white font-bold outline-none border border-white/10 text-sm cursor-pointer">
           <option value="">+ Add Ingredient...</option>
-          {ingredients.map(ing => <option key={ing.id} value={ing.id}>{ing.name} ({ing.unit})</option>)}
+          {ingredients.map(ing => <option key={ing.id} value={ing.id ?? ''}>{ing.name} ({ing.unit})</option>)}
         </select>
         <div className="space-y-3">
           {selected.map((item, idx) => (
@@ -255,12 +255,12 @@ const MenuEngineeringMatrix: React.FC<{ items: EngineeringItem[]; onRemove: (id:
   );
 };
 
-export const Calculator: React.FC<CalculatorProps> = ({
+export default function Calculator({
   generatedMenu,
   region,
   selectedItemName,
   setSelectedItemName
-}) => {
+}: CalculatorProps) {
   const [breakdown, setBreakdown] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -537,6 +537,4 @@ export const Calculator: React.FC<CalculatorProps> = ({
 
     </div>
   );
-};
-
-export default Calculator;
+}
