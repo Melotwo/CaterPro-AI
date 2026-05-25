@@ -2,26 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { calculateIngredientBreakdown } from '../services/geminiService';
 
-export interface IngredientCost {
-  id?: string;
-  name: string;
-  unit: string;
-  price: number;
-  lastUpdated?: Date;
-  userId?: string;
-}
+export interface IngredientCost { id?: string; name: string; unit: string; price: number; }
 
-export interface EngineeringItem {
-  id: string;
-  name: string;
-  category: 'Appetizers' | 'Main Courses' | 'Desserts';
-  price: number;
-  unitsSold: number;
-  ingredients: Array<{ name: string; cost: number; qty: number; unit: string }>;
-  totalCost: number;
-  foodCostPct: number;
-  margin: number;
-}
+export interface EngineeringItem { id: string; name: string; category: 'Appetizers' | 'Main Courses' | 'Desserts'; price: number; unitsSold: number; ingredients: Array<{ name: string; cost: number; qty: number; unit: string }>; totalCost: number; foodCostPct: number; margin: number; }
 
 interface CalculatorProps {
   generatedMenu: any;
@@ -34,14 +17,14 @@ const OCTAGON_CLIP = 'polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 
 
 // Sample ingredients fallback array for custom costing estimation
 const DEFAULT_INGREDIENTS: IngredientCost[] = [
-  { id: '1', name: 'Premium Beef Fillet', unit: 'kg', price: 290, lastUpdated: new Date(), userId: 'demo' },
-  { id: '2', name: 'Fresh Atlantic Salmon', unit: 'kg', price: 340, lastUpdated: new Date(), userId: 'demo' },
-  { id: '3', name: 'Salted Butter', unit: 'kg', price: 110, lastUpdated: new Date(), userId: 'demo' },
-  { id: '4', name: 'Heavy Whipping Cream', unit: 'L', price: 85, lastUpdated: new Date(), userId: 'demo' },
-  { id: '5', name: 'Organic Cake Flour', unit: 'kg', price: 25, lastUpdated: new Date(), userId: 'demo' },
-  { id: '6', name: 'Madagascar Vanilla Beans', unit: 'ea', price: 45, lastUpdated: new Date(), userId: 'demo' },
-  { id: '7', name: 'Fresh Rosemary & Herbs', unit: 'kg', price: 95, lastUpdated: new Date(), userId: 'demo' },
-  { id: '8', name: 'Belgian Dark Chocolate', unit: 'kg', price: 180, lastUpdated: new Date(), userId: 'demo' }
+  { id: '1', name: 'Premium Beef Fillet', unit: 'kg', price: 290 },
+  { id: '2', name: 'Fresh Atlantic Salmon', unit: 'kg', price: 340 },
+  { id: '3', name: 'Salted Butter', unit: 'kg', price: 110 },
+  { id: '4', name: 'Heavy Whipping Cream', unit: 'L', price: 85 },
+  { id: '5', name: 'Organic Cake Flour', unit: 'kg', price: 25 },
+  { id: '6', name: 'Madagascar Vanilla Beans', unit: 'ea', price: 45 },
+  { id: '7', name: 'Fresh Rosemary & Herbs', unit: 'kg', price: 95 },
+  { id: '8', name: 'Belgian Dark Chocolate', unit: 'kg', price: 180 }
 ];
 
 export const PlateCostEngine: React.FC<{ ingredients: IngredientCost[]; onUpdate?: (cost: number) => void }> = ({ ingredients = DEFAULT_INGREDIENTS, onUpdate }) => {
