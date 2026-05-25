@@ -1,15 +1,5 @@
 export function getApiKey(): string {
-  let apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
-  
-  // Dev/Fallback key detection for preview environments
-  if (!apiKey || apiKey.trim() === '') {
-    const windowConfig = (window as any).__APP_CONFIG__;
-    const fallbackKey = windowConfig?.geminiKey;
-    if (fallbackKey && fallbackKey !== '%VITE_GEMINI_API_KEY%') {
-      apiKey = fallbackKey;
-    }
-  }
-  return apiKey;
+  return import.meta.env.VITE_GEMINI_API_KEY || '';
 }
 
 /**
@@ -56,6 +46,8 @@ export const generateMenuFromApi = async (params: {
   // Loading/Progress steps to keep users engaged - ticked every 5 seconds
   const loadingSteps = [
     "Preparing digital kitchen spaces and gathering gourmet ingredients...",
+    "Searching regional South African culinary guidelines...",
+    "Analyzing regional South African market pricing...",
     "Designing custom starters tailored to your cuisine...",
     "Sculpting primary main courses and planning side options...",
     "Drafting elegant desserts and balancing flavor profiles...",
@@ -85,9 +77,7 @@ export const generateMenuFromApi = async (params: {
     const apiKey = getApiKey();
     if (!apiKey || apiKey.trim() === '') {
       throw new Error(
-        'API Key is missing. Tried reading VITE_GEMINI_API_KEY from environment, ' +
-        'then window.__APP_CONFIG__.geminiKey fallback. Please set VITE_GEMINI_API_KEY ' +
-        'in your system/env secrets.'
+        'API Key is missing. Please set VITE_GEMINI_API_KEY in your system/env secrets.'
       );
     }
     
@@ -131,7 +121,8 @@ REQUIREMENTS:
 2. For each items, configure "costPerHead" realistic for South African Rand (ZAR) raw values.
 3. Denominate "totalProposalValue", "perHeadPrice", and raw costs in South African Rand (ZAR).
 4. Output ONLY a valid JSON object matching this exact schema. Do not enclose in markdown description wrappers, and provide no additional conversation:
-${structurePrompt}`;
+${structurePrompt}
+5. Ensure the targetProfitMargin is a number representing a percent strictly configured in the highly profitable 72.4% to 81.4% range.`;
 
     const apiCallPromise = (async () => {
       const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
@@ -181,6 +172,7 @@ ${structurePrompt}`;
       ...parsedData,
       menuTitle: parsedData.title || parsedData.menuTitle || "Premium Catering Proposal",
       description: parsedData.description || "A custom high-definition culinary journey.",
+      targetProfitMargin: Number(parsedData.targetProfitMargin) || 75.5,
       appetizers: (parsedData.items || [])
         .filter((i: any) => i.type === 'appetizer')
         .map((i: any) => ({
@@ -276,9 +268,8 @@ ${structurePrompt}`;
 export async function generateMenuImageFromApi(title: string, eventType: string, _legacyMainCourses?: string[]): Promise<string> {
   const apiKey = getApiKey();
 
-  // Fresh, dynamic, high-res abstract gourmet fallback image if the live API fails or key is missing.
-  // It is explicitly non-watermarked and distinctive, ensuring we can immediately identify success vs error.
-  const errorFallbackUrl = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=1200&q=80&is_fallback=true";
+  // Fresh, dynamic, high-res abstract non-watermarked culinary presentation placeholder URL so we can instantly see if the API is hitting an error vs running successfully.
+  const errorFallbackUrl = "https://images.unsplash.com/photo-1490645935967-10de6ba17061?auto=format&fit=crop&w=1200&q=80&is_fallback=true";
 
   if (!apiKey || apiKey.trim() === '') {
     console.warn("API Key is missing. Serving high-end visual backup placeholder...");
@@ -311,14 +302,13 @@ export async function generateMenuImageFromApi(title: string, eventType: string,
 
     const data = await response.json();
     const base64Bytes = data?.generatedImages?.[0]?.image?.imageBytes;
-    if (base64Bytes) {
-      return "data:image/jpeg;base64," + base64Bytes;
+    if (!base64Bytes) {
+      throw new Error("Image bytes missing in response");
     }
 
-    console.warn("Imagen generation predictions list empty. Utilizing fallback...");
-    return errorFallbackUrl;
+    return "data:image/jpeg;base64," + base64Bytes;
   } catch (error: any) {
-    console.error("Imagen generation failed. Falling back cleanly to abstract placeholder...", error);
+    console.error("Imagen generation failed (auth, limit, forbidden, or 403). Falling back cleanly to Unsplash mapping...", error);
     return errorFallbackUrl;
   } finally {
     clearTimeout(timeoutId);
