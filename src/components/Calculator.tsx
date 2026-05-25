@@ -1,7 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { calculateIngredientBreakdown } from '../services/geminiService';
-import { MenuItem, EngineeringItem, IngredientCost } from '../types';
+
+export interface IngredientCost {
+  id?: string;
+  name: string;
+  unit: string;
+  price: number;
+  lastUpdated?: Date;
+  userId?: string;
+}
+
+export interface EngineeringItem {
+  id: string;
+  name: string;
+  category: 'Appetizers' | 'Main Courses' | 'Desserts';
+  price: number;
+  unitsSold: number;
+  ingredients: Array<{ name: string; cost: number; qty: number; unit: string }>;
+  totalCost: number;
+  foodCostPct: number;
+  margin: number;
+}
 
 interface CalculatorProps {
   generatedMenu: any;
@@ -63,7 +83,7 @@ export const PlateCostEngine: React.FC<{ ingredients: IngredientCost[]; onUpdate
   );
 };
 
-const EnhancedPlateCostCalculator: React.FC<{ onAddToMatrix: (item: EngineeringItem) => void }> = ({ onAddToMatrix }) => {
+export const EnhancedPlateCostCalculator: React.FC<{ onAddToMatrix: (item: EngineeringItem) => void }> = ({ onAddToMatrix }) => {
   const [dishName, setDishName] = useState('');
   const [category, setCategory] = useState<'Appetizers' | 'Main Courses' | 'Desserts'>('Main Courses');
   const [menuPrice, setMenuPrice] = useState(0);
@@ -191,7 +211,7 @@ const EnhancedPlateCostCalculator: React.FC<{ onAddToMatrix: (item: EngineeringI
   );
 };
 
-const MenuEngineeringMatrix: React.FC<{ items: EngineeringItem[]; onRemove: (id: string) => void }> = ({ items, onRemove }) => {
+export const MenuEngineeringMatrix: React.FC<{ items: EngineeringItem[]; onRemove: (id: string) => void }> = ({ items, onRemove }) => {
   const avgProfit = items.length > 0 ? items.reduce((sum, i) => sum + i.margin, 0) / items.length : 0;
   const avgPopularity = items.length > 0 ? items.reduce((sum, i) => sum + i.unitsSold, 0) / items.length : 0;
 
