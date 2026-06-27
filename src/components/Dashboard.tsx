@@ -459,6 +459,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [guestCount, setGuestCount] = useState(50);
   const [budget, setBudget] = useState('Standard (R250-R500pp)');
   const [cuisine, setCuisine] = useState('South African');
+  const [generationError, setGenerationError] = useState<string | null>(null);
   const [shiftModal, setShiftModal] = useState<{ isOpen: boolean; ingredients: ShiftIngredient[]; title: string } | null>(null);
 
   // Initialize and load from local storage
@@ -496,6 +497,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const handleGenerate = async () => {
     if (!eventType) { setToast('Please enter an event type.'); return; }
     setGenerating(true); 
+    setGenerationError(null);
     setLoadingMessage('Chef AI is drafting your menu...');
     setToast('Chef AI is drafting your menu...');
     try {
@@ -512,6 +514,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       });
       
       if (response.error || !response.data) {
+        setGenerationError("👨🍳 Chef AI is taking a quick breather. We are experiencing a temporary network connection issue—please try generating your proposal again in a moment or contact support if the issue persists.");
         setToast(`Generation failed: ${response.error || 'No menu returned.'}`);
         return;
       }
@@ -580,6 +583,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       setToast('Proposal successfully drafted!');
     } catch (error: any) {
       console.error("Application Error:", error);
+      setGenerationError("👨🍳 Chef AI is taking a quick breather. We are experiencing a temporary network connection issue—please try generating your proposal again in a moment or contact support if the issue persists.");
       setToast(`Unexpected error: ${error.message || 'Check connection details'}`);
     } finally {
       setGenerating(false);
@@ -722,6 +726,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     Provide the specifications and let Chef AI formulate a customized premium culinary proposal.
                   </p>
                 </div>
+
+                {generationError && (
+                  <div className="p-6 bg-rose-500/10 border-2 border-rose-500/20 rounded-[2rem] text-rose-200 text-sm flex flex-col md:flex-row items-center justify-between gap-4 max-w-xl mx-auto shadow-lg shadow-rose-950/20">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl shrink-0">👨🍳</span>
+                      <p className="font-bold leading-relaxed text-left text-xs">
+                        Chef AI is taking a quick breather. We are experiencing a temporary network connection issue—please try generating your proposal again in a moment or contact support if the issue persists.
+                      </p>
+                    </div>
+                    <button 
+                      onClick={() => setGenerationError(null)} 
+                      className="px-4 py-2 bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 rounded-xl text-[10px] font-black uppercase tracking-wider transition-colors shrink-0"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                )}
 
                 <div className="space-y-8 max-w-xl mx-auto">
                   <div>
