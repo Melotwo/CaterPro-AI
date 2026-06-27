@@ -1,3 +1,33 @@
+/**
+ * ============================================================================
+ * STEP-BY-STEP CONFIGURATION GUIDE & GEMINI API INITIALIZATION
+ * ============================================================================
+ * 
+ * If you need to update the Gemini API base initialization with a fresh API Key
+ * or Project ID, follow these three simple steps:
+ * 
+ * STEP 1: LOCATE OR CREATE YOUR ENVIRONMENT FILE
+ * Open the `.env` file (or `.env.local` / `.env.production`) at the root of
+ * your project. If you are deploying via Cloud Run/Vercel/Netlify, define this 
+ * in your system environment variables.
+ * 
+ * STEP 2: DEFINE THE DYNAMIC ENVIRONMENT VARIABLES
+ * Ensure the following keys are present with your completely fresh credentials:
+ * ```env
+ * VITE_GEMINI_API_KEY=AIzaSyYourNewFreshApiKeyGoesHere
+ * VITE_GCP_PROJECT_ID=your-fresh-project-id
+ * ```
+ * Note: Our React application retrieves the API key securely inside the client 
+ * using `import.meta.env.VITE_GEMINI_API_KEY` through the helper function `getApiKey()`.
+ * 
+ * STEP 3: BASE INITIALIZATION LOGIC (FOR @google/genai SDK OR CUSTOM REST CALLS)
+ * All custom endpoints are targeted at the standard Google AI Studio endpoint format:
+ * `https://generativelanguage.googleapis.com/v1/...`
+ * `https://generativelanguage.googleapis.com/v1beta/...`
+ * 
+ * ============================================================================
+ */
+
 export function getApiKey(): string {
   return import.meta.env.VITE_GEMINI_API_KEY || '';
 }
@@ -278,9 +308,6 @@ export async function generateMenuImageFromApi(menuTitle: string, eventType: str
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 60000);
 
-  // Professional food portraiture technical standard prompt instructions mapping to Chef AI identity
-  const photographyStandards = "Award-winning editorial food portrait photography, luxury fine dining plating design, natural window side-lighting, macro crisp texture, realistic rich colors, zero text artifacts, set against a premium backdrop (slate, premium ceramic, or polished dark wood).";
-
   // Dynamic builder weaving the exact menu's title into the text string to guarantee unique graphics every single run
   let promptString = `Award-winning editorial food portrait photography, luxury fine dining plating design, natural window side-lighting, macro crisp texture, realistic rich colors, zero text artifacts, representing the catering menu: ${menuTitle}`;
 
@@ -293,7 +320,9 @@ export async function generateMenuImageFromApi(menuTitle: string, eventType: str
   }
 
   try {
-    // Correct Google AI Studio REST payload format for imagen-3.0-generate-002
+    // Correct Imagen 3 REST Payload Format as required by Google AI Studio specification:
+    // Targeting the correct model: imagen-3.0-generate-002
+    // Structured EXACTLY with a direct prompt property, avoiding unnecessary nesting, instances arrays or vertex-specific wrappers.
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:generateImages?key=${apiKey}`, {
       method: 'POST',
       headers: {
