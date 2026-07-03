@@ -549,13 +549,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
         heroImage: HERO_FALLBACK,
         shoppingList: menuData.shoppingList || [],
         manualTotal: totalRevenue,
-        manualPerHead: totalDishPrice
+        manualPerHead: totalDishPrice,
+        generatedImagePrompt: menuData.generatedImagePrompt
       };
 
       setGeneratedMenu(menu);
 
       try {
-        const img = await generateMenuImageFromApi(menu.title, eventType);
+        const img = await generateMenuImageFromApi(menu.title, eventType, cuisine);
         if (img) {
           menu.heroImage = img;
           setMenuImage(img);
