@@ -1,8 +1,11 @@
 {
-  "name": "CaterProAi",
-  "description": "CaterProAi is South Africa's leading AI-powered culinary management tool. Built with elite standards from Disney Cruise Line experience, we help professional chefs with live ZAR costing and students with yield calculations.",
+  "name": "CaterProAI | Culinary Intelligence",
+  "description": "CaterProAI is the elite AI-powered command center for executive chefs and culinary students. Specializing in Menu Engineering, Plate Costing (ZAR), and QCTO compliance, we bring Disney Cruise Line standards to the professional kitchen.",
   "requestFramePermissions": [
     "geolocation",
     "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
   ]
 }
