@@ -66,6 +66,34 @@ const cleanAndParseJson = (rawText: string): any => {
   }
 };
 
+export const THEME_REPOSITORY: Record<string, string> = {
+  wedding: "https://images.unsplash.com/photo-1519225495810-7517cbd14565?auto=format&fit=crop&w=1200&q=80",
+  corporate: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80",
+  gala: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80",
+  dinner: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=80",
+  lunch: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80",
+  cocktail: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=1200&q=80",
+  party: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=1200&q=80",
+  bbq: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1200&q=80",
+  braai: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1200&q=80",
+  birthday: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=1200&q=80",
+  default: "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1200&q=80"
+};
+
+export function getThemeFallbackImage(eventType: string): string {
+  const normalized = (eventType || '').toLowerCase();
+  if (normalized.includes('wedding')) return THEME_REPOSITORY.wedding;
+  if (normalized.includes('corporate') || normalized.includes('conference') || normalized.includes('office') || normalized.includes('business')) return THEME_REPOSITORY.corporate;
+  if (normalized.includes('gala')) return THEME_REPOSITORY.gala;
+  if (normalized.includes('cocktail') || normalized.includes('canape') || normalized.includes('canapé')) return THEME_REPOSITORY.cocktail;
+  if (normalized.includes('party') || normalized.includes('celebration')) return THEME_REPOSITORY.party;
+  if (normalized.includes('bbq') || normalized.includes('braai') || normalized.includes('grilled') || normalized.includes('grill')) return THEME_REPOSITORY.bbq;
+  if (normalized.includes('birthday')) return THEME_REPOSITORY.birthday;
+  if (normalized.includes('dinner') || normalized.includes('feast') || normalized.includes('banquet')) return THEME_REPOSITORY.dinner;
+  if (normalized.includes('lunch') || normalized.includes('brunch') || normalized.includes('breakfast')) return THEME_REPOSITORY.lunch;
+  return THEME_REPOSITORY.default;
+}
+
 export const generateMenuFromApi = async (params: {
   eventType: string;
   guestCount: number;
@@ -124,12 +152,17 @@ export const generateMenuFromApi = async (params: {
       budgetText = `Target Budget: ${params.budget}. Ensure dishes, ingredients, and realistic portions fit perfectly into this scale.`;
     }
 
+    const event_type = params.eventType || "Catering Event";
+    const cuisine_style = params.cuisine || "Gourmet";
+    const imagePrompt = `Professional food photography, high-end catering spread for a ${event_type}, featuring authentic ${cuisine_style} dishes, warm ambient lighting, elegant plating, shallow depth of field, 8k resolution.`;
+
     const structurePrompt = `{
   "title": "string",
   "description": "string",
   "targetProfitMargin": number,
   "totalProposalValue": number,
   "perHeadPrice": number,
+  "generatedImagePrompt": "string",
   "items": [
     {
       "name": "string",
@@ -153,9 +186,10 @@ REQUIREMENTS:
 1. Under "items", provide unique, gourmet dishes representing appetizers, main courses, and desserts.
 2. For each items, configure "costPerHead" realistic for the localized target region's currency (${region} context).
 3. Denominate "totalProposalValue", "perHeadPrice", and raw costs in the target currency/value matching ${region} context.
-4. Output ONLY a valid JSON object matching this exact schema. Do not enclose in markdown description wrappers, and provide no additional conversation:
+4. Output ONLY a valid JSON object matching this exact schema:
 ${structurePrompt}
-5. Ensure the targetProfitMargin is a number representing a percent strictly configured in the highly profitable 72.4% to 81.4% range.`;
+5. Ensure the targetProfitMargin is a number representing a percent strictly configured in the highly profitable 72.4% to 81.4% range.
+6. Under "generatedImagePrompt", save this exact prompt string: "${imagePrompt}"`;
 
     const apiCallPromise = (async () => {
       const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
@@ -171,7 +205,8 @@ ${structurePrompt}
           }],
           generationConfig: {
             maxOutputTokens: 8000,
-            temperature: 0.7
+            temperature: 0.7,
+            responseMimeType: "application/json"
           }
         }),
         signal: controller.signal
@@ -206,6 +241,7 @@ ${structurePrompt}
       menuTitle: parsedData.title || parsedData.menuTitle || "Premium Catering Proposal",
       description: parsedData.description || "A custom high-definition culinary journey.",
       targetProfitMargin: Number(parsedData.targetProfitMargin) || 75.5,
+      generatedImagePrompt: parsedData.generatedImagePrompt || imagePrompt,
       appetizers: (parsedData.items || [])
         .filter((i: any) => i.type === 'appetizer')
         .map((i: any) => ({
@@ -298,31 +334,21 @@ ${structurePrompt}
   }
 };
 
-export async function generateMenuImageFromApi(menuTitle: string, eventType: string): Promise<string> {
-  const apiKey = getApiKey();
+export async function generateMenuImageFromApi(menuTitle: string, eventType: string, cuisineStyle?: string): Promise<string> {
+  const event_type = eventType || "Catering Event";
+  const cuisine_style = cuisineStyle || "Gourmet";
+  const promptString = `Professional food photography, high-end catering spread for a ${event_type}, featuring authentic ${cuisine_style} dishes, warm ambient lighting, elegant plating, shallow depth of field, 8k resolution.`;
 
+  const apiKey = getApiKey();
   if (!apiKey || apiKey.trim() === '') {
-    throw new Error("API Key is missing. Unable to generate menu image.");
+    console.warn("API Key is missing. Serving themed fallback image.");
+    return getThemeFallbackImage(eventType);
   }
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 60000);
 
-  // Dynamic builder weaving the exact menu's title into the text string to guarantee unique graphics every single run
-  let promptString = `Award-winning editorial food portrait photography, luxury fine dining plating design, natural window side-lighting, macro crisp texture, realistic rich colors, zero text artifacts, representing the catering menu: ${menuTitle}`;
-
-  // Culture & Cuisine Guardrails
-  const textContext = `${menuTitle} ${eventType}`.toLowerCase();
-  if (textContext.includes('braai') || textContext.includes('premium south african')) {
-    promptString += ". Elegant flame-char textures, high-grade Boerewors coils, polished brass elements, authentic South African luxury setting, sunset warmth.";
-  } else {
-    promptString += ` (curated for a luxury ${eventType})`;
-  }
-
   try {
-    // Correct Imagen 3 REST Payload Format as required by Google AI Studio specification:
-    // Targeting the correct model: imagen-3.0-generate-002
-    // Structured EXACTLY with a direct prompt property, avoiding unnecessary nesting, instances arrays or vertex-specific wrappers.
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:generateImages?key=${apiKey}`, {
       method: 'POST',
       headers: {
@@ -348,8 +374,8 @@ export async function generateMenuImageFromApi(menuTitle: string, eventType: str
 
     return "data:image/jpeg;base64," + base64Bytes;
   } catch (error: any) {
-    console.error("Imagen generation failed:", error);
-    throw error;
+    console.error("Imagen generation failed, serving themed fallback image:", error);
+    return getThemeFallbackImage(eventType);
   } finally {
     clearTimeout(timeoutId);
   }
@@ -419,7 +445,8 @@ ${structurePrompt}`;
       }],
       generationConfig: {
         maxOutputTokens: 2000,
-        temperature: 0.3
+        temperature: 0.3,
+        responseMimeType: "application/json"
       }
     })
   });
