@@ -14,7 +14,7 @@ const ResearchHub: React.FC<{ onShowToast: (msg: string) => void }> = ({ onShowT
 
 [THE ANALOGY - 0:15-0:45]
 "Think of your catering business like a Private Social Club. 
-Phase 1: The Lobby. This is your community on Whop or Skool. We use AI to provide free value—like custom menu tips—to build trust before they ever book you.
+Phase 1: The Lobby. This is your private client portal. We use AI to provide free value—like custom menu tips—to build trust before they ever book you.
 Phase 2: The Dining Room. This is the conversion. My app generates professional, personalized proposals in 30 seconds to close the deal instantly.
 Phase 3: The Lounge. This is after the event. We automate the follow-ups and loyalty rewards so they never look for another chef again."
 
@@ -205,7 +205,7 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
                           {[
                               { id: "E1", title: "Instant Value", desc: "The 'Office-in-a-Box' Delivery" },
                               { id: "E2", title: "Founder Story", desc: "High Seas to High-Tech" },
-                              { id: "E3", title: "Whop Affiliate", desc: "The Scaling Engine Invitation" }
+                              { id: "E3", title: "Partner Program", desc: "The Scaling Engine Invitation" }
                           ].map((e, i) => (
                               <button 
                                   key={i}
@@ -311,7 +311,7 @@ Phase 3: The Lounge. This is after the event. We automate the follow-ups and loy
                       <div className="absolute top-0 right-0 p-8 opacity-5 text-indigo-500 text-6xl">🔍</div>
                       <span className="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-[9px] font-black uppercase tracking-widest mb-4 inline-block">Phase 1: Awareness</span>
                       <h5 className="text-xl font-black mb-3 text-slate-900 dark:text-white">The Lobby</h5>
-                      <p className="text-xs text-slate-500 font-bold leading-relaxed mb-6">Build trust in your Whop/Skool community through free educational resources and "behind-the-scenes" process videos.</p>
+                      <p className="text-xs text-slate-500 font-bold leading-relaxed mb-6">Build trust in your client portal and network through free educational resources and "behind-the-scenes" process videos.</p>
                       <ul className="space-y-3">
                           {['Free Recipes', 'Culinary Tips', 'Community Q&A'].map(i => (
                               <li key={i} className="flex items-center gap-2 text-[10px] font-black text-slate-700 dark:text-slate-300">
