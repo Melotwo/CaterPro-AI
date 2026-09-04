@@ -22,6 +22,20 @@ export interface SalesScript {
   script: string;
 }
 
+export interface AllergenMatrixItem {
+  dish: string;
+  category?: 'Appetizers' | 'Main Courses' | 'Desserts' | string;
+  gluten: boolean;
+  dairy: boolean;
+  nuts: boolean;
+  eggs: boolean;
+  shellfish: boolean;
+  soy: boolean;
+  fish?: boolean;
+  dietary: string[]; // e.g. ["Vegan", "Halal", "Gluten-Free"]
+  notes?: string;
+}
+
 export interface MenuItem {
   dish: string;
   notes: string;
@@ -30,6 +44,8 @@ export interface MenuItem {
   price: number;
   recipe?: string[];
   ingredients?: any[];
+  allergens?: string[];
+  dietary?: string[];
 }
 
 export interface Menu {
@@ -48,6 +64,13 @@ export interface Menu {
   shoppingList?: any[]; // Flexible for both ShiftIngredient and ShoppingListItem
   recommendedEquipment?: RecommendedEquipment[];
   dietaryNotes?: string[];
+  allergenMatrix?: AllergenMatrixItem[];
+  eventType?: string;
+  covers?: number;
+  beoNumber?: string;
+  roomLocation?: string;
+  eventDate?: string;
+  eventTime?: string;
   image?: string;
   heroImage?: string; // Compatibility with App.tsx
   dishImages?: string[];
@@ -110,8 +133,10 @@ export interface ScannedMenuCosting {
 }
 
 export interface BeveragePairing {
-  menuItem: string;
-  pairingSuggestion: string;
+  menuItem?: string;
+  pairingSuggestion?: string;
+  dish?: string;
+  pairing?: string;
 }
 
 export interface ShoppingListItem {

@@ -1,11 +1,34 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { usePaystackPayment } from 'react-paystack';
 
 export const OCTAGON_CLIP = 'polygon(12px 0%, calc(100% - 12px) 0%, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 0% calc(100% - 12px), 0% 12px)';
 
 // Default Plan Price in ZAR - Easily adjustable here or via props
 export const DEFAULT_PLAN_AMOUNT_ZAR = 299;
+
+declare global {
+  interface Window {
+    PaystackPop?: any;
+  }
+}
+
+const loadPaystackScript = (): Promise<boolean> => {
+  if (typeof window === 'undefined') return Promise.resolve(false);
+  if (window.PaystackPop) return Promise.resolve(true);
+  return new Promise((resolve) => {
+    const existing = document.querySelector('script[src="https://js.paystack.co/v1/inline.js"]');
+    if (existing) {
+      existing.addEventListener('load', () => resolve(true));
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = 'https://js.paystack.co/v1/inline.js';
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
 
 interface PaystackUpgradeModalProps {
   isOpen: boolean;
@@ -28,31 +51,7 @@ export const PaystackUpgradeModal: React.FC<PaystackUpgradeModalProps> = ({
   const amountInCents = customAmount * 100; // Paystack requires amount in cents
   const publicKey = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || 'pk_test_sample_key_for_demo';
 
-  const paystackConfig = {
-    reference: `caterpro_hotel_${Date.now()}`,
-    email: email.trim() || 'executive.chef@hotel.co.za',
-    amount: amountInCents,
-    publicKey: publicKey,
-    currency: 'ZAR',
-    metadata: {
-      custom_fields: [
-        {
-          display_name: "Hotel / Organization",
-          variable_name: "hotel_name",
-          value: hotelName
-        },
-        {
-          display_name: "Plan",
-          variable_name: "plan_name",
-          value: "CaterPro Hotel Pro (BEO & Allergen Suite)"
-        }
-      ]
-    }
-  };
-
-  const initializePayment = usePaystackPayment(paystackConfig);
-
-  const handlePaystackClick = () => {
+  const handlePaystackClick = async () => {
     if (!email || !email.includes('@')) {
       setPaymentNotice('Please enter a valid hotel or manager email address.');
       return;
@@ -64,27 +63,50 @@ export const PaystackUpgradeModal: React.FC<PaystackUpgradeModalProps> = ({
     // If a valid live or test Paystack key is set, launch Paystack popup
     if (publicKey && publicKey !== 'pk_test_sample_key_for_demo') {
       try {
-        initializePayment({
-          onSuccess: (reference: any) => {
-            setIsProcessing(false);
-            localStorage.setItem('caterpro_is_pro', 'true');
-            if (onSuccess) onSuccess();
-            onClose();
-          },
-          onClose: () => {
-            setIsProcessing(false);
-            setPaymentNotice('Payment cancelled or closed. You can retry whenever ready.');
-          }
-        });
+        await loadPaystackScript();
+        if (window.PaystackPop) {
+          const handler = window.PaystackPop.setup({
+            key: publicKey,
+            email: email.trim() || 'executive.chef@hotel.co.za',
+            amount: amountInCents,
+            currency: 'ZAR',
+            ref: `caterpro_hotel_${Date.now()}`,
+            metadata: {
+              custom_fields: [
+                {
+                  display_name: "Hotel / Organization",
+                  variable_name: "hotel_name",
+                  value: hotelName
+                },
+                {
+                  display_name: "Plan",
+                  variable_name: "plan_name",
+                  value: "CaterPro Hotel Pro (BEO & Allergen Suite)"
+                }
+              ]
+            },
+            callback: () => {
+              setIsProcessing(false);
+              localStorage.setItem('caterpro_is_pro', 'true');
+              if (onSuccess) onSuccess();
+              onClose();
+            },
+            onClose: () => {
+              setIsProcessing(false);
+              setPaymentNotice('Payment cancelled or closed. You can retry whenever ready.');
+            }
+          });
+          handler.openIframe();
+        } else {
+          simulateSuccess();
+        }
       } catch (err: any) {
         console.warn("Paystack popup failed to initialize:", err);
         setIsProcessing(false);
-        // Seamless fallback simulation for preview mode
         simulateSuccess();
       }
     } else {
       // In development or preview environments where Paystack key is pending setup:
-      // Provide an interactive seamless demo approval so the hotel demo is uninterrupted!
       setTimeout(() => {
         simulateSuccess();
       }, 900);

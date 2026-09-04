@@ -1,126 +1,52 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GoogleGenAI } from '@google/genai';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
+
 import { getApiKey } from './services/geminiService';
-import Dashboard from './components/Dashboard';
+import { DEFAULT_PROPOSAL } from './data/defaultProposal';
+import { ProposalViewer } from './components/ProposalViewer';
+import { StudentGrowthLab } from './components/StudentGrowthLab';
+import { TumisGrowthEngine } from './components/TumisGrowthEngine';
+import { ProductivityLab } from './components/ProductivityLab';
+import { EducationHubSection } from './components/EducationHubSection';
+import { NewProposalModal } from './components/NewProposalModal';
+import { PaystackUpgradeModal } from './components/PaystackUpgradeModal';
+import { BanquetEventOrderModal } from './components/BanquetEventOrderModal';
+import SocialMediaModal, { Mode as SocialMode } from './SocialMediaModal';
+import MarketingRoadmap from './MarketingRoadmap';
 import Calculator from './components/Calculator';
 import RecipeGenerator from './components/RecipeGenerator';
+import { Menu } from './types';
 
-// --- CONSTANTS ---
-const WHOP_CHECKOUT_URL = "https://whop.com/caterpro-ai"; 
-const OCTAGON_CLIP = 'polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%)';
-
-// --- CORE UTILITY OVERLAYS ---
-
-const NoiseOverlay = () => (
-  <div className="fixed inset-0 pointer-events-none opacity-[0.03] z-[100] mix-blend-overlay">
-    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-      <filter id="noiseFilter">
-        <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
-      </filter>
-      <rect width="100%" height="100%" filter="url(#noiseFilter)" />
-    </svg>
-  </div>
-);
-
-const Logo = ({ className = "" }: { className?: string }) => (
-  <div className={`flex items-center gap-4 ${className}`}>
-    <div className="h-12 w-12 rounded-full border-2 border-emerald-500 flex items-center justify-center overflow-hidden bg-white shadow-lg relative">
-      <img src="/logo.png" alt="CaterPro AI" className="w-10 h-10 object-contain" />
-    </div>
-    <span className="text-2xl font-black tracking-tighter uppercase italic text-white">
-      CaterPro<span className="text-emerald-500">AI</span>
-    </span>
-  </div>
-);
-
+// Toast Component
 const Toast: React.FC<{ message: string | null; onDismiss: () => void }> = ({ message, onDismiss }) => {
   useEffect(() => {
     if (message) {
-      const timer = setTimeout(onDismiss, 3000);
+      const timer = setTimeout(onDismiss, 3500);
       return () => clearTimeout(timer);
     }
   }, [message, onDismiss]);
+
   if (!message) return null;
+
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 50 }}
-      className="fixed bottom-24 left-1/2 -translate-x-1/2 z-[200]"
+      className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[250]"
     >
-      <div className="bg-emerald-600 text-white px-8 py-4 rounded-2xl shadow-2xl flex items-center gap-4 border border-white/20 backdrop-blur-xl">
-        <span className="text-xl">⚡</span>
-        <p className="text-sm font-black uppercase tracking-widest">{message}</p>
+      <div className="bg-slate-900 text-white px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-slate-700/60 backdrop-blur-md">
+        <span className="text-emerald-400 text-lg">⚡</span>
+        <p className="text-xs font-black uppercase tracking-wider">{message}</p>
       </div>
     </motion.div>
   );
 };
 
-const SavingsEstimator: React.FC = () => {
-  const [monthlySpend, setMonthlySpend] = useState(50000);
-  const savings = monthlySpend * 0.15; 
-  return (
-    <div className="bg-slate-900/40 backdrop-blur-xl p-12 rounded-[4rem] border border-white/10 shadow-2xl mt-12 text-left">
-      <div className="flex items-center gap-4 mb-10">
-        <div className="w-12 h-12 bg-sky-500/20 rounded-2xl flex items-center justify-center text-sky-400 text-2xl">📈</div>
-        <h3 className="text-3xl font-black text-white uppercase tracking-tighter">Weight Audit Estimator</h3>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-        <div className="space-y-6">
-          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 opacity-60">Monthly Food Spend (R)</label>
-          <input 
-            type="range" 
-            min="10000" 
-            max="500000" 
-            step="5000" 
-            value={monthlySpend} 
-            onChange={(e) => setMonthlySpend(Number(e.target.value))}
-            className="w-full h-3 bg-slate-800 rounded-full appearance-none cursor-pointer accent-emerald-500"
-          />
-          <div className="flex justify-between text-xl font-black text-white italic">
-            <span>R {monthlySpend.toLocaleString()}</span>
-          </div>
-        </div>
-        <div className="bg-emerald-600/10 border border-emerald-500/20 p-8 rounded-[3rem] text-center">
-          <p className="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-2 opacity-60">Estimated Monthly Savings</p>
-          <h4 className="text-5xl font-black text-emerald-400 tracking-tighter">R {savings.toLocaleString()}</h4>
-          <p className="text-xs text-slate-400 italic mt-4 opacity-60">Based on 15% precision scaling efficiency</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const HeroSection: React.FC<{ onStart: () => void }> = ({ onStart }) => (
-  <div className="relative pt-32 pb-20 overflow-hidden text-center">
-    <div className="max-w-7xl mx-auto px-6 relative z-10">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="inline-flex items-center gap-2 px-4 py-2 bg-sky-500/10 rounded-full border border-sky-500/20 mb-12">
-        <span className="flex h-2 w-2 rounded-full bg-sky-500 animate-pulse" />
-        <span className="text-[10px] font-black uppercase tracking-widest text-sky-400">Culinary Logic Engine</span>
-      </motion.div>
-      
-      <motion.h1 initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="text-7xl md:text-9xl font-black text-white tracking-tighter leading-[0.8] mb-8 uppercase italic">
-        CaterPro<span className="text-emerald-500">AI</span>
-      </motion.h1>
-      <p className="text-xl font-medium text-slate-400 opacity-60 max-w-2xl mx-auto mb-12 italic text-center">
-        Transparent costing. Stunning proposals. Zero-waste operations.
-      </p>
-
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-        <button onClick={onStart} className="px-12 py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-emerald-500 transition-all shadow-2xl shadow-emerald-600/20 flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
-          <span className="text-xl">⚡</span>
-          Start New Proposal
-        </button>
-        <button onClick={() => window.location.href = WHOP_CHECKOUT_URL} className="px-12 py-6 bg-white text-slate-950 rounded-[2rem] font-black uppercase tracking-widest text-sm hover:bg-emerald-500 hover:text-white transition-all shadow-2xl flex items-center gap-3" style={{ clipPath: OCTAGON_CLIP }}>
-          <span className="text-xl">🛡️</span>
-          Upgrade to Pro
-        </button>
-      </div>
-    </div>
-  </div>
-);
-
+// AI Mentor Bot
 const AiChatBot: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{ role: 'user' | 'model'; content: string }[]>([
@@ -130,27 +56,24 @@ const AiChatBot: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { 
-    if (isOpen && messages.length <= 1) { 
-      const apiKey = getApiKey();
-      if (!apiKey) {
-        setMessages(prev => [...prev, { role: 'model', content: "Notice: The client-side API Key (VITE_GEMINI_API_KEY) was not found. Please set it in Settings > Secrets." }]);
-      }
-    } 
-  }, [isOpen]);
-  
-  useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+  useEffect(() => {
+    endRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const send = async (e: React.FormEvent) => {
-    e.preventDefault(); if (!input.trim() || loading) return;
-    const msg = input; setInput(''); setMessages(prev => [...prev, { role: 'user', content: msg }]); setLoading(true);
+    e.preventDefault();
+    if (!input.trim() || loading) return;
+    const msg = input;
+    setInput('');
+    setMessages(prev => [...prev, { role: 'user', content: msg }]);
+    setLoading(true);
+
     try {
       const apiKey = getApiKey();
       if (!apiKey) {
-        throw new Error("Client API Key is missing. Please configure VITE_GEMINI_API_KEY.");
+        throw new Error("API Key is missing. Please configure VITE_GEMINI_API_KEY.");
       }
       const ai = new GoogleGenAI({ apiKey });
-      
       const promptHistory = messages.map(m => ({
         role: m.role === 'user' ? 'user' : 'model',
         parts: [{ text: m.content }]
@@ -163,154 +86,537 @@ const AiChatBot: React.FC = () => {
           { role: 'user', parts: [{ text: msg }] }
         ],
         config: {
-          systemInstruction: 'You are a professional and friendly AI Culinary Consultant. Answer questions about culinary disciplines, Esfcoffier guidelines, standard costing, and chef advice concisely and elegantly.'
+          systemInstruction: 'You are a professional and friendly AI Culinary Consultant. Answer questions about culinary disciplines, Escoffier guidelines, standard costing, and chef advice concisely and elegantly.'
         }
       });
 
       const reply = response.text || 'Chef AI did not return a response. Please try again.';
       setMessages(prev => [...prev, { role: 'model', content: reply }]);
-    } catch (err: any) { 
+    } catch (err: any) {
       console.error("Chat failed:", err);
-      setMessages(prev => [...prev, { role: 'model', content: `Catering consultant error: ${err.message || 'Check your API Key.'}` }]);
-    } finally { 
-      setLoading(false); 
+      setMessages(prev => [...prev, { role: 'model', content: `Catering consultant error: ${err.message || 'Check connection.'}` }]);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="fixed bottom-8 right-8 z-[100] flex flex-col items-end gap-6 text-left">
+    <div className="fixed bottom-6 right-6 z-[120] flex flex-col items-end gap-3 text-left">
       <AnimatePresence>
         {isOpen && (
-          <motion.div initial={{ opacity: 0, scale: 0.9, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 20 }} className="w-[380px] h-[600px] flex flex-col shadow-2xl border border-white/10 bg-slate-900/90 backdrop-blur-2xl rounded-[3rem] overflow-hidden">
-            <header className="p-8 bg-slate-950 flex items-center justify-between border-b border-white/5">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-emerald-500/20 rounded-xl flex items-center justify-center text-emerald-400 text-xl">👨‍🍳</div>
-                <h2 className="text-white font-black text-sm uppercase tracking-widest">Chef Mentor</h2>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            className="w-[360px] h-[520px] flex flex-col shadow-2xl border border-slate-200 bg-white rounded-3xl overflow-hidden"
+          >
+            <header className="p-4 bg-slate-900 text-white flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center text-emerald-400 text-lg">
+                  👨‍🍳
+                </div>
+                <div>
+                  <h4 className="font-black text-xs uppercase tracking-wider">Chef Mentor AI</h4>
+                  <p className="text-[10px] text-slate-400">Culinary & Costing Assistant</p>
+                </div>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-slate-500 hover:text-white transition-colors text-xl">🗑️</button>
+              <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white font-bold text-lg">
+                ✕
+              </button>
             </header>
-            <div className="flex-grow p-8 overflow-y-auto space-y-6 bg-slate-900/50">
+
+            <div className="flex-grow p-4 overflow-y-auto space-y-3 bg-slate-50">
               {messages.map((m, i) => (
                 <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[85%] rounded-[2rem] px-6 py-4 text-sm font-medium ${m.role === 'user' ? 'bg-emerald-600 text-white rounded-tr-none' : 'bg-slate-800 text-slate-200 border border-white/5 rounded-tl-none'}`}>
+                  <div
+                    className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-xs font-medium ${
+                      m.role === 'user'
+                        ? 'bg-emerald-600 text-white rounded-tr-none'
+                        : 'bg-white text-slate-800 border border-slate-200 shadow-2xs rounded-tl-none'
+                    }`}
+                  >
                     {m.content}
                   </div>
                 </div>
               ))}
               <div ref={endRef} />
             </div>
-            <footer className="p-8 bg-slate-950 border-t border-white/5">
+
+            <footer className="p-3 bg-white border-t border-slate-200">
               <form onSubmit={send} className="relative">
-                <input type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask Chef AI..." className="w-full bg-slate-800 border border-white/10 rounded-2xl px-6 py-4 pr-16 text-sm text-white outline-none focus:border-emerald-500" />
-                <button type="submit" className="absolute right-2 top-2 w-12 h-12 bg-emerald-600 text-white rounded-xl flex items-center justify-center hover:bg-emerald-500 transition-all text-xl">➡️</button>
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Ask Chef AI..."
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 pr-10 text-xs text-slate-900 outline-none focus:border-emerald-500"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-1.5 top-1.5 w-7 h-7 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg flex items-center justify-center transition-all text-xs"
+                >
+                  ➤
+                </button>
               </form>
             </footer>
           </motion.div>
         )}
       </AnimatePresence>
-      <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => setIsOpen(!isOpen)} className="w-20 h-20 bg-emerald-600 text-white rounded-[2rem] flex items-center justify-center shadow-2xl shadow-emerald-600/30 text-2xl">
-        {isOpen ? '🗑️' : '💬'}
-      </motion.button>
+
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-14 h-14 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl flex items-center justify-center shadow-xl border border-slate-700 transition-transform active:scale-95 text-2xl"
+        title="Open Chef Mentor"
+      >
+        {isOpen ? '✕' : '💬'}
+      </button>
     </div>
   );
 };
 
-// --- MAIN ROOT STATE SYNCHRONIZER ---
+export function App() {
+  const [activeTab, setActiveTab] = useState<'proposal' | 'calculator' | 'recipe'>('proposal');
+  const [proposal, setProposal] = useState<Menu>(() => {
+    const saved = localStorage.getItem('caterpro_recent_proposal');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return DEFAULT_PROPOSAL;
+  });
 
-function App() {
-  const [view, setView] = useState('landing');
-  const [generatedMenu, setGeneratedMenu] = useState<any | null>(null);
-  const [menuImage, setMenuImage] = useState<string>('');
-  const [operatingRegion, setOperatingRegion] = useState<string>('South Africa');
-  const [selectedItemName, setSelectedItemName] = useState<string>('');
   const [toast, setToast] = useState<string | null>(null);
+  const [isNewProposalOpen, setIsNewProposalOpen] = useState(false);
+  const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
+  const [isBeoOpen, setIsBeoOpen] = useState(false);
+  const [socialModal, setSocialModal] = useState<{ isOpen: boolean; mode: SocialMode }>({
+    isOpen: false,
+    mode: 'create'
+  });
+  const [isDarkMode, setIsDarkMode] = useState(false);
+
+  // Sync dark class on root document
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  // Handle saving proposal to localStorage
+  const handleSaveProposal = () => {
+    localStorage.setItem('caterpro_recent_proposal', JSON.stringify(proposal));
+    setToast('Proposal saved to your browser storage!');
+  };
+
+  // Handle Export PDF
+  const handleExportPdf = async () => {
+    const el = document.getElementById('proposal-content');
+    if (!el) {
+      setToast('Proposal element not found');
+      return;
+    }
+    setToast('Generating high-resolution PDF...');
+    try {
+      const canvas = await html2canvas(el, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff'
+      });
+      const img = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const props = pdf.getImageProperties(img);
+      const w = pdf.internal.pageSize.getWidth();
+      const h = (props.height * w) / props.width;
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      if (h > pageHeight) {
+        let position = 0;
+        let remainingHeight = h;
+        while (remainingHeight > 0) {
+          pdf.addImage(img, 'PNG', 0, position, w, h);
+          remainingHeight -= pageHeight;
+          if (remainingHeight > 0) {
+            pdf.addPage();
+            position -= pageHeight;
+          }
+        }
+      } else {
+        pdf.addImage(img, 'PNG', 0, 0, w, h);
+      }
+
+      const fileName = `${(proposal.title || 'Catering_Proposal').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+      pdf.save(fileName);
+      setToast('PDF downloaded successfully!');
+    } catch (err: any) {
+      console.error(err);
+      setToast('PDF export failed. Try printing the page.');
+    }
+  };
+
+  // Copy proposal text for Docs
+  const handleCopyForDocs = () => {
+    let docText = `${proposal.title || 'Catering Proposal'}\n`;
+    docText += `Date: ${proposal.eventDate || new Date().toLocaleDateString()}\n`;
+    docText += `Guests: ${proposal.guestCount || 50}\n\n`;
+    docText += `DESCRIPTION:\n${proposal.description || ''}\n\n`;
+    docText += `MENU:\n`;
+    (proposal.menu || []).forEach(m => {
+      docText += `- ${m.dish} (${m.cat || 'Dish'}): ${m.notes || ''}\n`;
+    });
+    docText += `\nESTIMATED TOTAL: ZAR ${(proposal.manualTotal || 22500).toLocaleString()}\n`;
+    navigator.clipboard.writeText(docText);
+    setToast('Proposal copied to clipboard for Google Docs / Word!');
+  };
+
+  // Share link handler
+  const handleShareLink = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: proposal.title || 'CaterPro AI Proposal',
+        text: proposal.description || 'Check out this catering proposal',
+        url: window.location.href
+      }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      setToast('Application URL copied to clipboard!');
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white font-sans selection:bg-emerald-500/30 relative">
-      <NoiseOverlay />
+    <div className="min-h-screen bg-slate-50 text-slate-900 font-sans transition-colors selection:bg-emerald-500/20">
       
-      {/* Global Header Navigation Bar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-slate-950/45 backdrop-blur-2xl border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
-          <div onClick={() => setView('landing')} className="cursor-pointer group">
-            <Logo />
+      {/* 1. TOP HEADER NAVIGATION BAR (Exact match to PDF) */}
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-2xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          
+          {/* Logo */}
+          <div
+            onClick={() => setActiveTab('proposal')}
+            className="flex items-center gap-3 cursor-pointer select-none"
+          >
+            <div className="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center text-white shadow-sm font-black text-sm">
+              CP
+            </div>
+            <span className="text-xl font-black tracking-tight text-slate-900">
+              CaterPro <span className="text-emerald-600">Ai</span>
+            </span>
           </div>
-          <div className="hidden md:flex items-center gap-10">
-            {[
-              { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-              { id: 'calculator', label: 'Calculator', icon: '🧮' },
-              { id: 'recipe', label: 'Recipe Studio', icon: '👨‍🍳' }
-            ].map(item => (
-              <button 
-                key={item.id} 
-                onClick={() => setView(item.id)} 
-                className={`text-[10px] font-black uppercase tracking-[0.2em] transition-all flex items-center gap-2 ${view === item.id ? 'text-emerald-500' : 'text-slate-500 hover:text-white'}`}
-              >
-                <span className="text-sm">{item.icon}</span>
-                {item.label}
-              </button>
-            ))}
-            <button onClick={() => window.location.href = WHOP_CHECKOUT_URL} className="bg-white text-slate-950 px-8 py-4 rounded-2xl font-black uppercase text-[10px] hover:bg-emerald-500 hover:text-white transition-all shadow-xl" style={{ clipPath: OCTAGON_CLIP }}>Upgrade</button>
+
+          {/* Nav Tabs */}
+          <div className="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold">
+            <button
+              onClick={() => setActiveTab('proposal')}
+              className={`px-3.5 py-1.5 rounded-lg transition-all ${
+                activeTab === 'proposal'
+                  ? 'bg-white text-slate-900 shadow-2xs'
+                  : 'text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              Proposal
+            </button>
+            <button
+              onClick={() => setActiveTab('calculator')}
+              className={`px-3.5 py-1.5 rounded-lg transition-all ${
+                activeTab === 'calculator'
+                  ? 'bg-white text-slate-900 shadow-2xs'
+                  : 'text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              Calculator
+            </button>
+            <button
+              onClick={() => setActiveTab('recipe')}
+              className={`px-3.5 py-1.5 rounded-lg transition-all ${
+                activeTab === 'recipe'
+                  ? 'bg-white text-slate-900 shadow-2xs'
+                  : 'text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              Recipe Studio
+            </button>
+          </div>
+
+          {/* Right Actions */}
+          <div className="flex items-center gap-2.5">
+            {/* Upgrade (Amber button from PDF) */}
+            <button
+              onClick={() => setIsUpgradeOpen(true)}
+              className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5"
+            >
+              <span>⚡</span>
+              <span>Upgrade</span>
+            </button>
+
+            {/* Install Button (Slate button from PDF) */}
+            <button
+              onClick={() => setToast('CaterPro AI is ready for offline subterranean use!')}
+              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold transition-all shadow-sm"
+            >
+              <span>📥</span>
+              <span>Install</span>
+            </button>
+
+            {/* Share Button */}
+            <button
+              onClick={handleShareLink}
+              title="Share Link"
+              className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold transition-colors"
+            >
+              🔗
+            </button>
+
+            {/* Copy Button */}
+            <button
+              onClick={handleCopyForDocs}
+              title="Copy Proposal"
+              className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold transition-colors"
+            >
+              📋
+            </button>
+
+            {/* Theme Switcher Toggle */}
+            <button
+              onClick={() => setIsDarkMode(!isDarkMode)}
+              title="Toggle Theme"
+              className="w-8 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center text-xs font-bold transition-colors"
+            >
+              {isDarkMode ? '☀️' : '🌙'}
+            </button>
           </div>
         </div>
-      </nav>
-      
-      {/* Animated Route Rendering Panels */}
-      <main className="relative z-10">
-        <AnimatePresence mode="wait">
-          {view === 'landing' && (
-            <motion.div key="landing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-              <HeroSection onStart={() => setView('dashboard')} />
-              <div className="max-w-7xl mx-auto px-6 pb-32">
-                <SavingsEstimator />
+      </header>
+
+      {/* Main Container */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+        
+        {activeTab === 'proposal' && (
+          <>
+            {/* 2. PROPOSAL LIVE ACTION BAR (Exact match to PDF) */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+              <div className="text-left">
+                <h1 className="text-lg sm:text-xl font-black uppercase text-slate-900 tracking-tight flex items-center gap-2">
+                  <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Proposal Live
+                </h1>
+                <p className="text-xs text-slate-500 font-medium">
+                  Manage, Share & Market your event.
+                </p>
               </div>
-            </motion.div>
-          )}
-          {view === 'dashboard' && (
-            <motion.div key="dashboard" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} className="pb-32">
-              <Dashboard 
-                generatedMenu={generatedMenu}
-                setGeneratedMenu={setGeneratedMenu}
-                menuImage={menuImage}
-                setMenuImage={setMenuImage}
-                region={operatingRegion}
-                setRegion={setOperatingRegion}
-                setSelectedItemName={setSelectedItemName}
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsNewProposalOpen(true)}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5"
+                >
+                  <span>←</span>
+                  <span>NEW</span>
+                </button>
+
+                <button
+                  onClick={handleExportPdf}
+                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5"
+                >
+                  <span>📥</span>
+                  <span>PDF</span>
+                </button>
+
+                <button
+                  onClick={handleSaveProposal}
+                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5"
+                >
+                  <span>💾</span>
+                  <span>SAVE</span>
+                </button>
+              </div>
+            </div>
+
+            {/* 3. GROWTH ENGINE: SOCIAL MEDIA CREATOR BANNER (Exact purple card from PDF) */}
+            <div className="bg-gradient-to-r from-purple-700 via-indigo-700 to-purple-800 text-white rounded-2xl p-6 sm:p-8 shadow-sm space-y-4 text-left relative overflow-hidden">
+              <div className="relative z-10 space-y-2">
+                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-purple-100">
+                  <span>🚀</span> Growth Engine
+                </div>
+                <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">
+                  Social Media Creator
+                </h3>
+                <p className="text-xs sm:text-sm text-purple-100 font-medium max-w-2xl leading-relaxed">
+                  Turn this menu into a viral marketing campaign. Generate captions, reels, and academic pitches.
+                </p>
+              </div>
+
+              <div className="relative z-10 flex flex-wrap items-center gap-3 pt-2">
+                <button
+                  onClick={() => setSocialModal({ isOpen: true, mode: 'create' })}
+                  className="px-4 py-2.5 bg-white text-purple-900 hover:bg-purple-50 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-2"
+                >
+                  <span>🔗</span> Social Posts
+                </button>
+
+                <button
+                  onClick={() => setSocialModal({ isOpen: true, mode: 'reel' })}
+                  className="px-4 py-2.5 bg-purple-900/60 hover:bg-purple-900/80 border border-white/20 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-2"
+                >
+                  <span>🎬</span> Cinematic Reel
+                </button>
+
+                <button
+                  onClick={() => setSocialModal({ isOpen: true, mode: 'pitch' as any })}
+                  className="px-4 py-2.5 bg-purple-900/60 hover:bg-purple-900/80 border border-white/20 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-2"
+                >
+                  <span>📢</span> Explainer Script
+                </button>
+              </div>
+            </div>
+
+            {/* 4. CATERING WORKSPACE BAR (Exact match to PDF) */}
+            <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+              <div className="text-left">
+                <h4 className="text-sm font-black uppercase text-slate-900 tracking-wider">
+                  Catering Workspace
+                </h4>
+                <p className="text-xs text-slate-500 font-medium">
+                  Share with team or export to docs
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleShareLink}
+                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors flex items-center gap-2"
+                >
+                  <span>🔗</span> Share Link
+                </button>
+                <button
+                  onClick={handleCopyForDocs}
+                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-2"
+                >
+                  <span>📋</span> Copy for Docs
+                </button>
+              </div>
+            </div>
+
+            {/* 5. MASTER PROPOSAL DOCUMENT (The 10 Numbered Cards, Sourcing, Allergen Matrix) */}
+            <ProposalViewer
+              proposal={proposal}
+              onUpdateProposal={(updated) => setProposal(updated)}
+              onOpenBeo={() => setIsBeoOpen(true)}
+              onOpenUpgrade={() => setIsUpgradeOpen(true)}
+              onExportPdf={handleExportPdf}
+              onOpenSocialModal={(mode) => setSocialModal({ isOpen: true, mode })}
+            />
+
+            {/* 6. PAGE 2 MODULES (From PDF: Marketing Mission Control, Tumi's Engine, Student Lab, Productivity Lab, Education Hub) */}
+            <div className="space-y-8 pt-4">
+              {/* Marketing Mission Control */}
+              <MarketingRoadmap />
+
+              {/* Tumi's Growth Engine */}
+              <TumisGrowthEngine />
+
+              {/* Student Growth Lab */}
+              <StudentGrowthLab
+                onCopyText={(text, title) => {
+                  navigator.clipboard.writeText(text);
+                  setToast(`${title} copied to clipboard!`);
+                }}
               />
-            </motion.div>
-          )}
-          {view === 'calculator' && (
-            <motion.div key="calculator" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-              <Calculator
-                generatedMenu={generatedMenu}
-                region={operatingRegion}
-                selectedItemName={selectedItemName}
-                setSelectedItemName={setSelectedItemName}
+
+              {/* Productivity Lab (Beta) */}
+              <ProductivityLab
+                onNotify={(msg) => setToast(msg)}
               />
-            </motion.div>
-          )}
-          {(view === 'recipe' || view === 'recipe-generator') && (
-            <motion.div key="recipe" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }}>
-              <RecipeGenerator
-                generatedMenu={generatedMenu}
-                region={operatingRegion}
-                selectedItemName={selectedItemName}
-                setSelectedItemName={setSelectedItemName}
+
+              {/* Education & Training Hub */}
+              <EducationHubSection
+                onNotify={(msg) => setToast(msg)}
+                onOpenUpgrade={() => setIsUpgradeOpen(true)}
               />
-            </motion.div>
-          )}
-        </AnimatePresence>
+            </div>
+          </>
+        )}
+
+        {/* Secondary Views */}
+        {activeTab === 'calculator' && (
+          <div className="pt-4">
+            <Calculator
+              generatedMenu={proposal}
+              region="South Africa"
+              selectedItemName={proposal.menu?.[0]?.dish || ''}
+              setSelectedItemName={() => {}}
+            />
+          </div>
+        )}
+
+        {activeTab === 'recipe' && (
+          <div className="pt-4">
+            <RecipeGenerator
+              generatedMenu={proposal}
+              region="South Africa"
+              selectedItemName={proposal.menu?.[0]?.dish || ''}
+              setSelectedItemName={() => {}}
+            />
+          </div>
+        )}
+
       </main>
 
-      {/* Aesthetic Footer */}
-      <footer className="bg-slate-950 py-20 border-t border-white/5 relative z-10">
-        <div className="max-w-7xl mx-auto px-6 text-center">
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <Logo />
+      {/* 7. FOOTER (Exact match to PDF) */}
+      <footer className="bg-white border-t border-slate-200 py-12 mt-20 text-center text-xs text-slate-500 space-y-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-2">
+          <p className="font-bold text-slate-700">
+            © 2025 CaterPro AI. All rights reserved.
+          </p>
+          <p className="text-slate-500">
+            Intelligent menu planning for catering professionals.
+          </p>
+          <p className="text-[11px] text-slate-400 italic max-w-xl mx-auto">
+            As an Amazon Associate, we earn from qualifying purchases. This site contains affiliate links.
+          </p>
+          <div className="pt-2">
+            <span className="inline-block px-3 py-1 bg-slate-100 rounded-full text-[10px] font-mono text-slate-500">
+              v1.0.1 • Live Build
+            </span>
           </div>
-          <p className="text-slate-500 font-medium italic mb-8 opacity-60">Empowering chefs with AI-driven precision. Built for the Modern Kitchen.</p>
         </div>
       </footer>
+
+      {/* MODALS */}
+      <NewProposalModal
+        isOpen={isNewProposalOpen}
+        onClose={() => setIsNewProposalOpen(false)}
+        region="South Africa"
+        onMenuGenerated={(newMenu) => {
+          setProposal(newMenu);
+          localStorage.setItem('caterpro_recent_proposal', JSON.stringify(newMenu));
+          setToast('New Proposal successfully drafted by Chef AI!');
+        }}
+      />
+
+      <PaystackUpgradeModal
+        isOpen={isUpgradeOpen}
+        onClose={() => setIsUpgradeOpen(false)}
+      />
+
+      {isBeoOpen && (
+        <BanquetEventOrderModal
+          isOpen={isBeoOpen}
+          onClose={() => setIsBeoOpen(false)}
+          menu={proposal}
+          margin={72.4}
+        />
+      )}
+
+      {socialModal.isOpen && (
+        <SocialMediaModal
+          isOpen={socialModal.isOpen}
+          onClose={() => setSocialModal({ ...socialModal, isOpen: false })}
+          image={proposal.heroImage}
+          menuTitle={proposal.title || 'Catering Proposal'}
+          menuDescription={proposal.description || ''}
+          initialMode={socialModal.mode}
+        />
+      )}
 
       <Toast message={toast} onDismiss={() => setToast(null)} />
       <AiChatBot />
