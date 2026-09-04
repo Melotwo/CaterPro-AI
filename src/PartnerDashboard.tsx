@@ -2,7 +2,7 @@
 import React from 'react';
 
 const PartnerDashboard: React.FC = () => {
-  const referralLink = "https://whop.com/caterproai?aff=YOUR_ID";
+  const referralLink = "https://caterpro.ai?ref=PARTNER_ID";
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(referralLink);
@@ -58,7 +58,7 @@ const PartnerDashboard: React.FC = () => {
               </button>
             </div>
             <button className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-500/20">
-              Access Whop Dashboard <span className="text-sm">🔗</span>
+              Access Partner Dashboard <span className="text-sm">🔗</span>
             </button>
           </div>
         </div>
