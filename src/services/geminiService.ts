@@ -29,7 +29,12 @@
  */
 
 export function getApiKey(): string {
-  return import.meta.env.VITE_GEMINI_API_KEY || '';
+  // Read strictly from environment variable without logging or exposure
+  const key = import.meta.env.VITE_GEMINI_API_KEY;
+  if (!key || typeof key !== 'string' || key.trim() === '') {
+    return '';
+  }
+  return key.trim();
 }
 
 /**
@@ -100,21 +105,23 @@ export const generateMenuFromApi = async (params: {
   budget?: string;
   cuisine?: string;
   region?: string;
+  dietaryRestrictions?: string[];
+  specialDietaryNotes?: string;
   onProgress?: (message: string) => void;
 }): Promise<{ data?: any; error?: string }> => {
   const region = params.region || "South African";
 
-  // Loading/Progress steps to keep users engaged - ticked every 5 seconds
+  // Loading/Progress steps to keep users engaged
   const loadingSteps = [
-    "Preparing digital kitchen spaces and gathering gourmet ingredients...",
-    `Searching regional ${region} culinary guidelines...`,
-    `Analyzing regional ${region} market pricing...`,
-    "Designing custom starters tailored to your cuisine...",
-    "Sculpting primary main courses and planning side options...",
-    "Drafting elegant desserts and balancing flavor profiles...",
-    `Conducting live portion costing localized for the ${region} region...`,
-    "Defining step-by-step preparation steps & mise en place logistics...",
-    "Structuring and finalizing the primary catering proposal document..."
+    "Preparing digital banquet kitchen spaces...",
+    `Analyzing regional ${region} hotel market pricing & wholesale rates...`,
+    "Designing hotel-grade starters & appetizers...",
+    "Sculpting main courses with precise portion specs...",
+    "Drafting banquet desserts & pastry finishes...",
+    "Building statutory Allergen Matrix (Gluten, Dairy, Nuts, Shellfish, etc.)...",
+    "Generating BEO kitchen mise en place & service schedules...",
+    "Compiling hotel shopping list scaled to exact covers...",
+    "Finalizing Banquet Event Order and culinary proposal..."
   ];
 
   let stepIndex = 0;
@@ -127,9 +134,9 @@ export const generateMenuFromApi = async (params: {
     if (params.onProgress && stepIndex < loadingSteps.length) {
       params.onProgress(loadingSteps[stepIndex]);
     } else if (params.onProgress) {
-      params.onProgress("Adding exquisite decoration touches to proposal...");
+      params.onProgress("Polishing hotel BEO presentation details...");
     }
-  }, 5000);
+  }, 4500);
 
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 60000);
@@ -138,21 +145,27 @@ export const generateMenuFromApi = async (params: {
     const apiKey = getApiKey();
     if (!apiKey || apiKey.trim() === '') {
       throw new Error(
-        'API Key is missing. Please set VITE_GEMINI_API_KEY in your system/env secrets.'
+        'Gemini API key is not configured. Please set VITE_GEMINI_API_KEY in your environment variables.'
       );
     }
     
     let cuisineText = '';
     if (params.cuisine) {
-      cuisineText = `Cuisine Style/Culinary Theme: ${params.cuisine}. The dishes should reflect traditional seasonings, ingredients, and visual styles associated with ${params.cuisine}.`;
+      cuisineText = `Cuisine Style / Culinary Theme: ${params.cuisine}. The dishes should reflect authentic recipes, ingredients, and visual styles associated with ${params.cuisine}.`;
     }
 
     let budgetText = '';
     if (params.budget) {
-      budgetText = `Target Budget: ${params.budget}. Ensure dishes, ingredients, and realistic portions fit perfectly into this scale.`;
+      budgetText = `Target Budget: ${params.budget}. Ensure dishes, ingredients, and realistic portions fit into this scale.`;
     }
 
-    const event_type = params.eventType || "Catering Event";
+    let dietaryText = '';
+    const restrictions = params.dietaryRestrictions || [];
+    if (restrictions.length > 0 || params.specialDietaryNotes) {
+      dietaryText = `Mandatory Dietary & Allergen Protocols:\n- Selected Requirements: ${restrictions.length > 0 ? restrictions.join(', ') : 'Standard safety guidelines'}\n- Specific Dietary Notes: ${params.specialDietaryNotes || 'None specified'}\nCRITICAL: You must incorporate clear options or safe adaptations for these requirements in the menu and allergen matrix.`;
+    }
+
+    const event_type = params.eventType || "Hotel Banquet";
     const cuisine_style = params.cuisine || "Gourmet";
     const imagePrompt = `Professional food photography, high-end catering spread for a ${event_type}, featuring authentic ${cuisine_style} dishes, warm ambient lighting, elegant plating, shallow depth of field, 8k resolution.`;
 
@@ -168,7 +181,34 @@ export const generateMenuFromApi = async (params: {
       "name": "string",
       "description": "string",
       "costPerHead": number,
-      "type": "appetizer | main | dessert | beverage"
+      "price": number,
+      "type": "appetizer | main | dessert | beverage",
+      "allergens": ["string"],
+      "dietary": ["string"]
+    }
+  ],
+  "allergenMatrix": [
+    {
+      "dish": "string",
+      "category": "Appetizers | Main Courses | Desserts",
+      "gluten": boolean,
+      "dairy": boolean,
+      "nuts": boolean,
+      "eggs": boolean,
+      "shellfish": boolean,
+      "soy": boolean,
+      "fish": boolean,
+      "dietary": ["string"],
+      "notes": "string"
+    }
+  ],
+  "shoppingList": [
+    {
+      "name": "string",
+      "quantity": number,
+      "unit": "string",
+      "unitPrice": number,
+      "linkedDish": "string"
     }
   ],
   "logistics": {
@@ -178,21 +218,24 @@ export const generateMenuFromApi = async (params: {
   }
 }`;
 
-    const prompt = `As an elite executive chef and high-end catering consultant, generate a premium culinary proposal for a ${params.eventType} with ${params.guestCount} guests localized for the dynamic region: ${region}.
+    const prompt = `As an executive chef and banquet operations director for a premier hotel, generate an authoritative Banquet Event Order (BEO) culinary proposal for a "${params.eventType}" catering event with ${params.guestCount} covers/pax localized for: ${region}.
 ${cuisineText}
 ${budgetText}
+${dietaryText}
 
-REQUIREMENTS:
-1. Under "items", provide unique, gourmet dishes representing appetizers, main courses, and desserts.
-2. For each items, configure "costPerHead" realistic for the localized target region's currency (${region} context).
-3. Denominate "totalProposalValue", "perHeadPrice", and raw costs in the target currency/value matching ${region} context.
-4. Output ONLY a valid JSON object matching this exact schema:
+CRITICAL HOTEL COMPLIANCE REQUIREMENTS:
+1. Under "items", provide gourmet dishes representing appetizers (minimum 2), main courses (minimum 2), and desserts (minimum 2).
+2. For each item, specify realistic "costPerHead" and selling "price" per head based on wholesale food costs in ${region} (ZAR context).
+3. Generate a comprehensive "allergenMatrix" tracking each dish for Gluten, Dairy, Nuts, Eggs, Shellfish, Soy, Fish, and dietary badges (e.g. Vegan, Vegetarian, Halal, Kosher, Gluten-Free).
+4. Under "shoppingList", list essential bulk raw supplies scaled to exactly ${params.guestCount} covers with appropriate wholesale unit prices in ${region} currency.
+5. Under "logistics", provide kitchen mise en place steps, banquet service timing, required equipment, and staff headcount for ${params.guestCount} guests.
+6. Target profit margin must be between 72% and 82%.
+7. Output ONLY a valid raw JSON object matching this exact schema:
 ${structurePrompt}
-5. Ensure the targetProfitMargin is a number representing a percent strictly configured in the highly profitable 72.4% to 81.4% range.
-6. Under "generatedImagePrompt", save this exact prompt string: "${imagePrompt}"`;
+8. Under "generatedImagePrompt", save this exact prompt string: "${imagePrompt}"`;
 
     const apiCallPromise = (async () => {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -235,64 +278,132 @@ ${structurePrompt}
     // Aggressive clean parsing suite
     const parsedData = cleanAndParseJson(text);
 
-    // Deep mapping to make sure it contains EXACTLY what App.tsx wants to render without crashing
+    // Deep mapping to make sure it contains EXACTLY what the app needs
+    const items = parsedData.items || [];
+    const rawAppetizers = items.filter((i: any) => i.type === 'appetizer');
+    const rawMains = items.filter((i: any) => i.type === 'main');
+    const rawDesserts = items.filter((i: any) => i.type === 'dessert' || i.type === 'beverage');
+
+    const mappedAppetizers = rawAppetizers.map((i: any) => ({
+      dish: i.name || "Gourmet Starter Plate",
+      notes: i.description || "Fresh chef appetizer selection.",
+      cost: Number(i.costPerHead) || 45,
+      price: Number(i.price) || Math.round((Number(i.costPerHead) || 45) * 4.2),
+      allergens: i.allergens || [],
+      dietary: i.dietary || [],
+      ingredients: i.ingredients || [
+        { name: "Organic starter base supplies", quantity: 0.2, unit: "kg", unitCost: Number(i.costPerHead) || 45 }
+      ]
+    }));
+
+    const mappedMains = rawMains.map((i: any) => ({
+      dish: i.name || "Executive Main Course",
+      notes: i.description || "Chef crafted banquet main course.",
+      cost: Number(i.costPerHead) || 120,
+      price: Number(i.price) || Math.round((Number(i.costPerHead) || 120) * 4.2),
+      allergens: i.allergens || [],
+      dietary: i.dietary || [],
+      ingredients: i.ingredients || [
+        { name: "Prime hotel proteins and seasonal vegetables", quantity: 0.45, unit: "kg", unitCost: Number(i.costPerHead) || 120 }
+      ]
+    }));
+
+    const mappedDesserts = rawDesserts.map((i: any) => ({
+      dish: i.name || "Artisan Banquet Dessert",
+      notes: i.description || "Hotel pastry finish.",
+      cost: Number(i.costPerHead) || 35,
+      price: Number(i.price) || Math.round((Number(i.costPerHead) || 35) * 4.2),
+      allergens: i.allergens || [],
+      dietary: i.dietary || [],
+      ingredients: i.ingredients || [
+        { name: "Pastry chef confectionery ingredients", quantity: 0.15, unit: "kg", unitCost: Number(i.costPerHead) || 35 }
+      ]
+    }));
+
+    // Build or refine Allergen Matrix table
+    let allergenMatrix: any[] = parsedData.allergenMatrix || [];
+    if (!Array.isArray(allergenMatrix) || allergenMatrix.length === 0) {
+      // Automatic allergen heuristic scanner as robust fallback
+      const allDishes = [
+        ...mappedAppetizers.map((d: any) => ({ ...d, cat: 'Appetizers' })),
+        ...mappedMains.map((d: any) => ({ ...d, cat: 'Main Courses' })),
+        ...mappedDesserts.map((d: any) => ({ ...d, cat: 'Desserts' }))
+      ];
+
+      allergenMatrix = allDishes.map((d: any) => {
+        const textToScan = `${d.dish} ${d.notes || ''}`.toLowerCase();
+        const hasGluten = /bread|flour|wheat|pasta|crust|pastry|brioche|croûte|crouton|batter|crumb/.test(textToScan);
+        const hasDairy = /cheese|cream|butter|milk|yogurt|parmesan|mascarpone|brie|gouda/.test(textToScan);
+        const hasNuts = /nut|almond|walnut|pecan|pistachio|peanut|cashew|praline/.test(textToScan);
+        const hasEggs = /egg|mayo|aioli|hollandaise|custard|meringue|souffle/.test(textToScan);
+        const hasShellfish = /prawn|shrimp|crab|lobster|mussel|clam|oyster|calamari/.test(textToScan);
+        const hasFish = /salmon|trout|linefish|kingklip|hake|snapper|tuna|bass/.test(textToScan);
+        const hasSoy = /soy|edamame|tofu|tamari/.test(textToScan);
+
+        const dietaryTags: string[] = [];
+        if (!/beef|pork|lamb|chicken|duck|meat|fish|salmon|prawn|shellfish/.test(textToScan)) {
+          dietaryTags.push("Vegetarian");
+          if (!hasDairy && !hasEggs) dietaryTags.push("Vegan");
+        }
+        if (!hasGluten) dietaryTags.push("Gluten-Free");
+        if (!/pork|bacon|ham|prosciutto|lard/.test(textToScan)) dietaryTags.push("Halal-Friendly");
+
+        return {
+          dish: d.dish,
+          category: d.cat,
+          gluten: hasGluten,
+          dairy: hasDairy,
+          nuts: hasNuts,
+          eggs: hasEggs,
+          shellfish: hasShellfish,
+          fish: hasFish,
+          soy: hasSoy,
+          dietary: dietaryTags,
+          notes: d.notes ? d.notes.slice(0, 60) : 'Safe banquet standard'
+        };
+      });
+    }
+
+    const totalCovers = Number(params.guestCount) || 50;
+
     const mappedData = {
       ...parsedData,
-      menuTitle: parsedData.title || parsedData.menuTitle || "Premium Catering Proposal",
-      description: parsedData.description || "A custom high-definition culinary journey.",
-      targetProfitMargin: Number(parsedData.targetProfitMargin) || 75.5,
+      menuTitle: parsedData.title || parsedData.menuTitle || `${params.eventType} Banquet Proposal`,
+      description: parsedData.description || "Executive hotel culinary banquet and event order.",
+      targetProfitMargin: Number(parsedData.targetProfitMargin) || 76.5,
       generatedImagePrompt: parsedData.generatedImagePrompt || imagePrompt,
-      appetizers: (parsedData.items || [])
-        .filter((i: any) => i.type === 'appetizer')
-        .map((i: any) => ({
-          dish: i.name || "Gourmet Starter Plate",
-          notes: i.description || "Fresh chef appetizer selection.",
-          cost: Number(i.costPerHead) || 45,
-          price: Number(i.price) || Math.round((Number(i.costPerHead) || 45) * 4.5),
-          ingredients: i.ingredients || [
-            { name: "Organic starter base options", quantity: 0.2, unit: "kg", unitCost: Number(i.costPerHead) || 45 }
-          ]
-        })),
-      mainCourses: (parsedData.items || [])
-        .filter((i: any) => i.type === 'main')
-        .map((i: any) => ({
-          dish: i.name || "Executive Main Sensation",
-          notes: i.description || "Specially formulated recipe mains.",
-          cost: Number(i.costPerHead) || 120,
-          price: Number(i.price) || Math.round((Number(i.costPerHead) || 120) * 4.5),
-          ingredients: i.ingredients || [
-            { name: "Prime quality proteins and greens", quantity: 0.45, unit: "kg", unitCost: Number(i.costPerHead) || 120 }
-          ]
-        })),
-      desserts: (parsedData.items || [])
-        .filter((i: any) => i.type === 'dessert' || i.type === 'beverage')
-        .map((i: any) => ({
-          dish: i.name || "Decadent Confectionary Dessert",
-          notes: i.description || "Premium chocolate or pastry finish.",
-          cost: Number(i.costPerHead) || 35,
-          price: Number(i.price) || Math.round((Number(i.costPerHead) || 35) * 4.5),
-          ingredients: i.ingredients || [
-            { name: "Elite baking ingredients & sugars", quantity: 0.15, unit: "kg", unitCost: Number(i.costPerHead) || 35 }
-          ]
-        })),
-      shoppingList: (parsedData.items || []).map((i: any) => ({
-        name: `Primary raw supplies for ${i.name || 'dish item'}`,
-        quantity: Number(params.guestCount) || 10,
-        unit: i.type === 'beverage' ? 'L' : 'kg',
-        unitPrice: Math.round((Number(i.costPerHead) || 30) / 2),
-        linkedDish: i.name || 'Gourmet Selection'
-      })),
-      miseEnPlace: (parsedData.logistics?.serviceNotes || []).map((note: string) => `Prep task: ${note}`),
-      serviceNotes: parsedData.logistics?.serviceNotes || [],
+      eventType: params.eventType,
+      covers: totalCovers,
+      guestCount: totalCovers,
+      dietaryNotes: restrictions,
+      allergenMatrix,
+      appetizers: mappedAppetizers,
+      mainCourses: mappedMains,
+      desserts: mappedDesserts,
+      shoppingList: (parsedData.shoppingList && parsedData.shoppingList.length > 0)
+        ? parsedData.shoppingList
+        : items.map((i: any) => ({
+            name: `Raw ingredient bulk supplies for ${i.name || 'dish'}`,
+            quantity: Math.round(totalCovers * (i.type === 'main' ? 0.35 : 0.15)),
+            unit: i.type === 'beverage' ? 'L' : 'kg',
+            unitPrice: Math.round((Number(i.costPerHead) || 40) * 0.55),
+            linkedDish: i.name || 'Banquet Selection'
+          })),
+      miseEnPlace: (parsedData.logistics?.serviceNotes || []).map((note: string) => `Prep schedule: ${note}`),
+      serviceNotes: parsedData.logistics?.serviceNotes || [
+        "Pre-shift briefing 45 min before service with allergen cross-check",
+        "Hot holding units stabilized at 65°C+ per health standards",
+        "Dedicated allergy-safe staging table for dietary plates"
+      ],
       deliveryLogistics: [
-        `Service Staff Assigned: ${parsedData.logistics?.staffRequired || "Head Chef & Catering Waiters"}`,
-        `Specialized Equipment: ${(parsedData.logistics?.equipmentNeeded || []).join(', ') || "Standard hot buffet trays"}`
+        `Banquet Staff: ${parsedData.logistics?.staffRequired || "Head Chef, 2 Sous Chefs & Banquet Service Captains"}`,
+        `Hotel Equipment: ${(parsedData.logistics?.equipmentNeeded || []).join(', ') || "Chafing dishes, hot boxes, carving station, ramekins"}`
       ],
       logistics: {
-        deliveryFee: parsedData.logistics?.deliveryFee || 450, // Dynamic catering delivery logistics cost charge
-        staffRequired: parsedData.logistics?.staffRequired,
-        equipmentNeeded: parsedData.logistics?.equipmentNeeded,
-        serviceNotes: parsedData.logistics?.serviceNotes
+        deliveryFee: parsedData.logistics?.deliveryFee || 0,
+        staffRequired: parsedData.logistics?.staffRequired || "Banquet culinary crew",
+        equipmentNeeded: parsedData.logistics?.equipmentNeeded || ["Chafing dishes", "Carving station"],
+        serviceNotes: parsedData.logistics?.serviceNotes || []
       }
     };
 
@@ -307,7 +418,7 @@ ${structurePrompt}
 
     // 1. Timeout Errors
     if (error.name === 'AbortError' || errorStr.includes('TIMEOUT_ERROR')) {
-      return { error: 'Catering Proposal Timeout (60-second limit exceeded). The digital kitchen taking too long. Please try again.' };
+      return { error: 'Catering Proposal Timeout (60-second limit exceeded). Please try again.' };
     }
 
     // 2. Quota & Rate Limit Errors (429 / RESOURCE_EXHAUSTED)
@@ -319,14 +430,14 @@ ${structurePrompt}
       return { error: 'CaterPro AI engine is Rate Limited / Quota Limited (429 Resource Exhausted). Please wait a few seconds and try again.' };
     }
 
-    // 3. Network Errors (Fetch failures, offlines)
+    // 3. Network Errors
     const isNetwork = errorStr.toLowerCase().includes('network') || 
                       errorStr.toLowerCase().includes('fetch') || 
                       errorStr.toLowerCase().includes('socket') ||
                       errorStr.toLowerCase().includes('dns') ||
                       errorStr.toLowerCase().includes('conn');
     if (isNetwork) {
-      return { error: 'Unable to communicate with the kitchen. A connection/network error occurred. Please check your internet.' };
+      return { error: 'Unable to communicate with the kitchen AI engine. A connection/network error occurred. Please check your internet.' };
     }
 
     // 4. Fallback Generic
@@ -432,7 +543,7 @@ Configure the raw price estimates and wholesale market rates/costs specifically 
 Output ONLY a valid JSON object matching this exact schema:
 ${structurePrompt}`;
 
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
