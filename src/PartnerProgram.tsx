@@ -14,7 +14,7 @@ const PartnerProgram: React.FC = () => {
             Grow Your Business by <span className="text-primary-500">Helping Others Grow</span>
           </h2>
           <p className="text-xl text-slate-600 dark:text-slate-400 max-w-2xl mx-auto">
-            Join our exclusive partner program on Whop. Refer other caterers to CaterPro AI and earn recurring commissions for every successful referral.
+            Join our exclusive partner program. Refer other caterers to CaterPro AI and earn recurring commissions for every successful referral.
           </p>
         </div>
 
@@ -23,7 +23,7 @@ const PartnerProgram: React.FC = () => {
             {
               icon: <span className="text-3xl text-blue-500">👥</span>,
               title: "Invite Caterers",
-              description: "Share your unique Whop referral link with your network, colleagues, or social media followers."
+              description: "Share your unique partner referral link with your network, colleagues, or culinary team."
             },
             {
               icon: <span className="text-3xl text-emerald-500">📈</span>,
@@ -52,16 +52,14 @@ const PartnerProgram: React.FC = () => {
           <div className="relative z-10 max-w-xl">
             <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-6">Ready to start earning?</h3>
             <p className="text-lg text-slate-600 dark:text-slate-400 mb-8">
-              Our partner dashboard on Whop provides real-time tracking, marketing materials, and instant payouts. It takes less than 2 minutes to set up.
+              Our partner dashboard provides real-time tracking, marketing materials, and direct Paystack payouts. It takes less than 2 minutes to set up.
             </p>
             <div className="flex flex-wrap gap-4">
               <a 
-                href="https://whop.com/caterpro-ai/affiliate" 
-                target="_blank" 
-                rel="noopener noreferrer"
+                href="#partner-signup" 
                 className="px-8 py-4 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-black flex items-center gap-2 shadow-xl shadow-primary-500/20 transition-all active:scale-95"
               >
-                Join Partner Program <span className="text-xl">🔗</span>
+                Join Partner Program <span className="text-xl">🤝</span>
               </a>
               <button className="px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 rounded-2xl font-black hover:bg-slate-200 dark:hover:bg-slate-700 transition-all flex items-center gap-2">
                 Learn More <span className="text-xl">➡️</span>
