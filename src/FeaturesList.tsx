@@ -1,64 +1,127 @@
 
-import React from 'react';
+import React, { useState } from 'react';
+import { SubscriptionPlan } from './types';
+import PaymentModal from './PaymentModal';
 
-interface FeatureTier {
-  name: string;
-  id: string;
-  price: string;
-  description: string;
-  features: string[];
-  icon: string;
-  color: string;
-  whopLink: string;
-}
-
-interface FeaturesListProps {
-  whopLinks?: {
-    commis: string;
-    chefDePartie: string;
-    sousChef: string;
-    executive: string;
+interface PricingPageProps {
+  onSelectPlan: (plan: SubscriptionPlan) => void;
+  currency?: string;
+  paymentLinks?: {
+    commis?: string;
+    chefDePartie?: string;
+    sousChef?: string;
+    executive?: string;
   };
 }
 
-const FeaturesList: React.FC<FeaturesListProps> = ({ whopLinks }) => {
-  const TIERS: FeatureTier[] = [
+const TIER_STYLES = {
+  slate: {
+    border: 'border-slate-200 dark:border-slate-700',
+    highlightBorder: 'border-slate-500 ring-2 ring-slate-500',
+    badge: 'bg-slate-500',
+    icon: 'text-slate-500',
+    button: 'bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700',
+    buttonHighlight: 'bg-slate-500 text-white hover:bg-slate-600 shadow-md',
+  },
+  blue: {
+    border: 'border-slate-200 dark:border-slate-700',
+    highlightBorder: 'border-indigo-500 ring-2 ring-indigo-500',
+    badge: 'bg-indigo-600',
+    icon: 'text-indigo-600',
+    button: 'bg-indigo-50 text-indigo-800 hover:bg-indigo-100 dark:bg-indigo-900/30 dark:text-indigo-200 dark:hover:bg-indigo-900/50',
+    buttonHighlight: 'bg-indigo-600 text-white hover:bg-indigo-700 shadow-lg shadow-indigo-500/20',
+  },
+  amber: {
+    border: 'border-slate-200 dark:border-slate-700',
+    highlightBorder: 'border-amber-500 ring-2 border-4 ring-amber-500',
+    badge: 'bg-amber-500',
+    icon: 'text-amber-500',
+    button: 'bg-amber-50 text-amber-800 hover:bg-amber-100 dark:bg-amber-900/30 dark:text-indigo-200 dark:hover:bg-amber-900/50',
+    buttonHighlight: 'bg-amber-500 text-white hover:bg-amber-600 shadow-md',
+  },
+  royal: {
+    border: 'border-slate-200 dark:border-slate-700',
+    highlightBorder: 'border-primary-700 ring-2 ring-primary-700',
+    badge: 'bg-primary-800',
+    icon: 'text-primary-800 dark:text-primary-400',
+    button: 'bg-slate-100 text-slate-800 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700',
+    buttonHighlight: 'bg-primary-800 text-white hover:bg-primary-900 shadow-md',
+  },
+};
+
+const formatPrice = (amount: number, currency: string) => {
+  return new Intl.NumberFormat(navigator.language, {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount);
+};
+
+const getTiers = (currency: string = 'ZAR', paymentLinks: PricingPageProps['paymentLinks'] = {}, period: 'monthly' | 'yearly') => {
+  const isYearly = period === 'yearly';
+  const discount = isYearly ? 0.8 : 1; // 20% discount for yearly
+  
+  const priceMap: Record<string, Record<string, number>> = {
+    'commis': { 'ZAR': 199, 'USD': 11.99, 'GBP': 9.99, 'EUR': 10.99 },
+    'chef-de-partie': { 'ZAR': 549, 'USD': 29.99, 'GBP': 24.99, 'EUR': 27.99 },
+    'sous-chef': { 'ZAR': 1249, 'USD': 69.99, 'GBP': 54.99, 'EUR': 64.99 },
+    'executive': { 'ZAR': 2499, 'USD': 139.99, 'GBP': 109.99, 'EUR': 129.99 },
+  };
+
+  const getPrice = (id: string) => {
+    const basePrice = priceMap[id][currency] || priceMap[id]['USD'];
+    const finalPrice = isYearly ? basePrice * 10 * discount : basePrice; // 10 months price for yearly
+    return formatPrice(finalPrice, currency);
+  };
+  
+  return [
     {
       name: 'The Commis',
       id: 'commis',
-      price: 'R199/mo',
+      price: getPrice('commis'),
+      priceSuffix: isYearly ? '/yr' : '/mo',
+      icon: '🎓',
       description: 'Student Edition - Academic PoE Automation & Curriculum Mapping.',
       features: [
         'Academic PoE Automation',
-        'City & Guilds Mapping',
+        'City & Guilds Curriculum Mapping',
         'Local Curriculum Alignment',
-        'ADHD Optimized UI',
+        'ADHD & Dyslexia Optimized UI',
         'Basic Menu Generation',
       ],
-      icon: '🎓',
-      color: 'slate',
-      whopLink: whopLinks?.commis || 'https://whop.com/melotwo2',
+      cta: 'Start Your Journey',
+      colorKey: 'slate' as keyof typeof TIER_STYLES,
+      paymentLink: paymentLinks.commis,
+      hasTrial: true,
     },
     {
       name: 'The Chef de Partie',
       id: 'chef-de-partie',
-      price: 'R549/mo',
+      price: getPrice('chef-de-partie'),
+      priceSuffix: isYearly ? '/yr' : '/mo',
+      icon: '⚡',
       description: 'Professional Edition - Interactive Costing & Shopping Lists.',
       features: [
         'Everything in Commis',
         'Full Interactive Costing',
         'Dynamic Shopping Lists',
         'Standard AI Menus',
-        'Scaling Engine',
+        'Scaling Engine (Auto-Portion)',
       ],
-      icon: '⚡',
-      color: 'amber',
-      whopLink: whopLinks?.chefDePartie || 'https://whop.com/melotwo2',
+      cta: 'Upgrade Now',
+      highlight: true,
+      badge: 'MOST POPULAR',
+      colorKey: 'amber' as keyof typeof TIER_STYLES,
+      paymentLink: paymentLinks.chefDePartie,
+      hasTrial: true,
     },
     {
       name: 'The Sous Chef',
       id: 'sous-chef',
-      price: 'R1,249/mo',
+      price: getPrice('sous-chef'),
+      priceSuffix: isYearly ? '/yr' : '/mo',
+      icon: '👥',
       description: 'Growth Edition - Multi-user Collaboration & Cloud Storage.',
       features: [
         'Everything in Professional',
@@ -67,14 +130,17 @@ const FeaturesList: React.FC<FeaturesListProps> = ({ whopLinks }) => {
         'Client Dashboard',
         'Priority Support',
       ],
-      icon: '👥',
-      color: 'blue',
-      whopLink: whopLinks?.sousChef || 'https://whop.com/melotwo2',
+      cta: 'Upgrade Now',
+      colorKey: 'blue' as keyof typeof TIER_STYLES,
+      paymentLink: paymentLinks.sousChef,
+      hasTrial: true,
     },
     {
       name: 'The Executive',
       id: 'executive',
-      price: 'R2,499/mo',
+      price: getPrice('executive'),
+      priceSuffix: isYearly ? '/yr' : '/mo',
+      icon: '💼',
       description: 'Empire Edition - Full Suite & Viral Video Creator.',
       features: [
         'Everything in Growth',
@@ -83,64 +149,151 @@ const FeaturesList: React.FC<FeaturesListProps> = ({ whopLinks }) => {
         'Custom Branding',
         'White-label Reports',
       ],
-      icon: '💼',
-      color: 'indigo',
-      whopLink: whopLinks?.executive || 'https://whop.com/melotwo2',
+      cta: 'Upgrade Now',
+      badge: isYearly ? 'Best Value' : 'Enterprise',
+      colorKey: 'royal' as keyof typeof TIER_STYLES,
+      paymentLink: paymentLinks.executive,
+      hasTrial: true,
     },
   ];
+};
+
+const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR', paymentLinks }) => {
+  const [selectedPlanForPayment, setSelectedPlanForPayment] = useState<SubscriptionPlan | null>(null);
+  const [selectedPrice, setSelectedPrice] = useState('');
+  const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
+
+  const handleTierClick = (tier: any) => {
+    if (tier.id === 'free') {
+        onSelectPlan('free');
+        return;
+    }
+    
+    if (tier.paymentLink) {
+        const win = window.open(tier.paymentLink, '_blank');
+        if (win) win.focus();
+        onSelectPlan(tier.id as SubscriptionPlan);
+        return;
+    }
+
+    setSelectedPlanForPayment(tier.id as SubscriptionPlan);
+    setSelectedPrice(tier.price);
+  };
+
+  const handlePaymentSuccess = () => {
+    if (selectedPlanForPayment) {
+      onSelectPlan(selectedPlanForPayment);
+      setSelectedPlanForPayment(null);
+    }
+  };
+
+  const tiers = getTiers(currency, paymentLinks, billingPeriod);
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">Upgrade Your Toolkit</h2>
-          <p className="text-sm text-slate-500 dark:text-white/60 font-medium">Unlock professional features to scale your catering business.</p>
-        </div>
-        <div className="hidden sm:flex items-center gap-2 px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 rounded-full border border-emerald-100 dark:border-emerald-800">
-          <span className="text-xs">✨</span>
-          <span className="text-[10px] font-black uppercase tracking-widest">7-Day Free Trial</span>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {TIERS.map((tier) => (
-          <div 
-            key={tier.id}
-            className="group relative bg-white dark:bg-slate-900 border-2 border-slate-100 dark:border-slate-800 rounded-[2rem] p-6 transition-all hover:border-indigo-500/50 hover:shadow-xl hover:shadow-indigo-500/10"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className={`p-3 rounded-2xl bg-slate-50 dark:bg-slate-800 group-hover:bg-indigo-50 dark:group-hover:bg-indigo-900/30 transition-colors`}>
-                <span className="text-2xl text-slate-900 dark:text-white group-hover:text-indigo-600">{tier.icon}</span>
-              </div>
-              <span className="text-lg font-black text-slate-900 dark:text-white">{tier.price}</span>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans">
+      <main className="flex-grow">
+        <div className="max-w-7xl mx-auto py-16 sm:py-24 px-4 sm:px-6 lg:px-8">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <div className="flex items-center justify-center gap-2 mb-4 bg-indigo-50 dark:bg-indigo-900/30 w-fit mx-auto px-4 py-2 rounded-full border border-indigo-100 dark:border-indigo-800">
+                <span className="text-xs animate-pulse">✨</span>
+                <span className="text-[10px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-300">7-Day Free Trial Active on All Plans</span>
             </div>
+            <h1 className="text-4xl sm:text-6xl font-black text-slate-900 dark:text-white tracking-tighter leading-none mb-6">
+              Pick Your Toolkit
+            </h1>
+            <p className="text-lg text-slate-500 dark:text-slate-400 font-medium">
+              Start your 7-day trial. Zero commitment. Cancel anytime via Paystack.
+            </p>
 
-            <h3 className="text-lg font-black text-slate-900 dark:text-white mb-1">{tier.name}</h3>
-            <p className="text-xs text-slate-500 dark:text-white/60 font-medium mb-6 leading-relaxed">{tier.description}</p>
-
-            <ul className="space-y-3 mb-8">
-              {tier.features.slice(0, 4).map((feature, idx) => (
-                <li key={idx} className="flex items-start gap-2 text-[11px] font-bold text-slate-700 dark:text-slate-300">
-                  <span className="text-emerald-500 flex-shrink-0">✅</span>
-                  <span>{feature}</span>
-                </li>
-              ))}
-            </ul>
-
-            <a 
-              href={tier.whopLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full py-3 bg-slate-900 dark:bg-white text-white dark:text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-indigo-600 dark:hover:bg-indigo-50 transition-all active:scale-95"
-            >
-              Upgrade Now
-              <span className="text-sm">➡️</span>
-            </a>
+            {/* Monthly / Yearly Toggle */}
+            <div className="mt-10 flex items-center justify-center gap-4">
+                <span className={`text-sm font-black uppercase tracking-widest ${billingPeriod === 'monthly' ? 'text-slate-900 dark:text-white' : 'text-slate-400'}`}>Monthly</span>
+                <button 
+                    onClick={() => setBillingPeriod(billingPeriod === 'monthly' ? 'yearly' : 'monthly')}
+                    className="relative w-16 h-8 bg-slate-200 dark:bg-slate-800 rounded-full p-1 transition-colors hover:bg-slate-300"
+                >
+                    <div className={`w-6 h-6 bg-indigo-600 rounded-full shadow-lg transform transition-transform duration-300 ${billingPeriod === 'yearly' ? 'translate-x-8' : 'translate-x-0'}`}></div>
+                </button>
+                <div className="flex items-center gap-2">
+                    <span className={`text-sm font-black uppercase tracking-widest ${billingPeriod === 'yearly' ? 'text-indigo-600' : 'text-slate-400'}`}>Yearly</span>
+                    <span className="px-2 py-0.5 bg-emerald-500 text-white text-[9px] font-black rounded-md uppercase tracking-tighter">Save 20%</span>
+                </div>
+            </div>
           </div>
-        ))}
-      </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
+            {tiers.map((tier) => {
+              const styles = TIER_STYLES[tier.colorKey];
+              return (
+                <div
+                  key={tier.id}
+                  className={`relative flex flex-col rounded-[2.5rem] border p-8 shadow-sm h-full transition-all hover:shadow-xl ${
+                    tier.highlight
+                      ? `${styles.highlightBorder} bg-white dark:bg-slate-900 z-10 scale-105 shadow-[0_0_50px_-10px_rgba(245,158,11,0.5)] dark:shadow-[0_0_60px_-15px_rgba(245,158,11,0.4)]` 
+                      : `${styles.border} bg-white dark:bg-slate-900`
+                  }`}
+                >
+                  {(tier.badge) && (
+                    <div className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 transform rounded-full px-5 py-1.5 text-[10px] font-black text-white uppercase tracking-widest shadow-lg ${styles.badge}`}>
+                      {tier.badge}
+                    </div>
+                  )}
+                  
+                  <div className="mb-6 flex justify-between items-start">
+                      <span className={`text-4xl ${styles.icon}`}>{tier.icon}</span>
+                      {tier.hasTrial && (
+                          <div className="text-[10px] font-black text-emerald-500 border border-emerald-500/30 px-2 py-1 rounded-lg uppercase tracking-widest">
+                              Trial
+                          </div>
+                      )}
+                  </div>
+
+                  <h3 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">{tier.name}</h3>
+                  <p className="mt-2 text-sm text-slate-700 dark:text-slate-300 min-h-[2.5rem] font-medium leading-relaxed">{tier.description}</p>
+                  
+                  <div className="mt-6 mb-8">
+                    <span className="text-4xl font-black text-slate-900 dark:text-white">{tier.price}</span>
+                    {tier.priceSuffix && (
+                      <span className="text-xs font-black text-slate-500 dark:text-slate-400 uppercase tracking-tighter ml-1">{tier.priceSuffix}</span>
+                    )}
+                  </div>
+
+                  <ul role="list" className="space-y-4 mb-10 flex-grow">
+                    {tier.features.map((feature) => (
+                      <li key={feature} className="flex items-start text-sm">
+                        <span className="h-4 w-4 text-emerald-500 flex-shrink-0 mt-0.5">✅</span>
+                        <p className="ml-3 text-slate-900 dark:text-slate-200 font-medium">{feature}</p>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <button
+                    onClick={() => handleTierClick(tier)}
+                    className={`w-full rounded-2xl px-4 py-4 text-center text-sm font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
+                      tier.highlight ? styles.buttonHighlight : styles.button
+                    } active:scale-95`}
+                  >
+                    {tier.cta}
+                    {tier.paymentLink && <span className="text-sm">🔗</span>}
+                  </button>
+
+                  <p className="mt-4 text-center text-[9px] font-bold text-slate-400 uppercase">Secure 256-Bit Encrypted via Paystack (South Africa)</p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </main>
+      
+      <PaymentModal 
+        isOpen={!!selectedPlanForPayment} 
+        onClose={() => setSelectedPlanForPayment(null)}
+        plan={selectedPlanForPayment || 'chef-de-partie'}
+        price={selectedPrice}
+        onConfirm={handlePaymentSuccess}
+      />
     </div>
   );
 };
 
-export default FeaturesList;
+export default PricingPage;
