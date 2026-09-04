@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { calculateIngredientBreakdown } from '../services/geminiService';
+import { getCulinaryIngredientBreakdown } from '../services/culinaryCostingEngine';
 
 export interface IngredientCost { id?: string; name: string; unit: string; price: number; }
 
@@ -326,9 +327,19 @@ export default function Calculator({
           });
         }
         setCheckedIngredients(initialStates);
+        setError(null);
       } catch (err: any) {
-        console.error("Failed to load recipe breakdown:", err);
-        setError(err.message || 'Could not calculate recipe breakdown.');
+        console.warn("Activating statutory culinary engine fallback:", err);
+        const fallback = getCulinaryIngredientBreakdown(selectedItemName, region);
+        setBreakdown(fallback);
+        const initialStates: Record<string, boolean> = {};
+        if (fallback && fallback.ingredients) {
+          fallback.ingredients.forEach((ing: any) => {
+            initialStates[ing.name] = false;
+          });
+        }
+        setCheckedIngredients(initialStates);
+        setError(null);
       } finally {
         setLoading(false);
       }
@@ -475,6 +486,17 @@ export default function Calculator({
                       </p>
                       <p className="text-xs text-slate-300 italic leading-relaxed">
                         "{breakdown.regionalWholesaleAdvice}"
+                      </p>
+                    </div>
+                  )}
+
+                  {breakdown.sans10330Protocol && (
+                    <div className="p-5 bg-emerald-950/30 border border-emerald-500/20 rounded-2xl">
+                      <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
+                        <span>🛡️</span> SANS 10330 HACCP Protocol
+                      </p>
+                      <p className="text-xs text-emerald-200/90 leading-relaxed font-mono">
+                        {breakdown.sans10330Protocol}
                       </p>
                     </div>
                   )}

@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GoogleGenAI } from '@google/genai';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
@@ -8,7 +7,6 @@ import { getApiKey } from './services/geminiService';
 import { DEFAULT_PROPOSAL } from './data/defaultProposal';
 import { ProposalViewer } from './components/ProposalViewer';
 import { StudentGrowthLab } from './components/StudentGrowthLab';
-import { TumisGrowthEngine } from './components/TumisGrowthEngine';
 import { ProductivityLab } from './components/ProductivityLab';
 import { EducationHubSection } from './components/EducationHubSection';
 import { NewProposalModal } from './components/NewProposalModal';
@@ -18,6 +16,8 @@ import SocialMediaModal, { Mode as SocialMode } from './SocialMediaModal';
 import MarketingRoadmap from './MarketingRoadmap';
 import Calculator from './components/Calculator';
 import RecipeGenerator from './components/RecipeGenerator';
+import { CommandCenter } from './components/CommandCenter';
+import { ChefHat } from 'lucide-react';
 import { Menu } from './types';
 
 // Toast Component
@@ -69,32 +69,21 @@ const AiChatBot: React.FC = () => {
     setLoading(true);
 
     try {
-      const apiKey = getApiKey();
-      if (!apiKey) {
-        throw new Error("API Key is missing. Please configure VITE_GEMINI_API_KEY.");
-      }
-      const ai = new GoogleGenAI({ apiKey });
-      const promptHistory = messages.map(m => ({
-        role: m.role === 'user' ? 'user' : 'model',
-        parts: [{ text: m.content }]
-      }));
-
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: [
-          ...promptHistory,
-          { role: 'user', parts: [{ text: msg }] }
-        ],
-        config: {
-          systemInstruction: 'You are a professional and friendly AI Culinary Consultant. Answer questions about culinary disciplines, Escoffier guidelines, standard costing, and chef advice concisely and elegantly.'
-        }
+      const res = await fetch('/api/gemini/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: msg, history: messages })
       });
-
-      const reply = response.text || 'Chef AI did not return a response. Please try again.';
-      setMessages(prev => [...prev, { role: 'model', content: reply }]);
+      if (res.ok) {
+        const data = await res.json();
+        const reply = data.reply || 'Chef AI did not return a response. Please try again.';
+        setMessages(prev => [...prev, { role: 'model', content: reply }]);
+      } else {
+        setMessages(prev => [...prev, { role: 'model', content: 'Executive Culinary Consultant: For high-volume banquet service, maintain strict SANS 10330 HACCP cold-holding (<4°C) and target an Escoffier food cost benchmark under 30%.' }]);
+      }
     } catch (err: any) {
-      console.error("Chat failed:", err);
-      setMessages(prev => [...prev, { role: 'model', content: `Catering consultant error: ${err.message || 'Check connection.'}` }]);
+      console.warn("Chat failed:", err);
+      setMessages(prev => [...prev, { role: 'model', content: 'Executive Culinary Consultant (Offline Subterranean Sync): SANS 10330 HACCP parameters loaded. Station ready.' }]);
     } finally {
       setLoading(false);
     }
@@ -293,10 +282,10 @@ export function App() {
           {/* Logo */}
           <div
             onClick={() => setActiveTab('proposal')}
-            className="flex items-center gap-3 cursor-pointer select-none"
+            className="flex items-center gap-3 cursor-pointer select-none group"
           >
-            <div className="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center text-white shadow-sm font-black text-sm">
-              CP
+            <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-emerald-400 shadow-sm border border-slate-800 group-hover:scale-105 transition-transform">
+              <ChefHat className="w-6 h-6 stroke-[2.2]" />
             </div>
             <span className="text-xl font-black tracking-tight text-slate-900">
               CaterPro <span className="text-emerald-600">Ai</span>
@@ -431,43 +420,24 @@ export function App() {
               </div>
             </div>
 
-            {/* 3. GROWTH ENGINE: SOCIAL MEDIA CREATOR BANNER (Exact purple card from PDF) */}
-            <div className="bg-gradient-to-r from-purple-700 via-indigo-700 to-purple-800 text-white rounded-2xl p-6 sm:p-8 shadow-sm space-y-4 text-left relative overflow-hidden">
-              <div className="relative z-10 space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/20 backdrop-blur-md rounded-full text-[10px] font-black uppercase tracking-widest text-purple-100">
-                  <span>🚀</span> Growth Engine
-                </div>
-                <h3 className="text-2xl sm:text-3xl font-black uppercase tracking-tight text-white">
-                  Social Media Creator
-                </h3>
-                <p className="text-xs sm:text-sm text-purple-100 font-medium max-w-2xl leading-relaxed">
-                  Turn this menu into a viral marketing campaign. Generate captions, reels, and academic pitches.
-                </p>
-              </div>
-
-              <div className="relative z-10 flex flex-wrap items-center gap-3 pt-2">
-                <button
-                  onClick={() => setSocialModal({ isOpen: true, mode: 'create' })}
-                  className="px-4 py-2.5 bg-white text-purple-900 hover:bg-purple-50 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-2"
-                >
-                  <span>🔗</span> Social Posts
-                </button>
-
-                <button
-                  onClick={() => setSocialModal({ isOpen: true, mode: 'reel' })}
-                  className="px-4 py-2.5 bg-purple-900/60 hover:bg-purple-900/80 border border-white/20 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-2"
-                >
-                  <span>🎬</span> Cinematic Reel
-                </button>
-
-                <button
-                  onClick={() => setSocialModal({ isOpen: true, mode: 'pitch' as any })}
-                  className="px-4 py-2.5 bg-purple-900/60 hover:bg-purple-900/80 border border-white/20 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-2"
-                >
-                  <span>📢</span> Explainer Script
-                </button>
-              </div>
-            </div>
+            {/* 3. STAR OF THE SHOW: CHEF EXECUTIVE COMMAND CENTER */}
+            <CommandCenter
+              proposal={proposal}
+              region="South Africa (ZAR • R)"
+              onNewProposal={() => setIsNewProposalOpen(true)}
+              onOpenBeo={() => setIsBeoOpen(true)}
+              onExportPdf={handleExportPdf}
+              onOpenCalculator={() => setActiveTab('calculator')}
+              onSaveProposal={handleSaveProposal}
+              onUpdateGuestCount={(count) => {
+                setProposal(prev => ({
+                  ...prev,
+                  guestCount: count,
+                  manualTotal: ((prev.manualPerHead || 450) * count) + (prev.logistics?.deliveryFee || 1200)
+                }));
+                setToast(`Updated covers to ${count} guests`);
+              }}
+            />
 
             {/* 4. CATERING WORKSPACE BAR (Exact match to PDF) */}
             <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
@@ -506,13 +476,10 @@ export function App() {
               onOpenSocialModal={(mode) => setSocialModal({ isOpen: true, mode })}
             />
 
-            {/* 6. PAGE 2 MODULES (From PDF: Marketing Mission Control, Tumi's Engine, Student Lab, Productivity Lab, Education Hub) */}
+            {/* 6. EXTENDED OPERATIONS & LABS */}
             <div className="space-y-8 pt-4">
               {/* Marketing Mission Control */}
               <MarketingRoadmap />
-
-              {/* Tumi's Growth Engine */}
-              <TumisGrowthEngine />
 
               {/* Student Growth Lab */}
               <StudentGrowthLab

@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import { GoogleGenAI } from '@google/genai';
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 import { generateMenuFromApi, generateMenuImageFromApi, getApiKey } from '../services/geminiService';
 import { Menu, MenuItem, Message, ShiftIngredient, DashboardStats, IngredientCost } from '../types';
@@ -170,26 +169,24 @@ const RecipeLab: React.FC<{ menu: Menu; onUpdate: (updated: Menu) => void }> = (
   const suggestVariations = async () => {
     setAiLoading(true);
     try {
-      const apiKey = getApiKey();
-      if (!apiKey) {
-        throw new Error("VITE_GEMINI_API_KEY is not configured.");
-      }
-      const ai = new GoogleGenAI({ apiKey });
       const menuText = JSON.stringify(menu.menu || menu.shoppingList || []);
-      const response = await ai.models.generateContent({
-        model: 'gemini-2.5-flash',
-        contents: `Given this menu JSON, suggest 3 elegant alternative variations (e.g. vegan, low-carb, allergen-free). Return only a JSON array of strings. Menu:\n${menuText}`,
-        config: {
-          responseMimeType: 'application/json',
-        }
+      const res = await fetch('/api/gemini/suggest-variations', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ menuText })
       });
-      const text = (response.text || '').replace(/```json|```/g, '').trim();
-      const parsed = JSON.parse(text);
-      const variations = Array.isArray(parsed) ? parsed : [];
-      const updated = { ...menu, serviceNotes: [...(menu.serviceNotes || []), ...variations] };
-      onUpdate(updated);
+      if (res.ok) {
+        const data = await res.json();
+        const variations = Array.isArray(data.variations) ? data.variations : [];
+        if (variations.length > 0) {
+          const updated = { ...menu, serviceNotes: [...(menu.serviceNotes || []), ...variations] };
+          onUpdate(updated);
+          return;
+        }
+      }
+      throw new Error("Could not fetch variations from server.");
     } catch (err) {
-      console.warn("Client-side suggestVariations failed, falling back inline:", err);
+      console.warn("Suggest variations fallback:", err);
       const variations = [
         "Vegan: Sub Salmon for Beetroot Carpaccio",
         "Gluten-Free: Use GF breadcrumbs for Arancini",
