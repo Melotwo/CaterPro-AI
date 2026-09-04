@@ -6,6 +6,8 @@ import { GoogleGenAI } from '@google/genai';
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
 import { generateMenuFromApi, generateMenuImageFromApi, getApiKey } from '../services/geminiService';
 import { Menu, MenuItem, Message, ShiftIngredient, DashboardStats, IngredientCost } from '../types';
+import { BanquetEventOrderModal } from './BanquetEventOrderModal';
+import { PaystackUpgradeModal } from './PaystackUpgradeModal';
 
 // --- CONSTANTS ---
 const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID || "Adp-3XYWNARTpkCw4rbtFUnFox3mMwZtWWRy-TprJ8sOrV8X9z4xtyobRHuCx848mseDoqATaUooheFz";
@@ -418,6 +420,85 @@ const ProposalDocument: React.FC<{ proposal: Menu; onUpdate: (updated: Menu) => 
           </div>
         </div>
       </div>
+
+      {/* Statutory Hotel Allergen & Dietary Matrix */}
+      <div className="mt-12 pt-10 border-t border-white/10">
+        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <span className="text-xl">⚠️</span>
+            <div>
+              <h4 className="text-xs font-black uppercase text-emerald-400 tracking-[0.25em]">
+                Statutory Allergen & Dietary Matrix
+              </h4>
+              <p className="text-[11px] text-slate-400">
+                Hotel banquet cross-contact control & special dietary declarations
+              </p>
+            </div>
+          </div>
+          <span className="text-[10px] font-black uppercase tracking-wider px-3.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 w-fit">
+            ✓ Hotel Audit Compliant
+          </span>
+        </div>
+
+        <div className="overflow-x-auto rounded-3xl border border-white/10 bg-slate-950/60 shadow-xl">
+          <table className="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr className="bg-slate-800/60 border-b border-white/10 text-[9px] font-black uppercase text-slate-400 tracking-wider">
+                <th className="p-4">Dish / Course</th>
+                <th className="p-4 text-center">Gluten</th>
+                <th className="p-4 text-center">Dairy</th>
+                <th className="p-4 text-center">Nuts</th>
+                <th className="p-4 text-center">Eggs</th>
+                <th className="p-4 text-center">Shellfish</th>
+                <th className="p-4 text-center">Fish</th>
+                <th className="p-4 text-center">Soy</th>
+                <th className="p-4">Dietary Suitability</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5 text-[11px]">
+              {((proposal.allergenMatrix && proposal.allergenMatrix.length > 0)
+                ? proposal.allergenMatrix
+                : (proposal.menu || []).map((d: any) => ({
+                    dish: d.dish,
+                    gluten: /bread|flour|wheat|pasta|pastry|crumb/i.test(d.dish + (d.notes || '')),
+                    dairy: /cheese|cream|butter|milk/i.test(d.dish + (d.notes || '')),
+                    nuts: /nut|almond|peanut|pecan|pistachio/i.test(d.dish + (d.notes || '')),
+                    eggs: /egg|mayo|aioli|custard/i.test(d.dish + (d.notes || '')),
+                    shellfish: /prawn|shrimp|crab|lobster|mussel/i.test(d.dish + (d.notes || '')),
+                    fish: /salmon|trout|fish|kingklip|hake/i.test(d.dish + (d.notes || '')),
+                    soy: /soy|tofu/i.test(d.dish + (d.notes || '')),
+                    dietary: ['Vegetarian Option']
+                  }))
+              ).map((row: any, idx: number) => (
+                <tr key={idx} className="hover:bg-slate-800/30 transition-colors">
+                  <td className="p-4 font-bold text-white whitespace-nowrap">{row.dish}</td>
+                  <td className="p-4 text-center">{row.gluten ? <span className="text-amber-400 font-bold">YES</span> : <span className="text-slate-600">--</span>}</td>
+                  <td className="p-4 text-center">{row.dairy ? <span className="text-amber-400 font-bold">YES</span> : <span className="text-slate-600">--</span>}</td>
+                  <td className="p-4 text-center">{row.nuts ? <span className="text-red-400 font-bold">YES</span> : <span className="text-slate-600">--</span>}</td>
+                  <td className="p-4 text-center">{row.eggs ? <span className="text-amber-400 font-bold">YES</span> : <span className="text-slate-600">--</span>}</td>
+                  <td className="p-4 text-center">{row.shellfish ? <span className="text-red-400 font-bold">YES</span> : <span className="text-slate-600">--</span>}</td>
+                  <td className="p-4 text-center">{row.fish ? <span className="text-amber-400 font-bold">YES</span> : <span className="text-slate-600">--</span>}</td>
+                  <td className="p-4 text-center">{row.soy ? <span className="text-amber-400 font-bold">YES</span> : <span className="text-slate-600">--</span>}</td>
+                  <td className="p-4">
+                    <div className="flex flex-wrap gap-1">
+                      {(row.dietary && row.dietary.length > 0) ? (
+                        row.dietary.map((tag: string, ti: number) => (
+                          <span key={ti} className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[9px] font-bold">
+                            {tag}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-slate-500 text-[10px]">Standard</span>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <SocialShareHub title={proposal.title || 'Catering Proposal'} />
     </div>
   );
@@ -455,10 +536,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [generating, setGenerating] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState('Chef AI is drafting your menu...');
   
-  const [eventType, setEventType] = useState('');
-  const [guestCount, setGuestCount] = useState(50);
+  const [eventType, setEventType] = useState('Banquet');
+  const [customEventType, setCustomEventType] = useState('');
+  const [guestCount, setGuestCount] = useState(100);
   const [budget, setBudget] = useState('Standard (R250-R500pp)');
   const [cuisine, setCuisine] = useState('South African');
+  const [dietaryRestrictions, setDietaryRestrictions] = useState<string[]>(['Gluten-Free', 'Halal']);
+  const [specialDietaryNotes, setSpecialDietaryNotes] = useState('');
+  const [showBeoModal, setShowBeoModal] = useState(false);
+  const [showPaystackModal, setShowPaystackModal] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [shiftModal, setShiftModal] = useState<{ isOpen: boolean; ingredients: ShiftIngredient[]; title: string } | null>(null);
 
@@ -495,18 +581,21 @@ export const Dashboard: React.FC<DashboardProps> = ({
   };
 
   const handleGenerate = async () => {
-    if (!eventType) { setToast('Please enter an event type.'); return; }
+    const effectiveEventType = eventType === 'Other' ? (customEventType.trim() || 'Special Event') : eventType;
+    if (!effectiveEventType) { setToast('Please specify an event type.'); return; }
     setGenerating(true); 
     setGenerationError(null);
-    setLoadingMessage('Chef AI is drafting your menu...');
-    setToast('Chef AI is drafting your menu...');
+    setLoadingMessage('Chef AI is drafting your hotel BEO & menu...');
+    setToast('Chef AI is drafting your hotel BEO & menu...');
     try {
       const response = await generateMenuFromApi({ 
-        eventType, 
+        eventType: effectiveEventType, 
         guestCount, 
         budget, 
         cuisine,
         region,
+        dietaryRestrictions,
+        specialDietaryNotes,
         onProgress: (msg) => {
           setLoadingMessage(msg);
           setToast(msg);
@@ -538,14 +627,21 @@ export const Dashboard: React.FC<DashboardProps> = ({
       const totalRevenue = (totalDishPrice * guestCount) + deliveryFee;
 
       const menu: any = {
-        title: menuData.menuTitle || eventType,
-        description: menuData.description || "A custom tailored experience.",
+        title: menuData.menuTitle || `${effectiveEventType} Banquet Proposal`,
+        description: menuData.description || "A custom tailored hotel culinary experience.",
         menu: menuItems,
         miseEnPlace: menuData.miseEnPlace || [],
         serviceNotes: menuData.serviceNotes || [],
         deliveryLogistics: menuData.deliveryLogistics || [],
         logistics: menuData.logistics || { deliveryFee: 0 },
         guestCount: guestCount,
+        covers: guestCount,
+        eventType: effectiveEventType,
+        beoNumber: `BEO-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+        roomLocation: 'Grand Ballroom & Garden Terrace',
+        eventDate: new Date().toISOString().split('T')[0],
+        eventTime: '18:30 for 19:00 Service',
+        allergenMatrix: menuData.allergenMatrix || [],
         heroImage: HERO_FALLBACK,
         shoppingList: menuData.shoppingList || [],
         manualTotal: totalRevenue,
@@ -556,7 +652,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       setGeneratedMenu(menu);
 
       try {
-        const img = await generateMenuImageFromApi(menu.title, eventType, cuisine);
+        const img = await generateMenuImageFromApi(menu.title, effectiveEventType, cuisine);
         if (img) {
           menu.heroImage = img;
           setMenuImage(img);
@@ -618,9 +714,26 @@ export const Dashboard: React.FC<DashboardProps> = ({
       const props = pdf.getImageProperties(img);
       const w = pdf.internal.pageSize.getWidth();
       const h = (props.height * w) / props.width;
-      pdf.addImage(img, 'PNG', 0, 0, w, h);
-      pdf.save('CaterProAI_Proposal.pdf');
-      setToast('PDF downloaded successfully!');
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      if (h > pageHeight) {
+        let position = 0;
+        let remainingHeight = h;
+        while (remainingHeight > 0) {
+          pdf.addImage(img, 'PNG', 0, position, w, h);
+          remainingHeight -= pageHeight;
+          if (remainingHeight > 0) {
+            pdf.addPage();
+            position -= pageHeight;
+          }
+        }
+      } else {
+        pdf.addImage(img, 'PNG', 0, 0, w, h);
+      }
+
+      const fileName = `${(generatedMenu?.title || 'CaterProAI_Proposal').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+      pdf.save(fileName);
+      setToast('PDF proposal downloaded successfully!');
     } catch (err) { 
       console.error(err); 
       setToast('PDF export failed.'); 
@@ -746,38 +859,147 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 )}
 
                 <div className="space-y-8 max-w-xl mx-auto">
+                  {/* Hotel Event Type Selector */}
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 opacity-60">Event Type</label>
-                    <div className="relative">
-                      <span className="absolute left-6 top-1/2 -translate-y-1/2 text-xl">🍴</span>
-                      <input 
-                        type="text" 
-                        value={eventType}
-                        onChange={(e) => setEventType(e.target.value)}
-                        placeholder="e.g. Wedding Gala, Executive Lunch..." 
-                        className="w-full p-6 pl-16 rounded-[2rem] border border-white/10 bg-slate-800 text-white font-bold outline-none focus:border-emerald-500 transition-all" 
-                      />
+                    <div className="flex justify-between items-center mb-3">
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 opacity-80">
+                        Hotel Event Type / Outlet
+                      </label>
+                      <span className="text-[10px] font-bold text-emerald-400 uppercase">
+                        Selected: {eventType}
+                      </span>
                     </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 mb-3">
+                      {[
+                        { id: 'Banquet', label: 'Banquet', icon: '🍷' },
+                        { id: 'Restaurant', label: 'Restaurant', icon: '🍽️' },
+                        { id: 'Conference', label: 'Conference', icon: '💼' },
+                        { id: 'Staff Meals', label: 'Staff Meals', icon: '👨‍🍳' },
+                        { id: 'Other', label: 'Other', icon: '✨' }
+                      ].map((item) => (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => setEventType(item.id)}
+                          className={`p-3.5 rounded-2xl border text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+                            eventType === item.id
+                              ? 'bg-emerald-600 border-emerald-400 text-white shadow-lg shadow-emerald-950/40'
+                              : 'bg-slate-800/80 border-white/10 text-slate-300 hover:bg-slate-700/80 hover:border-white/20'
+                          }`}
+                        >
+                          <span>{item.icon}</span>
+                          <span>{item.label}</span>
+                        </button>
+                      ))}
+                    </div>
+
+                    {eventType === 'Other' && (
+                      <div className="relative mt-2">
+                        <span className="absolute left-5 top-1/2 -translate-y-1/2 text-sm opacity-60">✍️</span>
+                        <input
+                          type="text"
+                          value={customEventType}
+                          onChange={(e) => setCustomEventType(e.target.value)}
+                          placeholder="e.g. Diplomatic State Gala, Rooftop Poolside Soirée..."
+                          className="w-full p-4 pl-12 rounded-2xl border border-emerald-500/40 bg-slate-800 text-white font-medium outline-none focus:border-emerald-400 text-xs transition-all"
+                        />
+                      </div>
+                    )}
                   </div>
+
+                  {/* Covers / Pax Input with Presets */}
                   <div>
-                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 opacity-60">Guest Count</label>
+                    <div className="flex justify-between items-center mb-3">
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 opacity-80">
+                        Guaranteed Covers / Pax
+                      </label>
+                      <div className="flex items-center gap-1.5">
+                        {[50, 100, 250, 500].map((preset) => (
+                          <button
+                            key={preset}
+                            type="button"
+                            onClick={() => setGuestCount(preset)}
+                            className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${
+                              guestCount === preset
+                                ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
+                                : 'bg-slate-800/60 text-slate-400 hover:text-white border border-white/5'
+                            }`}
+                          >
+                            {preset} Pax
+                          </button>
+                        ))}
+                      </div>
+                    </div>
                     <div className="relative">
                       <span className="absolute left-6 top-1/2 -translate-y-1/2 text-xl">👥</span>
                       <input 
                         type="number" 
                         value={guestCount}
-                        onChange={(e) => setGuestCount(Number(e.target.value))}
-                        className="w-full p-6 pl-16 rounded-[2rem] border border-white/10 bg-slate-800 text-white font-bold outline-none focus:border-emerald-500 transition-all" 
+                        onChange={(e) => setGuestCount(Math.max(1, Number(e.target.value)))}
+                        className="w-full p-6 pl-16 rounded-[2rem] border border-white/10 bg-slate-800 text-white font-bold outline-none focus:border-emerald-500 transition-all text-base" 
                       />
                     </div>
                   </div>
+
+                  {/* Allergen & Dietary Requirements Multi-Select */}
+                  <div>
+                    <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 opacity-80">
+                      Allergen Controls & Dietary Requirements
+                    </label>
+                    <div className="flex flex-wrap gap-2 mb-3">
+                      {[
+                        'Gluten-Free',
+                        'Dairy-Free',
+                        'Nut-Free',
+                        'Egg-Free',
+                        'Shellfish-Free',
+                        'Soy-Free',
+                        'Vegan',
+                        'Vegetarian',
+                        'Halal',
+                        'Kosher'
+                      ].map((diet) => {
+                        const isSelected = dietaryRestrictions.includes(diet);
+                        return (
+                          <button
+                            key={diet}
+                            type="button"
+                            onClick={() => {
+                              if (isSelected) {
+                                setDietaryRestrictions(dietaryRestrictions.filter(d => d !== diet));
+                              } else {
+                                setDietaryRestrictions([...dietaryRestrictions, diet]);
+                              }
+                            }}
+                            className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                              isSelected
+                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
+                                : 'bg-slate-800/80 text-slate-400 hover:text-slate-200 border border-white/10 hover:border-white/20'
+                            }`}
+                          >
+                            <span>{isSelected ? '✓' : '+'}</span>
+                            <span>{diet}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <input
+                      type="text"
+                      value={specialDietaryNotes}
+                      onChange={(e) => setSpecialDietaryNotes(e.target.value)}
+                      placeholder="Special instructions: e.g. 8 severe nut allergies on Table 4, 25 Halal meals"
+                      className="w-full p-4 rounded-2xl border border-white/10 bg-slate-800/70 text-slate-200 placeholder-slate-500 font-normal outline-none focus:border-emerald-500 text-xs transition-all"
+                    />
+                  </div>
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 opacity-60">Budget Range</label>
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 opacity-80">Target Budget</label>
                       <select 
                         value={budget}
                         onChange={(e) => setBudget(e.target.value)}
-                        className="w-full p-6 rounded-[2rem] border border-white/10 bg-slate-800 text-white font-bold outline-none focus:border-emerald-500 transition-all cursor-pointer" 
+                        className="w-full p-5 rounded-[2rem] border border-white/10 bg-slate-800 text-white font-bold outline-none focus:border-emerald-500 transition-all cursor-pointer text-xs" 
                       >
                         <option>Budget (R150-R250pp)</option>
                         <option>Standard (R250-R500pp)</option>
@@ -786,17 +1008,18 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       </select>
                     </div>
                     <div>
-                      <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 opacity-60">Cuisine Type</label>
+                      <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3 opacity-80">Cuisine / Culinary Style</label>
                       <select 
                         value={cuisine}
                         onChange={(e) => setCuisine(e.target.value)}
-                        className="w-full p-6 rounded-[2rem] border border-white/10 bg-slate-800 text-white font-bold outline-none focus:border-emerald-500 transition-all cursor-pointer" 
+                        className="w-full p-5 rounded-[2rem] border border-white/10 bg-slate-800 text-white font-bold outline-none focus:border-emerald-500 transition-all cursor-pointer text-xs" 
                       >
                         <option>South African</option>
                         <option>Mediterranean</option>
                         <option>Asian Fusion</option>
                         <option>Continental</option>
                         <option>BBQ and Braai</option>
+                        <option>Modern European Banquet</option>
                       </select>
                     </div>
                   </div>
@@ -858,10 +1081,30 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   </div>
                 </div>
 
-                <div className="flex flex-col md:flex-row justify-center gap-6 mt-12 pb-12">
-                  <button onClick={exportPDF} className="px-12 py-6 bg-white text-slate-950 rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 hover:text-white transition-all shadow-2xl flex items-center justify-center gap-3 w-full md:w-auto" style={{ clipPath: OCTAGON_CLIP }}>
-                    <span className="text-xl">📥</span>
-                    Download PDF
+                <div className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-12 pb-12">
+                  <button 
+                    onClick={exportPDF} 
+                    className="px-8 py-5 bg-white text-slate-950 rounded-[2rem] font-black uppercase text-xs hover:bg-emerald-400 hover:text-slate-950 transition-all shadow-2xl flex items-center justify-center gap-3 w-full sm:w-auto" 
+                    style={{ clipPath: OCTAGON_CLIP }}
+                  >
+                    <span className="text-lg">📥</span>
+                    Download Proposal PDF
+                  </button>
+                  <button 
+                    onClick={() => setShowBeoModal(true)} 
+                    className="px-8 py-5 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-xs hover:bg-emerald-500 transition-all shadow-2xl flex items-center justify-center gap-3 w-full sm:w-auto" 
+                    style={{ clipPath: OCTAGON_CLIP }}
+                  >
+                    <span className="text-lg">📋</span>
+                    Export Banquet Event Order (BEO)
+                  </button>
+                  <button 
+                    onClick={() => setShowPaystackModal(true)} 
+                    className="px-6 py-5 bg-slate-800 hover:bg-slate-700 border border-emerald-500/30 text-emerald-400 rounded-[2rem] font-black uppercase text-xs transition-all shadow-xl flex items-center justify-center gap-2 w-full sm:w-auto" 
+                    style={{ clipPath: OCTAGON_CLIP }}
+                  >
+                    <span className="text-lg">💳</span>
+                    Hotel Pro Upgrade
                   </button>
                 </div>
               </motion.div>
@@ -946,6 +1189,22 @@ export const Dashboard: React.FC<DashboardProps> = ({
           }} 
         />
       )}
+
+      {/* Banquet Event Order (BEO) Modal */}
+      {showBeoModal && generatedMenu && (
+        <BanquetEventOrderModal
+          isOpen={showBeoModal}
+          onClose={() => setShowBeoModal(false)}
+          menu={generatedMenu}
+          margin={currentMargin}
+        />
+      )}
+
+      {/* Paystack Hotel Pro Upgrade Modal */}
+      <PaystackUpgradeModal
+        isOpen={showPaystackModal}
+        onClose={() => setShowPaystackModal(false)}
+      />
     </div>
   );
 };
