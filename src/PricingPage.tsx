@@ -6,11 +6,11 @@ import PaymentModal from './PaymentModal';
 interface PricingPageProps {
   onSelectPlan: (plan: SubscriptionPlan) => void;
   currency?: string;
-  whopLinks: {
-    commis: string;
-    chefDePartie: string;
-    sousChef: string;
-    executive: string;
+  paymentLinks?: {
+    commis?: string;
+    chefDePartie?: string;
+    sousChef?: string;
+    executive?: string;
   };
 }
 
@@ -58,7 +58,7 @@ const formatPrice = (amount: number, currency: string) => {
   }).format(amount);
 };
 
-const getTiers = (currency: string = 'ZAR', whopLinks: PricingPageProps['whopLinks'], period: 'monthly' | 'yearly') => {
+const getTiers = (currency: string = 'ZAR', paymentLinks: PricingPageProps['paymentLinks'] = {}, period: 'monthly' | 'yearly') => {
   const isYearly = period === 'yearly';
   const discount = isYearly ? 0.8 : 1; // 20% discount for yearly
   
@@ -92,7 +92,7 @@ const getTiers = (currency: string = 'ZAR', whopLinks: PricingPageProps['whopLin
       ],
       cta: 'Start Your Journey',
       colorKey: 'slate' as keyof typeof TIER_STYLES,
-      whopLink: whopLinks.commis,
+      paymentLink: paymentLinks.commis,
       hasTrial: true,
     },
     {
@@ -113,7 +113,7 @@ const getTiers = (currency: string = 'ZAR', whopLinks: PricingPageProps['whopLin
       highlight: true,
       badge: 'MOST POPULAR',
       colorKey: 'amber' as keyof typeof TIER_STYLES,
-      whopLink: whopLinks.chefDePartie,
+      paymentLink: paymentLinks.chefDePartie,
       hasTrial: true,
     },
     {
@@ -132,7 +132,7 @@ const getTiers = (currency: string = 'ZAR', whopLinks: PricingPageProps['whopLin
       ],
       cta: 'Upgrade Now',
       colorKey: 'blue' as keyof typeof TIER_STYLES,
-      whopLink: whopLinks.sousChef,
+      paymentLink: paymentLinks.sousChef,
       hasTrial: true,
     },
     {
@@ -152,13 +152,13 @@ const getTiers = (currency: string = 'ZAR', whopLinks: PricingPageProps['whopLin
       cta: 'Upgrade Now',
       badge: isYearly ? 'Best Value' : 'Enterprise',
       colorKey: 'royal' as keyof typeof TIER_STYLES,
-      whopLink: whopLinks.executive,
+      paymentLink: paymentLinks.executive,
       hasTrial: true,
     },
   ];
 };
 
-const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR', whopLinks }) => {
+const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR', paymentLinks }) => {
   const [selectedPlanForPayment, setSelectedPlanForPayment] = useState<SubscriptionPlan | null>(null);
   const [selectedPrice, setSelectedPrice] = useState('');
   const [billingPeriod, setBillingPeriod] = useState<'monthly' | 'yearly'>('monthly');
@@ -169,8 +169,8 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
         return;
     }
     
-    if (tier.whopLink) {
-        const win = window.open(tier.whopLink, '_blank');
+    if (tier.paymentLink) {
+        const win = window.open(tier.paymentLink, '_blank');
         if (win) win.focus();
         onSelectPlan(tier.id as SubscriptionPlan);
         return;
@@ -187,7 +187,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
     }
   };
 
-  const tiers = getTiers(currency, whopLinks, billingPeriod);
+  const tiers = getTiers(currency, paymentLinks, billingPeriod);
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col font-sans">
@@ -202,7 +202,7 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
               Pick Your Toolkit
             </h1>
             <p className="text-lg text-slate-500 dark:text-slate-400 font-medium">
-              Start your 7-day trial. Zero commitment. Cancel anytime via Whop.
+              Start your 7-day trial. Zero commitment. Cancel anytime via Paystack.
             </p>
 
             {/* Monthly / Yearly Toggle */}
@@ -274,10 +274,10 @@ const PricingPage: React.FC<PricingPageProps> = ({ onSelectPlan, currency = 'ZAR
                     } active:scale-95`}
                   >
                     {tier.cta}
-                    {tier.whopLink && <span className="text-sm">🔗</span>}
+                    {tier.paymentLink && <span className="text-sm">🔗</span>}
                   </button>
 
-                  <p className="mt-4 text-center text-[9px] font-bold text-slate-400 uppercase">Secure via Whop Marketplace</p>
+                  <p className="mt-4 text-center text-[9px] font-bold text-slate-400 uppercase">Secure 256-Bit Encrypted via Paystack (South Africa)</p>
                 </div>
               );
             })}
