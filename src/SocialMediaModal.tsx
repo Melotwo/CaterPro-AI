@@ -14,13 +14,13 @@ interface SocialMediaModalProps {
   onImageGenerated?: (base64: string) => void;
 }
 
-type Platform = 'instagram' | 'linkedin' | 'twitter' | 'facebook' | 'tiktok' | 'pinterest' | 'reddit' | 'whop';
+type Platform = 'instagram' | 'linkedin' | 'twitter' | 'facebook' | 'tiktok' | 'pinterest' | 'reddit' | 'hotel_network';
 
 const SocialMediaModal: React.FC<SocialMediaModalProps> = ({ 
   isOpen, onClose, image, menuTitle, menuDescription, initialMode = 'create'
 }) => {
   const [activeMode, setActiveMode] = useState<Mode>(initialMode);
-  const [activePlatform, setActivePlatform] = useState<Platform>('whop');
+  const [activePlatform, setActivePlatform] = useState<Platform>('instagram');
   const [editedContent, setEditedContent] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
@@ -30,7 +30,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
     if (isOpen) {
       setActiveMode(initialMode);
       if (initialMode !== 'reel' && initialMode !== 'tags' && initialMode !== 'bio') {
-        handleGenerate(initialMode === 'create' ? 'whop' : undefined);
+        handleGenerate(initialMode === 'create' ? 'instagram' : undefined);
       }
     }
   }, [isOpen, initialMode]);
@@ -44,9 +44,9 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
           const script = `[0:00-0:03] *Chef staring at a laptop looking frustrated*\n"POV: You're spending your weekend doing catering admin instead of cooking."\n\n[0:03-0:07] *Snap to your iPad showing CaterPro AI*\n"Meet CaterPro AI. I built this so you never have to type a proposal again."\n\n[0:07-0:12] *Quick cuts of the menu sections generating*\n"Portions. Costs in ZAR. HACCP safety. Done in 30 seconds."\n\n[0:12-0:15] *Final shot of a beautiful proposal*\n"Link in my bio to start for free. Let's get back in the kitchen. 🥂"`;
           setEditedContent(script);
       } else if (activeMode === 'create') {
-        if (platform === 'whop') {
-            const whopPost = `[COMMUNITY UPDATE: 2026 EDITION]\n\n"I didn't just build an app; I built a system for every chef in this group."\n\nI just finished the architecture for ${menuTitle || 'the new system'}. It now renders full proposals in under 30 seconds.\n\nI am currently looking for 3 ambitious clippers from this group to join my internal engine. I provide the assets, you provide the reach.\n\nDrop a 🥂 below if you are ready to scale with me.\n\n#CaterProAI #FounderLog #WhopCommunity`;
-            setEditedContent(whopPost);
+        if (platform === 'hotel_network') {
+            const networkPost = `[HOTEL & BANQUET ANNOUNCEMENT: 2026 EDITION]\n\n"We have upgraded our banquet operations to CaterPro AI."\n\nI just finished the banquet architecture for ${menuTitle || 'our upcoming conference & gala'}. Our operations engine now renders fully costed BEO proposals and statutory allergen matrices in under 30 seconds.\n\nNow booking banquets, private dinners, and multi-day hotel functions.\n\nDrop a 🥂 below or contact our events desk.\n\n#CaterProAI #HotelManagement #BanquetOperations #Hospitality`;
+            setEditedContent(networkPost);
         } else {
             const caption = await generateSocialCaption(menuTitle || "CaterPro AI System", menuDescription || "Automating catering for 2026.", platform);
             setEditedContent(caption);
@@ -242,8 +242,8 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                         <div className="space-y-3">
                             {[
                                 { handle: '@Gemini', reason: 'Developer Reach' },
-                                { handle: '@Whop', reason: 'Platform Support' },
-                                { handle: '@Fiverr', reason: 'Freelance Boost' },
+                                { handle: '@Paystack', reason: 'Payment Engine' },
+                                { handle: '@HospitalitySA', reason: 'Hotel Network' },
                                 { handle: '@Google', reason: 'Tech Innovation' }
                             ].map((m, i) => (
                                 <button 
@@ -269,7 +269,7 @@ const SocialMediaModal: React.FC<SocialMediaModalProps> = ({
                 {(activeMode === 'create' || activeMode === 'flex') && (
                     <div className="md:w-1/4 bg-slate-50 dark:bg-slate-950 p-4 border-r border-slate-100 dark:border-slate-800 overflow-x-auto no-scrollbar flex md:flex-col gap-3">
                         {[
-                            { id: 'whop', icon: '💬', label: 'Whop Forum' },
+                            { id: 'hotel_network', icon: '🏨', label: 'Hotel Network' },
                             { id: 'facebook', icon: '📘', label: 'Facebook' },
                             { id: 'linkedin', icon: '🚀', label: 'LinkedIn' },
                             { id: 'instagram', icon: '📸', label: 'Instagram' },
