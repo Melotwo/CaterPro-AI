@@ -3,7 +3,7 @@ import ThumbnailStudio from './ThumbnailStudio';
 import Toast from './Toast';
 
 interface FounderRoadmapProps {
-  whopUrl: string;
+  upgradeUrl?: string;
   onOpenSocial?: (mode: 'create' | 'reel' | 'status') => void;
 }
 
@@ -282,7 +282,7 @@ const SecurityHub: React.FC = () => {
     );
 };
 
-const WhopWarRoom: React.FC = () => {
+const DomainWarRoom: React.FC = () => {
     return (
         <div className="space-y-10 animate-slide-in">
             <div className="p-10 bg-white dark:bg-slate-900 rounded-[3.5rem] border-4 border-slate-100 dark:border-slate-800 shadow-2xl relative overflow-hidden">
@@ -348,8 +348,8 @@ const WhopWarRoom: React.FC = () => {
     );
 };
 
-const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }) => {
-  const [activeTab, setActiveTab] = useState<'valentine' | 'crm_architect' | 'outreach' | 'security' | 'whop_war_room' | 'assets'>('valentine');
+const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ upgradeUrl, onOpenSocial }) => {
+  const [activeTab, setActiveTab] = useState<'valentine' | 'crm_architect' | 'outreach' | 'security' | 'domain_war_room' | 'assets'>('valentine');
   const [toast, setToast] = useState<string | null>(null);
 
   return (
@@ -367,7 +367,7 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
                 { id: 'valentine', label: 'Valentine Sprint', icon: '❤️' },
                 { id: 'crm_architect', label: 'HubSpot Hub', icon: '🎯' },
                 { id: 'outreach', label: 'Outreach Lab', icon: '📧' },
-                { id: 'whop_war_room', label: 'Domain Kit', icon: '🌐' },
+                { id: 'domain_war_room', label: 'Domain Kit', icon: '🌐' },
                 { id: 'security', label: 'Defense', icon: '🛡️' },
                 { id: 'assets', label: 'Studio', icon: '🎨' }
             ].map(tab => (
@@ -386,7 +386,7 @@ const FounderRoadmap: React.FC<FounderRoadmapProps> = ({ whopUrl, onOpenSocial }
         {activeTab === 'valentine' && <ValentineSprint setToast={setToast} />}
         {activeTab === 'crm_architect' && <CRMArchitect />}
         {activeTab === 'outreach' && <OutreachLab />}
-        {activeTab === 'whop_war_room' && <WhopWarRoom />}
+        {activeTab === 'domain_war_room' && <DomainWarRoom />}
         {activeTab === 'security' && <SecurityHub />}
         {activeTab === 'assets' && <ThumbnailStudio />}
       </div>
