@@ -7,15 +7,15 @@ interface UpgradeModalProps {
   onClose: () => void;
   onUpgrade: (plan: SubscriptionPlan) => void;
   onViewPricing: () => void;
-  whopLinks?: {
-    commis: string;
-    chefDePartie: string;
-    sousChef: string;
-    executive: string;
+  paymentLinks?: {
+    commis?: string;
+    chefDePartie?: string;
+    sousChef?: string;
+    executive?: string;
   };
 }
 
-const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade, onViewPricing, whopLinks }) => {
+const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade, onViewPricing, paymentLinks }) => {
   const [showPromo, setShowPromo] = useState(false);
   const [promoCode, setPromoCode] = useState('');
   const [promoError, setPromoError] = useState('');
@@ -86,7 +86,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
                     ))}
                 </ul>
                 <button 
-                    onClick={() => handleUpgradeClick('commis', whopLinks?.commis)}
+                    onClick={() => handleUpgradeClick('commis', paymentLinks?.commis)}
                     className="w-full py-2.5 rounded-xl bg-slate-100 dark:bg-slate-700 text-slate-900 dark:text-white font-black text-xs uppercase tracking-widest"
                 >
                     Start Your Journey
@@ -106,7 +106,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
                     ))}
                 </ul>
                 <button 
-                    onClick={() => handleUpgradeClick('chef-de-partie', whopLinks?.chefDePartie)}
+                    onClick={() => handleUpgradeClick('chef-de-partie', paymentLinks?.chefDePartie)}
                     className="w-full py-2.5 rounded-xl bg-amber-500 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-amber-500/20"
                 >
                     Upgrade Now
@@ -126,7 +126,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
                     ))}
                 </ul>
                 <button 
-                    onClick={() => handleUpgradeClick('sous-chef', whopLinks?.sousChef)}
+                    onClick={() => handleUpgradeClick('sous-chef', paymentLinks?.sousChef)}
                     className="w-full py-2.5 rounded-xl bg-blue-600 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-blue-500/20"
                 >
                     Upgrade Now
@@ -146,7 +146,7 @@ const UpgradeModal: React.FC<UpgradeModalProps> = ({ isOpen, onClose, onUpgrade,
                     ))}
                 </ul>
                 <button 
-                    onClick={() => handleUpgradeClick('executive', whopLinks?.executive)}
+                    onClick={() => handleUpgradeClick('executive', paymentLinks?.executive)}
                     className="w-full py-2.5 rounded-xl bg-primary-600 text-white font-black text-xs uppercase tracking-widest shadow-lg shadow-primary-500/20"
                 >
                     Upgrade Now
