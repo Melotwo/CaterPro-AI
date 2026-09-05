@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
-import { getApiKey } from './services/geminiService';
+import { getApiKey, generateMenuFromApi } from './services/geminiService';
 import { DEFAULT_PROPOSAL } from './data/defaultProposal';
 import { ProposalViewer } from './components/ProposalViewer';
 import { StudentGrowthLab } from './components/StudentGrowthLab';
@@ -12,12 +12,10 @@ import { EducationHubSection } from './components/EducationHubSection';
 import { NewProposalModal } from './components/NewProposalModal';
 import { PaystackUpgradeModal } from './components/PaystackUpgradeModal';
 import { BanquetEventOrderModal } from './components/BanquetEventOrderModal';
-import SocialMediaModal, { Mode as SocialMode } from './SocialMediaModal';
-import MarketingRoadmap from './MarketingRoadmap';
 import Calculator from './components/Calculator';
 import RecipeGenerator from './components/RecipeGenerator';
 import { CommandCenter } from './components/CommandCenter';
-import { ChefHat } from 'lucide-react';
+import { ChefHat, GraduationCap, Calculator as CalcIcon, Utensils, Sparkles } from 'lucide-react';
 import { Menu } from './types';
 
 // Toast Component
@@ -164,7 +162,7 @@ const AiChatBot: React.FC = () => {
 };
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<'proposal' | 'calculator' | 'recipe'>('proposal');
+  const [activeTab, setActiveTab] = useState<'proposal' | 'calculator' | 'recipe' | 'commis'>('proposal');
   const [proposal, setProposal] = useState<Menu>(() => {
     const saved = localStorage.getItem('caterpro_recent_proposal');
     if (saved) {
@@ -177,11 +175,79 @@ export function App() {
   const [isNewProposalOpen, setIsNewProposalOpen] = useState(false);
   const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
   const [isBeoOpen, setIsBeoOpen] = useState(false);
-  const [socialModal, setSocialModal] = useState<{ isOpen: boolean; mode: SocialMode }>({
-    isOpen: false,
-    mode: 'create'
-  });
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isGeneratingMenu, setIsGeneratingMenu] = useState(false);
+
+  // Quick menu generator directly invoked from Command Center
+  const handleQuickGenerateMenu = async (params: {
+    outlet: string;
+    eventType: string;
+    covers: number;
+    cuisine: string;
+    notes: string;
+  }) => {
+    setIsGeneratingMenu(true);
+    setToast(`Formulating ${params.outlet} menu for ${params.covers} covers...`);
+    try {
+      const res = await generateMenuFromApi({
+        eventType: params.eventType,
+        guestCount: params.covers,
+        cuisine: params.cuisine,
+        specialDietaryNotes: `${params.outlet}. ${params.notes}`,
+        onProgress: (msg) => setToast(msg)
+      });
+      if (res && res.data) {
+        const d = res.data;
+        const newMenu: Menu = {
+          title: d.title || `${params.outlet} — ${params.eventType}`,
+          menuTitle: d.title || `${params.outlet} — ${params.eventType}`,
+          description: d.description || `Engineered for ${params.covers} covers in ${params.outlet}.`,
+          guestCount: params.covers,
+          covers: params.covers,
+          eventType: params.eventType,
+          eventDate: new Date().toISOString().split('T')[0],
+          roomLocation: params.outlet,
+          beoNumber: `BEO-${new Date().getFullYear()}-HOTEL-${Math.floor(100 + Math.random() * 900)}`,
+          manualPerHead: d.perHeadPrice || 520,
+          manualTotal: (d.perHeadPrice || 520) * params.covers + 2400,
+          logistics: {
+            deliveryFee: 2400,
+            staffRequired: d.logistics?.staffRequired || `${Math.ceil(params.covers / 20)} Line Chefs`,
+            equipmentNeeded: d.logistics?.equipmentNeeded || ['Combi Steam Oven', 'Heated Cabinets'],
+            serviceNotes: d.logistics?.serviceNotes || ['Maintain SANS 10330 cold-holding below 4°C.']
+          },
+          menu: (d.items || []).map((i: any) => ({
+            dish: i.name,
+            cat: i.type === 'appetizer' ? 'Appetizers' : i.type === 'main' ? 'Main Courses' : 'Desserts',
+            price: Number(i.price) || 120,
+            cost: Number(i.costPerHead) || 35,
+            notes: i.description || '',
+            dietary: i.dietary || ['Gluten-Free']
+          })),
+          shoppingList: (d.shoppingList || []).map((s: any) => ({
+            item: s.name,
+            supplier: s.linkedDish ? 'Ocean Catch / Meat Merchant' : 'Wholesale Supplier',
+            category: 'Provisions',
+            quantity: `${s.quantity} ${s.unit || 'units'}`,
+            estCost: `R ${(Number(s.quantity || 1) * Number(s.unitPrice || 50)).toFixed(2)}`,
+            notes: s.linkedDish || ''
+          })),
+          allergenMatrix: d.allergenMatrix || [],
+          miseEnPlace: d.logistics?.miseEnPlace || ['10:00 — Cold prep and vegetable tourner', '14:00 — Hot line protein sear and cloche staging'],
+          serviceNotes: d.logistics?.serviceNotes || ['Maintain SANS 10330 cold-holding below 4°C during banquet transport.'],
+          deliveryLogistics: ['Refrigerated van transport at 2.5°C', 'Heated mobile hot holding units on site']
+        };
+        setProposal(newMenu);
+        localStorage.setItem('caterpro_recent_proposal', JSON.stringify(newMenu));
+        setToast('✅ Menu formulated! Push to Calculator to inspect costings & yields.');
+      }
+    } catch (err: any) {
+      console.error('Menu generation error:', err);
+      setToast('Generated local menu structure with wholesale costings.');
+    } finally {
+      setIsGeneratingMenu(false);
+    }
+  };
 
   // Sync dark class on root document
   useEffect(() => {
@@ -284,57 +350,76 @@ export function App() {
             onClick={() => setActiveTab('proposal')}
             className="flex items-center gap-3 cursor-pointer select-none group"
           >
-            <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center text-emerald-400 shadow-sm border border-slate-800 group-hover:scale-105 transition-transform">
-              <ChefHat className="w-6 h-6 stroke-[2.2]" />
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-lime-500 via-teal-600 to-cyan-600 flex items-center justify-center text-white shadow-md shadow-teal-500/20 group-hover:scale-105 transition-transform">
+              <ChefHat className="w-6 h-6 stroke-[2.4]" />
             </div>
-            <span className="text-xl font-black tracking-tight text-slate-900">
-              CaterPro <span className="text-emerald-600">Ai</span>
-            </span>
+            <div className="flex flex-col text-left">
+              <span className="text-xl font-black tracking-tight text-slate-900 leading-none">
+                CaterPro <span className="bg-gradient-to-r from-lime-600 to-teal-600 bg-clip-text text-transparent">AI</span>
+              </span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+                Centralized Hotel Administration Hub
+              </span>
+            </div>
           </div>
 
           {/* Nav Tabs */}
           <div className="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold">
             <button
               onClick={() => setActiveTab('proposal')}
-              className={`px-3.5 py-1.5 rounded-lg transition-all ${
+              className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'proposal'
                   ? 'bg-white text-slate-900 shadow-2xs'
                   : 'text-slate-500 hover:text-slate-900'
               }`}
             >
-              Proposal
+              <ChefHat className="w-3.5 h-3.5 text-teal-600" />
+              <span>Command Center</span>
             </button>
             <button
               onClick={() => setActiveTab('calculator')}
-              className={`px-3.5 py-1.5 rounded-lg transition-all ${
+              className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'calculator'
                   ? 'bg-white text-slate-900 shadow-2xs'
                   : 'text-slate-500 hover:text-slate-900'
               }`}
             >
-              Calculator
+              <CalcIcon className="w-3.5 h-3.5 text-teal-600" />
+              <span>Plate Costing & Yields</span>
             </button>
             <button
               onClick={() => setActiveTab('recipe')}
-              className={`px-3.5 py-1.5 rounded-lg transition-all ${
+              className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'recipe'
                   ? 'bg-white text-slate-900 shadow-2xs'
                   : 'text-slate-500 hover:text-slate-900'
               }`}
             >
-              Recipe Studio
+              <Utensils className="w-3.5 h-3.5 text-teal-600" />
+              <span>Recipe Studio</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('commis')}
+              className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeTab === 'commis'
+                  ? 'bg-white text-slate-900 shadow-2xs'
+                  : 'text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              <GraduationCap className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Commis Academy</span>
             </button>
           </div>
 
           {/* Right Actions */}
           <div className="flex items-center gap-2.5">
-            {/* Upgrade (Amber button from PDF) */}
+            {/* Upgrade (Fresh 4-tier plan modal) */}
             <button
               onClick={() => setIsUpgradeOpen(true)}
-              className="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5"
+              className="px-3.5 py-1.5 bg-gradient-to-r from-lime-500 to-teal-600 hover:from-lime-400 hover:to-teal-500 text-white rounded-lg text-xs font-black uppercase tracking-wider transition-all shadow-sm shadow-teal-500/20 flex items-center gap-1.5 cursor-pointer"
             >
-              <span>⚡</span>
-              <span>Upgrade</span>
+              <Sparkles className="w-3.5 h-3.5 text-white" />
+              <span>Plans & Pricing</span>
             </button>
 
             {/* Install Button (Slate button from PDF) */}
@@ -428,7 +513,10 @@ export function App() {
               onOpenBeo={() => setIsBeoOpen(true)}
               onExportPdf={handleExportPdf}
               onOpenCalculator={() => setActiveTab('calculator')}
+              onOpenRecipe={() => setActiveTab('recipe')}
               onSaveProposal={handleSaveProposal}
+              onQuickGenerateMenu={handleQuickGenerateMenu}
+              isGeneratingMenu={isGeneratingMenu}
               onUpdateGuestCount={(count) => {
                 setProposal(prev => ({
                   ...prev,
@@ -436,6 +524,14 @@ export function App() {
                   manualTotal: ((prev.manualPerHead || 450) * count) + (prev.logistics?.deliveryFee || 1200)
                 }));
                 setToast(`Updated covers to ${count} guests`);
+              }}
+              onUpdatePerHead={(price) => {
+                setProposal(prev => ({
+                  ...prev,
+                  manualPerHead: price,
+                  manualTotal: (price * (prev.guestCount || 50)) + (prev.logistics?.deliveryFee || 1200)
+                }));
+                setToast(`Updated per-head price to ZAR ${price}`);
               }}
             />
 
@@ -473,22 +569,10 @@ export function App() {
               onOpenBeo={() => setIsBeoOpen(true)}
               onOpenUpgrade={() => setIsUpgradeOpen(true)}
               onExportPdf={handleExportPdf}
-              onOpenSocialModal={(mode) => setSocialModal({ isOpen: true, mode })}
             />
 
             {/* 6. EXTENDED OPERATIONS & LABS */}
             <div className="space-y-8 pt-4">
-              {/* Marketing Mission Control */}
-              <MarketingRoadmap />
-
-              {/* Student Growth Lab */}
-              <StudentGrowthLab
-                onCopyText={(text, title) => {
-                  navigator.clipboard.writeText(text);
-                  setToast(`${title} copied to clipboard!`);
-                }}
-              />
-
               {/* Productivity Lab (Beta) */}
               <ProductivityLab
                 onNotify={(msg) => setToast(msg)}
@@ -511,6 +595,11 @@ export function App() {
               region="South Africa"
               selectedItemName={proposal.menu?.[0]?.dish || ''}
               setSelectedItemName={() => {}}
+              onUpdateMenu={(updated) => {
+                setProposal(updated);
+                localStorage.setItem('caterpro_recent_proposal', JSON.stringify(updated));
+                setToast('Live plate costings and menu updated!');
+              }}
             />
           </div>
         )}
@@ -522,6 +611,43 @@ export function App() {
               region="South Africa"
               selectedItemName={proposal.menu?.[0]?.dish || ''}
               setSelectedItemName={() => {}}
+            />
+          </div>
+        )}
+
+        {activeTab === 'commis' && (
+          <div className="pt-4 space-y-8">
+            <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-900 px-3 py-1 rounded-full border border-emerald-300">
+                  Student Edition • City & Guilds / QCTO Level 4
+                </span>
+                <h2 className="text-2xl font-black text-slate-900 tracking-tight mt-2">
+                  Commis Academy & Culinary Curriculum Hub
+                </h2>
+                <p className="text-xs text-slate-600 font-medium mt-1 max-w-2xl">
+                  Dedicated culinary education track for apprentice chefs, culinary students, and brigade trainees. Covers classical Escoffier sauce lineages, knife work fundamentals, and SANS 10330 HACCP food safety standards.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsUpgradeOpen(true)}
+                className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-sm shrink-0"
+              >
+                Commis Student Plan (R149)
+              </button>
+            </div>
+
+            <EducationHubSection
+              onNotify={(msg) => setToast(msg)}
+              onOpenUpgrade={() => setIsUpgradeOpen(true)}
+            />
+
+            <StudentGrowthLab
+              onCopyText={(text: string, title: string) => {
+                navigator.clipboard.writeText(text);
+                setToast(`Copied ${title} to clipboard!`);
+              }}
             />
           </div>
         )}
@@ -571,17 +697,6 @@ export function App() {
           onClose={() => setIsBeoOpen(false)}
           menu={proposal}
           margin={72.4}
-        />
-      )}
-
-      {socialModal.isOpen && (
-        <SocialMediaModal
-          isOpen={socialModal.isOpen}
-          onClose={() => setSocialModal({ ...socialModal, isOpen: false })}
-          image={proposal.heroImage}
-          menuTitle={proposal.title || 'Catering Proposal'}
-          menuDescription={proposal.description || ''}
-          initialMode={socialModal.mode}
         />
       )}
 

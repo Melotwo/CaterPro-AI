@@ -83,11 +83,11 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
           </div>
 
           <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight">
-            {proposal.title || proposal.menuTitle || 'Mediterranean Keto Cocktail Soirée'}
+            {proposal.title || proposal.menuTitle || 'Metropolitan Grand Hotel — Annual Gala Banquet'}
           </h2>
 
           <p className="text-sm sm:text-base text-slate-600 font-medium leading-relaxed max-w-4xl">
-            {proposal.description || 'An elegant, low-carb Mediterranean menu designed for high-end cocktail service, focusing on healthy fats, premium proteins, and fresh herbs.'}
+            {proposal.description || 'Executive four-course plated banquet engineered for high-volume service, featuring premium Karoo cuts, sustainable coastal seafood, and Escoffier pastry finishes.'}
           </p>
 
           <div className="flex flex-wrap items-center gap-6 pt-2 text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -97,24 +97,40 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
             </div>
             <div className="flex items-center gap-2">
               <span>📍</span>
-              <span>{proposal.roomLocation || 'Garden Terrace & Sunset Pavilion'}</span>
+              <span>{proposal.roomLocation || 'Grand Ballroom & Banqueting Deck'}</span>
             </div>
             <div className="flex items-center gap-2">
               <span>📋</span>
-              <span className="text-emerald-700">{proposal.beoNumber || 'BEO-2025-8842'}</span>
+              <span className="text-teal-700 font-mono">{proposal.beoNumber || 'BEO-2026-HOTEL-784'}</span>
             </div>
           </div>
         </div>
 
-        {/* Hero Image */}
-        <div className="relative rounded-2xl overflow-hidden shadow-inner border border-slate-200 aspect-[21/9] max-h-96">
-          <img
-            src={proposal.heroImage || 'https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1200&q=80'}
-            alt={proposal.title}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute bottom-4 right-4 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest text-white">
-            High Seas Standard • Verified 2026
+        {/* Clean Modern Hotel Banquet Banner (No external stock image dependency) */}
+        <div className="relative rounded-2xl overflow-hidden border border-slate-200 bg-gradient-to-r from-slate-900 via-teal-950 to-slate-900 text-white p-8 sm:p-10 flex flex-col justify-between min-h-[160px] shadow-sm">
+          <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-lime-400/20 to-teal-400/20 rounded-full blur-2xl pointer-events-none" />
+          
+          <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <span className="text-[10px] font-black uppercase tracking-widest text-lime-400 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-lime-400 animate-pulse" />
+                Hotel Banquet Standard • Certified Culinary Specification
+              </span>
+              <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight mt-1">
+                {proposal.title || 'Metropolitan Grand Hotel Banquet'}
+              </h3>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20 text-[11px] font-black uppercase tracking-wider text-white">
+                SANS 10330 Verified
+              </span>
+            </div>
+          </div>
+
+          <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-white/10 text-xs font-medium text-slate-300">
+            <span>Room: {proposal.roomLocation || 'Grand Ballroom & Banqueting Deck'}</span>
+            <span>Estimated Service Duration: 4.5 Hours</span>
+            <span className="font-mono text-lime-300">Guaranteed Covers: {guestCount} pax</span>
           </div>
         </div>
 
@@ -493,16 +509,16 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
 
           <button
             onClick={onOpenBeo}
-            className="w-full sm:w-auto px-8 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-8 py-3.5 bg-gradient-to-r from-lime-500 via-teal-600 to-cyan-600 hover:from-lime-400 hover:to-teal-500 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-teal-500/20 flex items-center justify-center gap-2 cursor-pointer"
           >
             <span>📋</span> Export Banquet Event Order (BEO)
           </button>
 
           <button
             onClick={onOpenUpgrade}
-            className="w-full sm:w-auto px-8 py-3.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2"
+            className="w-full sm:w-auto px-8 py-3.5 bg-white hover:bg-slate-50 text-slate-900 border border-slate-300 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span>💳</span> Hotel Pro Upgrade
+            <span>💳</span> View 4-Tier Hotel Plans
           </button>
         </div>
 

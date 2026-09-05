@@ -1,224 +1,219 @@
 import { Menu } from '../types';
 
 export const DEFAULT_PROPOSAL: Menu = {
-  title: "Mediterranean Keto Cocktail Soirée",
-  menuTitle: "Mediterranean Keto Cocktail Soirée",
-  description: "An elegant, low-carb Mediterranean menu designed for high-end cocktail service, focusing on healthy fats, premium proteins, and fresh herbs.",
-  guestCount: 50,
-  covers: 50,
-  eventType: "Cocktail Party",
-  eventDate: "2025-12-27",
-  roomLocation: "Garden Terrace & Sunset Pavilion",
-  beoNumber: "BEO-2025-8842",
-  heroImage: "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1200&q=80",
-  manualPerHead: 450,
-  manualTotal: 22500,
+  title: "Metropolitan Grand Hotel — Annual Gala Banquet",
+  menuTitle: "Metropolitan Grand Hotel — Annual Gala Banquet",
+  description: "Executive four-course plated banquet engineered for high-volume service, featuring premium Karoo cuts, sustainable coastal seafood, and Escoffier pastry finishes.",
+  guestCount: 120,
+  covers: 120,
+  eventType: "Hotel Banquet",
+  eventDate: "2026-10-18",
+  roomLocation: "Grand Ballroom & Banqueting Deck • Tables 1-12",
+  beoNumber: "BEO-2026-HOTEL-784",
+  heroImage: "", // No external stock image dependency; modern clean banner rendered in UI
+  manualPerHead: 520,
+  manualTotal: 64800,
   logistics: {
-    deliveryFee: 1200
+    deliveryFee: 2400
   },
   menu: [
     {
-      dish: "Prosciutto-wrapped Asparagus with Lemon-Infused Olive Oil",
-      notes: "Crisp blanched asparagus spears wrapped in aged Italian prosciutto, drizzled with cold-pressed olive oil.",
-      cat: "Appetizers",
-      price: 75,
-      cost: 24,
-      dietary: ["Keto", "Gluten-Free", "Dairy-Free"]
-    },
-    {
-      dish: "Lamb Kofta Bites with Cucumber-Dill Tzatziki",
-      notes: "Spiced Karoo ground lamb with fresh mint, garlic, and rich Greek yoghurt tzatziki sauce.",
+      dish: "Roasted Heritage Beetroot & Goat's Cheese Carpaccio",
+      notes: "Thinly shaved golden and ruby beets, whipped chevin goat cheese, candied walnuts, baby wild rocket, and aged fynbos honey reduction.",
       cat: "Appetizers",
       price: 85,
-      cost: 28,
-      dietary: ["Keto", "Gluten-Free", "Halal"]
+      cost: 22,
+      dietary: ["Vegetarian", "Gluten-Free"]
     },
     {
-      dish: "Whipped Feta and Kalamata Olive Tapenade on Cucumber Rounds",
-      notes: "Creamy feta cheese whip paired with briny olive relish on crisp English cucumber slices.",
+      dish: "Pan-Seared Cape West Coast Scallops with Cauliflower Silk",
+      notes: "Sustainably caught scallops, smooth cauliflower velouté, chorizo crumb oil, and fresh pea shoots.",
       cat: "Appetizers",
-      price: 65,
-      cost: 18,
-      dietary: ["Keto", "Vegetarian", "Gluten-Free"]
+      price: 110,
+      cost: 34,
+      dietary: ["Gluten-Free", "Pescatarian"]
     },
     {
-      dish: "Za'atar Crusted Salmon Fillets with Gremolata",
-      notes: "Pan-roasted Atlantic salmon portions coated with Middle Eastern za'atar spice and citrus herb gremolata.",
+      dish: "Smoked Karoo Springbok Loin Carpaccio",
+      notes: "Cold-smoked venison loin, shaved Parmigiano-Reggiano, caper berries, and cold-pressed extra virgin olive oil.",
+      cat: "Appetizers",
+      price: 95,
+      cost: 28,
+      dietary: ["Gluten-Free", "Halal"]
+    },
+    {
+      dish: "Herb-Crusted Karoo Lamb Cutlets with Pinotage Jus",
+      notes: "Rosemary and garlic crust, fondant potatoes, butter-glazed baby rainbow carrots, and rich Pinotage wine reduction.",
+      cat: "Main Courses",
+      price: 185,
+      cost: 56,
+      dietary: ["Halal", "Gluten-Free"]
+    },
+    {
+      dish: "Pan-Roasted Wild Kingklip with Lemon Beurre Blanc",
+      notes: "Line-caught Cape kingklip fillet, crushed new potatoes with fresh dill, sautéed sea greens, and citrus emulsion.",
       cat: "Main Courses",
       price: 165,
-      cost: 58,
-      dietary: ["Keto", "Gluten-Free", "Pescatarian"]
-    },
-    {
-      dish: "Herb-Rubbed Grilled Chicken Thighs with Garlic Toum",
-      notes: "Free-range chicken thighs marinated in oregano, lemon, and garlic, served with fluffy Lebanese toum.",
-      cat: "Main Courses",
-      price: 110,
-      cost: 36,
-      dietary: ["Keto", "Gluten-Free", "Dairy-Free", "Halal"]
-    },
-    {
-      dish: "Mediterranean Beef Skewers with Chimichurri",
-      notes: "Charcoal-grilled prime beef tenderloin skewers drizzled with vibrant parsley-oregano chimichurri.",
-      cat: "Main Courses",
-      price: 135,
       cost: 48,
-      dietary: ["Keto", "Gluten-Free", "Dairy-Free"]
+      dietary: ["Gluten-Free", "Pescatarian"]
     },
     {
-      dish: "Mascarpone & Toasted Walnut Stuffed Strawberries",
-      notes: "Fresh Cape strawberries filled with lightly sweetened mascarpone cream and crushed golden walnuts.",
-      cat: "Desserts",
-      price: 55,
-      cost: 19,
-      dietary: ["Keto", "Vegetarian", "Gluten-Free"]
+      dish: "Wild Forest Mushroom & Truffle Risotto (Vegetarian Main)",
+      notes: "Arborio rice slowly simmered with porcini stock, sautéed wild mushrooms, white truffle oil, and shaved aged Pecorino.",
+      cat: "Main Courses",
+      price: 130,
+      cost: 32,
+      dietary: ["Vegetarian", "Gluten-Free"]
     },
     {
-      dish: "Sugar-Free Dark Chocolate Avocado Mousse Shooters",
-      notes: "Rich 85% cocoa mousse whipped with ripe Haas avocados and unsweetened vanilla cream.",
+      dish: "Amarula & Dark Belgian Chocolate Silk Torte",
+      notes: "70% single-origin Belgian dark chocolate ganache infused with Cape Amarula cream, pistachio crumb, and raspberry coulis.",
       cat: "Desserts",
-      price: 60,
+      price: 75,
       cost: 20,
-      dietary: ["Keto", "Vegan", "Gluten-Free", "Dairy-Free"]
+      dietary: ["Vegetarian"]
+    },
+    {
+      dish: "Cape Citrus Tart with Burnt Meringue & Fynbos Sorbet",
+      notes: "Tangy lemon and blood orange curd, shortbread crust, torched Italian meringue, and indigenous fynbos herb sorbet.",
+      cat: "Desserts",
+      price: 65,
+      cost: 16,
+      dietary: ["Vegetarian"]
     }
   ],
   sideDishes: [
-    "Grilled Halloumi and Shaved Zucchini Ribbon Salad with Fresh Mint & Lemon Vinaigrette",
-    "Roasted Cauliflower Florets with Creamy Sesame Tahini, Pomegranate & Toasted Pine Nuts"
+    "Butter-Glazed Seasonal Baby Vegetables (Rainbow carrots, tenderstem broccoli, sugarsnap peas)",
+    "Dauphinoise Potatoes Layered with Heavy Cream, Roasted Garlic & Fresh Thyme",
+    "Artisan Sourdough Rolls with Whipped Salted Estate Butter & Roasted Garlic Tapenade"
   ],
   dietaryNotes: [
-    "Strictly Ketogenic: Under 12g net carbohydrates per guest serving across all courses.",
-    "100% Grain-Free & Certified Gluten-Free preparation environment.",
-    "Nut-aware service protocol: Walnuts and pine nuts prepared in isolated prep stations.",
-    "Diabetic-friendly: Zero refined sugar, honey, or high-glycemic sweeteners."
+    "Strict Halal meat sourcing certified by NIHT / MJC on all Karoo lamb and beef cuts.",
+    "Certified Gluten-Free stations implemented for designated VIP guests with dedicated utensils.",
+    "Nut-aware kitchen isolation: Candied walnuts and pistachio preparations handled in pastry station.",
+    "SANS 10330 HACCP verified: Seafood and poultry stored in separate 2°C walk-in chillers."
   ],
   beveragePairings: [
     {
-      dish: "Prosciutto-wrapped Asparagus",
-      pairing: "Steenberg 1682 Brut Chardonnay Cap Classique (Crisp mineral acidity cuts through prosciutto richness)"
+      dish: "Beetroot Carpaccio & Scallops",
+      pairing: "Krone Night Nectar Blanc de Blancs Cap Classique (Crisp effervescence with minerality)"
     },
     {
-      dish: "Za'atar Crusted Salmon",
-      pairing: "Springfield Estate Life from Stone Sauvignon Blanc (Flinty lemon notes complement za'atar herbs)"
+      dish: "Pan-Roasted Wild Kingklip",
+      pairing: "Hamilton Russell Vineyards Chardonnay (Elegant oak, pear, and citrus backbone)"
     },
     {
-      dish: "Lamb Kofta & Beef Skewers",
-      pairing: "Kanonkop Kadette Cabernet Sauvignon / Pinotage blend (Full-bodied South African red with berry notes)"
+      dish: "Herb-Crusted Karoo Lamb",
+      pairing: "Meerlust Rubicon Cabernet Sauvignon / Merlot Blend (Velvety tannins and dark berry notes)"
     },
     {
-      dish: "Cocktail Special",
-      pairing: "Keto Cucumber-Mint Gin Spritz with Sugar-Free Indian Tonic and Fresh Lime"
+      dish: "Dark Chocolate Amarula Torte",
+      pairing: "Klein Constantia Vin de Constance (Legendary Cape dessert wine with dried apricot and spice)"
     }
   ],
   miseEnPlace: [
-    "Marinate Karoo lamb with roasted cumin, coriander seeds, garlic, and sea salt 24 hours prior.",
-    "Prepare cucumber-dill tzatziki and Lebanese garlic toum 12 hours prior to allow flavors to meld.",
-    "Blanch asparagus spears in salted boiling water for 90 seconds, shock in ice bath, and wrap in prosciutto.",
-    "Portion Atlantic salmon into 120g cocktail loins; rub skin-side with za'atar spice blend.",
-    "Hull fresh strawberries and pipe vanilla mascarpone filling 3 hours prior to guest arrival; keep chilled at 3°C."
+    "T-48H: Receive certified Karoo lamb racks and portion to 180g cutlets; vacuum-seal with rosemary and garlic.",
+    "T-24H: Prepare Pinotage veal stock reduction; simmer for 18 hours until glossy nappe consistency.",
+    "T-12H: Par-bake Dauphinoise potatoes in combi steam oven at 160°C; press and chill for clean banquet portioning.",
+    "T-6H: Shell and dry West Coast scallops on paper towel; keep under refrigeration at 2°C.",
+    "T-3H: Whip chevin goat cheese mousse and pipe into pastry piping bags; reserve cold.",
+    "T-1H: Pre-warm hot banquet holding cabinets to 72°C in plating line for synchronized service."
   ],
   serviceNotes: [
-    "Passed tray service with butler-style circulating platters for appetizers during the initial 90 minutes.",
-    "Stationary display with heat lamps and live carving service for beef skewers and grilled chicken thighs.",
-    "Tiered black slate boards accented with micro-greens and fresh citrus quarters for main proteins.",
-    "White-glove beverage service with continuous Cap Classique and sparkling spring water replenishment."
+    "18:30 — VIP Reception: Welcome Cap Classique service and tray-passed appetizers.",
+    "19:30 — Guests seated in Grand Ballroom: Sourdough and compound butters set on tables.",
+    "19:45 — Synchronized cover service for first course (tables 1 to 12 served within 6 minutes).",
+    "20:30 — Main course service with heated cloches: Dietary pre-orders flagged with gold table markers.",
+    "21:30 — Dessert & Digestif service: Continuous coffee and tea service until close."
   ],
   deliveryLogistics: [
-    "Refrigerated transport vehicle maintained strictly between 2°C and 4°C throughout transit.",
-    "On-site arrival 90 minutes prior to guest reception for kitchen station setup and equipment warming.",
-    "Zoned drop-off within Cape Town Atlantic Seaboard / City Bowl zone.",
-    "Post-service breakdown, clearing, and eco-friendly organic waste compost bin removal included."
+    "Internal Hotel Service Corridor routes reserved for banquet trolleys from Main Production Kitchen.",
+    "Refrigerated holding cabinet in Grand Ballroom service pantry maintained strictly at 3°C.",
+    "Banquet Captain and 8 dedicated waitrons assigned per 3 tables (1:15 service ratio).",
+    "Post-banquet china, silver, and glassware breakdown directed to primary flight dishwashing suite."
   ],
   shoppingList: [
     {
-      item: "Prosciutto di Parma (Aged)",
-      supplier: "Woolworths",
-      category: "Charcuterie",
-      quantity: "1.2 kg",
-      estCost: "R 450.00",
-      notes: "Thinly sliced, imported"
+      item: "Karoo Lamb Racks (Export Quality)",
+      supplier: "Wholesale Butchery",
+      category: "Meat & Poultry",
+      quantity: "24.0 kg",
+      estCost: "R 7,200.00",
+      notes: "French trimmed, vacuum packed"
     },
     {
-      item: "Fresh Atlantic Salmon Fillets",
-      supplier: "Woolworths",
+      item: "Wild Cape Kingklip Fillets",
+      supplier: "Ocean Catch Seafood Merchant",
       category: "Seafood",
-      quantity: "3.5 kg",
-      estCost: "R 1,200.00",
-      notes: "Skin on, pin-boned"
+      quantity: "22.0 kg",
+      estCost: "R 5,500.00",
+      notes: "Skin-off, pin-boned, day-boat fresh"
     },
     {
-      item: "Imported Greek Halloumi & Feta",
-      supplier: "Woolworths",
-      category: "Dairy",
-      quantity: "1.5 kg",
-      estCost: "R 320.00",
-      notes: "Authentic brine-packed"
+      item: "Cape West Coast Scallops",
+      supplier: "Ocean Catch Seafood Merchant",
+      category: "Seafood",
+      quantity: "6.0 kg",
+      estCost: "R 2,400.00",
+      notes: "U10 dry pack, roe-off"
     },
     {
-      item: "Prime Karoo Lamb Mince (80/20)",
-      supplier: "Local Butcher",
-      category: "Meat",
-      quantity: "2.5 kg",
-      estCost: "R 380.00",
-      notes: "Coarse double grind"
+      item: "Fresh Heritage Golden & Ruby Beets",
+      supplier: "Fresh Produce Market",
+      category: "Fresh Produce",
+      quantity: "15.0 kg",
+      estCost: "R 450.00",
+      notes: "Uniform size for mandoline slicing"
     },
     {
-      item: "A-Grade Beef Tenderloin Skewers",
-      supplier: "Local Butcher",
-      category: "Meat",
-      quantity: "3.0 kg",
-      estCost: "R 540.00",
-      notes: "Pre-skewered 40g bites"
+      item: "Tenderstem Broccoli & Baby Carrots",
+      supplier: "Fresh Produce Market",
+      category: "Fresh Produce",
+      quantity: "18.0 kg",
+      estCost: "R 720.00",
+      notes: "Pre-trimmed, grade 1"
     },
     {
-      item: "Free-Range Deboned Chicken Thighs",
-      supplier: "Local Butcher",
-      category: "Poultry",
-      quantity: "3.0 kg",
-      estCost: "R 310.00",
-      notes: "Skin-on"
+      item: "Chevin Goat Cheese & Aged Pecorino",
+      supplier: "Cold-Chain Dairy & Cheese",
+      category: "Dairy & Cheese",
+      quantity: "8.0 kg",
+      estCost: "R 1,600.00",
+      notes: "Local artisan dairy"
     },
     {
-      item: "Cold Pressed Extra Virgin Olive Oil",
-      supplier: "Checkers",
-      category: "Pantry",
-      quantity: "2.0 L",
-      estCost: "R 220.00",
-      notes: "Estate bottled"
+      item: "Heavy Cream & Salted Estate Butter",
+      supplier: "Cold-Chain Dairy & Cheese",
+      category: "Dairy & Cheese",
+      quantity: "14.0 L/kg",
+      estCost: "R 1,120.00",
+      notes: "38% whipping cream"
     },
     {
-      item: "Fresh Asparagus & Baby Zucchini",
-      supplier: "Checkers",
-      category: "Produce",
-      quantity: "4.0 kg",
-      estCost: "R 280.00",
-      notes: "Farm fresh bunches"
+      item: "Belgian Dark Chocolate (70% Callebaut)",
+      supplier: "Dry Goods & Bakery Depot",
+      category: "Pastry & Dry Goods",
+      quantity: "8.0 kg",
+      estCost: "R 1,440.00",
+      notes: "Callets for smooth ganache"
     },
     {
-      item: "Tahini, Za'atar & Toasted Pine Nuts",
-      supplier: "Checkers",
-      category: "Dry Goods",
-      quantity: "1.0 kg",
-      estCost: "R 190.00",
-      notes: "Lebanese grade"
-    },
-    {
-      item: "Strawberries, Lemons & Greek Yoghurt",
-      supplier: "Checkers",
-      category: "Produce / Dairy",
-      quantity: "3.0 kg",
-      estCost: "R 180.00",
-      notes: "Grade 1 berries"
+      item: "Arborio Rice & White Truffle Oil",
+      supplier: "Dry Goods & Bakery Depot",
+      category: "Pantry & Spices",
+      quantity: "6.0 kg",
+      estCost: "R 680.00",
+      notes: "Italian export grade"
     }
   ],
   allergenMatrix: [
-    { dish: "Prosciutto-wrapped Asparagus", gluten: false, dairy: false, nuts: false, eggs: false, shellfish: false, fish: false, soy: false, dietary: ["Keto", "Gluten-Free", "Dairy-Free"] },
-    { dish: "Lamb Kofta Bites", gluten: false, dairy: true, nuts: false, eggs: false, shellfish: false, fish: false, soy: false, dietary: ["Keto", "Gluten-Free", "Halal"] },
-    { dish: "Whipped Feta on Cucumber", gluten: false, dairy: true, nuts: false, eggs: false, shellfish: false, fish: false, soy: false, dietary: ["Keto", "Vegetarian", "Gluten-Free"] },
-    { dish: "Za'atar Crusted Salmon", gluten: false, dairy: false, nuts: false, eggs: false, shellfish: false, fish: true, soy: false, dietary: ["Keto", "Gluten-Free", "Pescatarian"] },
-    { dish: "Herb-Rubbed Grilled Chicken", gluten: false, dairy: false, nuts: false, eggs: false, shellfish: false, fish: false, soy: false, dietary: ["Keto", "Gluten-Free", "Dairy-Free", "Halal"] },
-    { dish: "Mediterranean Beef Skewers", gluten: false, dairy: false, nuts: false, eggs: false, shellfish: false, fish: false, soy: false, dietary: ["Keto", "Gluten-Free", "Dairy-Free"] },
-    { dish: "Mascarpone Stuffed Strawberries", gluten: false, dairy: true, nuts: true, eggs: false, shellfish: false, fish: false, soy: false, dietary: ["Keto", "Vegetarian", "Gluten-Free"] },
-    { dish: "Dark Chocolate Avocado Mousse", gluten: false, dairy: false, nuts: false, eggs: false, shellfish: false, fish: false, soy: false, dietary: ["Keto", "Vegan", "Gluten-Free", "Dairy-Free"] }
+    { dish: "Heritage Beetroot & Goat's Cheese", gluten: false, dairy: true, nuts: true, eggs: false, shellfish: false, fish: false, soy: false, dietary: ["Vegetarian", "Gluten-Free"], notes: "Chevin goat cheese, walnuts" },
+    { dish: "Pan-Seared Cape Scallops", gluten: false, dairy: true, nuts: false, eggs: false, shellfish: true, fish: false, soy: false, dietary: ["Gluten-Free", "Pescatarian"], notes: "Shellfish, dairy in puree" },
+    { dish: "Karoo Springbok Loin Carpaccio", gluten: false, dairy: true, nuts: false, eggs: false, shellfish: false, fish: false, soy: false, dietary: ["Gluten-Free", "Halal"], notes: "Parmigiano-Reggiano flakes" },
+    { dish: "Herb-Crusted Karoo Lamb Cutlets", gluten: false, dairy: true, nuts: false, eggs: false, shellfish: false, fish: false, soy: false, dietary: ["Halal", "Gluten-Free"], notes: "Gluten-free herb crust, butter in jus" },
+    { dish: "Pan-Roasted Wild Kingklip", gluten: false, dairy: true, nuts: false, eggs: false, shellfish: false, fish: true, soy: false, dietary: ["Gluten-Free", "Pescatarian"], notes: "Fish, lemon beurre blanc butter" },
+    { dish: "Wild Forest Mushroom Risotto", gluten: false, dairy: true, nuts: false, eggs: false, shellfish: false, fish: false, soy: false, dietary: ["Vegetarian", "Gluten-Free"], notes: "Pecorino cheese" },
+    { dish: "Amarula & Belgian Chocolate Torte", gluten: true, dairy: true, nuts: true, eggs: true, shellfish: false, fish: false, soy: true, dietary: ["Vegetarian"], notes: "Cream, liqueur, pistachio, eggs" },
+    { dish: "Cape Citrus Tart & Fynbos Sorbet", gluten: true, dairy: true, nuts: false, eggs: true, shellfish: false, fish: false, soy: false, dietary: ["Vegetarian"], notes: "Shortbread crust, egg meringue" }
   ]
 };

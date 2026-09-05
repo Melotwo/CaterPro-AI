@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { 
   ChefHat, 
   TrendingUp, 
@@ -9,11 +9,45 @@ import {
   PlusCircle, 
   Download, 
   Calculator, 
-  Radio, 
+  MapPin,
   Sparkles,
-  MapPin
+  Utensils,
+  CheckCircle2,
+  Clock,
+  Save,
+  Building2,
+  ArrowRight,
+  Sliders,
+  Layers,
+  Flame,
+  AlertTriangle
 } from 'lucide-react';
 import { Menu } from '../types';
+
+export type HotelOutlet = 
+  | 'banquets'
+  | 'restaurant'
+  | 'room-service'
+  | 'staff-meals'
+  | 'conference'
+  | 'poolside';
+
+export interface OutletConfig {
+  id: HotelOutlet;
+  name: string;
+  badge: string;
+  defaultEventType: string;
+  typicalCovers: number;
+}
+
+export const HOTEL_OUTLETS: OutletConfig[] = [
+  { id: 'banquets', name: 'Grand Ballroom', badge: 'Banqueting Suite', defaultEventType: 'Hotel Banquet', typicalCovers: 120 },
+  { id: 'restaurant', name: 'The Pavilion', badge: 'Fine Dining À la carte', defaultEventType: 'À la carte Service', typicalCovers: 65 },
+  { id: 'conference', name: 'Convention Center', badge: 'Day Delegate (DDR)', defaultEventType: 'Corporate Conference', typicalCovers: 180 },
+  { id: 'room-service', name: 'In-Room Dining', badge: '24/7 Guest Service', defaultEventType: 'In-Room Dining', typicalCovers: 40 },
+  { id: 'staff-meals', name: 'Colleague Canteen', badge: 'Crew & Staff Meals', defaultEventType: 'Staff Meals', typicalCovers: 150 },
+  { id: 'poolside', name: 'Terrace & Pool Deck', badge: 'Cocktails & Small Plates', defaultEventType: 'Cocktail Party', typicalCovers: 85 }
+];
 
 interface CommandCenterProps {
   proposal: Menu;
@@ -21,9 +55,19 @@ interface CommandCenterProps {
   onOpenBeo: () => void;
   onExportPdf: () => void;
   onOpenCalculator: () => void;
+  onOpenRecipe?: () => void;
   onSaveProposal: () => void;
   region: string;
   onUpdateGuestCount: (count: number) => void;
+  onUpdatePerHead?: (price: number) => void;
+  onQuickGenerateMenu?: (params: {
+    outlet: string;
+    eventType: string;
+    covers: number;
+    cuisine: string;
+    notes: string;
+  }) => void;
+  isGeneratingMenu?: boolean;
 }
 
 export const CommandCenter: React.FC<CommandCenterProps> = ({
@@ -32,75 +76,128 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
   onOpenBeo,
   onExportPdf,
   onOpenCalculator,
+  onOpenRecipe,
   onSaveProposal,
   region,
   onUpdateGuestCount,
+  onUpdatePerHead,
+  onQuickGenerateMenu,
+  isGeneratingMenu = false
 }) => {
-  const guestCount = proposal.guestCount || 50;
-  const perHead = proposal.manualPerHead || 450;
-  const deliveryFee = proposal.logistics?.deliveryFee || 1200;
+  const [selectedOutlet, setSelectedOutlet] = useState<HotelOutlet>('banquets');
+  const [quickEventType, setQuickEventType] = useState('Hotel Banquet');
+  const [quickCovers, setQuickCovers] = useState(proposal.guestCount || 120);
+  const [quickCuisine, setQuickCuisine] = useState('Contemporary Cape & Continental');
+  const [quickNotes, setQuickNotes] = useState('Halal meat certification required. 12 vegetarian VIPs. SANS 10330 HACCP cold-chain verification.');
+  const [yieldMultiplier, setYieldMultiplier] = useState<number>(1.0); // 1.0x standard, 1.1x buffer, 1.25x high volume
+
+  const [isAdjustingPrice, setIsAdjustingPrice] = useState(false);
+  const [tempPrice, setTempPrice] = useState(proposal.manualPerHead || 520);
+
+  const guestCount = proposal.guestCount || 120;
+  const perHead = proposal.manualPerHead || 520;
+  const deliveryFee = proposal.logistics?.deliveryFee || 2400;
   const totalValue = (perHead * guestCount) + deliveryFee;
-  const estFoodCost = totalValue * 0.276;
-  const profitMargin = 72.4;
+  
+  // Real hotel benchmark: Target food cost 26%-30%
+  const estFoodCost = totalValue * 0.278;
+  const estGrossProfit = totalValue - estFoodCost;
+  const foodCostPct = Math.round((estFoodCost / totalValue) * 1000) / 10 || 27.8;
+  const contributionMargin = totalValue - estFoodCost;
+
+  const coursesCount = (proposal.menu || []).length || 8;
+
+  const handleOutletSelect = (outlet: OutletConfig) => {
+    setSelectedOutlet(outlet.id);
+    setQuickEventType(outlet.defaultEventType);
+    setQuickCovers(outlet.typicalCovers);
+    onUpdateGuestCount(outlet.typicalCovers);
+  };
+
+  const handleFormulateClick = () => {
+    if (onQuickGenerateMenu) {
+      const activeOutletObj = HOTEL_OUTLETS.find(o => o.id === selectedOutlet);
+      onQuickGenerateMenu({
+        outlet: activeOutletObj ? `${activeOutletObj.name} (${activeOutletObj.badge})` : 'Grand Ballroom',
+        eventType: quickEventType,
+        covers: quickCovers,
+        cuisine: quickCuisine,
+        notes: quickNotes
+      });
+    } else {
+      onNewProposal();
+    }
+  };
+
+  const handleApplyPrice = () => {
+    if (onUpdatePerHead && tempPrice > 0) {
+      onUpdatePerHead(tempPrice);
+      setIsAdjustingPrice(false);
+    }
+  };
 
   return (
-    <div id="command-center-root" className="relative rounded-3xl bg-slate-900 text-white p-6 sm:p-8 md:p-10 border border-slate-800 shadow-2xl overflow-hidden text-left space-y-8 animate-fade-in">
+    <div id="command-center-root" className="relative rounded-3xl bg-white text-slate-900 p-6 sm:p-8 md:p-10 border border-slate-200 shadow-sm overflow-hidden text-left space-y-8 animate-fade-in transition-all">
       
-      {/* Background ambient lighting effects */}
-      <div className="absolute top-0 right-0 -mt-16 -mr-16 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 -mb-16 -ml-16 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+      {/* Fresh energetic background ambient highlights (Lime to Teal / Turquoise) */}
+      <div className="absolute top-0 right-0 -mt-24 -mr-24 w-96 h-96 bg-gradient-to-br from-lime-400/15 via-teal-400/15 to-cyan-400/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 -mb-24 -ml-24 w-80 h-80 bg-gradient-to-tr from-teal-400/10 via-cyan-400/10 to-lime-300/10 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Header bar of Command Center */}
-      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-slate-800/80 pb-6">
-        <div className="space-y-2">
+      {/* TOP HEADER: Brand Identity & Executive Status */}
+      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-slate-100 pb-6">
+        <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-slate-950 shadow-md">
-              <ChefHat className="w-5 h-5 stroke-[2.5]" />
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-lime-500 via-teal-500 to-cyan-600 flex items-center justify-center text-white shadow-md shadow-teal-500/20 ring-2 ring-lime-400/30">
+              <ChefHat className="w-6 h-6 stroke-[2.4]" />
             </div>
-            <span className="text-[11px] font-black uppercase tracking-widest text-emerald-400 bg-emerald-950/60 px-3 py-1 rounded-full border border-emerald-800/60 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              Executive Command Center
+            <span className="text-[11px] font-black uppercase tracking-wider text-teal-800 bg-teal-50 px-3.5 py-1.5 rounded-full border border-teal-200/80 flex items-center gap-2 shadow-2xs">
+              <span className="w-2 h-2 rounded-full bg-lime-500 animate-pulse" />
+              Executive Chef Command Center
             </span>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-800/80 px-2.5 py-1 rounded-full border border-slate-700/60 flex items-center gap-1">
-              <Radio className="w-3 h-3 text-emerald-400 animate-pulse" />
-              Subterranean Sync Active (0-Signal Ready)
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-700 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200 flex items-center gap-1.5">
+              <Building2 className="w-3.5 h-3.5 text-teal-600" />
+              Centralized Hotel Administration Hub
             </span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tight text-white flex items-center gap-3">
-            <span>Catering Mission Control</span>
-          </h2>
-          
-          <p className="text-xs sm:text-sm text-slate-400 max-w-2xl font-medium leading-relaxed">
-            Real-time culinary yield engine, ZAR wholesale indexer, and statutory SANS 10330 compliance matrix.
-          </p>
+          <div>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black uppercase tracking-tight text-slate-900 flex items-center gap-3">
+              <span>Hotel Culinary Operations</span>
+              <span className="text-xs font-mono text-teal-700 bg-gradient-to-r from-lime-100 to-teal-100 px-2.5 py-1 rounded-lg border border-teal-200 normal-case font-bold">
+                Multi-Outlet Suite • 2026
+              </span>
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600 max-w-2xl font-medium leading-relaxed mt-1">
+              Automated menu structure formulation, real-time Escoffier food-cost ratio, portion yield scaling, and statutory SANS 10330 HACCP compliance.
+            </p>
+          </div>
         </div>
 
-        {/* Region & Localization Deck */}
+        {/* Region & Health Safety Status */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 shrink-0">
-          <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-3 px-4 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-slate-700/60 flex items-center justify-center text-slate-300">
-              <MapPin className="w-4 h-4 text-emerald-400" />
+          <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3 px-4 flex items-center gap-3 shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-teal-600 shadow-2xs">
+              <MapPin className="w-4 h-4" />
             </div>
             <div>
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">
-                Target Market
+                Wholesale Index
               </span>
-              <span className="text-xs font-black text-white">
+              <span className="text-xs font-black text-slate-900">
                 {region || 'South Africa (ZAR • R)'}
               </span>
             </div>
           </div>
 
-          <div className="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-3 px-4 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+          <div className="bg-gradient-to-br from-lime-50 to-teal-50 border border-lime-200 rounded-2xl p-3 px-4 flex items-center gap-3 shadow-2xs">
+            <div className="w-9 h-9 rounded-xl bg-white border border-lime-200 flex items-center justify-center text-lime-600 shadow-2xs">
               <ShieldCheck className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">
-                Health Safety
+              <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 block">
+                Safety & Audit
               </span>
-              <span className="text-xs font-black text-emerald-400">
+              <span className="text-xs font-black text-teal-800">
                 SANS 10330 Defensible
               </span>
             </div>
@@ -108,185 +205,419 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
         </div>
       </div>
 
-      {/* Primary KPI HUD Grid */}
-      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        
-        {/* Total Proposal Value */}
-        <div className="bg-slate-800/50 backdrop-blur-md rounded-2xl p-5 border border-slate-700/70 hover:border-emerald-500/40 transition-all space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-              Projected Revenue
-            </span>
-            <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-              <Coins className="w-4 h-4" />
-            </div>
-          </div>
-          <div>
-            <div className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              ZAR {totalValue.toLocaleString('en-ZA', { minimumFractionDigits: 0 })}
-            </div>
-            <p className="text-[10px] font-bold text-slate-400 mt-1">
-              R{perHead} pp × {guestCount} guests + R{deliveryFee} logistics
-            </p>
-          </div>
-          <div className="pt-2 border-t border-slate-700/60 flex items-center justify-between text-[10px]">
-            <span className="text-slate-400 font-medium">50% Booking Deposit:</span>
-            <span className="font-black text-emerald-400">
-              ZAR {(totalValue * 0.5).toLocaleString('en-ZA', { minimumFractionDigits: 0 })}
-            </span>
-          </div>
+      {/* 1. MULTI-OUTLET SELECTOR BAR */}
+      <div className="relative z-10 space-y-3 bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-200/80">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <span className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
+            <Building2 className="w-4 h-4 text-teal-600" />
+            Active Hotel Outlet Awareness
+          </span>
+          <span className="text-[11px] text-slate-500 font-medium">
+            Seamlessly switch between Banquets, Restaurant, Room Service, or Staff Meals
+          </span>
         </div>
 
-        {/* Profit Margin */}
-        <div className="bg-slate-800/50 backdrop-blur-md rounded-2xl p-5 border border-slate-700/70 hover:border-emerald-500/40 transition-all space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-              Gross Profit Yield
-            </span>
-            <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
-              <TrendingUp className="w-4 h-4" />
-            </div>
-          </div>
-          <div>
-            <div className="text-2xl sm:text-3xl font-black text-emerald-400 tracking-tight">
-              {profitMargin}%
-            </div>
-            <p className="text-[10px] font-bold text-slate-400 mt-1">
-              Optimal Commercial Target (&gt;70%)
-            </p>
-          </div>
-          <div className="space-y-1 pt-2 border-t border-slate-700/60">
-            <div className="w-full h-1.5 bg-slate-700 rounded-full overflow-hidden">
-              <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${profitMargin}%` }} />
-            </div>
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+          {HOTEL_OUTLETS.map(outlet => {
+            const isActive = selectedOutlet === outlet.id;
+            return (
+              <button
+                key={outlet.id}
+                type="button"
+                onClick={() => handleOutletSelect(outlet)}
+                className={`p-3 rounded-xl text-left border transition-all flex flex-col justify-between gap-1.5 ${
+                  isActive 
+                    ? 'bg-gradient-to-br from-lime-500 to-teal-600 text-white border-teal-600 shadow-sm shadow-teal-500/20 scale-[1.02]' 
+                    : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200 hover:border-slate-300'
+                }`}
+              >
+                <div>
+                  <div className={`text-xs font-black leading-tight ${isActive ? 'text-white' : 'text-slate-900'}`}>
+                    {outlet.name}
+                  </div>
+                  <div className={`text-[10px] font-medium leading-tight mt-0.5 ${isActive ? 'text-lime-100' : 'text-slate-500'}`}>
+                    {outlet.badge}
+                  </div>
+                </div>
+                <div className={`text-[9px] font-black uppercase tracking-wider ${isActive ? 'text-white/90' : 'text-teal-700'}`}>
+                  ~{outlet.typicalCovers} Covers
+                </div>
+              </button>
+            );
+          })}
         </div>
+      </div>
 
-        {/* Food Cost Ratio */}
-        <div className="bg-slate-800/50 backdrop-blur-md rounded-2xl p-5 border border-slate-700/70 hover:border-emerald-500/40 transition-all space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-              Est. Wholesale Spend
-            </span>
-            <div className="w-7 h-7 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center">
-              <Calculator className="w-4 h-4" />
+      {/* 2. INSTANT MENU GENERATOR ENGINE (Command Center -> Calculator Pipeline) */}
+      <div className="relative z-10 bg-gradient-to-br from-white via-lime-50/20 to-teal-50/30 rounded-2xl border-2 border-teal-200/80 p-5 sm:p-6 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-teal-100 pb-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-gradient-to-r from-lime-500 to-teal-600 flex items-center justify-center text-white text-xs font-bold shadow-2xs">
+              ⚡
             </div>
-          </div>
-          <div>
-            <div className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-              ZAR {estFoodCost.toLocaleString('en-ZA', { minimumFractionDigits: 0 })}
-            </div>
-            <p className="text-[10px] font-bold text-slate-400 mt-1">
-              Food cost ratio: 27.6% of gross billing
-            </p>
-          </div>
-          <div className="pt-2 border-t border-slate-700/60 flex items-center justify-between text-[10px]">
-            <span className="text-slate-400 font-medium">Escoffier Benchmark:</span>
-            <span className="font-black text-emerald-400">Under 32% ✓</span>
-          </div>
-        </div>
-
-        {/* Guest Covers & Quick Stepper */}
-        <div className="bg-slate-800/50 backdrop-blur-md rounded-2xl p-5 border border-slate-700/70 hover:border-emerald-500/40 transition-all space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-              Event Covers
-            </span>
-            <div className="w-7 h-7 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center">
-              <Users className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="flex items-center justify-between gap-2">
             <div>
-              <div className="text-2xl sm:text-3xl font-black text-white tracking-tight">
-                {guestCount}
-              </div>
-              <p className="text-[10px] font-bold text-slate-400 mt-1">
-                Confirmed banquet guests
+              <h3 className="text-sm font-black uppercase tracking-wider text-slate-900">
+                Menu Generator & Costing Pipeline
+              </h3>
+              <p className="text-[11px] text-slate-500 font-medium">
+                Select parameters to auto-generate menu structure and push live costings to Calculator
               </p>
             </div>
-            {/* Quick +/- buttons */}
-            <div className="flex items-center gap-1 bg-slate-700/80 p-1 rounded-xl border border-slate-600">
-              <button
-                onClick={() => onUpdateGuestCount(Math.max(5, guestCount - 5))}
-                className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-900 text-white text-xs font-black transition-all"
-                title="Decrease 5 guests"
-              >
-                -
-              </button>
-              <button
-                onClick={() => onUpdateGuestCount(guestCount + 5)}
-                className="w-7 h-7 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black transition-all"
-                title="Increase 5 guests"
-              >
-                +
-              </button>
+          </div>
+          <span className="text-[10px] font-black uppercase tracking-wider bg-lime-100 text-lime-900 px-3 py-1 rounded-full border border-lime-300 shrink-0">
+            Step 1 of 2: Configure & Generate
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Event Type */}
+          <div>
+            <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1.5">
+              Event / Service Type
+            </label>
+            <select
+              value={quickEventType}
+              onChange={(e) => setQuickEventType(e.target.value)}
+              className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition-all cursor-pointer shadow-2xs"
+            >
+              <option>Hotel Banquet</option>
+              <option>À la carte Service</option>
+              <option>Corporate Conference</option>
+              <option>Staff Meals</option>
+              <option>Cocktail Party</option>
+              <option>Wedding Reception</option>
+              <option>In-Room Dining</option>
+              <option>VIP Private Dinner</option>
+            </select>
+          </div>
+
+          {/* Covers / Guests */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                Guest Covers
+              </label>
+              <span className="text-[10px] font-black text-teal-700">{quickCovers} pax</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min="5"
+                max="2500"
+                value={quickCovers}
+                onChange={(e) => {
+                  const val = Number(e.target.value) || 1;
+                  setQuickCovers(val);
+                  onUpdateGuestCount(val);
+                }}
+                className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition-all shadow-2xs"
+              />
+              <div className="flex gap-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const c = Math.max(10, quickCovers - 25);
+                    setQuickCovers(c);
+                    onUpdateGuestCount(c);
+                  }}
+                  className="px-2 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-bold text-slate-700"
+                >
+                  -25
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const c = quickCovers + 25;
+                    setQuickCovers(c);
+                    onUpdateGuestCount(c);
+                  }}
+                  className="px-2 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg text-xs font-bold text-slate-700"
+                >
+                  +25
+                </button>
+              </div>
             </div>
           </div>
-          <div className="pt-2 border-t border-slate-700/60 flex items-center justify-between text-[10px]">
-            <span className="text-slate-400 font-medium">Portion Multiplier:</span>
-            <span className="font-black text-white">{(guestCount / 50).toFixed(2)}x yield</span>
+
+          {/* Cuisine Style */}
+          <div>
+            <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1.5">
+              Cuisine Style & Heritage
+            </label>
+            <select
+              value={quickCuisine}
+              onChange={(e) => setQuickCuisine(e.target.value)}
+              className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition-all cursor-pointer shadow-2xs"
+            >
+              <option>Contemporary Cape & Continental</option>
+              <option>Classical French & Escoffier</option>
+              <option>Modern European Banquet</option>
+              <option>South African Heritage & Braai</option>
+              <option>Mediterranean Coastal & Seafood</option>
+              <option>Executive Asian Fusion</option>
+              <option>Nutritional Plant-Forward</option>
+            </select>
+          </div>
+
+          {/* Yield / Portion Multiplier */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                Kitchen Yield Multiplier
+              </label>
+              <span className="text-[10px] font-black text-lime-700">
+                {yieldMultiplier === 1.0 ? '1.0x (Standard)' : yieldMultiplier === 1.1 ? '1.1x (+10% Buffet)' : '1.25x (+25% High-Vol)'}
+              </span>
+            </div>
+            <div className="grid grid-cols-3 gap-1">
+              {[1.0, 1.1, 1.25].map(mult => (
+                <button
+                  key={mult}
+                  type="button"
+                  onClick={() => setYieldMultiplier(mult)}
+                  className={`py-2 text-[10px] font-black rounded-lg border transition-all ${
+                    yieldMultiplier === mult 
+                      ? 'bg-lime-500 text-white border-lime-600 shadow-2xs' 
+                      : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
+                  }`}
+                >
+                  {mult}x
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Notes & Generate Action */}
+        <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3 pt-2">
+          <div className="flex-1">
+            <input
+              type="text"
+              value={quickNotes}
+              onChange={(e) => setQuickNotes(e.target.value)}
+              placeholder="Special notes: Allergens, VIP tables, Halal requirements, service timings..."
+              className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition-all shadow-2xs font-medium"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleFormulateClick}
+              disabled={isGeneratingMenu}
+              className="px-6 py-3 bg-gradient-to-r from-lime-500 via-teal-600 to-cyan-600 hover:from-lime-400 hover:to-teal-500 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-teal-500/20 flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 cursor-pointer"
+            >
+              {isGeneratingMenu ? (
+                <>
+                  <span className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Formulating Menu & Costings...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 text-lime-200" />
+                  <span>Generate Menu & Auto-Cost</span>
+                </>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={onOpenCalculator}
+              className="px-4 py-3 bg-white hover:bg-slate-50 text-teal-800 border border-teal-300 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+            >
+              <Calculator className="w-4 h-4 text-teal-600" />
+              <span className="hidden sm:inline">Open Calculator</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. PRIMARY FINANCIAL TELEMETRY HUD (4 Crisp Modern Cards) */}
+      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+        
+        {/* Projected Revenue */}
+        <div className="bg-slate-50/90 rounded-2xl p-5 border border-slate-200/90 hover:border-teal-400 transition-all space-y-3 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+              <Coins className="w-3.5 h-3.5 text-teal-600" />
+              Projected Revenue
+            </span>
+            <button
+              type="button"
+              onClick={() => setIsAdjustingPrice(!isAdjustingPrice)}
+              className="text-[10px] font-bold text-teal-700 hover:text-teal-900 underline cursor-pointer"
+            >
+              {isAdjustingPrice ? 'Cancel' : 'Adjust'}
+            </button>
+          </div>
+
+          <div>
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              ZAR {totalValue.toLocaleString('en-ZA', { minimumFractionDigits: 0 })}
+            </div>
+            <p className="text-[10px] font-bold text-slate-500 mt-1">
+              R{perHead} / guest • {guestCount} covers
+            </p>
+          </div>
+
+          {isAdjustingPrice && (
+            <div className="pt-2 border-t border-slate-200 space-y-2">
+              <div className="flex items-center gap-2">
+                <input
+                  type="number"
+                  value={tempPrice}
+                  onChange={(e) => setTempPrice(Number(e.target.value))}
+                  className="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900"
+                />
+                <button
+                  type="button"
+                  onClick={handleApplyPrice}
+                  className="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-[10px] font-black uppercase"
+                >
+                  Apply
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+            <div className="bg-gradient-to-r from-lime-500 to-teal-500 h-1.5 rounded-full w-4/5" />
+          </div>
+        </div>
+
+        {/* Escoffier Food Cost % Target */}
+        <div className="bg-slate-50/90 rounded-2xl p-5 border border-slate-200/90 hover:border-lime-400 transition-all space-y-3 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+              <TrendingUp className="w-3.5 h-3.5 text-lime-600" />
+              Food Cost Ratio
+            </span>
+            <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-lime-100 text-lime-800 border border-lime-300">
+              Target &lt; 30%
+            </span>
+          </div>
+
+          <div>
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-baseline gap-2">
+              <span>{foodCostPct}%</span>
+              <span className="text-xs font-bold text-lime-700">✓ On Target</span>
+            </div>
+            <p className="text-[10px] font-bold text-slate-500 mt-1">
+              Est. Raw Food Spend: ZAR {estFoodCost.toLocaleString('en-ZA', { maximumFractionDigits: 0 })}
+            </p>
+          </div>
+
+          <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+            <div className="bg-lime-500 h-1.5 rounded-full" style={{ width: `${foodCostPct}%` }} />
+          </div>
+        </div>
+
+        {/* Contribution Margin */}
+        <div className="bg-slate-50/90 rounded-2xl p-5 border border-slate-200/90 hover:border-cyan-400 transition-all space-y-3 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+              <Coins className="w-3.5 h-3.5 text-cyan-600" />
+              Contribution Margin
+            </span>
+            <span className="text-[9px] font-black text-cyan-800 bg-cyan-50 px-2 py-0.5 rounded-full border border-cyan-200">
+              {Math.round(100 - foodCostPct)}% Margin
+            </span>
+          </div>
+
+          <div>
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+              ZAR {contributionMargin.toLocaleString('en-ZA', { maximumFractionDigits: 0 })}
+            </div>
+            <p className="text-[10px] font-bold text-slate-500 mt-1">
+              Gross Profit before labor & venue overheads
+            </p>
+          </div>
+
+          <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+            <div className="bg-gradient-to-r from-teal-500 to-cyan-500 h-1.5 rounded-full" style={{ width: `${100 - foodCostPct}%` }} />
+          </div>
+        </div>
+
+        {/* Banquet Covers & Portion Scaling */}
+        <div className="bg-slate-50/90 rounded-2xl p-5 border border-slate-200/90 hover:border-teal-400 transition-all space-y-3 shadow-2xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+              <Users className="w-3.5 h-3.5 text-teal-600" />
+              Kitchen Yield Scaling
+            </span>
+            <span className="text-[9px] font-black text-teal-800 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200">
+              {coursesCount} Plated Courses
+            </span>
+          </div>
+
+          <div>
+            <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-baseline gap-2">
+              <span>{Math.round(guestCount * yieldMultiplier)}</span>
+              <span className="text-xs font-bold text-slate-500">Portions</span>
+            </div>
+            <p className="text-[10px] font-bold text-slate-500 mt-1">
+              {yieldMultiplier > 1.0 ? `+${Math.round((yieldMultiplier - 1.0) * 100)}% production buffer applied` : 'Standard portion sync 1:1'}
+            </p>
+          </div>
+
+          <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
+            <div className="bg-teal-500 h-1.5 rounded-full w-full" />
           </div>
         </div>
 
       </div>
 
-      {/* Active Proposal Quick Summary & Tactical Actions Deck */}
-      <div className="relative z-10 bg-slate-800/80 rounded-2xl p-5 sm:p-6 border border-slate-700/80 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-        
-        {/* Left: Active Event Info */}
-        <div className="space-y-1.5 max-w-xl">
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 text-[10px] font-black rounded-full uppercase tracking-wider border border-emerald-500/30">
-              Active Event Loaded
-            </span>
-            <span className="text-xs font-bold text-slate-400">
-              {proposal.beoNumber || 'BEO-2025-8842'}
-            </span>
-          </div>
-          <h4 className="text-lg font-black text-white">
-            {proposal.title || proposal.menuTitle || 'Mediterranean Keto Cocktail Soirée'}
-          </h4>
-          <p className="text-xs text-slate-400 line-clamp-1">
-            {proposal.roomLocation || 'Garden Terrace & Sunset Pavilion'} • {proposal.eventDate || '12/27/2025'} • {(proposal.menu || []).length} curated courses
-          </p>
+      {/* 4. EXECUTIVE ACTIONS CONTROL BAR */}
+      <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-100">
+        <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
+          <span className="w-2 h-2 rounded-full bg-lime-500 animate-ping" />
+          <span>Active BEO:</span>
+          <span className="font-mono text-teal-800 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
+            {proposal.beoNumber || 'BEO-2026-HOTEL-784'}
+          </span>
+          <span className="text-slate-400">•</span>
+          <span>{proposal.roomLocation || 'Grand Ballroom & Banqueting Deck'}</span>
         </div>
 
-        {/* Right: Tactical Action Buttons */}
         <div className="flex flex-wrap items-center gap-2.5">
           <button
-            onClick={onNewProposal}
-            className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-md flex items-center gap-2"
-          >
-            <PlusCircle className="w-4 h-4" />
-            <span>Draft New Proposal</span>
-          </button>
-
-          <button
-            onClick={onOpenBeo}
-            className="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-2 border border-slate-600"
-          >
-            <FileText className="w-4 h-4 text-emerald-400" />
-            <span>Banquet BEO</span>
-          </button>
-
-          <button
+            type="button"
             onClick={onOpenCalculator}
-            className="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-2 border border-slate-600"
+            className="px-4 py-2.5 bg-gradient-to-r from-lime-500 to-teal-600 hover:from-lime-400 hover:to-teal-500 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5 cursor-pointer active:scale-95"
           >
-            <Calculator className="w-4 h-4 text-purple-400" />
-            <span>Yield Calculator</span>
+            <Calculator className="w-3.5 h-3.5" />
+            <span>Open Mission Control Calculator</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
 
           <button
-            onClick={onExportPdf}
-            className="px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-2 border border-slate-600"
+            type="button"
+            onClick={onOpenBeo}
+            className="px-4 py-2.5 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
           >
-            <Download className="w-4 h-4 text-blue-400" />
+            <FileText className="w-3.5 h-3.5 text-teal-600" />
+            <span>Banquet Event Order (BEO)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={onExportPdf}
+            className="px-4 py-2.5 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+          >
+            <Download className="w-3.5 h-3.5 text-slate-600" />
             <span>Export PDF</span>
           </button>
-        </div>
 
+          <button
+            type="button"
+            onClick={onSaveProposal}
+            className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+          >
+            <Save className="w-3.5 h-3.5 text-lime-400" />
+            <span>Save State</span>
+          </button>
+        </div>
       </div>
 
     </div>

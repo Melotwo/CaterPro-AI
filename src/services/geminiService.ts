@@ -144,6 +144,10 @@ export const generateMenuFromApi = async (params: {
   const timeoutId = setTimeout(() => controller.abort(), 60000);
 
   try {
+    const event_type = params.eventType || "Hotel Banquet";
+    const cuisine_style = params.cuisine || "Gourmet";
+    const imagePrompt = `Professional food photography, high-end catering spread for a ${event_type}, featuring authentic ${cuisine_style} dishes, warm ambient lighting, elegant plating, shallow depth of field, 8k resolution.`;
+
     // Attempt server-side API proxy first
     try {
       const srvRes = await fetch('/api/gemini/generate-menu', {
@@ -157,7 +161,7 @@ export const generateMenuFromApi = async (params: {
         if (json && json.data) {
           clearInterval(intervalId);
           clearTimeout(timeoutId);
-          return json.data;
+          return { data: json.data };
         }
       }
     } catch (e) {
@@ -170,40 +174,42 @@ export const generateMenuFromApi = async (params: {
       clearInterval(intervalId);
       clearTimeout(timeoutId);
       return {
-        title: `${params.eventType || 'Banquet'} Culinary Showcase`,
-        description: `Authoritative banquet proposal curated for ${params.guestCount} guests in ${region}, featuring locally sourced ingredients compliant with SANS 10330 standards.`,
-        targetProfitMargin: 76,
-        totalProposalValue: params.guestCount * 450,
-        perHeadPrice: 450,
-        generatedImagePrompt: imagePrompt,
-        items: [
-          { name: "Prosciutto-wrapped Asparagus", description: "Grade-A asparagus spears with aged prosciutto and lemon olive oil", costPerHead: 24.50, price: 85.00, type: "appetizer", allergens: [], dietary: ["Gluten-Free"] },
-          { name: "Lamb Kofta Bites with Tzatziki", description: "Free-range Karoo lamb mince with cucumber-dill yoghurt sauce", costPerHead: 28.20, price: 95.00, type: "appetizer", allergens: ["Dairy"], dietary: ["Halal"] },
-          { name: "Za'atar Crusted Salmon Fillets", description: "Pan-seared Atlantic salmon with fresh gremolata and olive oil", costPerHead: 58.00, price: 210.00, type: "main", allergens: ["Fish", "Sesame"], dietary: ["Pescatarian", "Gluten-Free"] },
-          { name: "Herb-Rubbed Grilled Chicken Thighs", description: "Succulent free-range chicken with emulsified garlic toum", costPerHead: 36.50, price: 165.00, type: "main", allergens: [], dietary: ["Halal", "Dairy-Free"] },
-          { name: "Mascarpone & Walnut Stuffed Strawberries", description: "Jumbo fresh strawberries with sweet mascarpone and toasted walnuts", costPerHead: 19.20, price: 75.00, type: "dessert", allergens: ["Dairy", "Nuts"], dietary: ["Vegetarian"] }
-        ],
-        allergenMatrix: [
-          { dish: "Prosciutto-wrapped Asparagus", category: "Appetizers", gluten: false, dairy: false, nuts: false, eggs: false, shellfish: false, soy: false, fish: false, dietary: ["Gluten-Free"], notes: "Pork product" },
-          { dish: "Lamb Kofta Bites", category: "Appetizers", gluten: false, dairy: true, nuts: false, eggs: false, shellfish: false, soy: false, fish: false, dietary: ["Halal"], notes: "Dairy in yoghurt" },
-          { dish: "Za'atar Crusted Salmon", category: "Main Courses", gluten: false, dairy: false, nuts: false, eggs: false, shellfish: false, soy: false, fish: true, dietary: ["Pescatarian"], notes: "Toasted sesame in za'atar" },
-          { dish: "Herb-Rubbed Chicken Thighs", category: "Main Courses", gluten: false, dairy: false, nuts: false, eggs: false, shellfish: false, soy: false, fish: false, dietary: ["Halal"], notes: "Egg-free toum" },
-          { dish: "Mascarpone Stuffed Strawberries", category: "Desserts", gluten: false, dairy: true, nuts: true, eggs: false, shellfish: false, soy: false, fish: false, dietary: ["Vegetarian"], notes: "Tree nuts present" }
-        ],
-        shoppingList: [
-          { name: "Karoo Lamb Shoulder Mince", quantity: Math.round(params.guestCount * 0.08 * 10) / 10, unit: "kg", unitPrice: 190, linkedDish: "Lamb Kofta Bites" },
-          { name: "Atlantic Salmon Fillets", quantity: Math.round(params.guestCount * 0.16 * 10) / 10, unit: "kg", unitPrice: 280, linkedDish: "Za'atar Crusted Salmon" },
-          { name: "Free-Range Chicken Thighs", quantity: Math.round(params.guestCount * 0.18 * 10) / 10, unit: "kg", unitPrice: 130, linkedDish: "Herb-Rubbed Chicken Thighs" },
-          { name: "Green Asparagus Spears", quantity: Math.round(params.guestCount * 4), unit: "spears", unitPrice: 2.2, linkedDish: "Prosciutto-wrapped Asparagus" },
-          { name: "Export Strawberries", quantity: Math.round(params.guestCount * 4), unit: "pcs", unitPrice: 2.2, linkedDish: "Mascarpone Strawberries" }
-        ],
-        logistics: {
-          staffRequired: `${Math.ceil(params.guestCount / 20)} Head Chefs/Cooks, ${Math.ceil(params.guestCount / 15)} Banquet Waitrons`,
-          equipmentNeeded: ["Combi Steam Oven", "Blast Chiller", "Induction Burners", "Insulated Hot Boxes", "Refrigerated Van"],
-          serviceNotes: [
-            "Maintain SANS 10330 HACCP cold-holding below 4°C during transport.",
-            "Allergen station isolation protocol strictly enforced for walnuts and dairy."
-          ]
+        data: {
+          title: `${params.eventType || 'Banquet'} Culinary Showcase`,
+          description: `Authoritative banquet proposal curated for ${params.guestCount} guests in ${region}, featuring locally sourced ingredients compliant with SANS 10330 standards.`,
+          targetProfitMargin: 76,
+          totalProposalValue: params.guestCount * 450,
+          perHeadPrice: 450,
+          generatedImagePrompt: imagePrompt,
+          items: [
+            { name: "Prosciutto-wrapped Asparagus", description: "Grade-A asparagus spears with aged prosciutto and lemon olive oil", costPerHead: 24.50, price: 85.00, type: "appetizer", allergens: [], dietary: ["Gluten-Free"] },
+            { name: "Lamb Kofta Bites with Tzatziki", description: "Free-range Karoo lamb mince with cucumber-dill yoghurt sauce", costPerHead: 28.20, price: 95.00, type: "appetizer", allergens: ["Dairy"], dietary: ["Halal"] },
+            { name: "Za'atar Crusted Salmon Fillets", description: "Pan-seared Atlantic salmon with fresh gremolata and olive oil", costPerHead: 58.00, price: 210.00, type: "main", allergens: ["Fish", "Sesame"], dietary: ["Pescatarian", "Gluten-Free"] },
+            { name: "Herb-Rubbed Grilled Chicken Thighs", description: "Succulent free-range chicken with emulsified garlic toum", costPerHead: 36.50, price: 165.00, type: "main", allergens: [], dietary: ["Halal", "Dairy-Free"] },
+            { name: "Mascarpone & Walnut Stuffed Strawberries", description: "Jumbo fresh strawberries with sweet mascarpone and toasted walnuts", costPerHead: 19.20, price: 75.00, type: "dessert", allergens: ["Dairy", "Nuts"], dietary: ["Vegetarian"] }
+          ],
+          allergenMatrix: [
+            { dish: "Prosciutto-wrapped Asparagus", category: "Appetizers", gluten: false, dairy: false, nuts: false, eggs: false, shellfish: false, soy: false, fish: false, dietary: ["Gluten-Free"], notes: "Pork product" },
+            { dish: "Lamb Kofta Bites", category: "Appetizers", gluten: false, dairy: true, nuts: false, eggs: false, shellfish: false, soy: false, fish: false, dietary: ["Halal"], notes: "Dairy in yoghurt" },
+            { dish: "Za'atar Crusted Salmon", category: "Main Courses", gluten: false, dairy: false, nuts: false, eggs: false, shellfish: false, soy: false, fish: true, dietary: ["Pescatarian"], notes: "Toasted sesame in za'atar" },
+            { dish: "Herb-Rubbed Chicken Thighs", category: "Main Courses", gluten: false, dairy: false, nuts: false, eggs: false, shellfish: false, soy: false, fish: false, dietary: ["Halal"], notes: "Egg-free toum" },
+            { dish: "Mascarpone Stuffed Strawberries", category: "Desserts", gluten: false, dairy: true, nuts: true, eggs: false, shellfish: false, soy: false, fish: false, dietary: ["Vegetarian"], notes: "Tree nuts present" }
+          ],
+          shoppingList: [
+            { name: "Karoo Lamb Shoulder Mince", quantity: Math.round(params.guestCount * 0.08 * 10) / 10, unit: "kg", unitPrice: 190, linkedDish: "Lamb Kofta Bites" },
+            { name: "Atlantic Salmon Fillets", quantity: Math.round(params.guestCount * 0.16 * 10) / 10, unit: "kg", unitPrice: 280, linkedDish: "Za'atar Crusted Salmon" },
+            { name: "Free-Range Chicken Thighs", quantity: Math.round(params.guestCount * 0.18 * 10) / 10, unit: "kg", unitPrice: 130, linkedDish: "Herb-Rubbed Chicken Thighs" },
+            { name: "Green Asparagus Spears", quantity: Math.round(params.guestCount * 4), unit: "spears", unitPrice: 2.2, linkedDish: "Prosciutto-wrapped Asparagus" },
+            { name: "Export Strawberries", quantity: Math.round(params.guestCount * 4), unit: "pcs", unitPrice: 2.2, linkedDish: "Mascarpone Strawberries" }
+          ],
+          logistics: {
+            staffRequired: `${Math.ceil(params.guestCount / 20)} Head Chefs/Cooks, ${Math.ceil(params.guestCount / 15)} Banquet Waitrons`,
+            equipmentNeeded: ["Combi Steam Oven", "Blast Chiller", "Induction Burners", "Insulated Hot Boxes", "Refrigerated Van"],
+            serviceNotes: [
+              "Maintain SANS 10330 HACCP cold-holding below 4°C during transport.",
+              "Allergen station isolation protocol strictly enforced for walnuts and dairy."
+            ]
+          }
         }
       };
     }
@@ -223,10 +229,6 @@ export const generateMenuFromApi = async (params: {
     if (restrictions.length > 0 || params.specialDietaryNotes) {
       dietaryText = `Mandatory Dietary & Allergen Protocols:\n- Selected Requirements: ${restrictions.length > 0 ? restrictions.join(', ') : 'Standard safety guidelines'}\n- Specific Dietary Notes: ${params.specialDietaryNotes || 'None specified'}\nCRITICAL: You must incorporate clear options or safe adaptations for these requirements in the menu and allergen matrix.`;
     }
-
-    const event_type = params.eventType || "Hotel Banquet";
-    const cuisine_style = params.cuisine || "Gourmet";
-    const imagePrompt = `Professional food photography, high-end catering spread for a ${event_type}, featuring authentic ${cuisine_style} dishes, warm ambient lighting, elegant plating, shallow depth of field, 8k resolution.`;
 
     const structurePrompt = `{
   "title": "string",

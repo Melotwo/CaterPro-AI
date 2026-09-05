@@ -77,7 +77,12 @@ export interface Menu {
   groundingChunks?: GroundingChunk[];
   theme?: string;
   deliveryFeeStructure?: DeliveryFeeStructure;
-  logistics?: { deliveryFee: number }; // Compatibility with App.tsx
+  logistics?: {
+    deliveryFee: number;
+    staffRequired?: string;
+    equipmentNeeded?: string[];
+    serviceNotes?: string[];
+  }; // Compatibility with App.tsx
   guestCount?: number;
   showDeposit?: boolean;
   manualTotal?: number;

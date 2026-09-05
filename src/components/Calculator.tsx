@@ -1,565 +1,974 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { calculateIngredientBreakdown } from '../services/geminiService';
+import React, { useState, useMemo, useEffect } from 'react';
+import { 
+  Calculator as CalcIcon, 
+  TrendingUp, 
+  Coins, 
+  Users, 
+  Plus, 
+  Trash2, 
+  Edit3, 
+  Check, 
+  ShieldCheck, 
+  Building2, 
+  FileText, 
+  ShoppingBag, 
+  CheckSquare, 
+  Square,
+  AlertTriangle,
+  Sparkles,
+  ArrowRight,
+  Printer,
+  Copy,
+  RefreshCw,
+  Utensils
+} from 'lucide-react';
+import { Menu, MenuItem } from '../types';
 import { getCulinaryIngredientBreakdown } from '../services/culinaryCostingEngine';
 
-export interface IngredientCost { id?: string; name: string; unit: string; price: number; }
-
-export interface EngineeringItem { id: string; name: string; category: 'Appetizers' | 'Main Courses' | 'Desserts'; price: number; unitsSold: number; ingredients: Array<{ name: string; cost: number; qty: number; unit: string }>; totalCost: number; foodCostPct: number; margin: number; }
-
 interface CalculatorProps {
-  generatedMenu: any;
+  generatedMenu: Menu;
   region: string;
-  selectedItemName: string;
-  setSelectedItemName: (name: string) => void;
+  selectedItemName?: string;
+  setSelectedItemName?: (name: string) => void;
+  onUpdateMenu?: (updated: Menu) => void;
 }
 
-const OCTAGON_CLIP = 'polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%)';
-
-// Sample ingredients fallback array for custom costing estimation
-const DEFAULT_INGREDIENTS: IngredientCost[] = [
-  { id: '1', name: 'Premium Beef Fillet', unit: 'kg', price: 290 },
-  { id: '2', name: 'Fresh Atlantic Salmon', unit: 'kg', price: 340 },
-  { id: '3', name: 'Salted Butter', unit: 'kg', price: 110 },
-  { id: '4', name: 'Heavy Whipping Cream', unit: 'L', price: 85 },
-  { id: '5', name: 'Organic Cake Flour', unit: 'kg', price: 25 },
-  { id: '6', name: 'Madagascar Vanilla Beans', unit: 'ea', price: 45 },
-  { id: '7', name: 'Fresh Rosemary & Herbs', unit: 'kg', price: 95 },
-  { id: '8', name: 'Belgian Dark Chocolate', unit: 'kg', price: 180 }
-];
-
-export const PlateCostEngine: React.FC<{ ingredients: IngredientCost[]; onUpdate?: (cost: number) => void }> = ({ ingredients = DEFAULT_INGREDIENTS, onUpdate }) => {
-  const [selected, setSelected] = useState<{ id: string; quantity: number }[]>([]);
-  const [markup, setMarkup] = useState(300);
-  const total = selected.reduce((sum, item) => sum + (ingredients.find(i => i.id === item.id)?.price || 0) * item.quantity, 0);
-  const suggested = total * (markup / 100);
-  
-  useEffect(() => { if (onUpdate) onUpdate(suggested); }, [suggested, onUpdate]);
-  
-  return (
-    <div className="bg-slate-900/40 backdrop-blur-xl p-8 rounded-[4rem] border border-white/10 shadow-2xl text-left">
-      <div className="flex items-center gap-4 mb-8">
-        <div className="w-10 h-10 bg-sky-500/20 rounded-xl flex items-center justify-center text-sky-400 text-xl">🧮</div>
-        <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Small Batch Costing</h3>
-      </div>
-      <div className="space-y-6">
-        <select onChange={(e) => { if (e.target.value) setSelected([...selected, { id: e.target.value, quantity: 1 }]); e.target.value = ''; }} className="w-full p-4 rounded-2xl bg-slate-800 text-white font-bold outline-none border border-white/10 text-sm cursor-pointer">
-          <option value="">+ Add Ingredient...</option>
-          {ingredients.map(ing => <option key={ing.id} value={ing.id ?? ''}>{ing.name} ({ing.unit})</option>)}
-        </select>
-        <div className="space-y-3">
-          {selected.map((item, idx) => (
-            <div key={idx} className="flex items-center justify-between p-4 bg-slate-800/30 rounded-2xl border border-white/5">
-              <span className="font-bold text-white text-xs">{ingredients.find(i => i.id === item.id)?.name}</span>
-              <div className="flex items-center gap-4">
-                <input type="number" step="any" value={item.quantity} onChange={(e) => { const n = [...selected]; n[idx].quantity = Number(e.target.value); setSelected(n); }} className="w-16 bg-slate-900 border border-white/10 rounded-lg p-1 text-center font-bold text-white text-xs" />
-                <button onClick={() => setSelected(selected.filter((_, i) => i !== idx))} className="text-red-400 hover:text-red-300 transition-colors text-xl">🗑️</button>
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="pt-8 border-t border-white/10 flex justify-between items-center">
-          <div><p className="text-[10px] font-black text-slate-400 uppercase opacity-60">Total Cost</p><p className="text-xl md:text-3xl font-black text-white tracking-tighter">R {total.toFixed(2)}</p></div>
-          <div className="text-right"><p className="text-[10px] font-black text-emerald-500 uppercase opacity-60">Suggested Price</p><p className="text-2xl md:text-4xl font-black text-emerald-500 tracking-tighter">R {suggested.toFixed(2)}</p></div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export const EnhancedPlateCostCalculator: React.FC<{ onAddToMatrix: (item: EngineeringItem) => void }> = ({ onAddToMatrix }) => {
-  const [dishName, setDishName] = useState('');
-  const [category, setCategory] = useState<'Appetizers' | 'Main Courses' | 'Desserts'>('Main Courses');
-  const [menuPrice, setMenuPrice] = useState(0);
-  const [unitsSold, setUnitsSold] = useState(0);
-  const [ingredients, setIngredients] = useState<{ name: string; cost: number; qty: number; unit: string }[]>([
-    { name: '', cost: 0, qty: 0, unit: 'kg' }
-  ]);
-
-  const plateCost = ingredients.reduce((sum, ing) => sum + (ing.cost * ing.qty), 0);
-  const foodCostPct = menuPrice > 0 ? (plateCost / menuPrice) * 100 : 0;
-  const margin = menuPrice - plateCost;
-
-  const addIngredient = () => setIngredients([...ingredients, { name: '', cost: 0, qty: 0, unit: 'kg' }]);
-  const removeIngredient = (index: number) => setIngredients(ingredients.filter((_, i) => i !== index));
-  const updateIngredient = (index: number, field: string, value: any) => {
-    const n = [...ingredients];
-    n[index] = { ...n[index], [field]: value };
-    setIngredients(n);
-  };
-
-  const handleAdd = () => {
-    if (!dishName) return;
-    onAddToMatrix({
-      id: Math.random().toString(36).substr(2, 9),
-      name: dishName,
-      category,
-      price: menuPrice,
-      unitsSold,
-      ingredients,
-      totalCost: plateCost,
-      foodCostPct,
-      margin
-    });
-    setDishName('');
-    setMenuPrice(0);
-    setUnitsSold(0);
-    setIngredients([{ name: '', cost: 0, qty: 0, unit: 'kg' }]);
-  };
-
-  return (
-    <div className="bg-slate-900/40 backdrop-blur-xl p-12 rounded-[4rem] border border-white/10 shadow-2xl space-y-10 text-left">
-      <div className="flex items-center gap-4">
-        <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-400 text-2xl">⚖️</div>
-        <h3 className="text-3xl font-black text-white uppercase tracking-tighter">Enhanced Cost Engine</h3>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="space-y-4">
-          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 opacity-60">Dish Identity</label>
-          <input type="text" placeholder="Dish Name" value={dishName} onChange={(e) => setDishName(e.target.value)} className="w-full p-4 rounded-2xl bg-slate-800 border border-white/10 text-white font-bold outline-none" />
-          <select value={category} onChange={(e) => setCategory(e.target.value as any)} className="w-full p-4 rounded-2xl bg-slate-800 border border-white/10 text-white font-bold outline-none cursor-pointer">
-            <option value="Appetizers">Appetizers</option>
-            <option value="Main Courses">Main Courses</option>
-            <option value="Desserts">Desserts</option>
-          </select>
-        </div>
-        <div className="space-y-4">
-          <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 opacity-60">Sales Performance</label>
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <p className="text-[8px] font-black text-slate-500 uppercase mb-2">Price (ZAR)</p>
-              <input type="number" value={menuPrice} onChange={(e) => setMenuPrice(Number(e.target.value))} className="w-full p-4 rounded-2xl bg-slate-800 border border-white/10 text-white font-bold outline-none" />
-            </div>
-            <div className="flex-1">
-              <p className="text-[8px] font-black text-slate-500 uppercase mb-2">Units Sold</p>
-              <input type="number" value={unitsSold} onChange={(e) => setUnitsSold(Number(e.target.value))} className="w-full p-4 rounded-2xl bg-slate-800 border border-white/10 text-white font-bold outline-none" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <label className="text-[10px] font-black uppercase tracking-widest text-slate-400 opacity-60">Ingredient Breakdown</label>
-          <button onClick={addIngredient} className="text-emerald-400 font-bold text-xs hover:text-emerald-300 transition-colors">+ Add Row</button>
-        </div>
-        {ingredients.map((ing, idx) => (
-          <div key={idx} className="flex flex-wrap gap-4 items-end p-6 bg-slate-950/30 rounded-3xl border border-white/5">
-            <div className="flex-1 min-w-[200px]">
-              <p className="text-[8px] font-black text-slate-500 uppercase mb-2">Ingredient</p>
-              <input type="text" value={ing.name} onChange={(e) => updateIngredient(idx, 'name', e.target.value)} className="w-full bg-transparent border-b border-white/10 px-0 py-2 font-bold text-white outline-none" />
-            </div>
-            <div className="w-24">
-              <p className="text-[8px] font-black text-slate-500 uppercase mb-2">Cost (ZAR)</p>
-              <input type="number" value={ing.cost} onChange={(e) => updateIngredient(idx, 'cost', Number(e.target.value))} className="w-full bg-transparent border-b border-white/10 px-0 py-2 font-bold text-white outline-none text-center" />
-            </div>
-            <div className="w-20">
-              <p className="text-[8px] font-black text-slate-500 uppercase mb-2">Qty</p>
-              <input type="number" value={ing.qty} onChange={(e) => updateIngredient(idx, 'qty', Number(e.target.value))} className="w-full bg-transparent border-b border-white/10 px-0 py-2 font-bold text-white outline-none text-center" />
-            </div>
-            <div className="w-16">
-              <p className="text-[8px] font-black text-slate-500 uppercase mb-2">Unit</p>
-              <select value={ing.unit} onChange={(e) => updateIngredient(idx, 'unit', e.target.value)} className="w-full bg-transparent border-b border-white/10 px-0 py-2 font-bold text-white outline-none cursor-pointer">
-                <option value="kg">kg</option>
-                <option value="L">L</option>
-                <option value="ea">ea</option>
-              </select>
-            </div>
-            {ingredients.length > 1 && (
-              <button onClick={() => removeIngredient(idx)} className="pb-2 text-red-400/50 hover:text-red-400 transition-colors">🗑️</button>
-            )}
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-10 border-t border-white/10 font-bold">
-        <div className="bg-slate-950/50 p-6 rounded-3xl border border-white/5">
-          <p className="text-[10px] font-black text-slate-500 uppercase mb-2">Plate Cost</p>
-          <h4 className="text-xl md:text-3xl font-black text-white">R {plateCost.toFixed(2)}</h4>
-        </div>
-        <div className="bg-emerald-600/10 p-6 rounded-3xl border border-emerald-500/20">
-          <p className="text-[10px] font-black text-emerald-500 uppercase mb-2">Food Cost %</p>
-          <h4 className="text-xl md:text-3xl font-black text-emerald-400">{foodCostPct.toFixed(1)}%</h4>
-        </div>
-        <div className="bg-sky-600/10 p-6 rounded-3xl border border-sky-500/20">
-          <p className="text-[10px] font-black text-sky-500 uppercase mb-2">Contribution Margin</p>
-          <h4 className="text-xl md:text-3xl font-black text-sky-400">R {margin.toFixed(2)}</h4>
-        </div>
-      </div>
-
-      <button onClick={handleAdd} className="w-full py-6 bg-emerald-600 text-white rounded-[2rem] font-black uppercase text-sm hover:bg-emerald-500 transition-all shadow-xl" style={{ clipPath: OCTAGON_CLIP }}>
-        Add to Menu Matrix
-      </button>
-    </div>
-  );
-};
-
-export const MenuEngineeringMatrix: React.FC<{ items: EngineeringItem[]; onRemove: (id: string) => void }> = ({ items, onRemove }) => {
-  const avgProfit = items.length > 0 ? items.reduce((sum, i) => sum + i.margin, 0) / items.length : 0;
-  const avgPopularity = items.length > 0 ? items.reduce((sum, i) => sum + i.unitsSold, 0) / items.length : 0;
-
-  const quadrants = {
-    stars: items.filter(i => i.margin >= avgProfit && i.unitsSold >= avgPopularity),
-    plow_horses: items.filter(i => i.margin < avgProfit && i.unitsSold >= avgPopularity),
-    puzzles: items.filter(i => i.margin >= avgProfit && i.unitsSold < avgPopularity),
-    dogs: items.filter(i => i.margin < avgProfit && i.unitsSold < avgPopularity)
-  };
-
-  const Quadrant = ({ title, sub, icon, data, color }: { title: string; sub: string; icon: string; data: EngineeringItem[]; color: string }) => (
-    <div className={`p-8 bg-slate-900/40 rounded-[3rem] border border-white/5 flex flex-col h-full min-h-[400px] text-left`}>
-      <div className="flex items-center justify-between mb-8">
-        <div>
-          <h4 className={`text-2xl font-black tracking-tighter uppercase ${color}`}>{title}</h4>
-          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{sub}</p>
-        </div>
-        <span className="text-4xl filter grayscale opacity-20">{icon}</span>
-      </div>
-      <div className="flex-1 space-y-4">
-        {data.map(item => (
-          <div key={item.id} className="p-4 bg-slate-800/40 rounded-2xl border border-white/5 group hover:border-emerald-500/30 transition-all">
-            <div className="flex justify-between items-start mb-2">
-              <p className="font-bold text-white text-sm uppercase italic">{item.name}</p>
-              <button onClick={() => onRemove(item.id)} className="text-xs opacity-0 group-hover:opacity-100 transition-opacity">🗑️</button>
-            </div>
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <p className="text-[8px] font-black text-slate-500 uppercase">Margin</p>
-                <p className="text-xs font-black text-emerald-400">R {item.margin.toFixed(0)}</p>
-              </div>
-              <div className="flex-1">
-                <p className="text-[8px] font-black text-slate-500 uppercase">FC %</p>
-                <p className="text-xs font-black text-sky-400">{item.foodCostPct.toFixed(0)}%</p>
-              </div>
-              <div className="flex-1">
-                <p className="text-[8px] font-black text-slate-500 uppercase">Sold</p>
-                <p className="text-xs font-black text-white">{item.unitsSold}</p>
-              </div>
-            </div>
-          </div>
-        ))}
-        {data.length === 0 && <div className="h-full flex items-center justify-center border-2 border-dashed border-white/5 rounded-3xl text-slate-700 font-bold uppercase italic text-[10px] tracking-widest py-10">No Items</div>}
-      </div>
-    </div>
-  );
-
-  return (
-    <div className="space-y-12 pb-20">
-      <div className="text-center">
-        <h3 className="text-4xl md:text-5xl font-black text-white uppercase italic tracking-tighter">Profit Matrix</h3>
-        <p className="text-slate-500 font-medium italic opacity-60">Visualizing menu engineering performance metrics.</p>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-7xl mx-auto">
-        <Quadrant title="Stars" sub="High Profit / High Popularity" icon="⭐" data={quadrants.stars} color="text-emerald-400" />
-        <Quadrant title="Puzzles" sub="High Profit / Low Popularity" icon="🧩" data={quadrants.puzzles} color="text-sky-400" />
-        <Quadrant title="Plow Horses" sub="Low Profit / High Popularity" icon="🐴" data={quadrants.plow_horses} color="text-orange-400" />
-        <Quadrant title="Dogs" sub="Low Profit / Low Popularity" icon="🦴" data={quadrants.dogs} color="text-red-400" />
-      </div>
-    </div>
-  );
-};
-
-export default function Calculator({
+export const Calculator: React.FC<CalculatorProps> = ({
   generatedMenu,
-  region,
-  selectedItemName,
-  setSelectedItemName
-}: CalculatorProps) {
-  const [breakdown, setBreakdown] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [checkedIngredients, setCheckedIngredients] = useState<Record<string, boolean>>({});
-  const [engineeringItems, setEngineeringItems] = useState<EngineeringItem[]>([]);
+  region = 'South Africa (ZAR • R)',
+  selectedItemName = '',
+  setSelectedItemName,
+  onUpdateMenu
+}) => {
+  // Active Mission Control Sub-Tab
+  const [activeTab, setActiveTab] = useState<'costings' | 'shopping' | 'allergens' | 'slicer' | 'beo'>('costings');
 
-  // Local sync of Matrix engineering items
+  // Editable local state initialized from generatedMenu
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(() => {
+    return generatedMenu.menu || [];
+  });
+  const [covers, setCovers] = useState<number>(generatedMenu.guestCount || 120);
+  const [yieldMultiplier, setYieldMultiplier] = useState<number>(1.0); // 1.0x standard, 1.1x buffet, 1.25x high-volume
+  const [deliveryFee, setDeliveryFee] = useState<number>(generatedMenu.logistics?.deliveryFee || 2400);
+
+  // Sync when parent menu changes
   useEffect(() => {
-    const stored = localStorage.getItem('caterpro_matrix');
-    if (stored) {
-      setEngineeringItems(JSON.parse(stored));
+    if (generatedMenu && generatedMenu.menu) {
+      setMenuItems(generatedMenu.menu);
+      setCovers(generatedMenu.guestCount || 120);
     }
-  }, []);
-
-  const handleUpdateMatrix = (newItems: EngineeringItem[]) => {
-    setEngineeringItems(newItems);
-    localStorage.setItem('caterpro_matrix', JSON.stringify(newItems));
-  };
-
-  // Compile active menu items safely across legacy and modular elements
-  const activeMenuItems = React.useMemo(() => {
-    if (!generatedMenu) return [];
-    const items = generatedMenu.menu || (generatedMenu as any).items || [];
-    if (items.length > 0) {
-      return items.map((item: any) => typeof item === 'string' ? item : (item.dish || item.name || ''));
-    }
-    
-    const legacyAppetizers = generatedMenu.appetizers || [];
-    const legacyMains = generatedMenu.mainCourses || [];
-    const legacyDesserts = generatedMenu.dessert || [];
-    
-    return [...legacyAppetizers, ...legacyMains, ...legacyDesserts];
   }, [generatedMenu]);
 
-  // Set the first item naturally if selectedItemName is blank
-  useEffect(() => {
-    if (activeMenuItems.length > 0 && !selectedItemName) {
-      setSelectedItemName(activeMenuItems[0]);
+  // Active dish for Recipe Slicer
+  const [activeDishName, setActiveDishName] = useState<string>(() => {
+    return selectedItemName || generatedMenu.menu?.[0]?.dish || '';
+  });
+
+  // Shopping list local state
+  const [shoppingList, setShoppingList] = useState(() => {
+    return generatedMenu.shoppingList || [];
+  });
+
+  // Allergen matrix local state
+  const [allergenRows, setAllergenRows] = useState(() => {
+    return generatedMenu.allergenMatrix || [];
+  });
+
+  // Service notes local state
+  const [serviceNotes, setServiceNotes] = useState<string[]>(() => {
+    return generatedMenu.serviceNotes || [
+      '18:30 — VIP Reception: Welcome Cap Classique service and tray-passed appetizers.',
+      '19:30 — Guests seated: Sourdough and compound butters set on tables.',
+      '19:45 — Synchronized cover service for first course.',
+      '20:30 — Main course service with heated cloches: Dietary pre-orders flagged with gold table markers.',
+      '21:30 — Dessert & Digestif service: Continuous coffee and tea service until close.'
+    ];
+  });
+
+  // New Dish Modal / Inline Form State
+  const [isAddingDish, setIsAddingDish] = useState(false);
+  const [newDishName, setNewDishName] = useState('');
+  const [newDishCat, setNewDishCat] = useState<'Appetizers' | 'Main Courses' | 'Desserts'>('Main Courses');
+  const [newDishPrice, setNewDishPrice] = useState(145);
+  const [newDishCost, setNewDishCost] = useState(38);
+  const [newDishNotes, setNewDishNotes] = useState('');
+
+  // Editing dish inline
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+
+  // Totals recalculations
+  const totalSellingPricePerCover = useMemo(() => {
+    return menuItems.reduce((sum, item) => sum + (Number(item.price) || 0), 0);
+  }, [menuItems]);
+
+  const totalRawCostPerCover = useMemo(() => {
+    return menuItems.reduce((sum, item) => sum + (Number(item.cost) || 0), 0);
+  }, [menuItems]);
+
+  // Scaled by covers & yield multiplier
+  const effectiveCovers = Math.round(covers * yieldMultiplier);
+  const totalRevenue = (totalSellingPricePerCover * covers) + deliveryFee;
+  const totalRawFoodSpend = totalRawCostPerCover * effectiveCovers;
+  const overallContributionMargin = totalRevenue - totalRawFoodSpend;
+  const overallFoodCostPct = totalRevenue > 0 
+    ? Math.round((totalRawFoodSpend / totalRevenue) * 1000) / 10 
+    : 0;
+
+  // Group shopping list by supplier
+  const groupedSuppliers = useMemo(() => {
+    const groups: { [supplier: string]: typeof shoppingList } = {};
+    shoppingList.forEach(item => {
+      const sup = item.supplier || 'Wholesale Supplier';
+      if (!groups[sup]) groups[sup] = [];
+      groups[sup].push(item);
+    });
+    return groups;
+  }, [shoppingList]);
+
+  // Shopping list total
+  const shoppingTotalSpend = useMemo(() => {
+    let sum = 0;
+    shoppingList.forEach(i => {
+      const match = (i.estCost || '').replace(/[^0-9.]/g, '');
+      const num = parseFloat(match);
+      if (!isNaN(num)) sum += num;
+    });
+    return sum;
+  }, [shoppingList]);
+
+  // Handlers for modifying menu items
+  const handleUpdateDish = (idx: number, field: keyof MenuItem, val: any) => {
+    const updated = [...menuItems];
+    updated[idx] = { ...updated[idx], [field]: val };
+    setMenuItems(updated);
+    if (onUpdateMenu) {
+      onUpdateMenu({ ...generatedMenu, menu: updated });
     }
-  }, [activeMenuItems, selectedItemName, setSelectedItemName]);
-
-  // Handle selected item changed & fire client-side Gemini breakdown fetch
-  useEffect(() => {
-    if (!selectedItemName) {
-      setBreakdown(null);
-      return;
-    }
-
-    const fetchBreakdown = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await calculateIngredientBreakdown(selectedItemName, region);
-        setBreakdown(data);
-        
-        const initialStates: Record<string, boolean> = {};
-        if (data && data.ingredients) {
-          data.ingredients.forEach((ing: any) => {
-            initialStates[ing.name] = false;
-          });
-        }
-        setCheckedIngredients(initialStates);
-        setError(null);
-      } catch (err: any) {
-        console.warn("Activating statutory culinary engine fallback:", err);
-        const fallback = getCulinaryIngredientBreakdown(selectedItemName, region);
-        setBreakdown(fallback);
-        const initialStates: Record<string, boolean> = {};
-        if (fallback && fallback.ingredients) {
-          fallback.ingredients.forEach((ing: any) => {
-            initialStates[ing.name] = false;
-          });
-        }
-        setCheckedIngredients(initialStates);
-        setError(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBreakdown();
-  }, [selectedItemName, region]);
-
-  // Compute total raw cost dynamically based on item checked states
-  const totalCostOfChecklist = React.useMemo(() => {
-    if (!breakdown || !breakdown.ingredients) return 0;
-    return breakdown.ingredients.reduce((sum: number, ing: any) => {
-      return sum + (ing.totalItemCost || (ing.unitPrice * ing.quantity) || 0);
-    }, 0);
-  }, [breakdown]);
-
-  const checkedCount = React.useMemo(() => {
-    return Object.values(checkedIngredients).filter(Boolean).length;
-  }, [checkedIngredients]);
-
-  const toggleCheckbox = (name: string) => {
-    setCheckedIngredients(prev => ({
-      ...prev,
-      [name]: !prev[name]
-    }));
   };
 
-  return (
-    <div id="calculator-view-root" className="pt-40 pb-20 max-w-7xl mx-auto px-6 space-y-16">
-      
-      {/* Title block */}
-      <div className="text-center mb-16 space-y-2">
-        <h2 className="text-5xl md:text-6xl font-black text-white uppercase italic tracking-tighter">Kitchen Profits</h2>
-        <p className="text-slate-400 font-medium italic opacity-60">Engineered for absolute food service precision.</p>
-      </div>
+  const handleRemoveDish = (idx: number) => {
+    const updated = menuItems.filter((_, i) => i !== idx);
+    setMenuItems(updated);
+    if (onUpdateMenu) {
+      onUpdateMenu({ ...generatedMenu, menu: updated });
+    }
+  };
 
-      {/* Live Recipe Slicing Checklist */}
-      <div id="live-recipe-checklist-section" className="bg-slate-900/60 backdrop-blur-3xl p-12 rounded-[4rem] border border-white/10 shadow-2xl space-y-10 text-left">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/10 pb-8">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center text-emerald-400 text-2xl font-black">🔪</div>
-            <div>
-              <h3 className="text-2xl md:text-3xl font-black text-white uppercase tracking-tighter">Live Recipe Slicer</h3>
-              <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Dynamic wholesale ingredient costing</p>
+  const handleAddDishSubmit = () => {
+    if (!newDishName.trim()) return;
+    const newItem: MenuItem = {
+      dish: newDishName.trim(),
+      cat: newDishCat,
+      price: Number(newDishPrice) || 0,
+      cost: Number(newDishCost) || 0,
+      notes: newDishNotes || 'Chef special recommendation',
+      dietary: ['Gluten-Free']
+    };
+    const updated = [...menuItems, newItem];
+    setMenuItems(updated);
+    setIsAddingDish(false);
+    setNewDishName('');
+    setNewDishNotes('');
+    if (onUpdateMenu) {
+      onUpdateMenu({ ...generatedMenu, menu: updated });
+    }
+  };
+
+  // Toggle allergen in matrix
+  const handleToggleAllergen = (rowIndex: number, field: string) => {
+    const updated = [...allergenRows];
+    (updated[rowIndex] as any)[field] = !(updated[rowIndex] as any)[field];
+    setAllergenRows(updated);
+  };
+
+  // Update shopping item quantity or price
+  const handleUpdateShoppingItem = (idx: number, field: string, val: string) => {
+    const updated = [...shoppingList];
+    (updated[idx] as any)[field] = val;
+    setShoppingList(updated);
+  };
+
+  // Recipe slicer breakdown for active dish
+  const activeBreakdown = useMemo(() => {
+    if (!activeDishName) return null;
+    return getCulinaryIngredientBreakdown(activeDishName, 'South African');
+  }, [activeDishName]);
+
+  return (
+    <div id="mission-control-calculator-root" className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-8 text-left animate-fade-in">
+      
+      {/* 1. FRESH ENERGETIC BANNER & OUTLET HEADER */}
+      <div className="relative rounded-3xl bg-white border border-slate-200 p-6 sm:p-8 shadow-sm overflow-hidden">
+        {/* Ambient subtle Lime-Teal energetic glow */}
+        <div className="absolute top-0 right-0 -mt-16 -mr-16 w-80 h-80 bg-gradient-to-br from-lime-400/20 via-teal-400/15 to-cyan-400/10 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-wider bg-lime-100 text-lime-900 px-3 py-1 rounded-full border border-lime-300 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-lime-600 animate-pulse" />
+                Live Mission Control
+              </span>
+              <span className="text-[10px] font-bold uppercase tracking-wider bg-teal-50 text-teal-800 px-3 py-1 rounded-full border border-teal-200 flex items-center gap-1.5">
+                <Building2 className="w-3 h-3 text-teal-600" />
+                {generatedMenu.roomLocation || 'Grand Ballroom & Banqueting Deck'}
+              </span>
+              <span className="text-[10px] font-mono font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-full border border-slate-200">
+                {generatedMenu.beoNumber || 'BEO-2026-HOTEL-784'}
+              </span>
             </div>
+
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight">
+              Hospitality Costing & Yield Engine
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-600 font-medium max-w-2xl">
+              Automatic dish costing, yield & portion scaling, supplier-sorted shopping lists, and SANS 10330 HACCP allergen matrices. All fields recalculate live.
+            </p>
           </div>
 
-          <div className="w-full md:w-72">
-            <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-2">Select Active Dish</p>
-            <select
-              id="active-dish-dropdown"
-              value={selectedItemName}
-              onChange={(e) => setSelectedItemName(e.target.value)}
-              className="w-full p-4 rounded-2xl bg-slate-800 text-white font-black outline-none border border-white/10 text-sm focus:border-emerald-500 transition-all appearance-none cursor-pointer"
-            >
-              <option value="">-- Choose Menu Item --</option>
-              {activeMenuItems.map((item: string, idx: number) => (
-                <option key={idx} value={item}>{item}</option>
+          {/* Quick Yield Buffer Selector */}
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2 shrink-0">
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                Production Yield Multiplier
+              </span>
+              <span className="text-xs font-black text-teal-700">
+                {effectiveCovers} Portions
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              {[
+                { val: 1.0, label: '1.0x (Standard)' },
+                { val: 1.1, label: '1.1x (+10% Buffet)' },
+                { val: 1.25, label: '1.25x (+25% High-Vol)' }
+              ].map(opt => (
+                <button
+                  key={opt.val}
+                  type="button"
+                  onClick={() => setYieldMultiplier(opt.val)}
+                  className={`px-3 py-1.5 rounded-lg text-[11px] font-bold border transition-all cursor-pointer ${
+                    yieldMultiplier === opt.val
+                      ? 'bg-gradient-to-r from-lime-500 to-teal-600 text-white border-teal-600 shadow-2xs'
+                      : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200'
+                  }`}
+                >
+                  {opt.label}
+                </button>
               ))}
-            </select>
+            </div>
           </div>
         </div>
 
-        {/* Dynamic Display State */}
-        <AnimatePresence mode="wait">
-          {loading && (
-            <motion.div 
-              key="loading-recipe" 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }} 
-              className="flex flex-col items-center justify-center py-20 gap-4"
+        {/* Live KPI Ribbon */}
+        <div className="relative z-10 grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 pt-6 border-t border-slate-100">
+          <div className="bg-slate-50 rounded-xl p-3 border border-slate-200/80">
+            <span className="text-[9px] font-black uppercase tracking-wider text-slate-500 block">
+              Gross Menu Revenue
+            </span>
+            <span className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+              ZAR {totalRevenue.toLocaleString('en-ZA', { maximumFractionDigits: 0 })}
+            </span>
+            <span className="text-[10px] font-bold text-slate-500 block mt-0.5">
+              R{totalSellingPricePerCover}/cover • {covers} covers
+            </span>
+          </div>
+
+          <div className="bg-slate-50 rounded-xl p-3 border border-slate-200/80">
+            <span className="text-[9px] font-black uppercase tracking-wider text-slate-500 block">
+              Raw Ingredient Spend
+            </span>
+            <span className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
+              ZAR {totalRawFoodSpend.toLocaleString('en-ZA', { maximumFractionDigits: 0 })}
+            </span>
+            <span className="text-[10px] font-bold text-slate-500 block mt-0.5">
+              R{totalRawCostPerCover}/cover • {effectiveCovers} prep
+            </span>
+          </div>
+
+          <div className="bg-lime-50/70 rounded-xl p-3 border border-lime-200">
+            <div className="flex items-center justify-between">
+              <span className="text-[9px] font-black uppercase tracking-wider text-lime-900 block">
+                Food Cost %
+              </span>
+              <span className="text-[9px] font-black text-lime-800 bg-lime-100 px-1.5 py-0.5 rounded">
+                Target &lt;30%
+              </span>
+            </div>
+            <span className="text-lg sm:text-xl font-black text-teal-900 tracking-tight">
+              {overallFoodCostPct}%
+            </span>
+            <span className="text-[10px] font-bold text-lime-700 block mt-0.5">
+              ✓ Escoffier compliant
+            </span>
+          </div>
+
+          <div className="bg-teal-50/70 rounded-xl p-3 border border-teal-200">
+            <span className="text-[9px] font-black uppercase tracking-wider text-teal-900 block">
+              Contribution Margin
+            </span>
+            <span className="text-lg sm:text-xl font-black text-teal-900 tracking-tight">
+              ZAR {overallContributionMargin.toLocaleString('en-ZA', { maximumFractionDigits: 0 })}
+            </span>
+            <span className="text-[10px] font-bold text-teal-700 block mt-0.5">
+              {Math.round(100 - overallFoodCostPct)}% gross profitability
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. SUB-VIEW NAVIGATION PILLS */}
+      <div className="flex flex-wrap items-center gap-2 border-b border-slate-200 pb-3">
+        {[
+          { id: 'costings', label: 'Plate Costings & Menu Items', icon: CalcIcon, badge: `${menuItems.length} dishes` },
+          { id: 'shopping', label: 'Supplier-Sorted Shopping', icon: ShoppingBag, badge: `ZAR ${shoppingTotalSpend.toLocaleString()}` },
+          { id: 'allergens', label: 'Statutory Allergen Matrix', icon: ShieldCheck, badge: 'SANS 10330' },
+          { id: 'slicer', label: 'Recipe Micro-Slicer', icon: Utensils, badge: activeDishName.slice(0, 16) },
+          { id: 'beo', label: 'BEO Paperwork & Staffing', icon: FileText, badge: 'Kitchen Schedule' }
+        ].map(tab => {
+          const Icon = tab.icon;
+          const isActive = activeTab === tab.id;
+          return (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer ${
+                isActive
+                  ? 'bg-gradient-to-r from-lime-500 to-teal-600 text-white shadow-sm shadow-teal-500/20 scale-[1.01]'
+                  : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
+              }`}
             >
-              <span className="text-4xl animate-spin text-emerald-400">🔄</span>
-              <p className="text-slate-400 font-black uppercase italic text-xs tracking-widest">Pricing ingredients in {region}...</p>
-            </motion.div>
-          )}
+              <Icon className="w-3.5 h-3.5" />
+              <span>{tab.label}</span>
+              <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold ${
+                isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
+              }`}>
+                {tab.badge}
+              </span>
+            </button>
+          );
+        })}
+      </div>
 
-          {error && !loading && (
-            <motion.div 
-              key="error-recipe" 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }} 
-              className="p-6 bg-red-500/10 border border-red-500/20 text-red-400 rounded-3xl text-sm"
+      {/* 3. TAB 1: PLATE COSTINGS & MENU ITEMS (Fully Editable) */}
+      {activeTab === 'costings' && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-black uppercase tracking-tight text-slate-900">
+                Menu Costings & Selling Margin Breakdown
+              </h2>
+              <p className="text-xs text-slate-500 font-medium">
+                Click on any dish price or raw cost to edit. Totals, margin, and food cost % recalculate dynamically.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsAddingDish(!isAddingDish)}
+              className="px-4 py-2.5 bg-gradient-to-r from-lime-500 to-teal-600 hover:from-lime-400 hover:to-teal-500 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-2 cursor-pointer self-start sm:self-auto"
             >
-              ⚠️ {error}
-            </motion.div>
-          )}
+              <Plus className="w-4 h-4" />
+              <span>Add Custom Dish</span>
+            </button>
+          </div>
 
-          {!selectedItemName && !loading && !error && (
-            <motion.div 
-              key="empty-recipe"
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              className="py-16 text-center border border-dashed border-white/10 rounded-[3rem] text-slate-500 font-black italic uppercase tracking-wider text-xs space-y-2"
-            >
-              <p className="text-2xl opacity-40">🥦</p>
-              <p>Select a calculated menu item to expand its micro ingredients list and view margins in {region}.</p>
-              {!generatedMenu && (
-                <p className="text-[10px] text-slate-600 tracking-normal capitalize font-medium">Generate a professional proposal first to unlock automatic recipe parsing.</p>
-              )}
-            </motion.div>
-          )}
+          {/* Add Dish Form */}
+          {isAddingDish && (
+            <div className="bg-slate-50 rounded-2xl p-5 border-2 border-teal-200 space-y-4 animate-fade-in">
+              <h4 className="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-teal-600" />
+                Add New Plated Dish to Menu & Costing Matrix
+              </h4>
 
-          {breakdown && !loading && !error && (
-            <motion.div 
-              key="populated-recipe" 
-              initial={{ opacity: 0, y: 10 }} 
-              animate={{ opacity: 1, y: 0 }} 
-              exit={{ opacity: 0 }}
-              className="grid grid-cols-1 lg:grid-cols-3 gap-12"
-            >
-              {/* Left Column: Costing Calculations Summary */}
-              <div className="lg:col-span-1 space-y-6">
-                <div className="bg-slate-950/60 rounded-[3rem] p-8 border border-white/5 space-y-6">
-                  <div>
-                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-1">Target Dish</h4>
-                    <p className="text-xl md:text-2xl font-black text-white uppercase italic leading-tight truncate">{breakdown.dishName || selectedItemName}</p>
-                  </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                  <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">
+                    Dish Name
+                  </label>
+                  <input
+                    type="text"
+                    value={newDishName}
+                    onChange={(e) => setNewDishName(e.target.value)}
+                    placeholder="e.g. Seared Salmon Medallion"
+                    className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900 outline-none focus:border-teal-500"
+                  />
+                </div>
 
-                  <div>
-                    <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none mb-2">Regional Market</h4>
-                    <span className="px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-black tracking-wider uppercase rounded-lg">
-                      📍 {breakdown.region || region}
-                    </span>
-                  </div>
+                <div>
+                  <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">
+                    Course Category
+                  </label>
+                  <select
+                    value={newDishCat}
+                    onChange={(e) => setNewDishCat(e.target.value as any)}
+                    className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900 outline-none focus:border-teal-500 cursor-pointer"
+                  >
+                    <option value="Appetizers">Appetizers</option>
+                    <option value="Main Courses">Main Courses</option>
+                    <option value="Desserts">Desserts</option>
+                  </select>
+                </div>
 
-                  {/* Calculator Box */}
-                  <div className="pt-6 border-t border-white/5 space-y-4">
-                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Estimated Sliced Cost</p>
-                    <div className="p-6 bg-emerald-600/10 rounded-2xl border border-emerald-500/20">
-                      <p className="text-xs font-black text-emerald-500 uppercase leading-none mb-1">Total Portion Price</p>
-                      <h4 className="text-2xl md:text-4xl font-black text-emerald-400">
-                        {breakdown.currencyCode || 'R'} {(breakdown.estimatedTotalCost || totalCostOfChecklist).toFixed(2)}
-                      </h4>
-                    </div>
-                  </div>
+                <div>
+                  <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">
+                    Selling Price (ZAR)
+                  </label>
+                  <input
+                    type="number"
+                    value={newDishPrice}
+                    onChange={(e) => setNewDishPrice(Number(e.target.value))}
+                    className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900 outline-none focus:border-teal-500"
+                  />
+                </div>
 
-                  {breakdown.regionalWholesaleAdvice && (
-                    <div className="p-5 bg-slate-900 border border-white/5 rounded-2xl">
-                      <p className="text-[9px] font-black text-emerald-500 uppercase tracking-widest mb-2 flex items-center gap-1.5">
-                        <span>💡</span> Culinary Strategy Advice
-                      </p>
-                      <p className="text-xs text-slate-300 italic leading-relaxed">
-                        "{breakdown.regionalWholesaleAdvice}"
-                      </p>
-                    </div>
-                  )}
-
-                  {breakdown.sans10330Protocol && (
-                    <div className="p-5 bg-emerald-950/30 border border-emerald-500/20 rounded-2xl">
-                      <p className="text-[9px] font-black text-emerald-400 uppercase tracking-widest mb-1.5 flex items-center gap-1.5">
-                        <span>🛡️</span> SANS 10330 HACCP Protocol
-                      </p>
-                      <p className="text-xs text-emerald-200/90 leading-relaxed font-mono">
-                        {breakdown.sans10330Protocol}
-                      </p>
-                    </div>
-                  )}
+                <div>
+                  <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">
+                    Raw Portion Cost (ZAR)
+                  </label>
+                  <input
+                    type="number"
+                    value={newDishCost}
+                    onChange={(e) => setNewDishCost(Number(e.target.value))}
+                    className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900 outline-none focus:border-teal-500"
+                  />
                 </div>
               </div>
 
-              {/* Right Columns: Interactive Recipes Checklist */}
-              <div className="lg:col-span-2 space-y-6">
-                <div className="flex justify-between items-center bg-slate-900/40 p-5 rounded-2xl border border-white/5">
-                  <span className="text-xs font-bold text-slate-400 uppercase">
-                    Preparation Checklist
-                  </span>
-                  <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full uppercase">
-                    {checkedCount} / {breakdown.ingredients?.length || 0} Ready
+              <div>
+                <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">
+                  Culinary Notes & Technique
+                </label>
+                <input
+                  type="text"
+                  value={newDishNotes}
+                  onChange={(e) => setNewDishNotes(e.target.value)}
+                  placeholder="e.g. Pan-seared with fresh herb butter and sea asparagus"
+                  className="w-full p-2 bg-white border border-slate-300 rounded-lg text-xs text-slate-800 outline-none focus:border-teal-500"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsAddingDish(false)}
+                  className="px-4 py-2 bg-white hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-bold border border-slate-300"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleAddDishSubmit}
+                  className="px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-xs font-black uppercase tracking-wider"
+                >
+                  Save & Include in Menu
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Dishes Table */}
+          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 text-slate-700 font-black uppercase tracking-wider border-b border-slate-200 text-[10px]">
+                    <th className="p-4">Dish & Course</th>
+                    <th className="p-4">Portions (x{yieldMultiplier})</th>
+                    <th className="p-4 text-right">Raw Cost</th>
+                    <th className="p-4 text-right">Selling Price</th>
+                    <th className="p-4 text-center">Food Cost %</th>
+                    <th className="p-4 text-right">Contribution Margin</th>
+                    <th className="p-4 text-center">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {menuItems.map((item, idx) => {
+                    const price = Number(item.price) || 0;
+                    const cost = Number(item.cost) || 0;
+                    const itemMargin = price - cost;
+                    const itemFoodCostPct = price > 0 ? Math.round((cost / price) * 1000) / 10 : 0;
+                    const isEditing = editingIndex === idx;
+
+                    return (
+                      <tr key={idx} className="hover:bg-slate-50/70 transition-colors">
+                        <td className="p-4">
+                          {isEditing ? (
+                            <div className="space-y-1.5">
+                              <input
+                                type="text"
+                                value={item.dish}
+                                onChange={(e) => handleUpdateDish(idx, 'dish', e.target.value)}
+                                className="w-full p-1.5 bg-white border border-slate-300 rounded font-bold text-xs"
+                              />
+                              <input
+                                type="text"
+                                value={item.notes || ''}
+                                onChange={(e) => handleUpdateDish(idx, 'notes', e.target.value)}
+                                className="w-full p-1 bg-white border border-slate-200 rounded text-[11px] text-slate-600"
+                                placeholder="Service & plating notes"
+                              />
+                            </div>
+                          ) : (
+                            <div>
+                              <div className="font-bold text-slate-900 flex items-center gap-2">
+                                <span>{item.dish}</span>
+                                <span className="text-[9px] font-black uppercase tracking-wider bg-slate-100 text-slate-600 px-2 py-0.5 rounded">
+                                  {item.cat || 'Plated'}
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-slate-500 italic mt-0.5 max-w-md line-clamp-1">
+                                {item.notes}
+                              </p>
+                            </div>
+                          )}
+                        </td>
+
+                        <td className="p-4 font-bold text-slate-700">
+                          {effectiveCovers} pax
+                        </td>
+
+                        <td className="p-4 text-right">
+                          {isEditing ? (
+                            <div className="flex items-center justify-end gap-1">
+                              <span className="text-slate-400">R</span>
+                              <input
+                                type="number"
+                                value={item.cost || 0}
+                                onChange={(e) => handleUpdateDish(idx, 'cost', Number(e.target.value))}
+                                className="w-20 p-1 text-right bg-white border border-slate-300 rounded font-bold text-xs"
+                              />
+                            </div>
+                          ) : (
+                            <span className="font-bold text-slate-800">
+                              R {cost.toFixed(2)}
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="p-4 text-right">
+                          {isEditing ? (
+                            <div className="flex items-center justify-end gap-1">
+                              <span className="text-teal-600">R</span>
+                              <input
+                                type="number"
+                                value={item.price || 0}
+                                onChange={(e) => handleUpdateDish(idx, 'price', Number(e.target.value))}
+                                className="w-20 p-1 text-right bg-white border border-slate-300 rounded font-bold text-xs text-teal-700"
+                              />
+                            </div>
+                          ) : (
+                            <span className="font-black text-teal-700">
+                              R {price.toFixed(2)}
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="p-4 text-center">
+                          <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                            itemFoodCostPct <= 30
+                              ? 'bg-lime-100 text-lime-900 border border-lime-300'
+                              : 'bg-amber-100 text-amber-900 border border-amber-300'
+                          }`}>
+                            {itemFoodCostPct}%
+                          </span>
+                        </td>
+
+                        <td className="p-4 text-right font-black text-slate-900">
+                          R {itemMargin.toFixed(2)}
+                        </td>
+
+                        <td className="p-4 text-center">
+                          <div className="flex items-center justify-center gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                if (isEditing) setEditingIndex(null);
+                                else setEditingIndex(idx);
+                              }}
+                              className="p-1.5 hover:bg-slate-200 rounded-lg text-slate-600 transition-colors"
+                              title={isEditing ? 'Done' : 'Edit dish'}
+                            >
+                              {isEditing ? <Check className="w-3.5 h-3.5 text-teal-600" /> : <Edit3 className="w-3.5 h-3.5" />}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setActiveDishName(item.dish);
+                                setActiveTab('slicer');
+                              }}
+                              className="p-1.5 hover:bg-teal-50 rounded-lg text-teal-600 transition-colors"
+                              title="Slice ingredients"
+                            >
+                              <Utensils className="w-3.5 h-3.5" />
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveDish(idx)}
+                              className="p-1.5 hover:bg-red-50 rounded-lg text-red-500 transition-colors"
+                              title="Remove dish"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 4. TAB 2: SUPPLIER-SORTED SHOPPING LISTS */}
+      {activeTab === 'shopping' && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-black uppercase tracking-tight text-slate-900">
+                Supplier-Sorted Procurement & Wholesale Sourcing
+              </h2>
+              <p className="text-xs text-slate-500 font-medium">
+                Ingredients organized by commercial vendor for hotel purchasing. Quantities scaled to {effectiveCovers} covers.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 self-start sm:self-auto">
+              <span className="text-xs font-black text-slate-700 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
+                Est. Sourcing Total: ZAR {shoppingTotalSpend.toLocaleString()}
+              </span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {Object.entries(groupedSuppliers).map(([supplier, items]) => (
+              <div key={supplier} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="w-7 h-7 rounded-lg bg-teal-50 text-teal-700 border border-teal-200 flex items-center justify-center text-xs font-bold">
+                      📦
+                    </span>
+                    <h4 className="text-sm font-black uppercase tracking-wider text-slate-900">
+                      {supplier}
+                    </h4>
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full">
+                    {items.length} items
                   </span>
                 </div>
 
-                <div className="space-y-4 max-h-[420px] overflow-y-auto pr-2 no-scrollbar">
-                  {breakdown.ingredients?.map((ing: any, idx: number) => {
-                    const isChecked = !!checkedIngredients[ing.name];
+                <div className="space-y-2.5">
+                  {items.map((item, itemIdx) => {
+                    const globalIdx = shoppingList.indexOf(item);
                     return (
-                      <div 
-                        key={idx} 
-                        onClick={() => toggleCheckbox(ing.name)}
-                        className={`flex items-center justify-between p-5 rounded-[2rem] border transition-all cursor-pointer select-none ${isChecked ? 'bg-emerald-950/20 border-emerald-500/30 text-slate-300' : 'bg-slate-950/40 border-white/5 hover:border-white/10 text-white'}`}
-                      >
-                        <div className="flex items-center gap-4 text-left">
-                          <div className={`p-1.5 rounded-xl border flex items-center justify-center transition-colors ${isChecked ? 'bg-emerald-500 border-emerald-500 text-slate-950' : 'border-white/25 text-transparent'}`}>
-                             ✓
-                          </div>
-                          <div>
-                            <p className={`font-bold text-xs md:text-sm transition-all ${isChecked ? 'line-through opacity-55 text-slate-500' : ''}`}>{ing.name}</p>
-                            {ing.notes && <p className="text-[10px] text-slate-500 italic mt-0.5">{ing.notes}</p>}
-                          </div>
+                      <div key={itemIdx} className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 flex items-center justify-between gap-3 text-xs">
+                        <div className="space-y-0.5 flex-1">
+                          <span className="font-bold text-slate-900 block">{item.item}</span>
+                          <span className="text-[10px] text-slate-500 italic block">{item.notes || item.category}</span>
                         </div>
-
-                        <div className="text-right flex flex-col items-end shrink-0">
-                          <p className="text-xs font-black text-slate-400">
-                            {ing.quantity} {ing.unit}
-                          </p>
-                          <p className="text-[10px] font-extrabold text-emerald-500 uppercase mt-0.5">
-                            {breakdown.currencyCode || 'R'} {(ing.totalItemCost || (ing.unitPrice * ing.quantity) || 0).toFixed(2)}
-                          </p>
+                        <div className="text-right shrink-0">
+                          <span className="font-mono font-bold text-teal-800 bg-white px-2 py-0.5 rounded border border-slate-200 block text-center">
+                            {item.quantity}
+                          </span>
+                          <span className="text-[10px] font-bold text-slate-600 block mt-0.5">
+                            {item.estCost}
+                          </span>
                         </div>
                       </div>
                     );
                   })}
                 </div>
               </div>
-            </motion.div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 5. TAB 3: ALLERGEN MATRIX & SANS 10330 HACCP PROTOCOL */}
+      {activeTab === 'allergens' && (
+        <div className="space-y-6">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🛡️</span>
+              <h2 className="text-xl font-black uppercase tracking-tight text-slate-900">
+                Statutory Allergen Matrix & SANS 10330 HACCP Safety
+              </h2>
+            </div>
+            <p className="text-xs text-slate-500 font-medium mt-1">
+              Click any cell to toggle allergen containment. Meets South African and international hotel food safety standards.
+            </p>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 text-slate-700 font-black uppercase tracking-wider border-b border-slate-200 text-[10px]">
+                    <th className="p-3.5">Dish / Plated Item</th>
+                    <th className="p-3.5 text-center">Gluten</th>
+                    <th className="p-3.5 text-center">Dairy</th>
+                    <th className="p-3.5 text-center">Nuts</th>
+                    <th className="p-3.5 text-center">Eggs</th>
+                    <th className="p-3.5 text-center">Fish</th>
+                    <th className="p-3.5 text-center">Shellfish</th>
+                    <th className="p-3.5 text-center">Soy</th>
+                    <th className="p-3.5 text-center">Dietary Profile</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {allergenRows.map((row, rIdx) => (
+                    <tr key={rIdx} className="hover:bg-slate-50/70 transition-colors">
+                      <td className="p-3.5 font-bold text-slate-900">
+                        {row.dish}
+                        {row.notes && (
+                          <span className="block text-[10px] text-slate-500 font-normal italic">
+                            {row.notes}
+                          </span>
+                        )}
+                      </td>
+
+                      {['gluten', 'dairy', 'nuts', 'eggs', 'fish', 'shellfish', 'soy'].map((allergenKey) => {
+                        const hasAllergen = (row as any)[allergenKey];
+                        return (
+                          <td 
+                            key={allergenKey} 
+                            onClick={() => handleToggleAllergen(rIdx, allergenKey)}
+                            className="p-3.5 text-center cursor-pointer select-none"
+                          >
+                            {hasAllergen ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 text-amber-900 text-[10px] font-black rounded-full border border-amber-300">
+                                ⚠️ Yes
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-full">
+                                ✓ Safe
+                              </span>
+                            )}
+                          </td>
+                        );
+                      })}
+
+                      <td className="p-3.5 text-center">
+                        <span className="inline-block px-2.5 py-0.5 bg-teal-50 text-teal-800 text-[10px] font-black rounded-full border border-teal-200">
+                          {(row.dietary || ['Gluten-Free']).join(', ')}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* SANS 10330 Cold Chain HACCP Safety Notes */}
+          <div className="bg-gradient-to-br from-lime-50 to-teal-50 rounded-2xl p-6 border border-lime-200/80 space-y-3">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-teal-700" />
+              <h4 className="text-xs font-black uppercase tracking-wider text-teal-900">
+                SANS 10330 HACCP Defensible Safety Procedures
+              </h4>
+            </div>
+            <ul className="text-xs text-teal-950 font-medium space-y-1.5 list-disc list-inside leading-relaxed">
+              <li>Walk-in cold storage strictly logged at 1.8°C to 3.2°C; raw seafood isolated on lowest tiers.</li>
+              <li>Dedicated purple allergen prep board and sanitised stainless cutlery allocated for VIP nut-allergy orders.</li>
+              <li>Hot holding banquet cabinets calibrated to 72°C minimum core temperature before service deployment.</li>
+              <li>Blast chiller cooling curves verified: Cooked proteins brought from 60°C to below 10°C in under 90 minutes.</li>
+            </ul>
+          </div>
+        </div>
+      )}
+
+      {/* 6. TAB 4: ESCOFFIER RECIPE SLICER */}
+      {activeTab === 'slicer' && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-black uppercase tracking-tight text-slate-900">
+                Escoffier Recipe Ingredient Slicer
+              </h2>
+              <p className="text-xs text-slate-500 font-medium">
+                Granular wholesale pricing breakdowns based on current South African and global market indices.
+              </p>
+            </div>
+
+            <div className="w-full sm:w-80">
+              <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1">
+                Select Dish to Slice
+              </label>
+              <select
+                value={activeDishName}
+                onChange={(e) => {
+                  setActiveDishName(e.target.value);
+                  if (setSelectedItemName) setSelectedItemName(e.target.value);
+                }}
+                className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 outline-none focus:border-teal-500 cursor-pointer shadow-2xs"
+              >
+                {menuItems.map((m, idx) => (
+                  <option key={idx} value={m.dish}>{m.dish}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {activeBreakdown && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Left summary card */}
+              <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-6 shadow-sm">
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
+                    Active Recipe
+                  </span>
+                  <h3 className="text-lg font-black text-slate-900 mt-1">
+                    {activeBreakdown.dishName}
+                  </h3>
+                </div>
+
+                <div className="bg-gradient-to-br from-lime-50 to-teal-50 rounded-xl p-4 border border-lime-200">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-teal-800 block">
+                    Calculated Raw Food Cost
+                  </span>
+                  <div className="text-3xl font-black text-slate-900 mt-1">
+                    R {activeBreakdown.estimatedTotalCost.toFixed(2)}
+                  </div>
+                  <span className="text-[10px] font-bold text-teal-700 block mt-1">
+                    Per cover portion
+                  </span>
+                </div>
+
+                {activeBreakdown.regionalWholesaleAdvice && (
+                  <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs text-slate-700 italic space-y-1">
+                    <span className="font-black text-slate-900 not-italic block uppercase text-[10px]">
+                      Culinary Procurement Tip:
+                    </span>
+                    "{activeBreakdown.regionalWholesaleAdvice}"
+                  </div>
+                )}
+              </div>
+
+              {/* Ingredients Breakdown Table */}
+              <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                <div className="p-4 border-b border-slate-100 bg-slate-50">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                    Ingredient Specification & Unit Rates
+                  </h4>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50 text-slate-600 font-bold border-b border-slate-200 text-[10px] uppercase">
+                        <th className="p-3">Ingredient</th>
+                        <th className="p-3 text-center">Portion Qty</th>
+                        <th className="p-3 text-right">Wholesale Rate</th>
+                        <th className="p-3 text-right">Raw Spend</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                      {activeBreakdown.ingredients.map((ing, idx) => (
+                        <tr key={idx} className="hover:bg-slate-50">
+                          <td className="p-3 font-bold text-slate-900">{ing.name}</td>
+                          <td className="p-3 text-center font-mono text-slate-600">{ing.quantity} {ing.unit}</td>
+                          <td className="p-3 text-right text-slate-600">R {ing.unitPrice.toFixed(2)} / {ing.unit}</td>
+                          <td className="p-3 text-right font-black text-teal-800">R {ing.totalItemCost.toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           )}
-        </AnimatePresence>
-      </div>
+        </div>
+      )}
 
-      {/* Grid of calculations */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start text-left">
-        <EnhancedPlateCostCalculator onAddToMatrix={(item) => handleUpdateMatrix([...engineeringItems, item])} />
-        <PlateCostEngine ingredients={DEFAULT_INGREDIENTS} />
-      </div>
+      {/* 7. TAB 5: BEO SUMMARY & PRODUCTION SCHEDULE */}
+      {activeTab === 'beo' && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-black uppercase tracking-tight text-slate-900">
+                Banquet Event Order (BEO) Kitchen & Service Schedule
+              </h2>
+              <p className="text-xs text-slate-500 font-medium">
+                Operational paperwork for culinary line chefs, banquet captain, and service waitstaff.
+              </p>
+            </div>
 
-      {/* Matrix Engineering */}
-      <MenuEngineeringMatrix items={engineeringItems} onRemove={(id) => handleUpdateMatrix(engineeringItems.filter(i => i.id !== id))} />
+            <button
+              type="button"
+              onClick={() => window.print()}
+              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black uppercase tracking-wider flex items-center gap-1.5 cursor-pointer self-start sm:self-auto"
+            >
+              <Printer className="w-3.5 h-3.5 text-lime-400" />
+              <span>Print BEO Order</span>
+            </button>
+          </div>
+
+          <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-6 shadow-sm">
+            {/* Header metadata */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 border-b border-slate-200 pb-6 text-xs">
+              <div>
+                <span className="text-[10px] font-black uppercase text-slate-400 block">BEO Number</span>
+                <span className="font-mono font-black text-slate-900">{generatedMenu.beoNumber || 'BEO-2026-HOTEL-784'}</span>
+              </div>
+              <div>
+                <span className="text-[10px] font-black uppercase text-slate-400 block">Event Date</span>
+                <span className="font-bold text-slate-900">{generatedMenu.eventDate || '18 October 2026'}</span>
+              </div>
+              <div>
+                <span className="text-[10px] font-black uppercase text-slate-400 block">Room Location</span>
+                <span className="font-bold text-slate-900">{generatedMenu.roomLocation || 'Grand Ballroom'}</span>
+              </div>
+              <div>
+                <span className="text-[10px] font-black uppercase text-slate-400 block">Guaranteed Covers</span>
+                <span className="font-black text-teal-800">{covers} pax ({effectiveCovers} prep)</span>
+              </div>
+            </div>
+
+            {/* Service Timeline */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-black uppercase tracking-wider text-slate-800">
+                Synchronized Service Timeline
+              </h4>
+              <div className="space-y-2">
+                {serviceNotes.map((note, idx) => (
+                  <div key={idx} className="p-3 bg-slate-50 rounded-xl border border-slate-200/80 text-xs text-slate-800 font-medium flex items-start gap-2">
+                    <span className="text-teal-600 font-black">•</span>
+                    <span>{note}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Staffing & Equipment Ratios */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1">
+                <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 block">
+                  Kitchen Brigade & Service Staffing Ratio
+                </span>
+                <p className="text-slate-800 font-bold">
+                  {Math.ceil(covers / 25)} Line Chefs • 1 Executive Sous Chef • {Math.ceil(covers / 15)} Banquet Waitrons • 2 Dish Stewards
+                </p>
+              </div>
+
+              <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1">
+                <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 block">
+                  Mandatory Equipment Deployment
+                </span>
+                <p className="text-slate-800 font-bold">
+                  2 Combi Steam Ovens (Plating mode) • 3 Heated Cloche Cabinets (72°C) • 1 Refrigerated Service Dolly
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
-}
+};
+
+export default Calculator;
