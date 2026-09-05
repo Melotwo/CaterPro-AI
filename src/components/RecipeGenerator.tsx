@@ -179,35 +179,39 @@ export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
   };
 
   return (
-    <div id="recipe-generator-root" className="pt-40 pb-20 max-w-7xl mx-auto px-6 space-y-12 text-left">
+    <div id="recipe-generator-root" className="pt-4 pb-20 max-w-7xl mx-auto px-4 sm:px-6 space-y-8 text-left">
       
       {/* Title Header */}
-      <div className="text-center space-y-4 mb-16">
-        <div className="inline-flex items-center gap-3 px-4 py-2 bg-emerald-500/15 border border-emerald-500/25 rounded-full">
-          <span className="text-emerald-400 text-sm font-black animate-pulse">🏛️</span>
-          <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Classical Knowledge Library</span>
+      <div className="text-center space-y-3 mb-8 bg-gradient-to-br from-slate-900 via-slate-800 to-amber-950/40 p-8 sm:p-10 rounded-3xl border border-amber-500/20 shadow-xl relative overflow-hidden">
+        <div className="absolute -top-12 -right-12 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-amber-500/15 border border-amber-500/30 rounded-full">
+          <span className="text-amber-400 text-sm font-black animate-pulse">🏛️</span>
+          <span className="text-[10px] font-black uppercase tracking-widest text-amber-300">Food Encyclopedia • Larousse Gastronomique Reference</span>
         </div>
-        <h2 className="text-6xl font-black text-white uppercase italic tracking-tighter leading-none">
-          Larousse Gastronomique Engine
+        <h2 className="text-3xl sm:text-5xl font-black text-white uppercase italic tracking-tighter leading-tight">
+          Food Encyclopedia & Larousse Gastronomique
         </h2>
-        <p className="text-slate-400 font-medium italic opacity-60 max-w-xl mx-auto text-center">
-          Elevate banquets with verified classical techniques, mother sauce structures, and timeless culinary discipline of French gastronomes.
+        <p className="text-amber-100/70 font-medium max-w-2xl mx-auto text-center text-xs sm:text-sm">
+          Elevate hotel banquets with authoritative classical French techniques, Auguste Escoffier lineages, mother sauces, and precision SANS 10330 HACCP mise en place.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
         
         {/* Selection Column */}
         <div className="lg:col-span-1 space-y-6">
-          <div className="bg-slate-900/60 backdrop-blur-3xl p-8 rounded-[3rem] border border-white/10 shadow-xl space-y-8">
-            <div className="flex items-center gap-3 border-b border-white/5 pb-4">
-              <span className="text-2xl font-black">📓</span>
-              <h3 className="text-lg font-black text-white uppercase tracking-tighter">Banquet Scribe</h3>
+          <div className="bg-slate-900/90 backdrop-blur-xl p-6 sm:p-7 rounded-3xl border border-amber-500/20 shadow-xl space-y-6">
+            <div className="flex items-center gap-2.5 border-b border-white/10 pb-3">
+              <span className="text-xl">📓</span>
+              <div>
+                <h3 className="text-sm font-black text-white uppercase tracking-wider">Encyclopedia Entry</h3>
+                <p className="text-[10px] text-slate-400 font-medium">Select or type any classical dish</p>
+              </div>
             </div>
 
-            <div className="space-y-6">
-              <div className="space-y-3">
-                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 opacity-60">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400">
                   Select Target Dish
                 </label>
                 
@@ -224,30 +228,59 @@ export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
                       setSelectedItemName(val);
                     }
                   }}
-                  className="w-full p-4 rounded-xl bg-slate-800 text-white font-extrabold outline-none border border-white/10 text-xs focus:border-emerald-500 transition-all cursor-pointer"
+                  className="w-full p-3 rounded-xl bg-slate-800 text-white font-bold outline-none border border-white/15 text-xs focus:border-amber-400 transition-all cursor-pointer"
                 >
                   {menuDishes.map((dish: string, idx: number) => (
                     <option key={idx} value={dish}>{dish}</option>
                   ))}
-                  <option value="custom">-- Custom Reference --</option>
+                  <option value="custom">-- Custom Reference / Search --</option>
                 </select>
+              </div>
+
+              {/* Quick Classical Presets */}
+              <div className="space-y-1.5">
+                <label className="block text-[9px] font-black uppercase tracking-widest text-amber-400/80">
+                  Popular Larousse Masterclasses
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    'Sole à la Meunière',
+                    'Beef Bourguignon',
+                    'Béchamel & Mother Sauces',
+                    'Coq au Vin Classical',
+                    'Crème Brûlée & Custards',
+                    'South African Cape Malay Curry'
+                  ].map((preset) => (
+                    <button
+                      key={preset}
+                      type="button"
+                      onClick={() => {
+                        setIsCustomMode(true);
+                        setCustomDish(preset);
+                      }}
+                      className="text-[9px] font-bold px-2 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-200 border border-amber-500/20 transition-all text-left"
+                    >
+                      {preset}
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {isCustomMode && (
                 <motion.div 
                   initial={{ opacity: 0, y: -10 }} 
                   animate={{ opacity: 1, y: 0 }} 
-                  className="space-y-3"
+                  className="space-y-2"
                 >
-                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 opacity-60">
+                  <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400">
                     Write Classical Dish Profile
                   </label>
                   <input
                     type="text"
                     value={customDish}
                     onChange={(e) => setCustomDish(e.target.value)}
-                    placeholder="e.g. Sole Meunière, Coq au Vin"
-                    className="w-full p-4 rounded-xl bg-slate-800 text-white font-extrabold outline-none border border-white/10 text-xs focus:border-emerald-500 transition-all"
+                    placeholder="e.g. Sole Meunière, Coq au Vin, Sauce Hollandaise"
+                    className="w-full p-3 rounded-xl bg-slate-800 text-white font-bold outline-none border border-white/15 text-xs focus:border-amber-400 transition-all"
                   />
                 </motion.div>
               )}
@@ -255,8 +288,7 @@ export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
               <button
                 onClick={generateRecipe}
                 disabled={loading}
-                className="w-full py-5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-[2rem] font-black uppercase text-xs tracking-wider transition-all shadow-xl disabled:opacity-45 flex items-center justify-center gap-2"
-                style={{ clipPath: OCTAGON_CLIP }}
+                className="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black uppercase text-xs tracking-wider rounded-xl transition-all shadow-lg disabled:opacity-45 flex items-center justify-center gap-2 cursor-pointer active:scale-95"
               >
                 {loading ? (
                   <>

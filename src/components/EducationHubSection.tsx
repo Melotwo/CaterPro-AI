@@ -125,23 +125,142 @@ export const EducationHubSection: React.FC<EducationHubProps> = ({ onNotify, onO
       <button
         onClick={handleGenerate}
         disabled={generating}
-        className="w-full py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
+        className="w-full py-3.5 bg-gradient-to-r from-lime-600 via-teal-600 to-teal-700 hover:from-lime-500 hover:to-teal-600 text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer active:scale-[0.99]"
       >
         <span>{generating ? '⏳' : '⚡'}</span>
-        <span>{generating ? 'Formulating Educational Content...' : 'Generate Study Guide'}</span>
+        <span>{generating ? 'Formulating Educational Content...' : 'Generate Study Guide & Syllabus'}</span>
       </button>
 
       {result && (
-        <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
-          <div className="flex justify-between items-center border-b border-slate-200 pb-3">
-            <h4 className="text-sm font-black text-slate-900">{result.title}</h4>
-            <span className="text-[10px] font-black uppercase text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
-              {result.curriculum}
-            </span>
+        <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200 space-y-5 animate-fade-in">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-base">🎓</span>
+                <h4 className="text-sm font-black text-slate-900">{result.title}</h4>
+              </div>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-[10px] font-bold text-slate-500">Level: {result.level || level}</span>
+                <span className="text-slate-300">•</span>
+                <span className="text-[10px] font-bold text-teal-700">{result.curriculum || standard}</span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  const text = typeof result.content === 'string' 
+                    ? result.content 
+                    : JSON.stringify(result, null, 2);
+                  navigator.clipboard.writeText(text);
+                  onNotify('📋 Study Guide copied to clipboard for student handouts!');
+                }}
+                className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+              >
+                <span>📋</span>
+                <span>Copy Guide</span>
+              </button>
+              <span className="text-[10px] font-black uppercase text-teal-700 bg-teal-50 px-2.5 py-1 rounded-full border border-teal-200">
+                Authorized Dossier
+              </span>
+            </div>
           </div>
-          <div className="text-xs text-slate-700 font-medium whitespace-pre-line leading-relaxed">
-            {typeof result.content === 'string' ? result.content : JSON.stringify(result.content, null, 2)}
-          </div>
+
+          {/* Overview */}
+          {result.overview && (
+            <div className="p-4 bg-white rounded-xl border border-slate-200/80 shadow-2xs">
+              <div className="text-[10px] font-black uppercase tracking-wider text-slate-400 mb-1.5">
+                Executive Course Overview
+              </div>
+              <p className="text-xs text-slate-700 leading-relaxed font-medium">
+                {result.overview}
+              </p>
+            </div>
+          )}
+
+          {/* Structured Modules */}
+          {Array.isArray(result.modules) && result.modules.length > 0 ? (
+            <div className="space-y-3">
+              <div className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                Core Curriculum Modules
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {result.modules.map((m: any, idx: number) => (
+                  <div key={idx} className="p-4 bg-white rounded-xl border border-slate-200 shadow-2xs space-y-2">
+                    <h5 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                      <span className="w-4 h-4 rounded-full bg-teal-100 text-teal-800 text-[10px] flex items-center justify-center font-bold">
+                        {idx + 1}
+                      </span>
+                      <span>{m.title}</span>
+                    </h5>
+                    <ul className="space-y-1 text-[11px] text-slate-600 font-medium list-disc list-inside">
+                      {(m.content || []).map((c: string, cIdx: number) => (
+                        <li key={cIdx} className="leading-relaxed">{c}</li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="text-xs text-slate-700 font-medium whitespace-pre-line leading-relaxed p-4 bg-white rounded-xl border border-slate-200">
+              {typeof result.content === 'string' ? result.content : JSON.stringify(result.content, null, 2)}
+            </div>
+          )}
+
+          {/* Technical Vocabulary */}
+          {Array.isArray(result.keyVocabulary) && result.keyVocabulary.length > 0 && (
+            <div className="p-4 bg-white rounded-xl border border-slate-200/80 shadow-2xs space-y-2">
+              <div className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+                Essential Technical Terminology
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {result.keyVocabulary.map((vocab: string, vIdx: number) => (
+                  <span
+                    key={vIdx}
+                    className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-800 border border-slate-200"
+                  >
+                    {vocab}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Practical Exercises & Assessment Criteria */}
+          {Array.isArray(result.practicalExercises) && result.practicalExercises.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="p-4 bg-lime-50/50 rounded-xl border border-lime-200 space-y-2">
+                <div className="text-[10px] font-black uppercase tracking-wider text-lime-900">
+                  Practical Kitchen Assignments
+                </div>
+                <ul className="space-y-1.5 text-[11px] text-slate-800 font-medium">
+                  {result.practicalExercises.map((ex: string, eIdx: number) => (
+                    <li key={eIdx} className="flex items-start gap-1.5">
+                      <span className="text-lime-700 font-bold">👉</span>
+                      <span>{ex}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {Array.isArray(result.assessmentCriteria) && result.assessmentCriteria.length > 0 && (
+                <div className="p-4 bg-teal-50/50 rounded-xl border border-teal-200 space-y-2">
+                  <div className="text-[10px] font-black uppercase tracking-wider text-teal-900">
+                    City & Guilds Assessment Benchmarks
+                  </div>
+                  <ul className="space-y-1.5 text-[11px] text-slate-800 font-medium">
+                    {result.assessmentCriteria.map((crit: string, cIdx: number) => (
+                      <li key={cIdx} className="flex items-start gap-1.5">
+                        <span className="text-teal-700 font-bold">✓</span>
+                        <span>{crit}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

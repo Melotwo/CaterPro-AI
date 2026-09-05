@@ -20,7 +20,8 @@ import {
   Sliders,
   Layers,
   Flame,
-  AlertTriangle
+  AlertTriangle,
+  BookOpen
 } from 'lucide-react';
 import { Menu } from '../types';
 
@@ -270,25 +271,65 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Event Type */}
-          <div>
-            <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1.5">
-              Event / Service Type
-            </label>
-            <select
-              value={quickEventType}
-              onChange={(e) => setQuickEventType(e.target.value)}
-              className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition-all cursor-pointer shadow-2xs"
-            >
-              <option>Hotel Banquet</option>
-              <option>À la carte Service</option>
-              <option>Corporate Conference</option>
-              <option>Staff Meals</option>
-              <option>Cocktail Party</option>
-              <option>Wedding Reception</option>
-              <option>In-Room Dining</option>
-              <option>VIP Private Dinner</option>
-            </select>
+          {/* Event Type (Free-text with Datalist & Quick Chips) */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500">
+                Event / Service Type
+              </label>
+              <span className="text-[9px] font-bold text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200">
+                Type Any Custom Event
+              </span>
+            </div>
+            
+            <div className="relative">
+              <input
+                type="text"
+                list="event-type-presets"
+                value={quickEventType}
+                onChange={(e) => setQuickEventType(e.target.value)}
+                placeholder="e.g. Graduation Party, Hotel Banquet..."
+                className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition-all shadow-2xs"
+              />
+              <datalist id="event-type-presets">
+                <option value="Graduation Party" />
+                <option value="Hotel Banquet" />
+                <option value="Wedding Reception" />
+                <option value="Corporate Conference" />
+                <option value="Cocktail Party & Canapés" />
+                <option value="À la carte Service" />
+                <option value="Staff Meals" />
+                <option value="In-Room Dining" />
+                <option value="VIP Private Dinner" />
+                <option value="Matric Dance / Prom" />
+                <option value="Anniversary Gala" />
+              </datalist>
+            </div>
+
+            {/* Quick-Click Event Type Badges */}
+            <div className="flex flex-wrap gap-1 pt-0.5">
+              {[
+                { label: 'Graduation Party', icon: '🎓' },
+                { label: 'Hotel Banquet', icon: '🍽️' },
+                { label: 'Wedding Reception', icon: '💍' },
+                { label: 'Cocktail Party', icon: '🍸' },
+                { label: 'Staff Meals', icon: '👨‍🍳' }
+              ].map(preset => (
+                <button
+                  key={preset.label}
+                  type="button"
+                  onClick={() => setQuickEventType(preset.label)}
+                  className={`text-[9px] font-bold px-2 py-0.5 rounded-md border transition-all cursor-pointer flex items-center gap-1 ${
+                    quickEventType.toLowerCase() === preset.label.toLowerCase()
+                      ? 'bg-gradient-to-r from-lime-500 to-teal-600 text-white border-teal-600 shadow-2xs'
+                      : 'bg-slate-50 hover:bg-teal-50 text-slate-600 border-slate-200'
+                  }`}
+                >
+                  <span>{preset.icon}</span>
+                  <span>{preset.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Covers / Guests */}
@@ -590,6 +631,17 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
             <span>Open Mission Control Calculator</span>
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
+
+          {onOpenRecipe && (
+            <button
+              type="button"
+              onClick={onOpenRecipe}
+              className="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5 cursor-pointer active:scale-95"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Food Encyclopedia (Larousse)</span>
+            </button>
+          )}
 
           <button
             type="button"

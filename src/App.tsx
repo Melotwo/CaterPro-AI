@@ -15,7 +15,7 @@ import { BanquetEventOrderModal } from './components/BanquetEventOrderModal';
 import Calculator from './components/Calculator';
 import RecipeGenerator from './components/RecipeGenerator';
 import { CommandCenter } from './components/CommandCenter';
-import { ChefHat, GraduationCap, Calculator as CalcIcon, Utensils, Sparkles } from 'lucide-react';
+import { ChefHat, GraduationCap, Calculator as CalcIcon, Utensils, Sparkles, BookOpen } from 'lucide-react';
 import { Menu } from './types';
 
 // Toast Component
@@ -395,8 +395,8 @@ export function App() {
                   : 'text-slate-500 hover:text-slate-900'
               }`}
             >
-              <Utensils className="w-3.5 h-3.5 text-teal-600" />
-              <span>Recipe Studio</span>
+              <BookOpen className="w-3.5 h-3.5 text-amber-600" />
+              <span>Food Encyclopedia (Larousse)</span>
             </button>
             <button
               onClick={() => setActiveTab('commis')}

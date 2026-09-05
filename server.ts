@@ -4,6 +4,8 @@ import { fileURLToPath } from "url";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import { getCulinaryIngredientBreakdown } from "./src/services/culinaryCostingEngine";
+import { synthesizeHotelMenu } from "./src/services/hotelMenuSynthesizer";
+import { synthesizeStudyGuide } from "./src/services/studyGuideEngine";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -183,16 +185,78 @@ ${structurePrompt}`;
           const lastBrace = cleaned.lastIndexOf("}");
           if (firstBrace !== -1 && lastBrace !== -1) {
             const parsed = JSON.parse(cleaned.substring(firstBrace, lastBrace + 1));
-            res.json({ data: parsed });
+            res.json({ data: parsed, source: "gemini-3.8-flash" });
             return;
           }
         }
       }
     } catch (err: any) {
-      console.warn("Server-side menu generation error:", err?.message || err);
+      console.warn("Server-side menu generation error (falling back to hotel synthesizer):", err?.message || err);
     }
 
-    res.status(500).json({ error: "Failed to generate dynamic menu from server." });
+    // High-fidelity fallback: 100% reliable hotel banquet generation tailored to the exact event type & covers
+    const dynamicMenu = synthesizeHotelMenu(params);
+    res.json({ data: dynamicMenu, source: "caterpro-culinary-engine" });
+  });
+
+  /**
+   * Route: Vocational Culinary Study Guide & Syllabus Generator
+   * Aligned with City & Guilds (South Africa), QCTO, DHET N4-N6 & International Standards
+   */
+  app.post("/api/gemini/study-guide", async (req, res) => {
+    const { topic = "Menu Engineering & Food Costing", curriculum = "City & Guilds (South Africa)", level = "Level 2 / N4 Diploma", docType = "guide" } = req.body || {};
+
+    try {
+      const ai = getGeminiClient();
+      if (ai) {
+        const prompt = `As a senior culinary examiner for ${curriculum} and accredited vocational assessor (${level}), formulate a comprehensive ${docType === 'curriculum' ? 'official curriculum syllabus' : 'candidate self-study guide'} on the topic: "${topic}".
+Include core learning competencies, SANS 10330 HACCP standards, edible portion yield testing, Escoffier culinary principles, practical kitchen assignments, and formal assessment criteria.
+Return ONLY valid JSON matching this schema:
+{
+  "title": "string",
+  "curriculum": "string",
+  "level": "string",
+  "overview": "string",
+  "modules": [
+    {
+      "title": "string",
+      "content": ["string"]
+    }
+  ],
+  "keyVocabulary": ["string"],
+  "practicalExercises": ["string"],
+  "assessmentCriteria": ["string"],
+  "content": "string (formatted markdown course syllabus)"
+}`;
+
+        const response = await ai.models.generateContent({
+          model: "gemini-3.8-flash",
+          contents: prompt,
+          config: {
+            temperature: 0.4,
+            responseMimeType: "application/json"
+          }
+        });
+
+        const text = response.text || "";
+        if (text.trim()) {
+          const cleaned = text.replace(/```json|```/g, "").trim();
+          const firstBrace = cleaned.indexOf("{");
+          const lastBrace = cleaned.lastIndexOf("}");
+          if (firstBrace !== -1 && lastBrace !== -1) {
+            const parsed = JSON.parse(cleaned.substring(firstBrace, lastBrace + 1));
+            res.json({ data: parsed, source: "gemini-3.8-flash" });
+            return;
+          }
+        }
+      }
+    } catch (err: any) {
+      console.warn("Server study guide AI generation error (falling back to study guide engine):", err?.message || err);
+    }
+
+    // High-fidelity fallback aligned with City & Guilds
+    const fallbackGuide = synthesizeStudyGuide(topic, curriculum, level, docType);
+    res.json({ data: fallbackGuide, source: "commis-academy-engine" });
   });
 
   /**
