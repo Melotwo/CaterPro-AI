@@ -402,6 +402,78 @@ Return valid JSON matching:
     });
   });
 
+  /**
+   * Route: Generate Hero / Cover Image for Proposal
+   * Uses Gemini Image generation with fallback to curated high-res culinary assets.
+   */
+  app.post("/api/gemini/generate-image", async (req, res) => {
+    const { title, eventType = "Hotel Banquet", cuisineStyle = "Contemporary", prompt } = req.body || {};
+    
+    // Rich culinary photographic prompt tailored to event and cuisine
+    const defaultPrompt = `Professional editorial food photography, spectacular catering presentation for a ${eventType}, authentic ${cuisineStyle} dishes, Michelin-star hotel banquet plating, appetizing warm ambient lighting, elegant table setting, shallow depth of field, 8k resolution, crisp photorealistic masterpiece.`;
+    const imagePrompt = prompt || defaultPrompt;
+
+    try {
+      const ai = getGeminiClient();
+      if (ai) {
+        try {
+          const response = await ai.models.generateContent({
+            model: 'gemini-3.1-flash-lite-image',
+            contents: {
+              parts: [{ text: imagePrompt }]
+            },
+            config: {
+              imageConfig: {
+                aspectRatio: "16:9"
+              }
+            }
+          });
+
+          for (const part of response.candidates?.[0]?.content?.parts || []) {
+            if (part.inlineData && part.inlineData.data) {
+              const mimeType = part.inlineData.mimeType || 'image/jpeg';
+              res.json({
+                imageUrl: `data:${mimeType};base64,${part.inlineData.data}`,
+                isFallback: false
+              });
+              return;
+            }
+          }
+        } catch (geminiErr: any) {
+          console.warn("Gemini image generation attempt notice (using curated banquet photography):", geminiErr?.message || geminiErr);
+        }
+      }
+    } catch (err: any) {
+      console.warn("Image route handler warning:", err?.message || err);
+    }
+
+    // Curated high-resolution culinary photography by event type and cuisine
+    const normalized = `${eventType} ${cuisineStyle} ${title || ''}`.toLowerCase();
+    let fallback = "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1600&q=85"; // Default Banquet
+
+    if (normalized.includes('graduation') || normalized.includes('matric') || normalized.includes('prom')) {
+      fallback = "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1600&q=85";
+    } else if (normalized.includes('wedding')) {
+      fallback = "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1600&q=85";
+    } else if (normalized.includes('cocktail') || normalized.includes('canapé') || normalized.includes('canape')) {
+      fallback = "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=1600&q=85";
+    } else if (normalized.includes('corporate') || normalized.includes('conference')) {
+      fallback = "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1600&q=85";
+    } else if (normalized.includes('braai') || normalized.includes('bbq') || normalized.includes('grill')) {
+      fallback = "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1600&q=85";
+    } else if (normalized.includes('french') || normalized.includes('escoffier')) {
+      fallback = "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1600&q=85";
+    } else if (normalized.includes('seafood') || normalized.includes('coastal') || normalized.includes('fish')) {
+      fallback = "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=1600&q=85";
+    } else if (normalized.includes('asian') || normalized.includes('fusion')) {
+      fallback = "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=1600&q=85";
+    } else if (normalized.includes('plant') || normalized.includes('vegan') || normalized.includes('vegetarian')) {
+      fallback = "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=1600&q=85";
+    }
+
+    res.json({ imageUrl: fallback, isFallback: true });
+  });
+
   // Vite Middleware Integration
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({

@@ -76,30 +76,41 @@ const cleanAndParseJson = (rawText: string): any => {
 };
 
 export const THEME_REPOSITORY: Record<string, string> = {
-  wedding: "https://images.unsplash.com/photo-1519225495810-7517cbd14565?auto=format&fit=crop&w=1200&q=80",
-  corporate: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1200&q=80",
-  gala: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1200&q=80",
-  dinner: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=80",
-  lunch: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80",
-  cocktail: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=1200&q=80",
-  party: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=1200&q=80",
-  bbq: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1200&q=80",
-  braai: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1200&q=80",
-  birthday: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=1200&q=80",
-  default: "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1200&q=80"
+  graduation: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1600&q=85",
+  wedding: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1600&q=85",
+  corporate: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1600&q=85",
+  gala: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1600&q=85",
+  banquet: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1600&q=85",
+  dinner: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1600&q=85",
+  lunch: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1600&q=85",
+  cocktail: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=1600&q=85",
+  party: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=1600&q=85",
+  bbq: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1600&q=85",
+  braai: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1600&q=85",
+  birthday: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=1600&q=85",
+  french: "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1600&q=85",
+  seafood: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=1600&q=85",
+  asian: "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=1600&q=85",
+  plant: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=1600&q=85",
+  default: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1600&q=85"
 };
 
-export function getThemeFallbackImage(eventType: string): string {
-  const normalized = (eventType || '').toLowerCase();
-  if (normalized.includes('wedding')) return THEME_REPOSITORY.wedding;
-  if (normalized.includes('corporate') || normalized.includes('conference') || normalized.includes('office') || normalized.includes('business')) return THEME_REPOSITORY.corporate;
-  if (normalized.includes('gala')) return THEME_REPOSITORY.gala;
-  if (normalized.includes('cocktail') || normalized.includes('canape') || normalized.includes('canapé')) return THEME_REPOSITORY.cocktail;
-  if (normalized.includes('party') || normalized.includes('celebration')) return THEME_REPOSITORY.party;
-  if (normalized.includes('bbq') || normalized.includes('braai') || normalized.includes('grilled') || normalized.includes('grill')) return THEME_REPOSITORY.bbq;
-  if (normalized.includes('birthday')) return THEME_REPOSITORY.birthday;
-  if (normalized.includes('dinner') || normalized.includes('feast') || normalized.includes('banquet')) return THEME_REPOSITORY.dinner;
-  if (normalized.includes('lunch') || normalized.includes('brunch') || normalized.includes('breakfast')) return THEME_REPOSITORY.lunch;
+export function getThemeFallbackImage(eventType: string, cuisineStyle?: string): string {
+  const combined = `${eventType || ''} ${cuisineStyle || ''}`.toLowerCase();
+  if (combined.includes('graduation') || combined.includes('matric') || combined.includes('prom')) return THEME_REPOSITORY.graduation;
+  if (combined.includes('wedding')) return THEME_REPOSITORY.wedding;
+  if (combined.includes('corporate') || combined.includes('conference') || combined.includes('office') || combined.includes('business')) return THEME_REPOSITORY.corporate;
+  if (combined.includes('gala')) return THEME_REPOSITORY.gala;
+  if (combined.includes('cocktail') || combined.includes('canape') || combined.includes('canapé')) return THEME_REPOSITORY.cocktail;
+  if (combined.includes('party') || combined.includes('celebration')) return THEME_REPOSITORY.party;
+  if (combined.includes('bbq') || combined.includes('braai') || combined.includes('grilled') || combined.includes('grill')) return THEME_REPOSITORY.bbq;
+  if (combined.includes('birthday')) return THEME_REPOSITORY.birthday;
+  if (combined.includes('french') || combined.includes('escoffier')) return THEME_REPOSITORY.french;
+  if (combined.includes('seafood') || combined.includes('coastal') || combined.includes('fish')) return THEME_REPOSITORY.seafood;
+  if (combined.includes('asian') || combined.includes('fusion')) return THEME_REPOSITORY.asian;
+  if (combined.includes('plant') || combined.includes('vegan') || combined.includes('vegetarian')) return THEME_REPOSITORY.plant;
+  if (combined.includes('dinner') || combined.includes('feast') || combined.includes('banquet')) return THEME_REPOSITORY.dinner;
+  if (combined.includes('lunch') || combined.includes('brunch') || combined.includes('breakfast')) return THEME_REPOSITORY.lunch;
   return THEME_REPOSITORY.default;
 }
 
@@ -469,51 +480,36 @@ ${structurePrompt}
   }
 };
 
-export async function generateMenuImageFromApi(menuTitle: string, eventType: string, cuisineStyle?: string): Promise<string> {
-  const event_type = eventType || "Catering Event";
-  const cuisine_style = cuisineStyle || "Gourmet";
-  const promptString = `Professional food photography, high-end catering spread for a ${event_type}, featuring authentic ${cuisine_style} dishes, warm ambient lighting, elegant plating, shallow depth of field, 8k resolution.`;
-
-  const apiKey = getApiKey();
-  if (!apiKey || apiKey.trim() === '') {
-    console.warn("API Key is missing. Serving themed fallback image.");
-    return getThemeFallbackImage(eventType);
-  }
-
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 60000);
+export async function generateMenuImageFromApi(menuTitle: string, eventType: string, cuisineStyle?: string, prompt?: string): Promise<string> {
+  const event_type = eventType || "Catering Banquet";
+  const cuisine_style = cuisineStyle || "Contemporary";
 
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:generateImages?key=${apiKey}`, {
+    const response = await fetch('/api/gemini/generate-image', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        prompt: promptString
-      }),
-      signal: controller.signal
+        title: menuTitle,
+        eventType: event_type,
+        cuisineStyle: cuisine_style,
+        prompt
+      })
     });
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error(`Imagen API Error (status ${response.status}):`, errText);
-      throw new Error(`HTTP ${response.status}: ${errText}`);
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.imageUrl) {
+        return data.imageUrl;
+      }
     }
-
-    const data = await response.json();
-    const base64Bytes = data?.generatedImages?.[0]?.image?.imageBytes;
-    if (!base64Bytes) {
-      throw new Error("Image bytes missing in response");
-    }
-
-    return "data:image/jpeg;base64," + base64Bytes;
-  } catch (error: any) {
-    console.error("Imagen generation failed, serving themed fallback image:", error);
-    return getThemeFallbackImage(eventType);
-  } finally {
-    clearTimeout(timeoutId);
+  } catch (err: any) {
+    console.warn("Server image generation fetch issue, using curated fallback:", err?.message || err);
   }
+
+  // Gracefully return curated theme image without breaking workflow
+  return getThemeFallbackImage(event_type, cuisine_style);
 }
 
 /**
