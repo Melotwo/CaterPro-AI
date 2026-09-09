@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { generateMenuFromApi, generateMenuImageFromApi } from '../services/geminiService';
+import { generateMenuFromApi, generateMenuImageFromApi, getThemeFallbackImage } from '../services/geminiService';
 import { Menu, MenuItem } from '../types';
 
 interface NewProposalModalProps {
@@ -79,7 +79,7 @@ export const NewProposalModal: React.FC<NewProposalModalProps> = ({
         shoppingList: menuData.shoppingList || [],
         manualTotal: totalRevenue,
         manualPerHead: totalDishPrice || 450,
-        heroImage: 'https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1200&q=80'
+        heroImage: getThemeFallbackImage(effectiveEventType, cuisine)
       };
 
       try {

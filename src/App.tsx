@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { jsPDF } from 'jspdf';
 import html2canvas from 'html2canvas';
 
-import { getApiKey, generateMenuFromApi } from './services/geminiService';
+import { getApiKey, generateMenuFromApi, generateMenuImageFromApi, getThemeFallbackImage } from './services/geminiService';
 import { DEFAULT_PROPOSAL } from './data/defaultProposal';
 import { ProposalViewer } from './components/ProposalViewer';
 import { StudentGrowthLab } from './components/StudentGrowthLab';
@@ -205,6 +205,7 @@ export function App() {
           guestCount: params.covers,
           covers: params.covers,
           eventType: params.eventType,
+          heroImage: d.heroImage || d.image || getThemeFallbackImage(params.eventType, params.cuisine),
           eventDate: new Date().toISOString().split('T')[0],
           roomLocation: params.outlet,
           beoNumber: `BEO-${new Date().getFullYear()}-HOTEL-${Math.floor(100 + Math.random() * 900)}`,
@@ -240,6 +241,19 @@ export function App() {
         setProposal(newMenu);
         localStorage.setItem('caterpro_recent_proposal', JSON.stringify(newMenu));
         setToast('✅ Menu formulated! Push to Calculator to inspect costings & yields.');
+
+        // Asynchronously generate tailored high-res banner image
+        generateMenuImageFromApi(newMenu.title || params.eventType, params.eventType, params.cuisine)
+          .then((img) => {
+            if (img) {
+              setProposal(prev => {
+                const updated = { ...prev, heroImage: img };
+                localStorage.setItem('caterpro_recent_proposal', JSON.stringify(updated));
+                return updated;
+              });
+            }
+          })
+          .catch(() => {});
       }
     } catch (err: any) {
       console.error('Menu generation error:', err);
