@@ -3,7 +3,8 @@ type AnalyticsEvent =
   | { type: 'awareness_view'; data: { page: string } }
   | { type: 'conversion_generate'; data: { eventType: string; plan: string } }
   | { type: 'loyalty_save'; data: { menuTitle: string } }
-  | { type: 'founder_action'; data: { actionName: string } };
+  | { type: 'founder_action'; data: { actionName: string } }
+  | { type: string; data?: Record<string, any> };
 
 class AnalyticsManager {
   private static instance: AnalyticsManager;

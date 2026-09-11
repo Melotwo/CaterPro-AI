@@ -15,6 +15,7 @@ import { BanquetEventOrderModal } from './components/BanquetEventOrderModal';
 import Calculator from './components/Calculator';
 import RecipeGenerator from './components/RecipeGenerator';
 import { CommandCenter } from './components/CommandCenter';
+import { GoogleAnalytics, trackEvent } from './GoogleAnalytics';
 import { ChefHat, GraduationCap, Calculator as CalcIcon, Utensils, Sparkles, BookOpen } from 'lucide-react';
 import { Menu } from './types';
 
@@ -242,6 +243,13 @@ export function App() {
         localStorage.setItem('caterpro_recent_proposal', JSON.stringify(newMenu));
         setToast('✅ Menu formulated! Push to Calculator to inspect costings & yields.');
 
+        trackEvent('generate_menu', {
+          event_type: params.eventType,
+          covers: params.covers,
+          outlet: params.outlet,
+          cuisine: params.cuisine
+        });
+
         // Asynchronously generate tailored high-res banner image
         generateMenuImageFromApi(newMenu.title || params.eventType, params.eventType, params.cuisine)
           .then((img) => {
@@ -276,6 +284,11 @@ export function App() {
   const handleSaveProposal = () => {
     localStorage.setItem('caterpro_recent_proposal', JSON.stringify(proposal));
     setToast('Proposal saved to your browser storage!');
+    trackEvent('save_proposal', {
+      title: proposal.title || 'Untitled Proposal',
+      covers: proposal.guestCount || 50,
+      total_value: proposal.manualTotal || 0
+    });
   };
 
   // Handle Export PDF
@@ -317,6 +330,11 @@ export function App() {
       const fileName = `${(proposal.title || 'Catering_Proposal').replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
       pdf.save(fileName);
       setToast('PDF downloaded successfully!');
+      trackEvent('export_pdf', {
+        title: proposal.title || 'Untitled Proposal',
+        covers: proposal.guestCount || 50,
+        file_name: fileName
+      });
     } catch (err: any) {
       console.error(err);
       setToast('PDF export failed. Try printing the page.');
@@ -336,10 +354,16 @@ export function App() {
     docText += `\nESTIMATED TOTAL: ZAR ${(proposal.manualTotal || 22500).toLocaleString()}\n`;
     navigator.clipboard.writeText(docText);
     setToast('Proposal copied to clipboard for Google Docs / Word!');
+    trackEvent('copy_proposal_text', {
+      title: proposal.title || 'Untitled Proposal'
+    });
   };
 
   // Share link handler
   const handleShareLink = () => {
+    trackEvent('share_link', {
+      title: proposal.title || 'CaterPro AI Proposal'
+    });
     if (navigator.share) {
       navigator.share({
         title: proposal.title || 'CaterPro AI Proposal',
@@ -354,6 +378,7 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 font-sans transition-colors selection:bg-emerald-500/20">
+      <GoogleAnalytics currentTab={activeTab} />
       
       {/* 1. TOP HEADER NAVIGATION BAR (Exact match to PDF) */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-2xs">
