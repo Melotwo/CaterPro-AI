@@ -15,6 +15,7 @@ import { BanquetEventOrderModal } from './components/BanquetEventOrderModal';
 import Calculator from './components/Calculator';
 import RecipeGenerator from './components/RecipeGenerator';
 import { CommandCenter } from './components/CommandCenter';
+import AcademicHub from './components/academic/AcademicHub';
 import { GoogleAnalytics, trackEvent } from './GoogleAnalytics';
 import { ChefHat, GraduationCap, Calculator as CalcIcon, Utensils, Sparkles, BookOpen } from 'lucide-react';
 import { Menu } from './types';
@@ -163,7 +164,7 @@ const AiChatBot: React.FC = () => {
 };
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<'proposal' | 'calculator' | 'recipe' | 'commis'>('proposal');
+  const [activeTab, setActiveTab] = useState<'proposal' | 'calculator' | 'recipe' | 'commis' | 'academic'>('proposal');
   const [proposal, setProposal] = useState<Menu>(() => {
     const saved = localStorage.getItem('caterpro_recent_proposal');
     if (saved) {
@@ -178,6 +179,7 @@ export function App() {
   const [isBeoOpen, setIsBeoOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isGeneratingMenu, setIsGeneratingMenu] = useState(false);
+  const [recipeSelectedDish, setRecipeSelectedDish] = useState<string>('');
 
   // Quick menu generator directly invoked from Command Center
   const handleQuickGenerateMenu = async (params: {
@@ -448,6 +450,20 @@ export function App() {
               <GraduationCap className="w-3.5 h-3.5 text-emerald-600" />
               <span>Commis Academy</span>
             </button>
+            <button
+              onClick={() => setActiveTab('academic')}
+              className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeTab === 'academic'
+                  ? 'bg-white text-slate-900 shadow-2xs'
+                  : 'text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              <GraduationCap className="w-3.5 h-3.5 text-amber-600" />
+              <span>Academic Hub</span>
+              <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-900/30 text-amber-500 border border-amber-700/50">
+                QCTO / SAQA
+              </span>
+            </button>
           </div>
 
           {/* Right Actions */}
@@ -499,6 +515,55 @@ export function App() {
           </div>
         </div>
       </header>
+
+      {/* Mobile Navigation Bar */}
+      <div className="md:hidden flex items-center gap-1.5 overflow-x-auto px-4 py-2.5 bg-white border-b border-slate-200 text-xs font-bold scrollbar-none shadow-2xs">
+        <button
+          onClick={() => setActiveTab('proposal')}
+          className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shrink-0 ${
+            activeTab === 'proposal' ? 'bg-slate-900 text-white' : 'text-slate-600 bg-slate-100'
+          }`}
+        >
+          <ChefHat className="w-3.5 h-3.5 text-teal-400" />
+          <span>Command</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('calculator')}
+          className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shrink-0 ${
+            activeTab === 'calculator' ? 'bg-slate-900 text-white' : 'text-slate-600 bg-slate-100'
+          }`}
+        >
+          <CalcIcon className="w-3.5 h-3.5 text-teal-400" />
+          <span>Costing</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('recipe')}
+          className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shrink-0 ${
+            activeTab === 'recipe' ? 'bg-slate-900 text-white' : 'text-slate-600 bg-slate-100'
+          }`}
+        >
+          <BookOpen className="w-3.5 h-3.5 text-amber-400" />
+          <span>Larousse</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('commis')}
+          className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shrink-0 ${
+            activeTab === 'commis' ? 'bg-slate-900 text-white' : 'text-slate-600 bg-slate-100'
+          }`}
+        >
+          <GraduationCap className="w-3.5 h-3.5 text-emerald-400" />
+          <span>Commis</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('academic')}
+          className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shrink-0 ${
+            activeTab === 'academic' ? 'bg-slate-900 text-white' : 'text-slate-600 bg-slate-100'
+          }`}
+        >
+          <GraduationCap className="w-3.5 h-3.5 text-amber-400" />
+          <span>Academic (QCTO)</span>
+        </button>
+      </div>
 
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
@@ -648,8 +713,9 @@ export function App() {
             <RecipeGenerator
               generatedMenu={proposal}
               region="South Africa"
-              selectedItemName={proposal.menu?.[0]?.dish || ''}
-              setSelectedItemName={() => {}}
+              selectedItemName={recipeSelectedDish || proposal.menu?.[0]?.dish || ''}
+              setSelectedItemName={setRecipeSelectedDish}
+              guestCount={proposal.guestCount || proposal.covers || 120}
             />
           </div>
         )}
@@ -668,13 +734,24 @@ export function App() {
                   Dedicated culinary education track for apprentice chefs, culinary students, and brigade trainees. Covers classical Escoffier sauce lineages, knife work fundamentals, and SANS 10330 HACCP food safety standards.
                 </p>
               </div>
-              <button
-                type="button"
-                onClick={() => setIsUpgradeOpen(true)}
-                className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-sm shrink-0"
-              >
-                Commis Student Plan (R149)
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('academic')}
+                  className="px-4 py-2 bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-sm flex items-center gap-1.5 cursor-pointer"
+                >
+                  <GraduationCap className="w-3.5 h-3.5" />
+                  <span>QCTO / SAQA Hub</span>
+                  <span>→</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsUpgradeOpen(true)}
+                  className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-sm"
+                >
+                  Commis Student Plan (R149)
+                </button>
+              </div>
             </div>
 
             <EducationHubSection
@@ -687,6 +764,17 @@ export function App() {
                 navigator.clipboard.writeText(text);
                 setToast(`Copied ${title} to clipboard!`);
               }}
+            />
+          </div>
+        )}
+
+        {/* Academic Hub (QCTO / SAQA Curriculum Companion) */}
+        {activeTab === 'academic' && (
+          <div className="pt-4">
+            <AcademicHub
+              proposal={proposal}
+              onNotify={(msg) => setToast(msg)}
+              onOpenUpgrade={() => setIsUpgradeOpen(true)}
             />
           </div>
         )}

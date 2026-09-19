@@ -1,5 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Calculator, 
+  Users, 
+  Scale, 
+  RotateCcw, 
+  Copy, 
+  Check, 
+  Printer, 
+  ChefHat, 
+  Sparkles, 
+  Plus, 
+  Minus, 
+  ThermometerSnowflake, 
+  AlertCircle,
+  Layers
+} from 'lucide-react';
 import { Menu } from '../types';
 
 interface RecipeGeneratorProps {
@@ -7,48 +23,238 @@ interface RecipeGeneratorProps {
   region: string;
   selectedItemName: string;
   setSelectedItemName: (name: string) => void;
+  guestCount?: number;
 }
 
-const OCTAGON_CLIP = 'polygon(15% 0%, 85% 0%, 100% 15%, 100% 85%, 85% 100%, 15% 100%, 0% 85%, 0% 15%)';
+export interface MiseEnPlaceItem {
+  item: string;
+  specification?: string;
+  quantity: string;
+  prepTechnique?: string;
+}
 
-const cleanAndParseJson = (rawText: string): any => {
-  let cleaned = rawText.replace(/```json/g, '').replace(/```/g, '').trim();
-  const firstBrace = cleaned.indexOf('{');
-  const lastBrace = cleaned.lastIndexOf('}');
-  
-  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-    cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+export interface ScaledMiseEnPlaceItem {
+  item: string;
+  specification?: string;
+  originalQuantity: string;
+  scaledQuantity: string;
+  unit: string;
+  prepTechnique?: string;
+  isScalable: boolean;
+}
+
+export interface RecipeData {
+  dishName: string;
+  prepTime: string;
+  cookTime: string;
+  yield: string;
+  basePax: number;
+  culinaryIntroduction: string;
+  miseEnPlace: MiseEnPlaceItem[];
+  steps: { step: number; title: string; instruction: string }[];
+  larousseInsights: { term: string; definition: string; motherSauceLinkage?: string }[];
+  platedPresentationNotes: string;
+}
+
+/**
+ * Extract numerical base yield from string (e.g. "10 Covers / Banquet", "50 Portions")
+ */
+export const parseBaseYield = (yieldStr?: string): number => {
+  if (!yieldStr) return 10;
+  const match = yieldStr.match(/(\d+)/);
+  if (match) {
+    const num = parseInt(match[1], 10);
+    return num > 0 ? num : 10;
   }
-  
-  try {
-    return JSON.parse(cleaned);
-  } catch (error) {
-    console.warn("JSON parsing fallback activated for recipe", error);
-    const jsonRegex = /\{[\s\S]*\}/;
-    const match = cleaned.match(jsonRegex);
-    if (match) {
-      return JSON.parse(match[0]);
-    }
-    throw error;
-  }
+  return 10;
 };
+
+/**
+ * Scale ingredient quantity with smart commercial unit conversion (g -> kg, ml -> L)
+ */
+export const scaleIngredient = (
+  itemObj: MiseEnPlaceItem,
+  scaleFactor: number
+): ScaledMiseEnPlaceItem => {
+  const rawQty = (itemObj.quantity || '').trim();
+
+  // If non-scalable (e.g. "to taste", "as needed", "pinch", "garnish", or empty)
+  if (!rawQty || /to taste|as needed|for garnish|pinch|q\.s\./i.test(rawQty)) {
+    return {
+      item: itemObj.item,
+      specification: itemObj.specification,
+      originalQuantity: rawQty || 'To taste',
+      scaledQuantity: rawQty || 'To taste',
+      unit: '',
+      prepTechnique: itemObj.prepTechnique,
+      isScalable: false
+    };
+  }
+
+  let numericVal: number | null = null;
+  let unit = '';
+
+  // Match fractions like "1 1/2" or "1/2" or "3/4"
+  const fracMatch = rawQty.match(/^(\d+)?\s*(\d+)\/(\d+)\s*(.*)$/);
+  if (fracMatch) {
+    const whole = fracMatch[1] ? parseFloat(fracMatch[1]) : 0;
+    const num = parseFloat(fracMatch[2]);
+    const den = parseFloat(fracMatch[3]);
+    numericVal = whole + (den !== 0 ? num / den : 0);
+    unit = (fracMatch[4] || '').trim();
+  } else {
+    // Match decimal or integer with unit
+    const stdMatch = rawQty.match(/^([\d.,]+)\s*(.*)$/);
+    if (stdMatch) {
+      const parsed = parseFloat(stdMatch[1].replace(/,/g, '.'));
+      if (!isNaN(parsed)) {
+        numericVal = parsed;
+        unit = (stdMatch[2] || '').trim();
+      }
+    }
+  }
+
+  if (numericVal === null || isNaN(numericVal)) {
+    return {
+      item: itemObj.item,
+      specification: itemObj.specification,
+      originalQuantity: rawQty,
+      scaledQuantity: rawQty,
+      unit: '',
+      prepTechnique: itemObj.prepTechnique,
+      isScalable: false
+    };
+  }
+
+  const rawScaled = numericVal * scaleFactor;
+  const lowerUnit = unit.toLowerCase();
+  let scaledFormatted = '';
+  let scaledUnit = unit;
+
+  // Grams to Kilograms conversion
+  if (lowerUnit === 'g' || lowerUnit === 'gram' || lowerUnit === 'grams') {
+    if (rawScaled >= 1000) {
+      const kg = rawScaled / 1000;
+      scaledUnit = 'kg';
+      scaledFormatted = `${kg >= 10 ? kg.toFixed(1) : kg.toFixed(2).replace(/\.00$/, '')} kg`;
+    } else {
+      scaledUnit = 'g';
+      scaledFormatted = `${rawScaled >= 10 ? Math.round(rawScaled) : rawScaled.toFixed(1)} g`;
+    }
+  } 
+  // Millilitres to Litres conversion
+  else if (lowerUnit === 'ml' || lowerUnit === 'milliliters' || lowerUnit === 'millilitres') {
+    if (rawScaled >= 1000) {
+      const l = rawScaled / 1000;
+      scaledUnit = 'L';
+      scaledFormatted = `${l >= 10 ? l.toFixed(1) : l.toFixed(2).replace(/\.00$/, '')} L`;
+    } else {
+      scaledUnit = 'ml';
+      scaledFormatted = `${rawScaled >= 10 ? Math.round(rawScaled) : rawScaled.toFixed(1)} ml`;
+    }
+  } 
+  // Kilograms
+  else if (lowerUnit === 'kg' || lowerUnit === 'kilogram' || lowerUnit === 'kilograms') {
+    scaledUnit = 'kg';
+    scaledFormatted = `${rawScaled >= 10 ? rawScaled.toFixed(1) : rawScaled.toFixed(2).replace(/\.00$/, '')} kg`;
+  } 
+  // Litres
+  else if (lowerUnit === 'l' || lowerUnit === 'liter' || lowerUnit === 'liters' || lowerUnit === 'litre' || lowerUnit === 'litres') {
+    scaledUnit = 'L';
+    scaledFormatted = `${rawScaled >= 10 ? rawScaled.toFixed(1) : rawScaled.toFixed(2).replace(/\.00$/, '')} L`;
+  } 
+  // Tablespoons
+  else if (lowerUnit === 'tbsp' || lowerUnit === 'tablespoon' || lowerUnit === 'tablespoons') {
+    scaledUnit = 'tbsp';
+    scaledFormatted = `${rawScaled >= 10 ? Math.round(rawScaled) : rawScaled.toFixed(1)} tbsp`;
+  } 
+  // Teaspoons
+  else if (lowerUnit === 'tsp' || lowerUnit === 'teaspoon' || lowerUnit === 'teaspoons') {
+    scaledUnit = 'tsp';
+    scaledFormatted = `${rawScaled >= 10 ? Math.round(rawScaled) : rawScaled.toFixed(1)} tsp`;
+  } 
+  // Cups
+  else if (lowerUnit === 'cup' || lowerUnit === 'cups') {
+    scaledUnit = rawScaled > 1 ? 'cups' : 'cup';
+    scaledFormatted = `${rawScaled >= 10 ? rawScaled.toFixed(1) : rawScaled.toFixed(2).replace(/\.00$/, '')} ${scaledUnit}`;
+  } 
+  // Whole items, cloves, slices, pieces
+  else {
+    const cleanNum = rawScaled >= 10 ? Math.round(rawScaled) : (rawScaled % 1 === 0 ? rawScaled.toString() : rawScaled.toFixed(1));
+    scaledFormatted = unit ? `${cleanNum} ${unit}` : `${cleanNum}`;
+  }
+
+  return {
+    item: itemObj.item,
+    specification: itemObj.specification,
+    originalQuantity: rawQty,
+    scaledQuantity: scaledFormatted,
+    unit: scaledUnit,
+    prepTechnique: itemObj.prepTechnique,
+    isScalable: true
+  };
+};
+
+const buildDefaultRecipe = (dish: string, regionName: string): RecipeData => ({
+  dishName: dish || "Roasted Heritage Beetroot & Goat's Cheese Carpaccio",
+  prepTime: "25 Minutes",
+  cookTime: "20 Minutes",
+  yield: "10 Covers / Escoffier Classical Base",
+  basePax: 10,
+  culinaryIntroduction: `Classical Escoffier and high-volume hotel formulation for ${dish || 'the selected banquet course'}, localized for ${regionName}.`,
+  miseEnPlace: [
+    { item: "Primary Protein / Core Produce", specification: "Trimmed, portioned & chilled <4°C", quantity: "1.2 kg", prepTechnique: "Precision Brunoise & Par-cook" },
+    { item: "Cold-Pressed Virgin Olive Oil", specification: "Single-estate cold press", quantity: "120 ml", prepTechnique: "Emulsion binding" },
+    { item: "Fresh Fine Herbs", specification: "Chervil, tarragon, flat-leaf parsley", quantity: "45 g", prepTechnique: "Delicate Chiffonade" },
+    { item: "Kalahari Desert Crystal Salt", specification: "Mineral-rich unrefined salt", quantity: "15 g", prepTechnique: "Season to finish" },
+    { item: "Aged Fynbos Honey Gastrique", specification: "Local artisanal honey reduction", quantity: "60 ml", prepTechnique: "Glossy drizzle reduction" },
+    { item: "Artisanal Goat Chevin or Crumb", specification: "Cold room tempered 12°C", quantity: "250 g", prepTechnique: "Quenelle or gentle crumble" }
+  ],
+  steps: [
+    { step: 1, title: "SANS 10330 Prep & Cold Chain Stabilization", instruction: "Sanitize stainless steel prep stations with approved chemical sanitizers. Maintain all cold ingredients at <4°C." },
+    { step: 2, title: "Thermal Sealing & Reduction Development", instruction: "Execute core cooking over high heat to initiate Maillard development. Simmer reduction until coats back of spoon (nappé)." },
+    { step: 3, title: "Commercial Banquet Assembly & Pass Inspection", instruction: "Portion onto warmed banquet china. Drizzle emulsified reduction diagonally and crown with fresh chiffonade herbs." }
+  ],
+  larousseInsights: [
+    { term: "Brunoise", definition: "Precision 2mm fine dice ensuring uniform cooking surface and elegant mouthfeel.", motherSauceLinkage: "Velouté" },
+    { term: "Emulsion", definition: "Suspension of two unmixable liquids stabilized by natural phospholipids.", motherSauceLinkage: "Hollandaise" },
+    { term: "Nappé", definition: "Culinary texture describing a sauce thick enough to coat the back of a spoon evenly.", motherSauceLinkage: "Espagnole" }
+  ],
+  platedPresentationNotes: "Center portion cleanly on warm ceramic with vibrant herbal lustre, ensuring strict portion uniformity across all banquet covers."
+});
 
 export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
   generatedMenu,
   region,
   selectedItemName,
-  setSelectedItemName
+  setSelectedItemName,
+  guestCount
 }) => {
-  const [activeRecipe, setActiveRecipe] = useState<any | null>(null);
+  // Proposal guest count (default to 120 or 50 if unspecified)
+  const proposalGuests = useMemo(() => {
+    return guestCount || generatedMenu?.guestCount || generatedMenu?.covers || 120;
+  }, [guestCount, generatedMenu?.guestCount, generatedMenu?.covers]);
+
+  // Scaled pax state: automatically initialized to proposal guests
+  const [targetPax, setTargetPax] = useState<number>(proposalGuests);
+  const [activeRecipe, setActiveRecipe] = useState<RecipeData | null>(null);
   const [isCustomMode, setIsCustomMode] = useState(false);
   const [customDish, setCustomDish] = useState('');
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [completedSteps, setCompletedSteps] = useState<Record<number, boolean>>({});
+  const [copied, setCopied] = useState(false);
 
-  // Compile active menu dishes from generated items cleanly
-  const menuDishes = React.useMemo(() => {
+  // Sync target pax whenever proposal guest count changes
+  useEffect(() => {
+    if (proposalGuests > 0) {
+      setTargetPax(proposalGuests);
+    }
+  }, [proposalGuests]);
+
+  // Compile active menu dishes from proposal
+  const menuDishes = useMemo(() => {
     if (!generatedMenu) return [];
     const items = generatedMenu.menu || (generatedMenu as any).items || [];
     if (items.length > 0) {
@@ -57,17 +263,37 @@ export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
     return [];
   }, [generatedMenu]);
 
-  // Handle first item setup
+  // Handle first item setup and initial recipe mounting
   useEffect(() => {
     if (menuDishes.length > 0 && !selectedItemName) {
       setSelectedItemName(menuDishes[0]);
     }
   }, [menuDishes, selectedItemName, setSelectedItemName]);
 
-  // Clear loaded recipe if target item shifts to avoid mismatch states
+  // Provide initial baseline recipe on mount so yield calculator is instantly active
   useEffect(() => {
-    setActiveRecipe(null);
-  }, [selectedItemName]);
+    if (!activeRecipe) {
+      const initialDish = selectedItemName || menuDishes[0] || "Roasted Heritage Beetroot & Goat's Cheese Carpaccio";
+      setActiveRecipe(buildDefaultRecipe(initialDish, region));
+    }
+  }, [selectedItemName, menuDishes, region, activeRecipe]);
+
+  // Calculate yield metrics
+  const basePax = useMemo(() => {
+    if (!activeRecipe) return 10;
+    return activeRecipe.basePax || parseBaseYield(activeRecipe.yield) || 10;
+  }, [activeRecipe]);
+
+  const scaleFactor = useMemo(() => {
+    if (!targetPax || basePax <= 0) return 1;
+    return targetPax / basePax;
+  }, [targetPax, basePax]);
+
+  // Calculate scaled mise en place items
+  const scaledMiseEnPlace: ScaledMiseEnPlaceItem[] = useMemo(() => {
+    if (!activeRecipe || !activeRecipe.miseEnPlace) return [];
+    return activeRecipe.miseEnPlace.map((item) => scaleIngredient(item, scaleFactor));
+  }, [activeRecipe, scaleFactor]);
 
   const generateRecipe = async () => {
     const targetDish = isCustomMode ? customDish : selectedItemName;
@@ -86,7 +312,7 @@ export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
       "Tracing lineage of mother sauces applicable to the profile...",
       "Analyzing technical dictionary definition and techniques...",
       "Drafting premium instructions & classical micro adjustments...",
-      "Polishing Masterclass Plated Presentation guidelines..."
+      `Formulating scaled commercial batching for ${targetPax} covers...`
     ];
 
     let bIdx = 0;
@@ -98,7 +324,7 @@ export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
       } else {
         setLoadingStep("Curating the final Larousse Masterclass guide...");
       }
-    }, 2800);
+    }, 2400);
 
     try {
       const res = await fetch('/api/gemini/larousse-recipe', {
@@ -110,24 +336,27 @@ export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
         const json = await res.json();
         if (json && json.data) {
           const d = json.data;
+          const parsedBase = parseBaseYield(d.targetYield);
+          
           setActiveRecipe({
             dishName: d.recipeTitle || targetDish,
-            prepTime: d.prepTime || "20 mins",
-            cookTime: d.cookTime || "25 mins",
-            yield: d.targetYield || "50 portions",
+            prepTime: d.prepTime || "25 mins",
+            cookTime: d.cookTime || "20 mins",
+            yield: d.targetYield || `${parsedBase} Covers / Base Portioning`,
+            basePax: parsedBase,
             culinaryIntroduction: d.culinaryHeritage || `Classical Escoffier compilation for ${targetDish}.`,
-            ingredients: Array.isArray(d.miseEnPlace) ? d.miseEnPlace.map((m: any) => `${m.quantity} ${m.item} (${m.specification || m.prepTechnique || ''})`) : [
-              "1.2 kg Primary Protein/Produce, portioned & chilled <4°C",
-              "120 ml Cold-Pressed Extra Virgin Olive Oil",
-              "45 g Fresh Herbs (Chiffonade)",
-              "15 g Kalahari Desert Salt & Cracked Peppercorn"
+            miseEnPlace: Array.isArray(d.miseEnPlace) ? d.miseEnPlace : [
+              { item: "Primary Protein / Produce", specification: "Trimmed, portioned & chilled <4°C", quantity: "1.2 kg", prepTechnique: "Precision Brunoise & Par-cook" },
+              { item: "Cold-Pressed Virgin Olive Oil", specification: "Single-estate cold press", quantity: "120 ml", prepTechnique: "Emulsion binding" },
+              { item: "Fresh Fine Herbs", specification: "Chervil, tarragon, flat-leaf parsley", quantity: "45 g", prepTechnique: "Delicate Chiffonade" },
+              { item: "Kalahari Desert Crystal Salt", specification: "Mineral-rich unrefined salt", quantity: "15 g", prepTechnique: "Season to finish" }
             ],
             steps: Array.isArray(d.executionSteps) ? d.executionSteps.map((s: any, idx: number) => ({
               step: s.stepNumber || idx + 1,
               title: s.title || `Phase ${idx + 1}`,
               instruction: s.instruction || ""
             })) : [
-              { step: 1, title: "Station Sanitation & Setup", instruction: "Sanitize surfaces according to SANS 10330 standards." },
+              { step: 1, title: "Station Sanitation & Setup", instruction: "Sanitize surfaces according to SANS 10330 standards. Maintain cold chain <4°C." },
               { step: 2, title: "Thermal Sealing", instruction: "Pan-sear over high heat to initiate Maillard development." },
               { step: 3, title: "Banquet Plating", instruction: "Center portion on warmed service plate, garnish with fresh herbs." }
             ],
@@ -143,28 +372,7 @@ export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
       throw new Error("Could not retrieve Larousse recipe from server.");
     } catch (err: any) {
       console.warn("Larousse recipe compilation fallback:", err);
-      setActiveRecipe({
-        dishName: targetDish,
-        prepTime: "20 mins",
-        cookTime: "25 mins",
-        yield: "50 portions",
-        culinaryIntroduction: `Classical Escoffier and modern high-volume hotel formulation for ${targetDish}, localized for ${region}.`,
-        ingredients: [
-          "1.5 kg Selected Protein or Fresh Produce (Cold Chain <4°C)",
-          "150 ml Extra Virgin Cold-Pressed Olive Oil",
-          "50 g Seasonal Fresh Herbs (Fine Chiffonade)",
-          "20 g Mineral Crystal Salt & Spices"
-        ],
-        steps: [
-          { step: 1, title: "SANS 10330 Prep & Mise en Place", instruction: "Maintain cold ingredients below 4°C. Clean and sanitize prep block." },
-          { step: 2, title: "Thermal Cooking & Emulsion", instruction: "Execute core cooking to safe internal temperatures per SANS standards." },
-          { step: 3, title: "Banquet Pass Inspection", instruction: "Inspect presentation uniformity and plate immediately for service." }
-        ],
-        larousseInsights: [
-          { term: "Brunoise", definition: "Precision 2mm fine dice ensuring uniform cooking surface and elegant mouthfeel.", motherSauceLinkage: "Velouté" }
-        ],
-        platedPresentationNotes: "Clean presentation on warmed porcelain with vibrant herbal lustre."
-      });
+      setActiveRecipe(buildDefaultRecipe(targetDish, region));
     } finally {
       clearInterval(progressTimer);
       setLoading(false);
@@ -178,41 +386,79 @@ export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
     }));
   };
 
+  // Copy scaled prep list to clipboard
+  const copyScaledMiseEnPlace = () => {
+    if (!activeRecipe) return;
+    const lines = [
+      `CATERPRO AI | SCALED BANQUET MISE EN PLACE`,
+      `Dish: ${activeRecipe.dishName}`,
+      `Target Banquet Yield: ${targetPax} Guests (${scaleFactor.toFixed(2)}x Scaling from ${basePax} Pax Base)`,
+      `Local Culinary Region: ${region}`,
+      `--------------------------------------------------`,
+      ...scaledMiseEnPlace.map(m => {
+        const spec = m.specification ? ` — ${m.specification}` : '';
+        const tech = m.prepTechnique ? ` [${m.prepTechnique}]` : '';
+        const baseRef = m.isScalable ? ` (Base: ${m.originalQuantity} @ ${basePax} Pax)` : '';
+        return `• ${m.scaledQuantity} ${m.item}${spec}${tech}${baseRef}`;
+      }),
+      `--------------------------------------------------`,
+      `SANS 10330 Safety Advisory: For ${targetPax} covers, hold batch below 4°C. Stage into Gastronorm GN 1/1 pans (depth ≤100mm).`
+    ];
+    navigator.clipboard.writeText(lines.join('\n'));
+    setCopied(true);
+    setTimeout(() => setCopied(false), 3000);
+  };
+
+  const isProposalSync = targetPax === proposalGuests;
+
   return (
     <div id="recipe-generator-root" className="pt-4 pb-20 max-w-7xl mx-auto px-4 sm:px-6 space-y-8 text-left">
       
-      {/* Title Header */}
+      {/* Title Header with Yield Integration Badge */}
       <div className="text-center space-y-3 mb-8 bg-gradient-to-br from-slate-900 via-slate-800 to-amber-950/40 p-8 sm:p-10 rounded-3xl border border-amber-500/20 shadow-xl relative overflow-hidden">
         <div className="absolute -top-12 -right-12 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-amber-500/15 border border-amber-500/30 rounded-full">
-          <span className="text-amber-400 text-sm font-black animate-pulse">🏛️</span>
-          <span className="text-[10px] font-black uppercase tracking-widest text-amber-300">Food Encyclopedia • Larousse Gastronomique Reference</span>
+        
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-amber-500/15 border border-amber-500/30 rounded-full">
+            <span className="text-amber-400 text-sm font-black animate-pulse">🏛️</span>
+            <span className="text-[10px] font-black uppercase tracking-widest text-amber-300">
+              Food Encyclopedia & Larousse Gastronomique
+            </span>
+          </div>
+
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/15 border border-emerald-500/30 rounded-full text-emerald-300 text-[10px] font-black uppercase tracking-wider">
+            <Calculator className="w-3.5 h-3.5 text-emerald-400" />
+            <span>Automated Yield Calculator Active ({proposalGuests} Covers Synced)</span>
+          </div>
         </div>
+
         <h2 className="text-3xl sm:text-5xl font-black text-white uppercase italic tracking-tighter leading-tight">
-          Food Encyclopedia & Larousse Gastronomique
+          Food Encyclopedia & Automated Yield Calculator
         </h2>
-        <p className="text-amber-100/70 font-medium max-w-2xl mx-auto text-center text-xs sm:text-sm">
-          Elevate hotel banquets with authoritative classical French techniques, Auguste Escoffier lineages, mother sauces, and precision SANS 10330 HACCP mise en place.
+        <p className="text-amber-100/70 font-medium max-w-3xl mx-auto text-center text-xs sm:text-sm">
+          Classical Auguste Escoffier formulations automatically scaled to the exact guest count from your proposal ({proposalGuests} covers), with intelligent unit conversions (g → kg, ml → L) and SANS 10330 commercial cold-chain compliance.
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
         
-        {/* Selection Column */}
+        {/* Left Column: Dish Selection & Dedicated Yield Calculator Widget */}
         <div className="lg:col-span-1 space-y-6">
+          
+          {/* Dish Selection Card */}
           <div className="bg-slate-900/90 backdrop-blur-xl p-6 sm:p-7 rounded-3xl border border-amber-500/20 shadow-xl space-y-6">
             <div className="flex items-center gap-2.5 border-b border-white/10 pb-3">
               <span className="text-xl">📓</span>
               <div>
                 <h3 className="text-sm font-black text-white uppercase tracking-wider">Encyclopedia Entry</h3>
-                <p className="text-[10px] text-slate-400 font-medium">Select or type any classical dish</p>
+                <p className="text-[10px] text-slate-400 font-medium">Select course or custom search</p>
               </div>
             </div>
 
             <div className="space-y-4">
               <div className="space-y-2">
                 <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400">
-                  Select Target Dish
+                  Select Target Dish from Proposal
                 </label>
                 
                 <select
@@ -226,6 +472,9 @@ export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
                     } else {
                       setIsCustomMode(false);
                       setSelectedItemName(val);
+                      if (activeRecipe?.dishName !== val) {
+                        setActiveRecipe(buildDefaultRecipe(val, region));
+                      }
                     }
                   }}
                   className="w-full p-3 rounded-xl bg-slate-800 text-white font-bold outline-none border border-white/15 text-xs focus:border-amber-400 transition-all cursor-pointer"
@@ -249,7 +498,7 @@ export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
                     'Béchamel & Mother Sauces',
                     'Coq au Vin Classical',
                     'Crème Brûlée & Custards',
-                    'South African Cape Malay Curry'
+                    'Cape Malay Curry'
                   ].map((preset) => (
                     <button
                       key={preset}
@@ -257,8 +506,9 @@ export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
                       onClick={() => {
                         setIsCustomMode(true);
                         setCustomDish(preset);
+                        setActiveRecipe(buildDefaultRecipe(preset, region));
                       }}
-                      className="text-[9px] font-bold px-2 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-200 border border-amber-500/20 transition-all text-left"
+                      className="text-[9px] font-bold px-2 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-200 border border-amber-500/20 transition-all text-left cursor-pointer"
                     >
                       {preset}
                     </button>
@@ -302,12 +552,166 @@ export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
                 )}
               </button>
             </div>
+          </div>
 
-            <div className="pt-6 border-t border-white/5 space-y-4">
-              <div className="flex justify-between items-center text-[10px] text-slate-500 font-bold">
-                <span>LOCALIZED TO:</span>
-                <span className="text-emerald-400 uppercase tracking-widest">{region}</span>
+          {/* Interactive Yield Calculator Controller */}
+          <div className="bg-slate-900/90 backdrop-blur-xl p-6 sm:p-7 rounded-3xl border border-emerald-500/30 shadow-xl space-y-6 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                  <Calculator className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-white uppercase tracking-wider">Yield Calculator</h3>
+                  <p className="text-[10px] text-slate-400 font-medium">Automatic batch scaling</p>
+                </div>
               </div>
+
+              {isProposalSync ? (
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 text-[9px] font-black uppercase flex items-center gap-1">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Proposal Synced
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setTargetPax(proposalGuests)}
+                  className="px-2 py-0.5 rounded-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 text-[9px] font-black uppercase flex items-center gap-1 transition-all cursor-pointer"
+                  title="Reset to Proposal Guest Count"
+                >
+                  <RotateCcw className="w-3 h-3" />
+                  Sync {proposalGuests}
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              {/* Target Pax Stepper & Direct Input */}
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  <span>Target Banquet Covers</span>
+                  <span className="text-emerald-400 font-mono font-bold">Base: {basePax} Pax</span>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setTargetPax(prev => Math.max(1, prev - 10))}
+                    className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-white/10 text-xs font-black transition-all cursor-pointer"
+                    title="Minus 10 Covers"
+                  >
+                    -10
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTargetPax(prev => Math.max(1, prev - 1))}
+                    className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-white/10 text-xs font-black transition-all cursor-pointer"
+                    title="Minus 1 Cover"
+                  >
+                    <Minus className="w-3.5 h-3.5" />
+                  </button>
+
+                  <div className="relative flex-1">
+                    <input
+                      type="number"
+                      min={1}
+                      max={5000}
+                      value={targetPax}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value, 10);
+                        setTargetPax(isNaN(val) || val < 1 ? 1 : val);
+                      }}
+                      className="w-full text-center py-2.5 px-3 rounded-xl bg-slate-950 text-white font-black text-lg border border-emerald-500/40 focus:border-emerald-400 outline-none"
+                    />
+                    <span className="absolute right-3 top-3 text-[10px] font-bold text-slate-500 uppercase pointer-events-none">
+                      PAX
+                    </span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setTargetPax(prev => prev + 1)}
+                    className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-white/10 text-xs font-black transition-all cursor-pointer"
+                    title="Plus 1 Cover"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setTargetPax(prev => prev + 10)}
+                    className="p-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-white/10 text-xs font-black transition-all cursor-pointer"
+                    title="Plus 10 Covers"
+                  >
+                    +10
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick Pax Presets */}
+              <div className="space-y-1.5">
+                <label className="block text-[9px] font-black uppercase tracking-widest text-slate-400">
+                  Quick Banquet Scaling Presets
+                </label>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {[
+                    { label: '10 Pax', val: 10 },
+                    { label: '25 Pax', val: 25 },
+                    { label: '50 Pax', val: 50 },
+                    { label: '100 Pax', val: 100 },
+                    { label: `${proposalGuests} (Prop)`, val: proposalGuests },
+                    { label: '250 Pax', val: 250 }
+                  ].map((p, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setTargetPax(p.val)}
+                      className={`py-1.5 px-2 rounded-lg text-[10px] font-black uppercase border transition-all cursor-pointer ${
+                        targetPax === p.val
+                          ? 'bg-emerald-500 text-slate-950 border-emerald-400 shadow-md'
+                          : 'bg-slate-800/80 hover:bg-slate-700 text-slate-300 border-white/10'
+                      }`}
+                    >
+                      {p.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Multiplier Display Card */}
+              <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-white/5 space-y-2">
+                <div className="flex justify-between items-center text-[10px] font-bold text-slate-400">
+                  <span>Batch Multiplier:</span>
+                  <span className="text-emerald-400 font-mono font-black text-sm">
+                    {scaleFactor.toFixed(2)}x
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-[10px] font-bold text-slate-400">
+                  <span>Standard Batch:</span>
+                  <span className="text-slate-300">{basePax} Portions</span>
+                </div>
+                <div className="flex justify-between items-center text-[10px] font-bold text-slate-400">
+                  <span>Proposal Setting:</span>
+                  <span className="text-amber-300 font-mono">{proposalGuests} Covers</span>
+                </div>
+              </div>
+
+              {!isProposalSync && (
+                <button
+                  type="button"
+                  onClick={() => setTargetPax(proposalGuests)}
+                  className="w-full py-2 px-3 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 text-xs font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer"
+                >
+                  <RotateCcw className="w-3.5 h-3.5" />
+                  <span>Reset to Proposal ({proposalGuests} Pax)</span>
+                </button>
+              )}
+            </div>
+
+            <div className="pt-4 border-t border-white/5 flex justify-between items-center text-[10px] text-slate-500 font-bold">
+              <span>LOCALIZED TO:</span>
+              <span className="text-emerald-400 uppercase tracking-widest">{region}</span>
             </div>
           </div>
         </div>
@@ -345,40 +749,46 @@ export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
               </motion.div>
             )}
 
-            {!activeRecipe && !loading && !error && (
-              <motion.div 
-                key="empty"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="bg-slate-900/20 py-24 text-center border-2 border-dashed border-white/10 rounded-[4rem] text-slate-600 font-black italic uppercase tracking-widest flex flex-col items-center justify-center gap-4"
-              >
-                <span className="text-4xl filter grayscale">🏛️</span>
-                <p className="max-w-md text-xs leading-relaxed font-bold tracking-normal text-slate-500">
-                  Select a recipe from your custom CaterPro proposals or type a target item manually. Click <strong className="text-slate-300">"Decode Classic"</strong> to access Gastronomique insights, lineages, and techniques instantly.
-                </p>
-              </motion.div>
-            )}
-
             {activeRecipe && !loading && !error && (
               <motion.div 
                 key="recipe-data"
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="space-y-12"
+                className="space-y-8"
               >
-                {/* Introduction & Yield banner */}
-                <div className="bg-slate-900/60 backdrop-blur-3xl p-12 rounded-[4rem] border border-white/10 shadow-xl space-y-6 relative overflow-hidden">
-                  <div className="absolute top-8 right-8 z-10 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl text-[10px] font-black tracking-widest uppercase">
-                    Yield: {activeRecipe.yield || "Fine Dining Portions"}
+                {/* Introduction & Yield Banner */}
+                <div className="bg-slate-900/60 backdrop-blur-3xl p-8 sm:p-12 rounded-[3.5rem] border border-white/10 shadow-xl space-y-6 relative overflow-hidden">
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                      <span className="text-xs font-black uppercase tracking-widest text-emerald-400">
+                        Larousse Classical Recipe & Live Yield Scale
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <div className="px-3 py-1.5 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 rounded-xl text-xs font-black tracking-wider uppercase flex items-center gap-1.5">
+                        <Users className="w-3.5 h-3.5 text-emerald-400" />
+                        <span>Scaled for {targetPax} Covers</span>
+                      </div>
+                      <span className="text-xs font-mono font-bold text-slate-400 bg-slate-800/80 px-2.5 py-1.5 rounded-xl border border-white/10">
+                        {scaleFactor.toFixed(2)}x Multiplier
+                      </span>
+                    </div>
                   </div>
 
-                  <h3 className="text-4xl font-extrabold uppercase italic tracking-tighter text-white">
-                    {activeRecipe.dishName}
-                  </h3>
-
-                  <div className="flex flex-wrap gap-6 text-[10px] font-black uppercase text-slate-400 tracking-wider">
-                    <span className="flex items-center gap-1">⏱️ Prep: {activeRecipe.prepTime || "N/A"}</span>
-                    <span className="flex items-center gap-1">🔥 Cook: {activeRecipe.cookTime || "N/A"}</span>
+                  <div>
+                    <h3 className="text-3xl sm:text-4xl font-extrabold uppercase italic tracking-tighter text-white">
+                      {activeRecipe.dishName}
+                    </h3>
+                    <div className="flex flex-wrap gap-6 text-[10px] font-black uppercase text-slate-400 tracking-wider mt-3">
+                      <span className="flex items-center gap-1">⏱️ Prep: {activeRecipe.prepTime || "25 mins"}</span>
+                      <span className="flex items-center gap-1">🔥 Cook: {activeRecipe.cookTime || "20 mins"}</span>
+                      <span className="flex items-center gap-1">🏛️ Baseline: {basePax} Pax Standard Batch</span>
+                      <span className="flex items-center gap-1 text-emerald-400">
+                        ⚡ Output: {targetPax} Plated Banquet Portions
+                      </span>
+                    </div>
                   </div>
 
                   {activeRecipe.culinaryIntroduction && (
@@ -388,12 +798,126 @@ export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
                   )}
                 </div>
 
-                {/* Main Recipe Info columns */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+                {/* Scaled Mise en Place & Ingredients Section */}
+                <div className="bg-slate-900/80 backdrop-blur-2xl p-6 sm:p-10 rounded-[3.5rem] border border-emerald-500/25 shadow-2xl space-y-6">
                   
-                  {/* Left columns: Dictionary entry (Larousse insights) */}
-                  <div className="lg:col-span-12 xl:col-span-5 space-y-8">
-                    <div id="larousse-masterclass-section" className="bg-amber-100 dark:bg-amber-950/25 border-2 border-amber-900/10 dark:border-amber-500/10 p-10 rounded-[3.5rem] shadow-xl space-y-8">
+                  {/* Card Header with Interactive Steppers & Actions */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Scale className="w-5 h-5 text-emerald-400" />
+                        <h4 className="text-lg font-black text-white uppercase tracking-tight">
+                          Scaled Mise en Place & Batching
+                        </h4>
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[9px] font-black uppercase">
+                          {targetPax} Pax ({scaleFactor.toFixed(2)}x)
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-400 font-medium mt-1">
+                        Ingredients dynamically adjusted from {basePax} portions to {targetPax} banquet covers with automatic unit shifts.
+                      </p>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={copyScaledMiseEnPlace}
+                        className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 hover:border-emerald-500/40 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                        title="Copy Scaled Prep List for Kitchen Brigade"
+                      >
+                        {copied ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-emerald-400" />
+                            <span className="text-emerald-300">Copied!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="w-3.5 h-3.5 text-slate-400" />
+                            <span>Copy Scaled List</span>
+                          </>
+                        )}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => window.print()}
+                        className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white border border-slate-700 hover:border-teal-500/40 text-xs font-bold flex items-center gap-1.5 transition-all shadow-sm cursor-pointer"
+                        title="Print Kitchen Batch Sheet"
+                      >
+                        <Printer className="w-3.5 h-3.5 text-teal-400" />
+                        <span>Print Sheet</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Scaled Ingredients Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {scaledMiseEnPlace.map((m, idx) => (
+                      <div 
+                        key={idx}
+                        className="p-4 rounded-2xl bg-slate-950/60 border border-white/10 hover:border-emerald-500/30 transition-all flex flex-col justify-between gap-2"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="space-y-1">
+                            <span className="text-sm font-black text-white leading-tight">
+                              {m.item}
+                            </span>
+                            {m.specification && (
+                              <p className="text-[11px] text-slate-400 font-medium">
+                                {m.specification}
+                              </p>
+                            )}
+                          </div>
+
+                          {/* Scaled Quantity Pill */}
+                          <div className="shrink-0 text-right">
+                            <span className="inline-block px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-300 border border-emerald-500/40 font-mono font-black text-sm shadow-sm">
+                              {m.scaledQuantity}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/5 text-[10px]">
+                          {m.prepTechnique ? (
+                            <span className="text-amber-300 font-semibold flex items-center gap-1">
+                              <span className="text-amber-400">🔪</span> {m.prepTechnique}
+                            </span>
+                          ) : (
+                            <span className="text-slate-500 italic">Mise en place ready</span>
+                          )}
+
+                          {m.isScalable && (
+                            <span className="text-slate-500 font-mono text-[9px]">
+                              Base: {m.originalQuantity} @ {basePax} pax
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Commercial Batching & Food Safety Notice */}
+                  {targetPax >= 40 && (
+                    <div className="p-4 sm:p-5 rounded-2xl bg-teal-950/40 border border-teal-500/30 flex items-start gap-3.5 text-xs text-teal-200">
+                      <ThermometerSnowflake className="w-5 h-5 text-teal-400 shrink-0 mt-0.5" />
+                      <div className="space-y-1">
+                        <h5 className="font-black uppercase tracking-wider text-teal-300 text-xs">
+                          SANS 10330 Commercial Batching Advisory ({targetPax} Covers)
+                        </h5>
+                        <p className="text-[11px] text-teal-200/80 leading-relaxed">
+                          For batches exceeding 40 covers, distribute prepared ingredients across stainless steel Gastronorm GN 1/1 pans (depth ≤100mm) to guarantee core pull-down below 4°C within 4 hours.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Larousse Masterclass Insights & Execution Steps */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                  
+                  {/* Left Column: Dictionary Lexicon Entry */}
+                  <div className="lg:col-span-5 space-y-8">
+                    <div id="larousse-masterclass-section" className="bg-amber-100 dark:bg-amber-950/25 border-2 border-amber-900/10 dark:border-amber-500/10 p-8 sm:p-10 rounded-[3rem] shadow-xl space-y-6">
                       <div className="flex items-center gap-3 border-b border-amber-900/10 dark:border-amber-500/10 pb-4">
                         <span className="text-2xl">📖</span>
                         <div>
@@ -401,14 +925,14 @@ export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
                             Larousse Masterclass
                           </h4>
                           <p className="text-[9px] font-black text-amber-700 dark:text-amber-500 uppercase tracking-widest leading-none">
-                            Official Culinary Lexicon & Cut Insights
+                            Culinary Lexicon & Mother Sauces
                           </p>
                         </div>
                       </div>
 
-                      <div className="space-y-6">
+                      <div className="space-y-5">
                         {activeRecipe.larousseInsights?.map((insight: any, i: number) => (
-                          <div key={i} className="space-y-2 border-b border-amber-900/5 dark:border-amber-500/5 pb-4 last:border-b-0 last:pb-0">
+                          <div key={i} className="space-y-1.5 border-b border-amber-900/5 dark:border-amber-500/5 pb-4 last:border-b-0 last:pb-0">
                             <div className="flex flex-wrap items-baseline justify-between gap-2">
                               <h5 className="font-extrabold text-amber-950 dark:text-amber-200 uppercase text-sm italic">
                                 {insight.term}
@@ -424,78 +948,71 @@ export const RecipeGenerator: React.FC<RecipeGeneratorProps> = ({
                             </p>
                           </div>
                         ))}
-                        {(!activeRecipe.larousseInsights || activeRecipe.larousseInsights.length === 0) && (
-                          <p className="text-xs text-amber-900/55 dark:text-slate-500 italic text-center">No historical dictionary terms registered for this profile.</p>
-                        )}
                       </div>
                     </div>
 
-                    {/* Plating presentation notes */}
+                    {/* Plated Presentation Notes */}
                     {activeRecipe.platedPresentationNotes && (
-                      <div className="bg-slate-900/40 border border-white/10 p-8 rounded-[2.5rem] space-y-4">
-                        <h4 className="text-[10px] font-black uppercase text-emerald-500 tracking-widest">
+                      <div className="bg-slate-900/40 border border-white/10 p-7 rounded-[2.5rem] space-y-3">
+                        <h4 className="text-[10px] font-black uppercase text-emerald-400 tracking-widest">
                           🍽️ Plated Presentation Guidelines
                         </h4>
-                        <p className="text-xs text-slate-300 italic leading-relaxed opacity-80">
+                        <p className="text-xs text-slate-300 italic leading-relaxed opacity-85">
                           {activeRecipe.platedPresentationNotes}
                         </p>
                       </div>
                     )}
                   </div>
 
-                  {/* Right columns: Ingredients & Instruction Checklist */}
-                  <div className="lg:col-span-12 xl:col-span-7 space-y-8">
-                    
-                    {/* Ingredients list */}
-                    <div className="bg-slate-900/60 p-10 rounded-[3.5rem] border border-white/10 space-y-6">
-                      <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest pb-3 border-b border-white/5 opacity-60">
-                        Pro scaled ingredients
+                  {/* Right Column: Execution Steps */}
+                  <div className="lg:col-span-7 space-y-6">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xs font-black uppercase text-slate-400 tracking-[0.3em]">
+                        Technical Prep Steps & HACCP
                       </h4>
-
-                      <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {activeRecipe.ingredients?.map((ing: string, i: number) => (
-                          <li key={i} className="text-xs font-semibold text-slate-300 flex items-start gap-2.5">
-                            <span className="text-emerald-500 text-sm leading-none">•</span>
-                            <span className="leading-tight">{ing}</span>
-                          </li>
-                        ))}
-                      </ul>
+                      <span className="text-[11px] text-slate-500 font-bold">
+                        Click step when completed
+                      </span>
                     </div>
 
-                    {/* Preparation Steps */}
-                    <div className="space-y-6">
-                      <h4 className="text-xs font-black uppercase text-slate-500 tracking-[0.3em]">
-                        Technical Prep Steps
-                      </h4>
-
-                      <div className="space-y-4">
-                        {activeRecipe.steps?.map((step: any, i: number) => {
-                          const isDone = !!completedSteps[step.step];
-                          return (
-                            <div 
-                              key={i}
-                              onClick={() => toggleStep(step.step)}
-                              className={`p-6 rounded-3xl border transition-all cursor-pointer select-none flex gap-5 items-start ${isDone ? 'bg-slate-950/20 border-emerald-500/25 text-slate-300 opacity-60' : 'bg-slate-900/50 border-white/5 text-white hover:border-white/10'}`}
-                            >
-                              <div className={`mt-0.5 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-colors shrink-0 ${isDone ? 'bg-emerald-500 border-emerald-500 text-slate-950 text-xs font-black' : 'border-white/20 text-transparent'}`}>
-                                ✓
-                              </div>
-                              <div className="space-y-1.5 flex-1">
-                                <div className="flex items-baseline justify-between gap-4">
-                                  <h5 className={`font-extrabold uppercase text-xs tracking-tight ${isDone ? 'line-through text-slate-500' : 'text-slate-100'}`}>
-                                    0{step.step || (i + 1)}. {step.title}
-                                  </h5>
-                                </div>
-                                <p className={`text-xs leading-relaxed ${isDone ? 'line-through opacity-50 font-medium' : 'text-slate-300 font-medium'}`}>
-                                  {step.instruction}
-                                </p>
-                              </div>
+                    <div className="space-y-4">
+                      {activeRecipe.steps?.map((step: any, i: number) => {
+                        const isDone = !!completedSteps[step.step];
+                        return (
+                          <div 
+                            key={i}
+                            onClick={() => toggleStep(step.step)}
+                            className={`p-6 rounded-3xl border transition-all cursor-pointer select-none flex gap-5 items-start ${
+                              isDone 
+                                ? 'bg-slate-950/20 border-emerald-500/25 text-slate-300 opacity-60' 
+                                : 'bg-slate-900/50 border-white/5 text-white hover:border-white/15'
+                            }`}
+                          >
+                            <div className={`mt-0.5 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-colors shrink-0 ${
+                              isDone 
+                                ? 'bg-emerald-500 border-emerald-500 text-slate-950 text-xs font-black' 
+                                : 'border-white/20 text-transparent'
+                            }`}>
+                              ✓
                             </div>
-                          );
-                        })}
-                      </div>
+                            <div className="space-y-1.5 flex-1">
+                              <div className="flex items-baseline justify-between gap-4">
+                                <h5 className={`font-extrabold uppercase text-xs tracking-tight ${
+                                  isDone ? 'line-through text-slate-500' : 'text-slate-100'
+                                }`}>
+                                  0{step.step || (i + 1)}. {step.title}
+                                </h5>
+                              </div>
+                              <p className={`text-xs leading-relaxed ${
+                                isDone ? 'line-through opacity-50 font-medium' : 'text-slate-300 font-medium'
+                              }`}>
+                                {step.instruction}
+                              </p>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-
                   </div>
 
                 </div>
