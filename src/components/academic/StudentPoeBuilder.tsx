@@ -140,7 +140,7 @@ export const StudentPoeBuilder: React.FC<StudentPoeBuilderProps> = ({
             onClick={handleSyncWithProposal}
             className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+            <Sparkles className="w-3.5 h-3.5 text-red-400" />
             <span>Sync with Menu</span>
           </button>
 
@@ -156,7 +156,7 @@ export const StudentPoeBuilder: React.FC<StudentPoeBuilderProps> = ({
           <button
             type="button"
             onClick={() => onOpenExportModal(poe)}
-            className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md"
+            className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md shadow-red-600/20"
           >
             <Download className="w-3.5 h-3.5" />
             <span>Export Institutional Report</span>
@@ -167,7 +167,7 @@ export const StudentPoeBuilder: React.FC<StudentPoeBuilderProps> = ({
       {/* Student & Qualification Metadata Form */}
       <div className="bg-gradient-to-br from-slate-900 via-slate-850 to-slate-900 border border-white/10 rounded-3xl p-6 sm:p-8 shadow-xl space-y-5">
         <h4 className="text-sm font-black text-white uppercase tracking-tight flex items-center gap-2 border-b border-white/10 pb-3">
-          <User className="w-4 h-4 text-amber-400" />
+          <User className="w-4 h-4 text-red-400" />
           <span>Learner & Institutional Enrollment Details</span>
         </h4>
 
@@ -178,7 +178,7 @@ export const StudentPoeBuilder: React.FC<StudentPoeBuilderProps> = ({
               type="text"
               value={poe.studentName}
               onChange={(e) => setPoe({ ...poe, studentName: e.target.value })}
-              className="w-full px-3.5 py-2.5 bg-slate-950 border border-white/10 focus:border-amber-400 focus:outline-none rounded-xl text-xs font-bold text-white"
+              className="w-full px-3.5 py-2.5 bg-slate-950 border border-white/10 focus:border-red-500 focus:outline-none rounded-xl text-xs font-bold text-white"
             />
           </div>
 
@@ -188,7 +188,7 @@ export const StudentPoeBuilder: React.FC<StudentPoeBuilderProps> = ({
               type="text"
               value={poe.studentId}
               onChange={(e) => setPoe({ ...poe, studentId: e.target.value })}
-              className="w-full px-3.5 py-2.5 bg-slate-950 border border-white/10 focus:border-amber-400 focus:outline-none rounded-xl text-xs font-mono font-bold text-amber-300"
+              className="w-full px-3.5 py-2.5 bg-slate-950 border border-white/10 focus:border-red-500 focus:outline-none rounded-xl text-xs font-mono font-bold text-red-300"
             />
           </div>
 
@@ -198,7 +198,7 @@ export const StudentPoeBuilder: React.FC<StudentPoeBuilderProps> = ({
               type="text"
               value={poe.institutionName}
               onChange={(e) => setPoe({ ...poe, institutionName: e.target.value })}
-              className="w-full px-3.5 py-2.5 bg-slate-950 border border-white/10 focus:border-amber-400 focus:outline-none rounded-xl text-xs font-bold text-white"
+              className="w-full px-3.5 py-2.5 bg-slate-950 border border-white/10 focus:border-red-500 focus:outline-none rounded-xl text-xs font-bold text-white"
             />
           </div>
 
@@ -217,7 +217,7 @@ export const StudentPoeBuilder: React.FC<StudentPoeBuilderProps> = ({
                   });
                 }
               }}
-              className="w-full px-3.5 py-2.5 bg-slate-950 border border-white/10 focus:border-amber-400 focus:outline-none rounded-xl text-xs font-bold text-white cursor-pointer"
+              className="w-full px-3.5 py-2.5 bg-slate-950 border border-white/10 focus:border-red-500 focus:outline-none rounded-xl text-xs font-bold text-white cursor-pointer"
             >
               {QCTO_QUALIFICATIONS.map(q => (
                 <option key={q.id} value={q.id}>
@@ -233,7 +233,7 @@ export const StudentPoeBuilder: React.FC<StudentPoeBuilderProps> = ({
               type="text"
               value={poe.moduleFocus}
               onChange={(e) => setPoe({ ...poe, moduleFocus: e.target.value })}
-              className="w-full px-3.5 py-2.5 bg-slate-950 border border-white/10 focus:border-amber-400 focus:outline-none rounded-xl text-xs font-bold text-white"
+              className="w-full px-3.5 py-2.5 bg-slate-950 border border-white/10 focus:border-red-500 focus:outline-none rounded-xl text-xs font-bold text-white"
             />
           </div>
         </div>
@@ -328,7 +328,7 @@ export const StudentPoeBuilder: React.FC<StudentPoeBuilderProps> = ({
             onClick={() => setIsAddingProof(!isAddingProof)}
             className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer self-start sm:self-auto"
           >
-            <Plus className="w-3.5 h-3.5 text-amber-400" />
+            <Plus className="w-3.5 h-3.5 text-red-400" />
             <span>Add Photo Proof</span>
           </button>
         </div>
@@ -341,9 +341,9 @@ export const StudentPoeBuilder: React.FC<StudentPoeBuilderProps> = ({
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
               onSubmit={handleAddPhotoProof}
-              className="bg-slate-950 p-4 rounded-2xl border border-amber-500/30 space-y-3 overflow-hidden"
+              className="bg-slate-950 p-4 rounded-2xl border border-red-600/40 space-y-3 overflow-hidden"
             >
-              <div className="text-xs font-black uppercase tracking-wider text-amber-400">
+              <div className="text-xs font-black uppercase tracking-wider text-red-400">
                 Log New Culinary Evidence Record
               </div>
 
@@ -396,7 +396,7 @@ export const StudentPoeBuilder: React.FC<StudentPoeBuilderProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black uppercase tracking-wider"
+                  className="px-4 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-black uppercase tracking-wider"
                 >
                   Save Proof to Dossier
                 </button>
@@ -415,7 +415,7 @@ export const StudentPoeBuilder: React.FC<StudentPoeBuilderProps> = ({
                   alt={proof.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded bg-slate-950/80 backdrop-blur-md text-[9px] font-mono font-bold text-amber-300 border border-white/10">
+                <div className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded bg-slate-950/80 backdrop-blur-md text-[9px] font-mono font-bold text-red-300 border border-white/10">
                   {proof.phase}
                 </div>
                 <button

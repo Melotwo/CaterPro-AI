@@ -55,11 +55,11 @@ export const AcademicHub: React.FC<AcademicHubProps> = ({
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 relative z-10">
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="px-3 py-1 rounded-full bg-amber-500 text-slate-950 font-black text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
+              <span className="px-3 py-1 rounded-full bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-sm transition-colors">
                 <GraduationCap className="w-4 h-4" />
                 QCTO / SAQA Academic Hub
               </span>
-              <span className="px-3 py-1 rounded-full bg-slate-800 text-amber-300 border border-amber-500/30 font-mono text-xs font-bold">
+              <span className="px-3 py-1 rounded-full bg-red-950/40 text-red-400 border border-red-800/60 font-mono text-xs font-bold">
                 South African Qualifications Companion
               </span>
               <span className="px-2.5 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold">
@@ -80,7 +80,7 @@ export const AcademicHub: React.FC<AcademicHubProps> = ({
             <button
               type="button"
               onClick={() => handleOpenExport(INITIAL_STUDENT_POE)}
-              className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md shadow-amber-500/10"
+              className="px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md shadow-red-600/20"
             >
               <Download className="w-4 h-4" />
               <span>Export Institutional Report</span>
@@ -103,7 +103,7 @@ export const AcademicHub: React.FC<AcademicHubProps> = ({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-6 mt-6 border-t border-white/10">
           <div className="bg-slate-950/60 p-3.5 rounded-2xl border border-white/5 space-y-1">
             <div className="text-[10px] font-black uppercase tracking-wider text-slate-400">3 Registered Qualifications</div>
-            <div className="text-sm sm:text-base font-black text-amber-400">SAQA 101697 • 102296 • 110644</div>
+            <div className="text-sm sm:text-base font-black text-red-400">SAQA 101697 • 102296 • 110644</div>
             <div className="text-[10px] text-slate-500">Chef (NQF 5), Cook (NQF 4), Kitchen Hand (NQF 3)</div>
           </div>
 
@@ -124,7 +124,7 @@ export const AcademicHub: React.FC<AcademicHubProps> = ({
             <div className="text-sm sm:text-base font-bold text-white line-clamp-1">
               {proposal.title || proposal.menuTitle || 'Banquet Event'}
             </div>
-            <div className="text-[10px] text-amber-300 font-mono">{proposal.guestCount || proposal.covers || 120} Covers Synced</div>
+            <div className="text-[10px] text-red-400 font-mono">{proposal.guestCount || proposal.covers || 120} Covers Synced</div>
           </div>
         </div>
       </div>
@@ -146,14 +146,14 @@ export const AcademicHub: React.FC<AcademicHubProps> = ({
               onClick={() => setActiveAcademicTab(tab.id as any)}
               className={`px-4 py-2.5 rounded-xl transition-all flex items-center gap-2 cursor-pointer ${
                 isActive
-                  ? 'bg-amber-500 text-slate-950 shadow-md font-black'
+                  ? 'bg-red-600 text-white hover:bg-red-700 shadow-md font-black'
                   : 'text-slate-400 hover:text-white hover:bg-slate-800/60'
               }`}
             >
-              <Icon className={`w-4 h-4 ${isActive ? 'text-slate-950' : 'text-amber-400'}`} />
+              <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-red-400'}`} />
               <span>{tab.label}</span>
               <span className={`text-[9px] uppercase px-1.5 py-0.5 rounded font-mono font-bold ${
-                isActive ? 'bg-slate-950 text-amber-300' : 'bg-slate-800 text-slate-400'
+                isActive ? 'bg-red-950/80 text-white' : 'bg-slate-800 text-slate-400'
               }`}>
                 {tab.badge}
               </span>

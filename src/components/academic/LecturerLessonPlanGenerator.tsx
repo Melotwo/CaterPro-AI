@@ -96,8 +96,8 @@ CaterProAI provides digital facilitation, automated recipe costing, menu enginee
       <div className="bg-slate-900/90 border border-white/10 p-5 sm:p-6 rounded-3xl shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs font-black uppercase tracking-wider text-emerald-400">
+            <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+            <span className="text-xs font-black uppercase tracking-wider text-red-400">
               Lecturer Brief & Assessment Generator
             </span>
           </div>
@@ -122,7 +122,7 @@ CaterProAI provides digital facilitation, automated recipe costing, menu enginee
           <button
             type="button"
             onClick={handlePrint}
-            className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-sm"
+            className="px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-sm shadow-red-600/20"
           >
             <Printer className="w-3.5 h-3.5" />
             <span>Print Sheet</span>
@@ -142,7 +142,7 @@ CaterProAI provides digital facilitation, automated recipe costing, menu enginee
             onClick={() => handleRegenerate(q.id)}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
               targetQual === q.id
-                ? 'bg-amber-500 text-slate-950 shadow-sm'
+                ? 'bg-red-600 text-white hover:bg-red-700 shadow-sm'
                 : 'text-slate-400 hover:text-white bg-slate-900/60'
             }`}
           >
@@ -169,11 +169,11 @@ CaterProAI provides digital facilitation, automated recipe costing, menu enginee
               onClick={() => setActiveSection(tab.id as any)}
               className={`px-3.5 py-2 rounded-xl font-bold transition-all flex items-center gap-2 cursor-pointer ${
                 isActive
-                  ? 'bg-slate-800 text-amber-300 border border-amber-500/30 shadow-sm'
+                  ? 'bg-red-950/40 text-red-400 border border-red-800/60 shadow-sm'
                   : 'text-slate-400 hover:text-white'
               }`}
             >
-              <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-amber-400' : 'text-slate-500'}`} />
+              <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-red-400' : 'text-slate-500'}`} />
               <span>{tab.label}</span>
             </button>
           );
@@ -188,7 +188,7 @@ CaterProAI provides digital facilitation, automated recipe costing, menu enginee
           <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
               <div>
-                <span className="text-[10px] font-mono text-amber-400 bg-amber-950/60 px-2 py-0.5 rounded border border-amber-500/30">
+                <span className="text-[10px] font-mono text-red-400 bg-red-950/40 px-2 py-0.5 rounded border border-red-800/60">
                   {lessonPlan.qualificationCode}
                 </span>
                 <h4 className="text-lg font-black text-white uppercase tracking-tight mt-1.5">
@@ -197,14 +197,14 @@ CaterProAI provides digital facilitation, automated recipe costing, menu enginee
               </div>
 
               <div className="flex items-center gap-3 text-xs text-slate-300 font-mono bg-slate-950/60 p-2.5 rounded-xl border border-white/5">
-                <div>Duration: <strong className="text-amber-300">{lessonPlan.durationHours}h</strong></div>
+                <div>Duration: <strong className="text-red-400">{lessonPlan.durationHours}h</strong></div>
                 <div>•</div>
                 <div>Simulated Covers: <strong className="text-emerald-300">{lessonPlan.coversToSimulate} pax</strong></div>
               </div>
             </div>
 
             <div className="space-y-3">
-              <h5 className="text-xs font-black uppercase tracking-wider text-amber-400">
+              <h5 className="text-xs font-black uppercase tracking-wider text-red-400">
                 Practical Learning Objective:
               </h5>
               <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium bg-slate-950/70 p-4 rounded-2xl border border-white/5">
@@ -215,13 +215,13 @@ CaterProAI provides digital facilitation, automated recipe costing, menu enginee
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-slate-950/60 p-4 rounded-2xl border border-white/5 space-y-2">
                 <h5 className="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-                  <ChefHat className="w-3.5 h-3.5 text-amber-400" />
+                  <ChefHat className="w-3.5 h-3.5 text-red-400" />
                   <span>Classroom Equipment Requisition:</span>
                 </h5>
                 <ul className="space-y-1 text-xs text-slate-300">
                   {lessonPlan.practicalBrief.equipmentNeeded.map((eq, idx) => (
                     <li key={idx} className="flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
                       <span>{eq}</span>
                     </li>
                   ))}
@@ -303,7 +303,7 @@ CaterProAI provides digital facilitation, automated recipe costing, menu enginee
               {lessonPlan.studentExerciseQuestions.map((q, idx) => (
                 <div key={q.id} className="bg-slate-950/70 p-4 rounded-2xl border border-white/10 space-y-2">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-amber-900/40 text-amber-300 border border-amber-700/50">
+                    <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-red-950/40 text-red-400 border border-red-800/60">
                       Exercise {idx + 1} • {q.type.toUpperCase()}
                     </span>
                   </div>
@@ -341,7 +341,7 @@ CaterProAI provides digital facilitation, automated recipe costing, menu enginee
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {lessonPlan.haccpCcpPoints.map((ccp, idx) => (
                 <div key={idx} className="bg-slate-950/70 p-4 rounded-2xl border border-white/10 space-y-2.5">
-                  <div className="text-[10px] font-black uppercase text-amber-400 font-mono">
+                  <div className="text-[10px] font-black uppercase text-red-400 font-mono">
                     CCP #{idx + 1}: {ccp.step}
                   </div>
                   <div>
@@ -388,7 +388,7 @@ CaterProAI provides digital facilitation, automated recipe costing, menu enginee
 
                   <div className="shrink-0 flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-xl border border-white/5">
                     <span className="text-[10px] uppercase font-bold text-slate-400">Weight:</span>
-                    <span className="text-xs font-black font-mono text-amber-400">{rubric.weightPercent}%</span>
+                    <span className="text-xs font-black font-mono text-red-400">{rubric.weightPercent}%</span>
                   </div>
                 </div>
               ))}

@@ -458,9 +458,9 @@ export function App() {
                   : 'text-slate-500 hover:text-slate-900'
               }`}
             >
-              <GraduationCap className="w-3.5 h-3.5 text-amber-600" />
+              <GraduationCap className="w-3.5 h-3.5 text-red-600" />
               <span>Academic Hub</span>
-              <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-900/30 text-amber-500 border border-amber-700/50">
+              <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-red-950/40 text-red-400 border border-red-800/60">
                 QCTO / SAQA
               </span>
             </button>
@@ -560,7 +560,7 @@ export function App() {
             activeTab === 'academic' ? 'bg-slate-900 text-white' : 'text-slate-600 bg-slate-100'
           }`}
         >
-          <GraduationCap className="w-3.5 h-3.5 text-amber-400" />
+          <GraduationCap className="w-3.5 h-3.5 text-red-500" />
           <span>Academic (QCTO)</span>
         </button>
       </div>

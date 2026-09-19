@@ -82,7 +82,7 @@ CaterProAI provides digital facilitation, automated recipe costing, menu enginee
         {/* Modal Action Header */}
         <div className="p-4 sm:p-5 bg-slate-900 text-white flex items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-red-950/40 text-red-400 border border-red-800/60 flex items-center justify-center">
               <FileCheck2 className="w-4 h-4" />
             </div>
             <div>
@@ -119,7 +119,7 @@ CaterProAI provides digital facilitation, automated recipe costing, menu enginee
             <button
               type="button"
               onClick={() => window.print()}
-              className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-3.5 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer shadow-sm shadow-red-600/20"
             >
               <Printer className="w-3.5 h-3.5" />
               <span>Print / PDF</span>
@@ -142,7 +142,7 @@ CaterProAI provides digital facilitation, automated recipe costing, menu enginee
           <div className="border-b-2 border-slate-900 pb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300 font-mono text-[10px] font-black uppercase">
+                <span className="px-2 py-0.5 rounded bg-red-100 text-red-900 border border-red-300 font-mono text-[10px] font-black uppercase">
                   QCTO • SAQA Portfolio of Evidence
                 </span>
                 <span className="px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200 text-[10px] font-mono">
@@ -165,7 +165,7 @@ CaterProAI provides digital facilitation, automated recipe costing, menu enginee
           </div>
 
           {/* Institutional Advisory Callout */}
-          <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-300 text-[11px] text-amber-950 leading-relaxed font-medium">
+          <div className="p-3.5 rounded-xl bg-red-50 border border-red-200 text-[11px] text-red-950 leading-relaxed font-medium">
             <strong className="font-bold">Institutional Advisory: </strong>
             CaterProAI provides digital facilitation, automated recipe costing, menu engineering tools, and PoE evidence logging to complement accredited TVET & Culinary College delivery.
           </div>
@@ -173,7 +173,7 @@ CaterProAI provides digital facilitation, automated recipe costing, menu enginee
           {/* Section 1: Candidate & Qualification Dossier */}
           <div className="space-y-2">
             <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-1.5 border-b border-slate-200 pb-1">
-              <User className="w-3.5 h-3.5 text-amber-600" />
+              <User className="w-3.5 h-3.5 text-red-600" />
               <span>Section 1: Candidate & Educational Institution Credentials</span>
             </h3>
 
@@ -185,7 +185,7 @@ CaterProAI provides digital facilitation, automated recipe costing, menu enginee
 
               <div>
                 <div className="text-[10px] uppercase font-bold text-slate-500">Student ID / Learner No.</div>
-                <div className="font-mono font-bold text-amber-700 mt-0.5">{poe.studentId}</div>
+                <div className="font-mono font-bold text-red-700 mt-0.5">{poe.studentId}</div>
               </div>
 
               <div>
@@ -230,7 +230,7 @@ CaterProAI provides digital facilitation, automated recipe costing, menu enginee
 
               <div>
                 <div className="text-[10px] uppercase font-bold text-slate-500">Achieved Food Cost %</div>
-                <div className="font-mono font-black text-amber-700 mt-0.5">{poe.foodCostPercentage}% (Target: 28%–32%)</div>
+                <div className="font-mono font-black text-red-700 mt-0.5">{poe.foodCostPercentage}% (Target: 28%–32%)</div>
               </div>
             </div>
           </div>
@@ -238,7 +238,7 @@ CaterProAI provides digital facilitation, automated recipe costing, menu enginee
           {/* Section 3: Allergen Safety Compliance Matrix */}
           <div className="space-y-2">
             <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-1.5 border-b border-slate-200 pb-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
+              <ShieldCheck className="w-3.5 h-3.5 text-red-600" />
               <span>Section 3: SANS 10330 / R638 Allergen Risk Mitigation Plan</span>
             </h3>
 

@@ -85,8 +85,8 @@ export const FoodCostingDrills: React.FC<FoodCostingDrillsProps> = ({
       <div className="bg-slate-900/90 border border-white/10 p-5 rounded-3xl shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <Calculator className="w-4 h-4 text-amber-400" />
-            <span className="text-xs font-black uppercase tracking-wider text-amber-400">
+            <Calculator className="w-4 h-4 text-red-400" />
+            <span className="text-xs font-black uppercase tracking-wider text-red-400">
               QCTO Module KM-05 & KM-02 Culinary Costing Drills
             </span>
           </div>
@@ -103,7 +103,7 @@ export const FoodCostingDrills: React.FC<FoodCostingDrillsProps> = ({
             <div className="text-[10px] font-black uppercase text-slate-400">Mastery Progress</div>
             <div className="text-sm font-black text-emerald-400">{completedCount} of {COSTING_DRILLS.length} Passed</div>
           </div>
-          <div className="w-9 h-9 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 font-black text-xs">
+          <div className="w-9 h-9 rounded-xl bg-red-950/40 border border-red-800/60 flex items-center justify-center text-red-400 font-black text-xs">
             {Math.round((completedCount / COSTING_DRILLS.length) * 100)}%
           </div>
         </div>
@@ -121,7 +121,7 @@ export const FoodCostingDrills: React.FC<FoodCostingDrillsProps> = ({
               onClick={() => setActiveDrillIndex(idx)}
               className={`p-3.5 rounded-2xl border text-left transition-all cursor-pointer relative ${
                 isSelected
-                  ? 'bg-amber-950/40 border-amber-500/60 shadow-md ring-1 ring-amber-500/30'
+                  ? 'bg-red-950/40 border-red-600/60 shadow-md ring-1 ring-red-600/30'
                   : 'bg-slate-900/60 border-white/5 hover:border-white/20 text-slate-400'
               }`}
             >
@@ -145,7 +145,7 @@ export const FoodCostingDrills: React.FC<FoodCostingDrillsProps> = ({
               <div className="text-xs font-black text-white line-clamp-1">
                 {drill.title}
               </div>
-              <div className="text-[10px] text-amber-400/90 font-medium mt-0.5">
+              <div className="text-[10px] text-red-400/90 font-medium mt-0.5">
                 {drill.category}
               </div>
             </button>
@@ -160,7 +160,7 @@ export const FoodCostingDrills: React.FC<FoodCostingDrillsProps> = ({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
           <div>
             <div className="flex flex-wrap items-center gap-2 mb-1.5">
-              <span className="px-2 py-0.5 rounded bg-amber-900/40 text-amber-300 border border-amber-700/50 text-[10px] font-mono font-bold">
+              <span className="px-2 py-0.5 rounded bg-red-950/40 text-red-300 border border-red-800/60 text-[10px] font-mono font-bold">
                 {currentDrill.qctoModuleRef}
               </span>
               <span className="px-2 py-0.5 rounded bg-cyan-950/60 text-cyan-300 border border-cyan-500/30 text-[10px] font-black uppercase">
@@ -170,7 +170,7 @@ export const FoodCostingDrills: React.FC<FoodCostingDrillsProps> = ({
                 currentDrill.difficulty === 'Apprentice'
                   ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/30'
                   : currentDrill.difficulty === 'Intermediate'
-                  ? 'bg-amber-950 text-amber-400 border border-amber-500/30'
+                  ? 'bg-red-950/50 text-red-400 border border-red-800/50'
                   : 'bg-purple-950 text-purple-400 border border-purple-500/30'
               }`}>
                 {currentDrill.difficulty} Level
@@ -194,7 +194,7 @@ export const FoodCostingDrills: React.FC<FoodCostingDrillsProps> = ({
 
         {/* Practical Kitchen Scenario */}
         <div className="bg-slate-950/70 border border-white/10 rounded-2xl p-5 space-y-3">
-          <div className="text-[10px] font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+          <div className="text-[10px] font-black uppercase tracking-wider text-red-400 flex items-center gap-1.5">
             <span>🔪</span> Practical Kitchen Simulation Scenario:
           </div>
           <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
@@ -210,7 +210,7 @@ export const FoodCostingDrills: React.FC<FoodCostingDrillsProps> = ({
               {Object.entries(currentDrill.givenData).map(([key, val], dIdx) => (
                 <div key={dIdx} className="bg-slate-900/80 p-2.5 rounded-xl border border-white/5">
                   <div className="text-[10px] text-slate-400 font-medium">{key}</div>
-                  <div className="text-xs font-mono font-bold text-amber-300 mt-0.5">{val}</div>
+                  <div className="text-xs font-mono font-bold text-red-300 mt-0.5">{val}</div>
                 </div>
               ))}
             </div>
@@ -219,8 +219,8 @@ export const FoodCostingDrills: React.FC<FoodCostingDrillsProps> = ({
 
         {/* Question & Input Form */}
         <form onSubmit={handleCheckAnswer} className="space-y-4">
-          <div className="p-4 rounded-2xl bg-amber-950/20 border border-amber-500/30 space-y-2">
-            <label className="text-xs sm:text-sm font-bold text-amber-200 block">
+          <div className="p-4 rounded-2xl bg-red-950/20 border border-red-800/40 space-y-2">
+            <label className="text-xs sm:text-sm font-bold text-red-200 block">
               Question: {currentDrill.question}
             </label>
             
@@ -231,7 +231,7 @@ export const FoodCostingDrills: React.FC<FoodCostingDrillsProps> = ({
                   value={userVal}
                   onChange={(e) => setUserInputs(prev => ({ ...prev, [currentDrill.id]: e.target.value }))}
                   placeholder={`Enter value (e.g. ${currentDrill.expectedAnswer})`}
-                  className="w-full px-4 py-3 bg-slate-950 border border-white/20 focus:border-amber-400 focus:outline-none rounded-xl text-sm font-mono font-bold text-white shadow-inner"
+                  className="w-full px-4 py-3 bg-slate-950 border border-white/20 focus:border-red-500 focus:outline-none rounded-xl text-sm font-mono font-bold text-white shadow-inner"
                 />
                 <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-xs font-mono font-bold text-slate-400">
                   {currentDrill.inputUnit}
@@ -240,7 +240,7 @@ export const FoodCostingDrills: React.FC<FoodCostingDrillsProps> = ({
 
               <button
                 type="submit"
-                className="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer shrink-0"
+                className="px-6 py-3 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-wider transition-all shadow-md shadow-red-600/20 flex items-center justify-center gap-2 cursor-pointer shrink-0"
               >
                 <span>Verify Calculation</span>
                 <ArrowRight className="w-4 h-4" />
@@ -251,7 +251,7 @@ export const FoodCostingDrills: React.FC<FoodCostingDrillsProps> = ({
                 onClick={() => setShowSolution(prev => ({ ...prev, [currentDrill.id]: !prev[currentDrill.id] }))}
                 className="px-4 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer shrink-0"
               >
-                <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
+                <Lightbulb className="w-3.5 h-3.5 text-red-400" />
                 <span>{isSolutionVisible ? 'Hide Solution' : 'View Formula'}</span>
               </button>
             </div>
@@ -298,7 +298,7 @@ export const FoodCostingDrills: React.FC<FoodCostingDrillsProps> = ({
               className="space-y-4 pt-2 overflow-hidden"
             >
               <div className="bg-slate-950/90 border border-white/10 rounded-2xl p-5 space-y-3">
-                <div className="text-[10px] font-black uppercase tracking-wider text-amber-400 flex items-center gap-1.5">
+                <div className="text-[10px] font-black uppercase tracking-wider text-red-400 flex items-center gap-1.5">
                   <Lightbulb className="w-3.5 h-3.5" />
                   <span>Curriculum Mathematical Breakdown:</span>
                 </div>
@@ -311,8 +311,8 @@ export const FoodCostingDrills: React.FC<FoodCostingDrillsProps> = ({
                   ))}
                 </div>
 
-                <div className="p-3 rounded-xl bg-amber-950/30 border border-amber-500/20 text-xs text-amber-200">
-                  <strong className="text-amber-300 font-bold">Chef Assessor Takeaway: </strong>
+                <div className="p-3 rounded-xl bg-red-950/30 border border-red-800/40 text-xs text-red-200">
+                  <strong className="text-red-300 font-bold">Chef Assessor Takeaway: </strong>
                   {currentDrill.learningTakeaway}
                 </div>
               </div>
