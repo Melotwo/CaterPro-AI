@@ -271,7 +271,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Event Type (Free-text with Datalist & Quick Chips) */}
+          {/* Event Type (Free-text with Quick Chips, no obstructing datalist or floating overlays) */}
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
               <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500">
@@ -282,29 +282,16 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
               </span>
             </div>
             
-            <div className="relative">
-              <input
-                type="text"
-                list="event-type-presets"
-                value={quickEventType}
-                onChange={(e) => setQuickEventType(e.target.value)}
-                placeholder="e.g. Graduation Party, Hotel Banquet..."
-                className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition-all shadow-2xs"
-              />
-              <datalist id="event-type-presets">
-                <option value="Graduation Party" />
-                <option value="Hotel Banquet" />
-                <option value="Wedding Reception" />
-                <option value="Corporate Conference" />
-                <option value="Cocktail Party & Canapés" />
-                <option value="À la carte Service" />
-                <option value="Staff Meals" />
-                <option value="In-Room Dining" />
-                <option value="VIP Private Dinner" />
-                <option value="Matric Dance / Prom" />
-                <option value="Anniversary Gala" />
-              </datalist>
-            </div>
+            <input
+              type="text"
+              value={quickEventType}
+              onChange={(e) => setQuickEventType(e.target.value)}
+              placeholder="e.g. Graduation Party, Hotel Banquet, Caribbean Banquet..."
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
+              className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition-all shadow-2xs"
+            />
 
             {/* Quick-Click Event Type Badges */}
             <div className="flex flex-wrap gap-1 pt-0.5">
@@ -380,24 +367,53 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
             </div>
           </div>
 
-          {/* Cuisine Style */}
-          <div>
-            <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-1.5">
-              Cuisine Style & Heritage
-            </label>
-            <select
+          {/* Cuisine Style (Free-text with Quick Chips, no obstructing select or overlays) */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500">
+                Cuisine Style & Heritage
+              </label>
+              <span className="text-[9px] font-bold text-teal-700 bg-teal-50 px-1.5 py-0.5 rounded border border-teal-200">
+                Type Any Custom Cuisine
+              </span>
+            </div>
+
+            <input
+              type="text"
               value={quickCuisine}
               onChange={(e) => setQuickCuisine(e.target.value)}
-              className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition-all cursor-pointer shadow-2xs"
-            >
-              <option>Contemporary Cape & Continental</option>
-              <option>Classical French & Escoffier</option>
-              <option>Modern European Banquet</option>
-              <option>South African Heritage & Braai</option>
-              <option>Mediterranean Coastal & Seafood</option>
-              <option>Executive Asian Fusion</option>
-              <option>Nutritional Plant-Forward</option>
-            </select>
+              placeholder="e.g. Caribbean Banquet, Classical French..."
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
+              className="w-full p-2.5 bg-white border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 outline-none transition-all shadow-2xs"
+            />
+
+            {/* Quick-Click Cuisine Badges */}
+            <div className="flex flex-wrap gap-1 pt-0.5">
+              {[
+                { label: 'Contemporary Cape', icon: '🌿' },
+                { label: 'Classical French', icon: '🍷' },
+                { label: 'Modern European', icon: '🏰' },
+                { label: 'Heritage Braai', icon: '🥩' },
+                { label: 'Coastal Seafood', icon: '🦐' },
+                { label: 'Asian Fusion', icon: '🥢' }
+              ].map(preset => (
+                <button
+                  key={preset.label}
+                  type="button"
+                  onClick={() => setQuickCuisine(preset.label)}
+                  className={`text-[9px] font-bold px-2 py-0.5 rounded-md border transition-all cursor-pointer flex items-center gap-1 ${
+                    quickCuisine.toLowerCase() === preset.label.toLowerCase()
+                      ? 'bg-gradient-to-r from-lime-500 to-teal-600 text-white border-teal-600 shadow-2xs'
+                      : 'bg-slate-50 hover:bg-teal-50 text-slate-600 border-slate-200'
+                  }`}
+                >
+                  <span>{preset.icon}</span>
+                  <span>{preset.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Yield / Portion Multiplier */}

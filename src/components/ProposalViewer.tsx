@@ -109,9 +109,9 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
           </div>
         </div>
 
-        {/* Clean Modern Hotel Banquet Hero Presentation with Prominent Cover Image */}
-        <div className="relative rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 text-white min-h-[260px] sm:min-h-[320px] flex flex-col justify-between p-6 sm:p-10 shadow-md group">
-          {/* Cover / Hero Image */}
+        {/* Clean Modern Hotel Banquet Hero Presentation with Prominent, High-Pop Cover Image */}
+        <div className="relative rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 text-white min-h-[340px] sm:min-h-[420px] md:min-h-[460px] flex flex-col justify-between p-5 sm:p-8 md:p-10 shadow-lg group">
+          {/* High-Vibrancy Cover / Hero Image */}
           <img 
             src={heroImageSrc} 
             alt={proposal.title || 'Banquet Culinary Presentation'} 
@@ -121,15 +121,15 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
               const target = e.currentTarget;
               target.src = 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1600&q=85';
             }}
-            className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+            className="absolute inset-0 w-full h-full object-cover object-center filter saturate-[1.2] contrast-[1.06] brightness-[1.04] transition-transform duration-700 group-hover:scale-105"
           />
 
-          {/* Deep multi-stop gradient for contrast */}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/75 to-slate-950/40 pointer-events-none" />
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-lime-400/20 via-teal-400/20 to-transparent rounded-full blur-3xl pointer-events-none" />
+          {/* Targeted top vignette for badge contrast - keeping center image 100% open and vibrant */}
+          <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-slate-950/75 via-slate-950/20 to-transparent pointer-events-none" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-lime-400/15 via-teal-400/15 to-transparent rounded-full blur-3xl pointer-events-none" />
 
           {/* Top badges */}
-          <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
+          <div className="relative z-10 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-black uppercase tracking-widest text-lime-300 bg-slate-950/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-lime-400/30 flex items-center gap-2 shadow-sm">
                 <span className="w-2 h-2 rounded-full bg-lime-400 animate-pulse" />
@@ -138,27 +138,27 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
             </div>
 
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1.5 rounded-xl bg-slate-950/80 backdrop-blur-md border border-white/20 text-[11px] font-black uppercase tracking-wider text-teal-200">
+              <span className="px-3 py-1.5 rounded-xl bg-slate-950/80 backdrop-blur-md border border-white/20 text-[11px] font-black uppercase tracking-wider text-teal-200 shadow-sm">
                 SANS 10330 Verified
               </span>
-              <span className="px-3 py-1.5 rounded-xl bg-teal-600/90 backdrop-blur-md text-[11px] font-black uppercase tracking-wider text-white">
+              <span className="px-3 py-1.5 rounded-xl bg-teal-600/90 backdrop-blur-md text-[11px] font-black uppercase tracking-wider text-white shadow-sm">
                 {proposal.eventType || 'Banquet'}
               </span>
             </div>
           </div>
 
-          {/* Bottom Title & Specs */}
-          <div className="relative z-10 space-y-3 pt-10">
+          {/* Frosted Glass Floating Card for Title & Specs - ensures image pops without text burying it */}
+          <div className="relative z-10 mt-8 space-y-3 bg-slate-950/70 hover:bg-slate-950/75 backdrop-blur-md p-5 sm:p-6 rounded-2xl border border-white/15 shadow-2xl transition-all">
             <div>
               <h3 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight drop-shadow-sm">
                 {proposal.title || proposal.menuTitle || 'Metropolitan Grand Hotel Banquet'}
               </h3>
-              <p className="text-xs sm:text-sm text-slate-200 font-medium line-clamp-2 max-w-3xl mt-1 drop-shadow-sm">
+              <p className="text-xs sm:text-sm text-slate-200 font-medium line-clamp-2 max-w-3xl mt-1.5 leading-relaxed drop-shadow-sm">
                 {proposal.description}
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-white/20 text-xs font-semibold text-slate-200">
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/15 text-xs font-semibold text-slate-200">
               <span className="flex items-center gap-1.5">
                 <span>📍</span>
                 <span>{proposal.roomLocation || 'Grand Ballroom & Banqueting Deck'}</span>
@@ -167,7 +167,7 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
                 <span>⏱️</span>
                 <span>Est. Service: 4.5 Hours</span>
               </span>
-              <span className="font-mono text-lime-300 font-bold bg-slate-950/70 px-2.5 py-1 rounded-lg border border-lime-400/30">
+              <span className="font-mono text-lime-300 font-bold bg-slate-900/80 px-2.5 py-1 rounded-lg border border-lime-400/30">
                 Guaranteed: {guestCount} Covers
               </span>
             </div>
