@@ -1,4 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ZoomIn, ZoomOut, X, ChefHat, Sparkles } from 'lucide-react';
 import { Menu, MenuItem } from '../types';
 
 interface ProposalViewerProps {
@@ -23,6 +25,29 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
   const [deliveryFee, setDeliveryFee] = useState<number>(proposal.logistics?.deliveryFee || 1200);
   const [requireDeposit, setRequireDeposit] = useState<boolean>(true);
   const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false);
+  const [isLightboxOpen, setIsLightboxOpen] = useState<boolean>(false);
+  const [isZoomed, setIsZoomed] = useState<boolean>(false);
+
+  // Esc key and body scroll lock for lightbox
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsLightboxOpen(false);
+        setIsZoomed(false);
+      }
+    };
+    if (isLightboxOpen) {
+      document.body.style.overflow = 'hidden';
+      window.addEventListener('keydown', handleKeyDown);
+    } else {
+      document.body.style.overflow = '';
+      setIsZoomed(false);
+    }
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isLightboxOpen]);
 
   // Group dishes by category
   const appetizers = useMemo(() => {
@@ -70,7 +95,12 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
   }, [totalValue]);
 
   // Clean fallback if heroImage is empty or undefined
-  const heroImageSrc = proposal.heroImage || proposal.image || 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1600&q=85';
+  const heroImageSrc = useMemo(() => {
+    const raw = proposal.heroImage || proposal.image;
+    if (!raw) return 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1600&q=85';
+    if (raw.startsWith('data:') || raw.startsWith('http') || raw.startsWith('/')) return raw;
+    return `data:image/png;base64,${raw}`;
+  }, [proposal.heroImage, proposal.image]);
 
   return (
     <div id="proposal-document-root" className="space-y-12 text-left">
@@ -109,8 +139,12 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
           </div>
         </div>
 
-        {/* Clean Modern Hotel Banquet Hero Presentation with Prominent, High-Pop Cover Image */}
-        <div className="relative rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 text-white min-h-[340px] sm:min-h-[420px] md:min-h-[460px] flex flex-col justify-between p-5 sm:p-8 md:p-10 shadow-lg group">
+        {/* Clean Modern Hotel Banquet Hero Presentation with Click-to-Zoom Lightbox Inspection */}
+        <div 
+          onClick={() => setIsLightboxOpen(true)}
+          className="relative rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 text-white min-h-[340px] sm:min-h-[420px] md:min-h-[460px] flex flex-col justify-between p-5 sm:p-8 md:p-10 shadow-lg group cursor-pointer select-none"
+          title="Click to inspect culinary plating in full-resolution lightbox"
+        >
           {/* High-Vibrancy Cover / Hero Image */}
           <img 
             src={heroImageSrc} 
@@ -128,6 +162,15 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
           <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-slate-950/75 via-slate-950/20 to-transparent pointer-events-none" />
           <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-lime-400/15 via-teal-400/15 to-transparent rounded-full blur-3xl pointer-events-none" />
 
+          {/* Center Hover Cue - Prompting Chef to Inspect */}
+          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20">
+            <div className="px-5 py-2.5 rounded-full bg-slate-950/85 backdrop-blur-md border border-lime-400/60 text-white text-xs font-bold flex items-center gap-2.5 shadow-2xl scale-95 group-hover:scale-100 transition-transform">
+              <ZoomIn className="w-4 h-4 text-lime-400 animate-pulse" />
+              <span>Click to Inspect Culinary Plating in Full Resolution</span>
+              <span className="text-[10px] font-mono text-lime-300 bg-lime-400/20 px-2 py-0.5 rounded-full">Zoom</span>
+            </div>
+          </div>
+
           {/* Top badges */}
           <div className="relative z-10 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
@@ -144,11 +187,26 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
               <span className="px-3 py-1.5 rounded-xl bg-teal-600/90 backdrop-blur-md text-[11px] font-black uppercase tracking-wider text-white shadow-sm">
                 {proposal.eventType || 'Banquet'}
               </span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsLightboxOpen(true);
+                }}
+                className="px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-white border border-lime-400/40 hover:border-lime-400 text-[11px] font-bold flex items-center gap-1.5 shadow-lg transition-all hover:scale-105 cursor-pointer"
+                title="Inspect Culinary Plating in Full Resolution"
+              >
+                <ZoomIn className="w-3.5 h-3.5 text-lime-400" />
+                <span className="hidden sm:inline">Inspect Plating</span>
+              </button>
             </div>
           </div>
 
           {/* Frosted Glass Floating Card for Title & Specs - ensures image pops without text burying it */}
-          <div className="relative z-10 mt-8 space-y-3 bg-slate-950/70 hover:bg-slate-950/75 backdrop-blur-md p-5 sm:p-6 rounded-2xl border border-white/15 shadow-2xl transition-all">
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="relative z-10 mt-8 space-y-3 bg-slate-950/70 hover:bg-slate-950/75 backdrop-blur-md p-5 sm:p-6 rounded-2xl border border-white/15 shadow-2xl transition-all"
+          >
             <div>
               <h3 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight drop-shadow-sm">
                 {proposal.title || proposal.menuTitle || 'Metropolitan Grand Hotel Banquet'}
@@ -563,6 +621,136 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
         </div>
 
       </div>
+
+      {/* Framer-Motion Full-Resolution Culinary Inspection Lightbox */}
+      <AnimatePresence>
+        {isLightboxOpen && (
+          <motion.div
+            key="culinary-lightbox-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-[9999] bg-slate-950/95 backdrop-blur-2xl flex flex-col items-center justify-between p-4 sm:p-6 md:p-8 select-none"
+            onClick={() => {
+              setIsLightboxOpen(false);
+              setIsZoomed(false);
+            }}
+          >
+            {/* Top Navigation & Controls */}
+            <motion.div
+              initial={{ y: -25, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -25, opacity: 0 }}
+              transition={{ duration: 0.22 }}
+              className="w-full max-w-6xl flex items-center justify-between gap-4 z-20 pb-3"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-lime-500 via-teal-500 to-cyan-600 flex items-center justify-center text-white shadow-lg shadow-teal-500/20 ring-1 ring-white/20">
+                  <ChefHat className="w-5 h-5 stroke-[2.2]" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm sm:text-base font-black text-white uppercase tracking-wider">
+                      {proposal.title || proposal.menuTitle || 'Culinary Presentation Inspection'}
+                    </h3>
+                    <span className="text-[10px] font-bold text-lime-400 bg-lime-400/10 px-2 py-0.5 rounded-full border border-lime-400/30 flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" />
+                      Full Resolution
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 font-medium">
+                    {proposal.eventType || 'Hotel Banquet'} • {proposal.roomLocation || 'Grand Ballroom'} • SANS 10330 Culinary Standard
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsZoomed(!isZoomed)}
+                  className="px-3.5 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-700 hover:border-teal-500/50 text-xs font-bold flex items-center gap-2 transition-all shadow-md cursor-pointer"
+                  title="Toggle Macro Zoom"
+                >
+                  {isZoomed ? (
+                    <>
+                      <ZoomOut className="w-4 h-4 text-teal-400" />
+                      <span>Fit Window</span>
+                    </>
+                  ) : (
+                    <>
+                      <ZoomIn className="w-4 h-4 text-lime-400" />
+                      <span>Zoom 150%</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsLightboxOpen(false);
+                    setIsZoomed(false);
+                  }}
+                  className="p-2 sm:px-3 sm:py-2 rounded-xl bg-slate-900/90 hover:bg-rose-950/60 text-slate-300 hover:text-rose-400 border border-slate-700 hover:border-rose-500/40 text-xs font-bold flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
+                  title="Close Lightbox (Esc)"
+                >
+                  <X className="w-5 h-5" />
+                  <span className="hidden sm:inline font-mono text-[10px] text-slate-400">Esc</span>
+                </button>
+              </div>
+            </motion.div>
+
+            {/* Central Stage: High-Resolution Plating Aesthetic View */}
+            <motion.div
+              initial={{ scale: 0.92, opacity: 0, y: 15 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.92, opacity: 0, y: 15 }}
+              transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+              className={`relative max-w-6xl w-full flex-1 flex items-center justify-center overflow-auto rounded-2xl sm:rounded-3xl border border-white/10 bg-slate-900/40 p-2 sm:p-4 my-auto shadow-2xl transition-all ${
+                isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'
+              }`}
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsZoomed(!isZoomed);
+              }}
+            >
+              <img
+                src={heroImageSrc}
+                alt={proposal.title || 'Culinary Presentation Detail'}
+                className={`max-w-none transition-transform duration-300 rounded-xl sm:rounded-2xl select-none filter saturate-[1.18] contrast-[1.06] ${
+                  isZoomed
+                    ? 'scale-150 transform-gpu object-contain max-h-none'
+                    : 'max-h-[72vh] w-auto max-w-full object-contain shadow-2xl'
+                }`}
+                draggable={false}
+              />
+            </motion.div>
+
+            {/* Bottom Footer Info Bar */}
+            <motion.div
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 20, opacity: 0 }}
+              transition={{ duration: 0.22 }}
+              className="w-full max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-2 pt-3 text-xs text-slate-400 z-20"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-lime-400 animate-pulse" />
+                <span className="text-slate-300 font-medium">
+                  {isZoomed ? 'Click image to reset to fitted view' : 'Click image to inspect micro-garnishes & sauce textures at 150%'}
+                </span>
+              </div>
+              <div className="flex items-center gap-3 text-[11px]">
+                <span className="text-slate-400">Executive Chef Plating Approval Mode</span>
+                <span className="text-slate-600">•</span>
+                <span className="font-mono text-slate-400">Click anywhere outside to close</span>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
