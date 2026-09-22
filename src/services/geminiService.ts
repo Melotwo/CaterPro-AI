@@ -80,11 +80,13 @@ export const THEME_REPOSITORY: Record<string, string> = {
   wedding: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1600&q=85",
   corporate: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1600&q=85",
   gala: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1600&q=85",
-  banquet: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1600&q=85",
-  dinner: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1600&q=85",
+  banquet: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1600&q=85",
+  caribbean: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1600&q=85",
+  dinner: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1600&q=85",
   lunch: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1600&q=85",
-  cocktail: "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=1600&q=85",
-  party: "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?auto=format&fit=crop&w=1600&q=85",
+  // High-end passed canapé trays and gourmet hors d'oeuvres (NEVER a single drink or cocktail glass)
+  cocktail: "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1600&q=85",
+  party: "https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=1600&q=85",
   bbq: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1600&q=85",
   braai: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1600&q=85",
   birthday: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=1600&q=85",
@@ -92,26 +94,147 @@ export const THEME_REPOSITORY: Record<string, string> = {
   seafood: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=1600&q=85",
   asian: "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=1600&q=85",
   plant: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=1600&q=85",
-  default: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1600&q=85"
+  default: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1600&q=85"
 };
 
-export function getThemeFallbackImage(eventType: string, cuisineStyle?: string): string {
-  const combined = `${eventType || ''} ${cuisineStyle || ''}`.toLowerCase();
-  if (combined.includes('graduation') || combined.includes('matric') || combined.includes('prom')) return THEME_REPOSITORY.graduation;
-  if (combined.includes('wedding')) return THEME_REPOSITORY.wedding;
-  if (combined.includes('corporate') || combined.includes('conference') || combined.includes('office') || combined.includes('business')) return THEME_REPOSITORY.corporate;
-  if (combined.includes('gala')) return THEME_REPOSITORY.gala;
-  if (combined.includes('cocktail') || combined.includes('canape') || combined.includes('canapé')) return THEME_REPOSITORY.cocktail;
-  if (combined.includes('party') || combined.includes('celebration')) return THEME_REPOSITORY.party;
-  if (combined.includes('bbq') || combined.includes('braai') || combined.includes('grilled') || combined.includes('grill')) return THEME_REPOSITORY.bbq;
-  if (combined.includes('birthday')) return THEME_REPOSITORY.birthday;
-  if (combined.includes('french') || combined.includes('escoffier')) return THEME_REPOSITORY.french;
-  if (combined.includes('seafood') || combined.includes('coastal') || combined.includes('fish')) return THEME_REPOSITORY.seafood;
-  if (combined.includes('asian') || combined.includes('fusion')) return THEME_REPOSITORY.asian;
-  if (combined.includes('plant') || combined.includes('vegan') || combined.includes('vegetarian')) return THEME_REPOSITORY.plant;
-  if (combined.includes('dinner') || combined.includes('feast') || combined.includes('banquet')) return THEME_REPOSITORY.dinner;
-  if (combined.includes('lunch') || combined.includes('brunch') || combined.includes('breakfast')) return THEME_REPOSITORY.lunch;
-  return THEME_REPOSITORY.default;
+// Curated high-resolution image pools by theme (ensuring varied, unique images per generated menu)
+export const THEME_POOLS: Record<string, string[]> = {
+  // Cocktail / Canapés: exclusively passed trays, artisan canapés, savory hors d'oeuvres (no solo drinks)
+  cocktail: [
+    "https://images.unsplash.com/photo-1555244162-803834f70033", // Smoked salmon and herb canapés on silver tray
+    "https://images.unsplash.com/photo-1541544741938-0af808871cc0", // Gourmet crostini & passed hors d'oeuvres spread
+    "https://images.unsplash.com/photo-1574484284002-952d92456975", // Elegant skewers and appetizers
+    "https://images.unsplash.com/photo-1509440159596-0249088772ff"  // Reception table with savory canapé platters
+  ],
+  caribbean: [
+    "https://images.unsplash.com/photo-1540420773420-3366772f4999", // Vibrant tropical spiced grill & banquet
+    "https://images.unsplash.com/photo-1504674900247-0877df9cc836", // Island feast spread with tropical garnishes
+    "https://images.unsplash.com/photo-1565299585323-38d6b0865b47"  // Flame-roasted tropical feast
+  ],
+  banquet: [
+    "https://images.unsplash.com/photo-1555396273-367ea4eb4db5", // Luxury hotel banquet room with plated dining
+    "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3", // Michelin star fine dining banquet course
+    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0", // Chef plated course with microgreens
+    "https://images.unsplash.com/photo-1578474846511-04ba529f0b88", // Grand ballroom plated banquet service
+    "https://images.unsplash.com/photo-1544025162-d76694265947"  // Prime Karoo cuts & banquet table presentation
+  ],
+  wedding: [
+    "https://images.unsplash.com/photo-1519225421980-715cb0215aed", // Royal wedding banquet table setting
+    "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3", // Luxury outdoor banquet dinner
+    "https://images.unsplash.com/photo-1520854221256-17451cc331bf"  // Wedding celebration plated service
+  ],
+  corporate: [
+    "https://images.unsplash.com/photo-1511795409834-ef04bbd61622", // Executive business dinner event
+    "https://images.unsplash.com/photo-1475721027785-f74eccf877e2"  // Conference dining buffet & courses
+  ],
+  seafood: [
+    "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb", // Plated seafood linefish & shellfish
+    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e"  // Coastal oceanfront banquet feast
+  ],
+  braai: [
+    "https://images.unsplash.com/photo-1555939594-58d7cb561ad1", // Artisanal braai cuts & grilled banquet
+    "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd"  // Carved roast meats banquet
+  ],
+  french: [
+    "https://images.unsplash.com/photo-1550547660-d9450f859349", // Haute cuisine classical plating
+    "https://images.unsplash.com/photo-1502301103665-0b95cc738daf"  // Fine dining pastry & savory plate
+  ],
+  plant: [
+    "https://images.unsplash.com/photo-1540420773420-3366772f4999", // Fresh harvest vegetable banquet
+    "https://images.unsplash.com/photo-1512621776951-a57141f2eefd"  // Gourmet organic salad spread
+  ],
+  asian: [
+    "https://images.unsplash.com/photo-1563245372-f21724e3856d", // Asian culinary feast
+    "https://images.unsplash.com/photo-1541544741938-0af808871cc0"  // Fusion appetizers
+  ],
+  graduation: [
+    "https://images.unsplash.com/photo-1523580494863-6f3031224c94", // Commencement celebratory dinner
+    "https://images.unsplash.com/photo-1555396273-367ea4eb4db5"  // Banquet hall celebration
+  ]
+};
+
+/**
+ * Generates a clean, neutral, self-contained SVG placeholder banner
+ * for fallback situations, completely free of CORS or network dependencies.
+ */
+export function getNeutralPlaceholderImage(title: string = "Culinary Proposal", eventType: string = "Hotel Banquet"): string {
+  const cleanTitle = (title || 'CaterPro AI Presentation').replace(/[<>&"']/g, '');
+  const cleanType = (eventType || 'Executive Catering Specification').replace(/[<>&"']/g, '');
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+    <defs>
+      <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#0f172a" />
+        <stop offset="50%" stop-color="#1e293b" />
+        <stop offset="100%" stop-color="#090d16" />
+      </linearGradient>
+      <radialGradient id="glow" cx="50%" cy="35%" r="50%">
+        <stop offset="0%" stop-color="#14b8a6" stop-opacity="0.25" />
+        <stop offset="100%" stop-color="#0f172a" stop-opacity="0" />
+      </radialGradient>
+      <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+        <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#334155" stroke-width="0.5" stroke-opacity="0.25" />
+      </pattern>
+    </defs>
+    <rect width="1600" height="900" fill="url(#bg)" />
+    <rect width="1600" height="900" fill="url(#glow)" />
+    <rect width="1600" height="900" fill="url(#grid)" />
+    <g transform="translate(800, 340)" text-anchor="middle">
+      <circle cx="0" cy="-60" r="14" fill="#a3e635" />
+      <path d="M -110 0 C -110 -85, 110 -85, 110 0 Z" fill="none" stroke="#2dd4bf" stroke-width="8" stroke-linecap="round" />
+      <line x1="-130" y1="12" x2="130" y2="12" stroke="#2dd4bf" stroke-width="8" stroke-linecap="round" />
+      <line x1="-90" y1="26" x2="90" y2="26" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" opacity="0.6" />
+    </g>
+    <g font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" text-anchor="middle">
+      <rect x="560" y="440" width="480" height="38" rx="19" fill="#0f172a" stroke="#2dd4bf" stroke-width="1.5" stroke-opacity="0.6" />
+      <text x="800" y="464" font-size="14" font-weight="800" letter-spacing="3" fill="#a3e635" text-transform="uppercase">${cleanType}</text>
+      <text x="800" y="550" font-size="44" font-weight="900" fill="#f8fafc" letter-spacing="-1">${cleanTitle}</text>
+      <text x="800" y="605" font-size="18" font-weight="500" fill="#94a3b8" letter-spacing="1">CATERPRO AI • EXECUTIVE BANQUET SPECIFICATION</text>
+    </g>
+  </svg>`;
+  return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+}
+
+export function getThemeFallbackImage(
+  eventType: string,
+  cuisineStyle?: string,
+  title?: string,
+  description?: string
+): string {
+  const combined = `${eventType || ''} ${cuisineStyle || ''} ${title || ''} ${description || ''}`.toLowerCase();
+  
+  let pool = THEME_POOLS.banquet;
+  if (combined.includes('cocktail') || combined.includes('canape') || combined.includes('canapé') || combined.includes('passed') || combined.includes('hors d')) {
+    pool = THEME_POOLS.cocktail;
+  } else if (combined.includes('caribbean') || combined.includes('jerk') || combined.includes('tropical') || combined.includes('island')) {
+    pool = THEME_POOLS.caribbean;
+  } else if (combined.includes('seafood') || combined.includes('coastal') || combined.includes('fish') || combined.includes('scallop') || combined.includes('linefish')) {
+    pool = THEME_POOLS.seafood;
+  } else if (combined.includes('wedding') || combined.includes('nuptial')) {
+    pool = THEME_POOLS.wedding;
+  } else if (combined.includes('graduation') || combined.includes('matric') || combined.includes('prom')) {
+    pool = THEME_POOLS.graduation;
+  } else if (combined.includes('corporate') || combined.includes('conference') || combined.includes('office') || combined.includes('ddr')) {
+    pool = THEME_POOLS.corporate;
+  } else if (combined.includes('bbq') || combined.includes('braai') || combined.includes('grilled') || combined.includes('grill')) {
+    pool = THEME_POOLS.braai;
+  } else if (combined.includes('french') || combined.includes('escoffier')) {
+    pool = THEME_POOLS.french;
+  } else if (combined.includes('asian') || combined.includes('fusion') || combined.includes('dim sum')) {
+    pool = THEME_POOLS.asian;
+  } else if (combined.includes('plant') || combined.includes('vegan') || combined.includes('vegetarian')) {
+    pool = THEME_POOLS.plant;
+  }
+
+  // Hash title, description, and timestamp to pick a fresh, unique image each time
+  const seedString = `${title || ''}-${description || ''}-${eventType || ''}-${Date.now()}-${Math.random()}`;
+  let hash = 0;
+  for (let i = 0; i < seedString.length; i++) {
+    hash = ((hash << 5) - hash) + seedString.charCodeAt(i);
+    hash |= 0;
+  }
+  const selectedIndex = Math.abs(hash) % pool.length;
+  const basePhoto = pool[selectedIndex];
+  return `${basePhoto}?auto=format&fit=crop&w=1600&q=85&caterpro_sig=${Date.now()}_${Math.floor(Math.random() * 10000)}`;
 }
 
 export const generateMenuFromApi = async (params: {
@@ -480,7 +603,13 @@ ${structurePrompt}
   }
 };
 
-export async function generateMenuImageFromApi(menuTitle: string, eventType: string, cuisineStyle?: string, prompt?: string): Promise<string> {
+export async function generateMenuImageFromApi(
+  menuTitle: string,
+  eventType: string,
+  cuisineStyle?: string,
+  description?: string,
+  prompt?: string
+): Promise<string> {
   const event_type = eventType || "Catering Banquet";
   const cuisine_style = cuisineStyle || "Contemporary";
 
@@ -494,6 +623,7 @@ export async function generateMenuImageFromApi(menuTitle: string, eventType: str
         title: menuTitle,
         eventType: event_type,
         cuisineStyle: cuisine_style,
+        description: description || "",
         prompt
       })
     });
@@ -508,8 +638,8 @@ export async function generateMenuImageFromApi(menuTitle: string, eventType: str
     console.warn("Server image generation fetch issue, using curated fallback:", err?.message || err);
   }
 
-  // Gracefully return curated theme image without breaking workflow
-  return getThemeFallbackImage(event_type, cuisine_style);
+  // Gracefully return curated theme image tailored to title and description without breaking workflow
+  return getThemeFallbackImage(event_type, cuisine_style, menuTitle, description);
 }
 
 /**

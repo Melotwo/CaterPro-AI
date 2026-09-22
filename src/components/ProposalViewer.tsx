@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ZoomIn, ZoomOut, X, ChefHat, Sparkles } from 'lucide-react';
 import { Menu, MenuItem } from '../types';
+import { getThemeFallbackImage } from '../services/geminiService';
 
 interface ProposalViewerProps {
   proposal: Menu;
@@ -97,10 +98,10 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
   // Clean fallback if heroImage is empty or undefined
   const heroImageSrc = useMemo(() => {
     const raw = proposal.heroImage || proposal.image;
-    if (!raw) return 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1600&q=85';
+    if (!raw) return getThemeFallbackImage(proposal.eventType || 'Banquet', proposal.cuisine, proposal.title, proposal.description);
     if (raw.startsWith('data:') || raw.startsWith('http') || raw.startsWith('/')) return raw;
     return `data:image/png;base64,${raw}`;
-  }, [proposal.heroImage, proposal.image]);
+  }, [proposal.heroImage, proposal.image, proposal.eventType, proposal.cuisine, proposal.title, proposal.description]);
 
   return (
     <div id="proposal-document-root" className="space-y-12 text-left">
@@ -153,7 +154,7 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
             referrerPolicy="no-referrer"
             onError={(e) => {
               const target = e.currentTarget;
-              target.src = 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1600&q=85';
+              target.src = getThemeFallbackImage(proposal.eventType || 'Banquet', proposal.cuisine, proposal.title, proposal.description);
             }}
             className="absolute inset-0 w-full h-full object-cover object-center filter saturate-[1.2] contrast-[1.06] brightness-[1.04] transition-transform duration-700 group-hover:scale-105"
           />

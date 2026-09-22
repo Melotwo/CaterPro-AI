@@ -79,11 +79,11 @@ export const NewProposalModal: React.FC<NewProposalModalProps> = ({
         shoppingList: menuData.shoppingList || [],
         manualTotal: totalRevenue,
         manualPerHead: totalDishPrice || 450,
-        heroImage: getThemeFallbackImage(effectiveEventType, cuisine)
+        heroImage: getThemeFallbackImage(effectiveEventType, cuisine, menuData.title || `Banqueting Menu`, menuData.description)
       };
 
       try {
-        const heroImg = await generateMenuImageFromApi(newProposal.title, effectiveEventType, cuisine);
+        const heroImg = await generateMenuImageFromApi(newProposal.title, effectiveEventType, cuisine, newProposal.description);
         if (heroImg) newProposal.heroImage = heroImg;
       } catch (imgErr) {
         console.warn('Hero image generation fallback used');

@@ -208,7 +208,7 @@ export function App() {
           guestCount: params.covers,
           covers: params.covers,
           eventType: params.eventType,
-          heroImage: d.heroImage || d.image || getThemeFallbackImage(params.eventType, params.cuisine),
+          heroImage: d.heroImage || d.image || getThemeFallbackImage(params.eventType, params.cuisine, d.title || `${params.outlet} — ${params.eventType}`, d.description),
           eventDate: new Date().toISOString().split('T')[0],
           roomLocation: params.outlet,
           beoNumber: `BEO-${new Date().getFullYear()}-HOTEL-${Math.floor(100 + Math.random() * 900)}`,
@@ -252,8 +252,8 @@ export function App() {
           cuisine: params.cuisine
         });
 
-        // Asynchronously generate tailored high-res banner image
-        generateMenuImageFromApi(newMenu.title || params.eventType, params.eventType, params.cuisine)
+        // Asynchronously generate tailored high-res banner image matching title, description, and event type
+        generateMenuImageFromApi(newMenu.title || params.eventType, params.eventType, params.cuisine, newMenu.description)
           .then((img) => {
             if (img) {
               setProposal(prev => {

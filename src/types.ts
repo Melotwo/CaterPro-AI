@@ -66,6 +66,8 @@ export interface Menu {
   dietaryNotes?: string[];
   allergenMatrix?: AllergenMatrixItem[];
   eventType?: string;
+  cuisine?: string;
+  cuisineStyle?: string;
   covers?: number;
   beoNumber?: string;
   roomLocation?: string;

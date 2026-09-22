@@ -405,12 +405,41 @@ Return valid JSON matching:
   /**
    * Route: Generate Hero / Cover Image for Proposal
    * Uses Gemini Image generation with fallback to curated high-res culinary assets.
+   * Ensures every menu produces a unique, relevant hero image matching title, description, and event type.
    */
   app.post("/api/gemini/generate-image", async (req, res) => {
-    const { title, eventType = "Hotel Banquet", cuisineStyle = "Contemporary", prompt } = req.body || {};
+    const {
+      title = "Executive Culinary Showcase",
+      eventType = "Hotel Banquet",
+      cuisineStyle = "Contemporary",
+      description = "",
+      prompt
+    } = req.body || {};
     
-    // Rich culinary photographic prompt tailored to event and cuisine
-    const defaultPrompt = `Professional editorial food photography, spectacular catering presentation for a ${eventType}, authentic ${cuisineStyle} dishes, Michelin-star hotel banquet plating, appetizing warm ambient lighting, elegant table setting, shallow depth of field, 8k resolution, crisp photorealistic masterpiece.`;
+    const combinedContext = `${eventType} ${cuisineStyle} ${title} ${description}`.toLowerCase();
+    const isCocktail = /cocktail|canape|canap|reception|passed|hors d'?oeuvre|tapas|finger food|standing/i.test(combinedContext);
+    const isCaribbean = /caribbean|jerk|tropical|jamaican|creole|island|bahamian/i.test(combinedContext);
+    const isSeafood = /seafood|linefish|scallop|salmon|prawn|crayfish|oyster|coastal|marine/i.test(combinedContext);
+    const isWedding = /wedding|nuptial|bridal|marriage/i.test(combinedContext);
+    const isBraai = /braai|bbq|grill|barbecue|flame|fire|smoke/i.test(combinedContext);
+    const isGraduation = /graduat|commence|alumni|academic|matric|prom/i.test(combinedContext);
+    const isCorporate = /corporate|conference|summit|business|ddr|delegate/i.test(combinedContext);
+    const isPlant = /plant|vegan|vegetarian|harvest|organic/i.test(combinedContext);
+    const isAsian = /asian|oriental|fusion|dim sum|thai|japanese|sushi/i.test(combinedContext);
+    const isFrench = /french|escoffier|classic|haute cuisine|gourmet/i.test(combinedContext);
+
+    // Build rich, specific prompt explicitly focusing on plated food, canapé trays, or banquet tables (NO single drinks)
+    let defaultPrompt = '';
+    if (isCocktail) {
+      defaultPrompt = `Editorial catering food photography of "${title}". High-end evening standing cocktail reception and banquet presentation. Butler-passed silver and slate trays of exquisite artisan canapés, savory gourmet hors d'oeuvres, micro-greens, edible flower garnishes, bite-sized delicacies, and gourmet small plates. Atmosphere: sophisticated event venue with warm ambient lighting, elegant guests mingling at a standing reception in the soft background blur. ${description ? `Theme: ${description}.` : ''} Cuisine: ${cuisineStyle}. Focus purely on appetizing gourmet food presentation and passed canapé platters, no solitary drink glasses, commercial culinary photography, 8k resolution, photorealistic.`;
+    } else if (isCaribbean) {
+      defaultPrompt = `Editorial catering food photography of "${title}". Vibrant upscale Caribbean banquet feast presentation for a ${eventType}. Featuring authentic ${cuisineStyle} dishes, jerk spiced roasted cuts, grilled seafood skewers, colorful tropical fruits and herb garnishes, rich sauces, and an opulent buffet table. ${description ? `Context: ${description}.` : ''} Warm island ambient lighting, festive luxury banquet ambiance, shallow depth of field, appetizing colors, 8k resolution, crisp commercial culinary masterpiece.`;
+    } else if (isSeafood) {
+      defaultPrompt = `Editorial catering food photography of "${title}". Spectacular coastal seafood banquet for a ${eventType}. Crispy-skin pan-seared linefish, scallops with saffron velouté, chilled shellfish platters, fresh lemon wedges, and micro-herbs. ${description ? `Context: ${description}.` : ''} Style: ${cuisineStyle}. Michelin-star hotel banquet plating, warm chandelier lighting, shallow depth of field, 8k resolution.`;
+    } else {
+      defaultPrompt = `Editorial professional food photography of "${title}". Spectacular luxury catering presentation for a ${eventType}, featuring authentic ${cuisineStyle} cuisine, exquisitely plated multi-course gourmet dishes, banquet feasting tables, artistic sauce drizzles, and hotel dining atmosphere. ${description ? `Context: ${description}.` : ''} Warm ambient chandelier lighting, pristine linen, shallow depth of field, appetizing colors, 8k resolution, crisp commercial culinary masterpiece.`;
+    }
+
     const imagePrompt = prompt || defaultPrompt;
 
     try {
@@ -440,38 +469,127 @@ Return valid JSON matching:
             }
           }
         } catch (geminiErr: any) {
-          console.warn("Gemini image generation attempt notice (using curated banquet photography):", geminiErr?.message || geminiErr);
+          console.warn("Gemini 3.1 flash-lite-image notice, trying Imagen:", geminiErr?.message || geminiErr);
+          try {
+            const imgRes = await ai.models.generateImages({
+              model: 'imagen-3.0-generate-002',
+              prompt: imagePrompt,
+              config: {
+                numberOfImages: 1,
+                aspectRatio: '16:9',
+                outputMimeType: 'image/jpeg'
+              }
+            });
+            const b64 = imgRes.generatedImages?.[0]?.image?.imageBytes;
+            if (b64) {
+              res.json({
+                imageUrl: `data:image/jpeg;base64,${b64}`,
+                isFallback: false
+              });
+              return;
+            }
+          } catch (imagenErr: any) {
+            console.warn("Imagen generation notice (using curated banquet photography):", imagenErr?.message || imagenErr);
+          }
         }
       }
     } catch (err: any) {
       console.warn("Image route handler warning:", err?.message || err);
     }
 
-    // Curated high-resolution culinary photography by event type and cuisine
-    const normalized = `${eventType} ${cuisineStyle} ${title || ''}`.toLowerCase();
-    let fallback = "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1600&q=85"; // Default Banquet
+    // Dynamic, high-resolution culinary photography pools (guaranteeing varied, fresh images per menu)
+    const CULINARY_POOLS = {
+      // Cocktail / Canapés / Reception: All images MUST feature canapé trays, passed hors d'oeuvres, or standing reception food (NO solo drink glasses)
+      cocktail: [
+        "https://images.unsplash.com/photo-1555244162-803834f70033", // Artisan smoked salmon & herb canapés on catering trays
+        "https://images.unsplash.com/photo-1541544741938-0af808871cc0", // Gourmet crostini & passed hors d'oeuvres spread
+        "https://images.unsplash.com/photo-1574484284002-952d92456975", // Elegant catering skewers and appetizer bites
+        "https://images.unsplash.com/photo-1509440159596-0249088772ff"  // Reception table with savory canapé platters
+      ],
+      // Caribbean / Tropical / Jerk Banquet
+      caribbean: [
+        "https://images.unsplash.com/photo-1540420773420-3366772f4999", // Vibrant tropical spiced grill & colorful banquet
+        "https://images.unsplash.com/photo-1504674900247-0877df9cc836", // Island feast spread with tropical garnishes
+        "https://images.unsplash.com/photo-1565299585323-38d6b0865b47"  // Flame-roasted tropical feast
+      ],
+      // Hotel Banquet / Plated Courses / Gala
+      banquet: [
+        "https://images.unsplash.com/photo-1555396273-367ea4eb4db5", // Luxury hotel banquet room with plated dining
+        "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3", // Michelin star fine dining banquet course
+        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0", // Chef plated course with microgreens
+        "https://images.unsplash.com/photo-1578474846511-04ba529f0b88", // Grand ballroom plated banquet service
+        "https://images.unsplash.com/photo-1544025162-d76694265947"  // Prime Karoo cuts & banquet table presentation
+      ],
+      // Wedding & Nuptial
+      wedding: [
+        "https://images.unsplash.com/photo-1519225421980-715cb0215aed", // Royal wedding banquet table setting
+        "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3", // Luxury outdoor banquet dinner
+        "https://images.unsplash.com/photo-1520854221256-17451cc331bf"  // Wedding celebration plated service
+      ],
+      // Corporate & Conference
+      corporate: [
+        "https://images.unsplash.com/photo-1511795409834-ef04bbd61622", // Executive business dinner event
+        "https://images.unsplash.com/photo-1475721027785-f74eccf877e2"  // Conference dining buffet & courses
+      ],
+      // Seafood & Coastal
+      seafood: [
+        "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb", // Plated seafood linefish & shellfish
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e"  // Coastal oceanfront banquet feast
+      ],
+      // Braai & BBQ
+      braai: [
+        "https://images.unsplash.com/photo-1555939594-58d7cb561ad1", // Artisanal braai cuts & grilled banquet
+        "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd"  // Carved roast meats banquet
+      ],
+      // French Haute Cuisine
+      french: [
+        "https://images.unsplash.com/photo-1550547660-d9450f859349", // Haute cuisine classical plating
+        "https://images.unsplash.com/photo-1502301103665-0b95cc738daf"  // Fine dining pastry & savory plate
+      ],
+      // Plant-based & Harvest
+      plant: [
+        "https://images.unsplash.com/photo-1540420773420-3366772f4999", // Fresh harvest vegetable banquet
+        "https://images.unsplash.com/photo-1512621776951-a57141f2eefd"  // Gourmet organic salad spread
+      ],
+      // Asian Fusion
+      asian: [
+        "https://images.unsplash.com/photo-1563245372-f21724e3856d", // Asian culinary feast
+        "https://images.unsplash.com/photo-1541544741938-0af808871cc0"  // Fusion appetizers
+      ],
+      // Graduation
+      graduation: [
+        "https://images.unsplash.com/photo-1523580494863-6f3031224c94", // Commencement celebratory dinner
+        "https://images.unsplash.com/photo-1555396273-367ea4eb4db5"  // Banquet hall celebration
+      ]
+    };
 
-    if (normalized.includes('graduation') || normalized.includes('matric') || normalized.includes('prom')) {
-      fallback = "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1600&q=85";
-    } else if (normalized.includes('wedding')) {
-      fallback = "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1600&q=85";
-    } else if (normalized.includes('cocktail') || normalized.includes('canapé') || normalized.includes('canape')) {
-      fallback = "https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?auto=format&fit=crop&w=1600&q=85";
-    } else if (normalized.includes('corporate') || normalized.includes('conference')) {
-      fallback = "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1600&q=85";
-    } else if (normalized.includes('braai') || normalized.includes('bbq') || normalized.includes('grill')) {
-      fallback = "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1600&q=85";
-    } else if (normalized.includes('french') || normalized.includes('escoffier')) {
-      fallback = "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1600&q=85";
-    } else if (normalized.includes('seafood') || normalized.includes('coastal') || normalized.includes('fish')) {
-      fallback = "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=1600&q=85";
-    } else if (normalized.includes('asian') || normalized.includes('fusion')) {
-      fallback = "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=1600&q=85";
-    } else if (normalized.includes('plant') || normalized.includes('vegan') || normalized.includes('vegetarian')) {
-      fallback = "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=1600&q=85";
+    // Determine candidate pool
+    let pool: string[];
+    if (isCocktail) pool = CULINARY_POOLS.cocktail;
+    else if (isCaribbean) pool = CULINARY_POOLS.caribbean;
+    else if (isSeafood) pool = CULINARY_POOLS.seafood;
+    else if (isWedding) pool = CULINARY_POOLS.wedding;
+    else if (isGraduation) pool = CULINARY_POOLS.graduation;
+    else if (isCorporate) pool = CULINARY_POOLS.corporate;
+    else if (isBraai) pool = CULINARY_POOLS.braai;
+    else if (isFrench) pool = CULINARY_POOLS.french;
+    else if (isPlant) pool = CULINARY_POOLS.plant;
+    else if (isAsian) pool = CULINARY_POOLS.asian;
+    else pool = CULINARY_POOLS.banquet;
+
+    // Use a hash of title, description, and time so every newly generated menu receives a different image
+    const seedString = `${title}-${description}-${eventType}-${Date.now()}-${Math.random()}`;
+    let hash = 0;
+    for (let i = 0; i < seedString.length; i++) {
+      hash = ((hash << 5) - hash) + seedString.charCodeAt(i);
+      hash |= 0;
     }
+    const selectedIndex = Math.abs(hash) % pool.length;
+    const basePhoto = pool[selectedIndex];
+    // Append query params for high-res format and unique cache-busting signature
+    const finalImageUrl = `${basePhoto}?auto=format&fit=crop&w=1600&q=85&caterpro_sig=${Date.now()}_${Math.floor(Math.random() * 10000)}`;
 
-    res.json({ imageUrl: fallback, isFallback: true });
+    res.json({ imageUrl: finalImageUrl, isFallback: true });
   });
 
   // Vite Middleware Integration

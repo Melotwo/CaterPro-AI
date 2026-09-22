@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { PayPalScriptProvider, PayPalButtons } from '@paypal/react-paypal-js';
-import { generateMenuFromApi, generateMenuImageFromApi, getApiKey } from '../services/geminiService';
+import { generateMenuFromApi, generateMenuImageFromApi, getThemeFallbackImage, getApiKey } from '../services/geminiService';
 import { Menu, MenuItem, Message, ShiftIngredient, DashboardStats, IngredientCost } from '../types';
 import { BanquetEventOrderModal } from './BanquetEventOrderModal';
 import { PaystackUpgradeModal } from './PaystackUpgradeModal';
@@ -639,7 +639,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         eventDate: new Date().toISOString().split('T')[0],
         eventTime: '18:30 for 19:00 Service',
         allergenMatrix: menuData.allergenMatrix || [],
-        heroImage: HERO_FALLBACK,
+        heroImage: getThemeFallbackImage(effectiveEventType, cuisine, menuData.title || `${effectiveEventType} Banquet`, menuData.description),
         shoppingList: menuData.shoppingList || [],
         manualTotal: totalRevenue,
         manualPerHead: totalDishPrice,
@@ -649,7 +649,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
       setGeneratedMenu(menu);
 
       try {
-        const img = await generateMenuImageFromApi(menu.title, effectiveEventType, cuisine);
+        const img = await generateMenuImageFromApi(menu.title, effectiveEventType, cuisine, menu.description);
         if (img) {
           menu.heroImage = img;
           setMenuImage(img);
