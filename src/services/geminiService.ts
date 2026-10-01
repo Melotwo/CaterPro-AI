@@ -76,80 +76,79 @@ const cleanAndParseJson = (rawText: string): any => {
 };
 
 export const THEME_REPOSITORY: Record<string, string> = {
-  graduation: "https://images.unsplash.com/photo-1523580494863-6f3031224c94?auto=format&fit=crop&w=1600&q=85",
-  wedding: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1600&q=85",
-  corporate: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&w=1600&q=85",
-  gala: "https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&w=1600&q=85",
-  banquet: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1600&q=85",
-  caribbean: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1600&q=85",
-  dinner: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?auto=format&fit=crop&w=1600&q=85",
-  lunch: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1600&q=85",
-  // High-end passed canapé trays and gourmet hors d'oeuvres (NEVER a single drink or cocktail glass)
-  cocktail: "https://images.unsplash.com/photo-1555244162-803834f70033?auto=format&fit=crop&w=1600&q=85",
-  party: "https://images.unsplash.com/photo-1541544741938-0af808871cc0?auto=format&fit=crop&w=1600&q=85",
-  bbq: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1600&q=85",
-  braai: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=1600&q=85",
-  birthday: "https://images.unsplash.com/photo-1530103862676-de8c9debad1d?auto=format&fit=crop&w=1600&q=85",
-  french: "https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1600&q=85",
-  seafood: "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=1600&q=85",
-  asian: "https://images.unsplash.com/photo-1563245372-f21724e3856d?auto=format&fit=crop&w=1600&q=85",
-  plant: "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=1600&q=85",
-  default: "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1600&q=85"
+  cocktail: "/images/canape_cocktail_reception_1790839889744.jpg",
+  banquet: "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
+  caribbean: "/images/caribbean_banquet_feast_1790839910815.jpg",
+  wedding: "/images/wedding_banquet_table_1790839921478.jpg",
+  seafood: "/images/coastal_seafood_banquet_1790839949705.jpg",
+  graduation: "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
+  corporate: "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
+  gala: "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
+  dinner: "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
+  lunch: "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
+  party: "/images/canape_cocktail_reception_1790839889744.jpg",
+  bbq: "/images/caribbean_banquet_feast_1790839910815.jpg",
+  braai: "/images/caribbean_banquet_feast_1790839910815.jpg",
+  birthday: "/images/wedding_banquet_table_1790839921478.jpg",
+  french: "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
+  asian: "/images/canape_cocktail_reception_1790839889744.jpg",
+  plant: "/images/wedding_banquet_table_1790839921478.jpg",
+  default: "/images/hotel_banquet_plated_dinner_1790839899546.jpg"
 };
 
-// Curated high-resolution image pools by theme (ensuring varied, unique images per generated menu)
+// Curated high-resolution food-only image pools by theme (strictly food & canapés, never solitary drinks)
 export const THEME_POOLS: Record<string, string[]> = {
-  // Cocktail / Canapés: exclusively passed trays, artisan canapés, savory hors d'oeuvres (no solo drinks)
+  // Cocktail / Canapés: strictly butler-passed silver trays, artisan canapés, savory hors d'oeuvres (NO solo drinks)
   cocktail: [
+    "/images/canape_cocktail_reception_1790839889744.jpg", // Artisan savory canapés on catering trays
     "https://images.unsplash.com/photo-1555244162-803834f70033", // Smoked salmon and herb canapés on silver tray
     "https://images.unsplash.com/photo-1541544741938-0af808871cc0", // Gourmet crostini & passed hors d'oeuvres spread
-    "https://images.unsplash.com/photo-1574484284002-952d92456975", // Elegant skewers and appetizers
-    "https://images.unsplash.com/photo-1509440159596-0249088772ff"  // Reception table with savory canapé platters
+    "https://images.unsplash.com/photo-1574484284002-952d92456975"  // Elegant skewers and appetizer bites
   ],
   caribbean: [
+    "/images/caribbean_banquet_feast_1790839910815.jpg", // Island jerk spiced feast & tropical grill
     "https://images.unsplash.com/photo-1540420773420-3366772f4999", // Vibrant tropical spiced grill & banquet
-    "https://images.unsplash.com/photo-1504674900247-0877df9cc836", // Island feast spread with tropical garnishes
-    "https://images.unsplash.com/photo-1565299585323-38d6b0865b47"  // Flame-roasted tropical feast
+    "https://images.unsplash.com/photo-1504674900247-0877df9cc836"  // Island feast spread with tropical garnishes
   ],
   banquet: [
+    "/images/hotel_banquet_plated_dinner_1790839899546.jpg", // Michelin-star plated hotel banquet dinner
     "https://images.unsplash.com/photo-1555396273-367ea4eb4db5", // Luxury hotel banquet room with plated dining
     "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3", // Michelin star fine dining banquet course
-    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0", // Chef plated course with microgreens
-    "https://images.unsplash.com/photo-1578474846511-04ba529f0b88", // Grand ballroom plated banquet service
-    "https://images.unsplash.com/photo-1544025162-d76694265947"  // Prime Karoo cuts & banquet table presentation
+    "https://images.unsplash.com/photo-1414235077428-338989a2e8c0"  // Chef plated course with microgreens
   ],
   wedding: [
+    "/images/wedding_banquet_table_1790839921478.jpg", // Luxury wedding banquet table setting
     "https://images.unsplash.com/photo-1519225421980-715cb0215aed", // Royal wedding banquet table setting
-    "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3", // Luxury outdoor banquet dinner
-    "https://images.unsplash.com/photo-1520854221256-17451cc331bf"  // Wedding celebration plated service
+    "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3"  // Luxury outdoor banquet dinner
   ],
   corporate: [
+    "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
     "https://images.unsplash.com/photo-1511795409834-ef04bbd61622", // Executive business dinner event
     "https://images.unsplash.com/photo-1475721027785-f74eccf877e2"  // Conference dining buffet & courses
   ],
   seafood: [
-    "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb", // Plated seafood linefish & shellfish
-    "https://images.unsplash.com/photo-1507525428034-b723cf961d3e"  // Coastal oceanfront banquet feast
+    "/images/coastal_seafood_banquet_1790839949705.jpg", // Pan-seared linefish & coastal seafood
+    "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb"  // Plated seafood linefish & shellfish
   ],
   braai: [
-    "https://images.unsplash.com/photo-1555939594-58d7cb561ad1", // Artisanal braai cuts & grilled banquet
-    "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd"  // Carved roast meats banquet
+    "/images/caribbean_banquet_feast_1790839910815.jpg",
+    "https://images.unsplash.com/photo-1555939594-58d7cb561ad1"  // Artisanal braai cuts & grilled banquet
   ],
   french: [
-    "https://images.unsplash.com/photo-1550547660-d9450f859349", // Haute cuisine classical plating
-    "https://images.unsplash.com/photo-1502301103665-0b95cc738daf"  // Fine dining pastry & savory plate
+    "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
+    "https://images.unsplash.com/photo-1550547660-d9450f859349"  // Haute cuisine classical plating
   ],
   plant: [
-    "https://images.unsplash.com/photo-1540420773420-3366772f4999", // Fresh harvest vegetable banquet
-    "https://images.unsplash.com/photo-1512621776951-a57141f2eefd"  // Gourmet organic salad spread
+    "/images/wedding_banquet_table_1790839921478.jpg",
+    "https://images.unsplash.com/photo-1540420773420-3366772f4999"  // Fresh harvest vegetable banquet
   ],
   asian: [
-    "https://images.unsplash.com/photo-1563245372-f21724e3856d", // Asian culinary feast
-    "https://images.unsplash.com/photo-1541544741938-0af808871cc0"  // Fusion appetizers
+    "/images/canape_cocktail_reception_1790839889744.jpg",
+    "https://images.unsplash.com/photo-1563245372-f21724e3856d"  // Asian culinary feast
   ],
   graduation: [
-    "https://images.unsplash.com/photo-1523580494863-6f3031224c94", // Commencement celebratory dinner
-    "https://images.unsplash.com/photo-1555396273-367ea4eb4db5"  // Banquet hall celebration
+    "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
+    "https://images.unsplash.com/photo-1523580494863-6f3031224c94"  // Commencement celebratory dinner
   ]
 };
 
@@ -234,6 +233,9 @@ export function getThemeFallbackImage(
   }
   const selectedIndex = Math.abs(hash) % pool.length;
   const basePhoto = pool[selectedIndex];
+  if (basePhoto.startsWith('/')) {
+    return `${basePhoto}?t=${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+  }
   return `${basePhoto}?auto=format&fit=crop&w=1600&q=85&caterpro_sig=${Date.now()}_${Math.floor(Math.random() * 10000)}`;
 }
 

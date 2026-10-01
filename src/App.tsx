@@ -16,8 +16,9 @@ import Calculator from './components/Calculator';
 import RecipeGenerator from './components/RecipeGenerator';
 import { CommandCenter } from './components/CommandCenter';
 import AcademicHub from './components/academic/AcademicHub';
+import { HaccpLog } from './components/HaccpLog';
 import { GoogleAnalytics, trackEvent } from './GoogleAnalytics';
-import { ChefHat, GraduationCap, Calculator as CalcIcon, Utensils, Sparkles, BookOpen } from 'lucide-react';
+import { ChefHat, GraduationCap, Calculator as CalcIcon, Utensils, Sparkles, BookOpen, ShieldCheck } from 'lucide-react';
 import { Menu } from './types';
 
 // Toast Component
@@ -164,7 +165,7 @@ const AiChatBot: React.FC = () => {
 };
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<'proposal' | 'calculator' | 'recipe' | 'commis' | 'academic'>('proposal');
+  const [activeTab, setActiveTab] = useState<'proposal' | 'calculator' | 'haccp' | 'recipe' | 'commis' | 'academic'>('proposal');
   const [proposal, setProposal] = useState<Menu>(() => {
     const saved = localStorage.getItem('caterpro_recent_proposal');
     if (saved) {
@@ -408,7 +409,7 @@ export function App() {
           <div className="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold">
             <button
               onClick={() => setActiveTab('proposal')}
-              className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'proposal'
                   ? 'bg-white text-slate-900 shadow-2xs'
                   : 'text-slate-500 hover:text-slate-900'
@@ -419,7 +420,7 @@ export function App() {
             </button>
             <button
               onClick={() => setActiveTab('calculator')}
-              className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'calculator'
                   ? 'bg-white text-slate-900 shadow-2xs'
                   : 'text-slate-500 hover:text-slate-900'
@@ -429,19 +430,33 @@ export function App() {
               <span>Plate Costing & Yields</span>
             </button>
             <button
+              onClick={() => setActiveTab('haccp')}
+              className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeTab === 'haccp'
+                  ? 'bg-white text-slate-900 shadow-2xs'
+                  : 'text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-teal-600" />
+              <span>HACCP Safety Log</span>
+              <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-teal-100 text-teal-800">
+                CCP
+              </span>
+            </button>
+            <button
               onClick={() => setActiveTab('recipe')}
-              className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'recipe'
                   ? 'bg-white text-slate-900 shadow-2xs'
                   : 'text-slate-500 hover:text-slate-900'
               }`}
             >
               <BookOpen className="w-3.5 h-3.5 text-amber-600" />
-              <span>Food Encyclopedia (Larousse)</span>
+              <span>Food Encyclopedia</span>
             </button>
             <button
               onClick={() => setActiveTab('commis')}
-              className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'commis'
                   ? 'bg-white text-slate-900 shadow-2xs'
                   : 'text-slate-500 hover:text-slate-900'
@@ -452,7 +467,7 @@ export function App() {
             </button>
             <button
               onClick={() => setActiveTab('academic')}
-              className={`px-3.5 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'academic'
                   ? 'bg-white text-slate-900 shadow-2xs'
                   : 'text-slate-500 hover:text-slate-900'
@@ -460,27 +475,24 @@ export function App() {
             >
               <GraduationCap className="w-3.5 h-3.5 text-red-600" />
               <span>Academic Hub</span>
-              <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-red-950/40 text-red-400 border border-red-800/60">
-                QCTO / SAQA
-              </span>
             </button>
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2">
             {/* Upgrade (Fresh 4-tier plan modal) */}
             <button
               onClick={() => setIsUpgradeOpen(true)}
-              className="px-3.5 py-1.5 bg-gradient-to-r from-lime-500 to-teal-600 hover:from-lime-400 hover:to-teal-500 text-white rounded-lg text-xs font-black uppercase tracking-wider transition-all shadow-sm shadow-teal-500/20 flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-1.5 bg-gradient-to-r from-lime-500 to-teal-600 hover:from-lime-400 hover:to-teal-500 text-white rounded-lg text-xs font-black uppercase tracking-wider transition-all shadow-sm shadow-teal-500/20 flex items-center gap-1.5 cursor-pointer"
             >
               <Sparkles className="w-3.5 h-3.5 text-white" />
               <span>Plans & Pricing</span>
             </button>
 
-            {/* Install Button (Slate button from PDF) */}
+            {/* Install Button */}
             <button
               onClick={() => setToast('CaterPro AI is ready for offline subterranean use!')}
-              className="hidden sm:flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold transition-all shadow-sm"
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-bold transition-all shadow-sm"
             >
               <span>📥</span>
               <span>Install</span>
@@ -516,12 +528,12 @@ export function App() {
         </div>
       </header>
 
-      {/* Mobile Navigation Bar */}
-      <div className="md:hidden flex items-center gap-1.5 overflow-x-auto px-4 py-2.5 bg-white border-b border-slate-200 text-xs font-bold scrollbar-none shadow-2xs">
+      {/* Mobile Navigation Bar (Snug, thumb-friendly, compact) */}
+      <div className="md:hidden flex items-center gap-1 overflow-x-auto px-2.5 py-1.5 bg-white border-b border-slate-200 text-xs font-bold scrollbar-none shadow-2xs">
         <button
           onClick={() => setActiveTab('proposal')}
-          className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shrink-0 ${
-            activeTab === 'proposal' ? 'bg-slate-900 text-white' : 'text-slate-600 bg-slate-100'
+          className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 shrink-0 ${
+            activeTab === 'proposal' ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 bg-slate-100'
           }`}
         >
           <ChefHat className="w-3.5 h-3.5 text-teal-400" />
@@ -529,17 +541,26 @@ export function App() {
         </button>
         <button
           onClick={() => setActiveTab('calculator')}
-          className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shrink-0 ${
-            activeTab === 'calculator' ? 'bg-slate-900 text-white' : 'text-slate-600 bg-slate-100'
+          className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 shrink-0 ${
+            activeTab === 'calculator' ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 bg-slate-100'
           }`}
         >
           <CalcIcon className="w-3.5 h-3.5 text-teal-400" />
           <span>Costing</span>
         </button>
         <button
+          onClick={() => setActiveTab('haccp')}
+          className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 shrink-0 ${
+            activeTab === 'haccp' ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 bg-slate-100'
+          }`}
+        >
+          <ShieldCheck className="w-3.5 h-3.5 text-teal-400" />
+          <span>HACCP</span>
+        </button>
+        <button
           onClick={() => setActiveTab('recipe')}
-          className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shrink-0 ${
-            activeTab === 'recipe' ? 'bg-slate-900 text-white' : 'text-slate-600 bg-slate-100'
+          className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 shrink-0 ${
+            activeTab === 'recipe' ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 bg-slate-100'
           }`}
         >
           <BookOpen className="w-3.5 h-3.5 text-amber-400" />
@@ -547,8 +568,8 @@ export function App() {
         </button>
         <button
           onClick={() => setActiveTab('commis')}
-          className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shrink-0 ${
-            activeTab === 'commis' ? 'bg-slate-900 text-white' : 'text-slate-600 bg-slate-100'
+          className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 shrink-0 ${
+            activeTab === 'commis' ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 bg-slate-100'
           }`}
         >
           <GraduationCap className="w-3.5 h-3.5 text-emerald-400" />
@@ -556,36 +577,36 @@ export function App() {
         </button>
         <button
           onClick={() => setActiveTab('academic')}
-          className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shrink-0 ${
-            activeTab === 'academic' ? 'bg-slate-900 text-white' : 'text-slate-600 bg-slate-100'
+          className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 shrink-0 ${
+            activeTab === 'academic' ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 bg-slate-100'
           }`}
         >
           <GraduationCap className="w-3.5 h-3.5 text-red-500" />
-          <span>Academic (QCTO)</span>
+          <span>Academic</span>
         </button>
       </div>
 
-      {/* Main Container */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+      {/* Main Container (Snug mobile & tablet padding, eliminated empty voids) */}
+      <main className="max-w-7xl mx-auto px-3 sm:px-5 md:px-6 py-3 sm:py-5 md:py-6 space-y-4 sm:space-y-6">
         
         {activeTab === 'proposal' && (
           <>
-            {/* 2. PROPOSAL LIVE ACTION BAR (Exact match to PDF) */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+            {/* 2. PROPOSAL LIVE ACTION BAR (Snug compact ribbon) */}
+            <div className="bg-white rounded-2xl border border-slate-200/90 p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
               <div className="text-left">
-                <h1 className="text-lg sm:text-xl font-black uppercase text-slate-900 tracking-tight flex items-center gap-2">
+                <h1 className="text-base sm:text-lg font-black uppercase text-slate-900 tracking-tight flex items-center gap-2">
                   <span className="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
                   Proposal Live
                 </h1>
-                <p className="text-xs text-slate-500 font-medium">
+                <p className="text-[11px] text-slate-500 font-medium">
                   Manage, Share & Market your event.
                 </p>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 self-start sm:self-auto">
                 <button
                   onClick={() => setIsNewProposalOpen(true)}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5"
+                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>←</span>
                   <span>NEW</span>
@@ -593,7 +614,7 @@ export function App() {
 
                 <button
                   onClick={handleExportPdf}
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5"
+                  className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>📥</span>
                   <span>PDF</span>
@@ -601,7 +622,7 @@ export function App() {
 
                 <button
                   onClick={handleSaveProposal}
-                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5"
+                  className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>💾</span>
                   <span>SAVE</span>
@@ -639,27 +660,34 @@ export function App() {
               }}
             />
 
-            {/* 4. CATERING WORKSPACE BAR (Exact match to PDF) */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-2xs">
+            {/* 4. CATERING WORKSPACE BAR (Snug compact banner) */}
+            <div className="bg-white rounded-2xl border border-slate-200/90 p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
               <div className="text-left">
-                <h4 className="text-sm font-black uppercase text-slate-900 tracking-wider">
-                  Catering Workspace
+                <h4 className="text-xs sm:text-sm font-black uppercase text-slate-900 tracking-wider">
+                  Catering Workspace & Food Safety
                 </h4>
-                <p className="text-xs text-slate-500 font-medium">
-                  Share with team or export to docs
+                <p className="text-[11px] text-slate-500 font-medium">
+                  Share with banquet brigade, verify HACCP temperature checks, or export for Docs
                 </p>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => setActiveTab('haccp')}
+                  className="px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5 text-teal-600" />
+                  <span>Daily HACCP Log</span>
+                </button>
                 <button
                   onClick={handleShareLink}
-                  className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors flex items-center gap-2"
+                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>🔗</span> Share Link
                 </button>
                 <button
                   onClick={handleCopyForDocs}
-                  className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-2"
+                  className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
                   <span>📋</span> Copy for Docs
                 </button>
@@ -676,7 +704,7 @@ export function App() {
             />
 
             {/* 6. EXTENDED OPERATIONS & LABS */}
-            <div className="space-y-8 pt-4">
+            <div className="space-y-4 sm:space-y-6 pt-2">
               {/* Productivity Lab (Beta) */}
               <ProductivityLab
                 onNotify={(msg) => setToast(msg)}
@@ -691,9 +719,16 @@ export function App() {
           </>
         )}
 
+        {/* HACCP Food Safety & Storage Log */}
+        {activeTab === 'haccp' && (
+          <div className="pt-2">
+            <HaccpLog onNotify={(msg) => setToast(msg)} />
+          </div>
+        )}
+
         {/* Secondary Views */}
         {activeTab === 'calculator' && (
-          <div className="pt-4">
+          <div className="pt-2">
             <Calculator
               generatedMenu={proposal}
               region="South Africa"

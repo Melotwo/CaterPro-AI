@@ -501,50 +501,50 @@ Return valid JSON matching:
     const CULINARY_POOLS = {
       // Cocktail / Canapés / Reception: All images MUST feature canapé trays, passed hors d'oeuvres, or standing reception food (NO solo drink glasses)
       cocktail: [
+        "/images/canape_cocktail_reception_1790839889744.jpg", // Artisan savory canapés on catering trays
         "https://images.unsplash.com/photo-1555244162-803834f70033", // Artisan smoked salmon & herb canapés on catering trays
         "https://images.unsplash.com/photo-1541544741938-0af808871cc0", // Gourmet crostini & passed hors d'oeuvres spread
-        "https://images.unsplash.com/photo-1574484284002-952d92456975", // Elegant catering skewers and appetizer bites
-        "https://images.unsplash.com/photo-1509440159596-0249088772ff"  // Reception table with savory canapé platters
+        "https://images.unsplash.com/photo-1574484284002-952d92456975"  // Elegant catering skewers and appetizer bites
       ],
       // Caribbean / Tropical / Jerk Banquet
       caribbean: [
+        "/images/caribbean_banquet_feast_1790839910815.jpg", // Island jerk spiced feast & tropical grill
         "https://images.unsplash.com/photo-1540420773420-3366772f4999", // Vibrant tropical spiced grill & colorful banquet
-        "https://images.unsplash.com/photo-1504674900247-0877df9cc836", // Island feast spread with tropical garnishes
-        "https://images.unsplash.com/photo-1565299585323-38d6b0865b47"  // Flame-roasted tropical feast
+        "https://images.unsplash.com/photo-1504674900247-0877df9cc836"  // Island feast spread with tropical garnishes
       ],
       // Hotel Banquet / Plated Courses / Gala
       banquet: [
+        "/images/hotel_banquet_plated_dinner_1790839899546.jpg", // Michelin-star plated hotel banquet dinner
         "https://images.unsplash.com/photo-1555396273-367ea4eb4db5", // Luxury hotel banquet room with plated dining
         "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3", // Michelin star fine dining banquet course
-        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0", // Chef plated course with microgreens
-        "https://images.unsplash.com/photo-1578474846511-04ba529f0b88", // Grand ballroom plated banquet service
-        "https://images.unsplash.com/photo-1544025162-d76694265947"  // Prime Karoo cuts & banquet table presentation
+        "https://images.unsplash.com/photo-1414235077428-338989a2e8c0"  // Chef plated course with microgreens
       ],
       // Wedding & Nuptial
       wedding: [
+        "/images/wedding_banquet_table_1790839921478.jpg", // Luxury wedding banquet table setting
         "https://images.unsplash.com/photo-1519225421980-715cb0215aed", // Royal wedding banquet table setting
-        "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3", // Luxury outdoor banquet dinner
-        "https://images.unsplash.com/photo-1520854221256-17451cc331bf"  // Wedding celebration plated service
+        "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3"  // Luxury outdoor banquet dinner
       ],
       // Corporate & Conference
       corporate: [
+        "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
         "https://images.unsplash.com/photo-1511795409834-ef04bbd61622", // Executive business dinner event
         "https://images.unsplash.com/photo-1475721027785-f74eccf877e2"  // Conference dining buffet & courses
       ],
       // Seafood & Coastal
       seafood: [
-        "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb", // Plated seafood linefish & shellfish
-        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e"  // Coastal oceanfront banquet feast
+        "/images/coastal_seafood_banquet_1790839949705.jpg", // Pan-seared linefish & coastal seafood
+        "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb"  // Plated seafood linefish & shellfish
       ],
       // Braai & BBQ
       braai: [
-        "https://images.unsplash.com/photo-1555939594-58d7cb561ad1", // Artisanal braai cuts & grilled banquet
-        "https://images.unsplash.com/photo-1529193591184-b1d58069ecdd"  // Carved roast meats banquet
+        "/images/caribbean_banquet_feast_1790839910815.jpg",
+        "https://images.unsplash.com/photo-1555939594-58d7cb561ad1"  // Artisanal braai cuts & grilled banquet
       ],
       // French Haute Cuisine
       french: [
-        "https://images.unsplash.com/photo-1550547660-d9450f859349", // Haute cuisine classical plating
-        "https://images.unsplash.com/photo-1502301103665-0b95cc738daf"  // Fine dining pastry & savory plate
+        "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
+        "https://images.unsplash.com/photo-1550547660-d9450f859349"  // Haute cuisine classical plating
       ],
       // Plant-based & Harvest
       plant: [

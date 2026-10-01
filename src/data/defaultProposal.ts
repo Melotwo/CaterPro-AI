@@ -10,7 +10,7 @@ export const DEFAULT_PROPOSAL: Menu = {
   eventDate: "2026-10-18",
   roomLocation: "Grand Ballroom & Banqueting Deck • Tables 1-12",
   beoNumber: "BEO-2026-HOTEL-784",
-  heroImage: "https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1600&q=85",
+  heroImage: "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
   manualPerHead: 520,
   manualTotal: 64800,
   logistics: {

@@ -104,27 +104,27 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
   }, [proposal.heroImage, proposal.image, proposal.eventType, proposal.cuisine, proposal.title, proposal.description]);
 
   return (
-    <div id="proposal-document-root" className="space-y-12 text-left">
+    <div id="proposal-document-root" className="space-y-4 sm:space-y-6 md:space-y-8 text-left">
       {/* The Master Proposal Card Container */}
-      <div id="proposal-content" className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-6 sm:p-10 md:p-12 space-y-10 text-slate-900 dark:text-slate-100 transition-colors">
+      <div id="proposal-content" className="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm p-3.5 sm:p-6 md:p-8 space-y-5 sm:space-y-7 text-slate-900 dark:text-slate-100 transition-colors">
         
         {/* Proposal Document Header */}
-        <div className="space-y-4 border-b border-slate-100 dark:border-slate-800 pb-8">
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full">
-            <span className="text-[10px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">
+        <div className="space-y-2.5 border-b border-slate-100 dark:border-slate-800 pb-4 sm:pb-5">
+          <div className="inline-flex items-center gap-2 px-2.5 py-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full">
+            <span className="text-[9px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-300">
               CATERPRO AI PROPOSAL • {proposal.eventDate || '12/27/2025'}
             </span>
           </div>
 
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
             {proposal.title || proposal.menuTitle || 'Metropolitan Grand Hotel — Annual Gala Banquet'}
           </h2>
 
-          <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 font-medium leading-relaxed max-w-4xl">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 font-medium leading-relaxed max-w-4xl">
             {proposal.description || 'Executive four-course plated banquet engineered for high-volume service, featuring premium Karoo cuts, sustainable coastal seafood, and Escoffier pastry finishes.'}
           </p>
 
-          <div className="flex flex-wrap items-center gap-6 pt-2 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+          <div className="flex flex-wrap items-center gap-4 pt-1 text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
             <div className="flex items-center gap-2">
               <span>👥</span>
               <span>{guestCount} Guests</span>
@@ -143,7 +143,7 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
         {/* Clean Modern Hotel Banquet Hero Presentation with Click-to-Zoom Lightbox Inspection */}
         <div 
           onClick={() => setIsLightboxOpen(true)}
-          className="relative rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 text-white min-h-[340px] sm:min-h-[420px] md:min-h-[460px] flex flex-col justify-between p-5 sm:p-8 md:p-10 shadow-lg group cursor-pointer select-none"
+          className="relative rounded-2xl sm:rounded-3xl overflow-hidden border border-slate-200 dark:border-slate-800 text-white min-h-[240px] sm:min-h-[320px] md:min-h-[380px] flex flex-col justify-between p-3.5 sm:p-5 md:p-6 shadow-md group cursor-pointer select-none"
           title="Click to inspect culinary plating in full-resolution lightbox"
         >
           {/* High-Vibrancy Cover / Hero Image */}
@@ -156,36 +156,36 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
               const target = e.currentTarget;
               target.src = getThemeFallbackImage(proposal.eventType || 'Banquet', proposal.cuisine, proposal.title, proposal.description);
             }}
-            className="absolute inset-0 w-full h-full object-cover object-center filter saturate-[1.2] contrast-[1.06] brightness-[1.04] transition-transform duration-700 group-hover:scale-105"
+            className="absolute inset-0 w-full h-full object-cover object-center filter saturate-[1.15] contrast-[1.05] brightness-[1.02] transition-transform duration-700 group-hover:scale-105"
           />
 
-          {/* Targeted top vignette for badge contrast - keeping center image 100% open and vibrant */}
-          <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-slate-950/75 via-slate-950/20 to-transparent pointer-events-none" />
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-lime-400/15 via-teal-400/15 to-transparent rounded-full blur-3xl pointer-events-none" />
+          {/* Targeted top vignette for badge contrast */}
+          <div className="absolute inset-x-0 top-0 h-20 bg-gradient-to-b from-slate-950/75 via-slate-950/20 to-transparent pointer-events-none" />
+          <div className="absolute top-0 right-0 w-80 h-80 bg-gradient-to-br from-lime-400/15 via-teal-400/15 to-transparent rounded-full blur-3xl pointer-events-none" />
 
-          {/* Center Hover Cue - Prompting Chef to Inspect */}
+          {/* Center Hover Cue */}
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none z-20">
-            <div className="px-5 py-2.5 rounded-full bg-slate-950/85 backdrop-blur-md border border-lime-400/60 text-white text-xs font-bold flex items-center gap-2.5 shadow-2xl scale-95 group-hover:scale-100 transition-transform">
-              <ZoomIn className="w-4 h-4 text-lime-400 animate-pulse" />
-              <span>Click to Inspect Culinary Plating in Full Resolution</span>
-              <span className="text-[10px] font-mono text-lime-300 bg-lime-400/20 px-2 py-0.5 rounded-full">Zoom</span>
+            <div className="px-3.5 py-1.5 rounded-full bg-slate-950/85 backdrop-blur-md border border-lime-400/60 text-white text-xs font-bold flex items-center gap-2 shadow-xl scale-95 group-hover:scale-100 transition-transform">
+              <ZoomIn className="w-3.5 h-3.5 text-lime-400 animate-pulse" />
+              <span>Inspect Plating Details</span>
+              <span className="text-[9px] font-mono text-lime-300 bg-lime-400/20 px-1.5 py-0.2 rounded-full">Zoom</span>
             </div>
           </div>
 
           {/* Top badges */}
-          <div className="relative z-10 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-black uppercase tracking-widest text-lime-300 bg-slate-950/80 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-lime-400/30 flex items-center gap-2 shadow-sm">
-                <span className="w-2 h-2 rounded-full bg-lime-400 animate-pulse" />
-                Hotel Banquet Standard • Certified Culinary Specification
+          <div className="relative z-10 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[9px] font-black uppercase tracking-widest text-lime-300 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded-full border border-lime-400/30 flex items-center gap-1.5 shadow-xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-lime-400 animate-pulse" />
+                Hotel Banquet Standard
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
-              <span className="px-3 py-1.5 rounded-xl bg-slate-950/80 backdrop-blur-md border border-white/20 text-[11px] font-black uppercase tracking-wider text-teal-200 shadow-sm">
+            <div className="flex items-center gap-1.5">
+              <span className="px-2 py-0.5 rounded-md bg-slate-950/80 backdrop-blur-md border border-white/20 text-[10px] font-black uppercase tracking-wider text-teal-200 shadow-xs">
                 SANS 10330 Verified
               </span>
-              <span className="px-3 py-1.5 rounded-xl bg-teal-600/90 backdrop-blur-md text-[11px] font-black uppercase tracking-wider text-white shadow-sm">
+              <span className="px-2 py-0.5 rounded-md bg-teal-600/90 backdrop-blur-md text-[10px] font-black uppercase tracking-wider text-white shadow-xs">
                 {proposal.eventType || 'Banquet'}
               </span>
               <button
@@ -194,47 +194,47 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
                   e.stopPropagation();
                   setIsLightboxOpen(true);
                 }}
-                className="px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-white border border-lime-400/40 hover:border-lime-400 text-[11px] font-bold flex items-center gap-1.5 shadow-lg transition-all hover:scale-105 cursor-pointer"
+                className="px-2 py-0.5 rounded-md bg-slate-900/90 hover:bg-slate-800 text-white border border-lime-400/40 text-[10px] font-bold flex items-center gap-1 shadow-md transition-all cursor-pointer"
                 title="Inspect Culinary Plating in Full Resolution"
               >
-                <ZoomIn className="w-3.5 h-3.5 text-lime-400" />
-                <span className="hidden sm:inline">Inspect Plating</span>
+                <ZoomIn className="w-3 h-3 text-lime-400" />
+                <span className="hidden sm:inline">Inspect</span>
               </button>
             </div>
           </div>
 
-          {/* Frosted Glass Floating Card for Title & Specs - ensures image pops without text burying it */}
+          {/* Frosted Glass Floating Card for Title & Specs - compact and snug */}
           <div 
             onClick={(e) => e.stopPropagation()}
-            className="relative z-10 mt-8 space-y-3 bg-slate-950/70 hover:bg-slate-950/75 backdrop-blur-md p-5 sm:p-6 rounded-2xl border border-white/15 shadow-2xl transition-all"
+            className="relative z-10 mt-4 space-y-2 bg-slate-950/70 hover:bg-slate-950/75 backdrop-blur-md p-3 sm:p-4 rounded-xl border border-white/15 shadow-xl transition-all"
           >
             <div>
-              <h3 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight drop-shadow-sm">
+              <h3 className="text-lg sm:text-2xl font-black text-white tracking-tight drop-shadow-sm">
                 {proposal.title || proposal.menuTitle || 'Metropolitan Grand Hotel Banquet'}
               </h3>
-              <p className="text-xs sm:text-sm text-slate-200 font-medium line-clamp-2 max-w-3xl mt-1.5 leading-relaxed drop-shadow-sm">
+              <p className="text-[11px] sm:text-xs text-slate-200 font-medium line-clamp-2 max-w-3xl mt-0.5 leading-relaxed drop-shadow-sm">
                 {proposal.description}
               </p>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-white/15 text-xs font-semibold text-slate-200">
-              <span className="flex items-center gap-1.5">
+            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/15 text-[11px] font-semibold text-slate-200">
+              <span className="flex items-center gap-1">
                 <span>📍</span>
                 <span>{proposal.roomLocation || 'Grand Ballroom & Banqueting Deck'}</span>
               </span>
-              <span className="flex items-center gap-1.5">
+              <span className="flex items-center gap-1">
                 <span>⏱️</span>
                 <span>Est. Service: 4.5 Hours</span>
               </span>
-              <span className="font-mono text-lime-300 font-bold bg-slate-900/80 px-2.5 py-1 rounded-lg border border-lime-400/30">
+              <span className="font-mono text-lime-300 font-bold bg-slate-900/80 px-2 py-0.5 rounded-md border border-lime-400/30">
                 Guaranteed: {guestCount} Covers
               </span>
             </div>
           </div>
         </div>
 
-        {/* The 10 Numbered Sections Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* The 10 Numbered Sections Grid (Snug 3-column / 2-column layout) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 md:gap-5">
           
           {/* 1. Appetizers / Starters */}
           <div className="bg-slate-50 dark:bg-slate-800/75 rounded-2xl p-6 border border-slate-200/80 dark:border-slate-700/80 space-y-4">
@@ -497,54 +497,59 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
         </div>
 
         {/* Financial Proposal Value & Quote Builder */}
-        <div className="bg-slate-900 text-white rounded-2xl p-8 space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-6">
+        {/* Financial Execution Card - Premium Light Palette with Emerald & Teal Highlights */}
+        <div className="bg-gradient-to-br from-white via-lime-50/20 to-teal-50/30 dark:bg-slate-900 rounded-2xl border-2 border-teal-200/80 dark:border-slate-700 p-4 sm:p-5 md:p-6 space-y-4 shadow-sm text-slate-900 dark:text-white">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-teal-100 dark:border-slate-800 pb-3 sm:pb-4">
             <div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400">Financial Execution</span>
-              <h3 className="text-2xl font-black uppercase tracking-tight text-white mt-1">Total Proposal Value</h3>
+              <span className="text-[10px] font-black uppercase tracking-widest text-teal-700 dark:text-emerald-400">
+                Financial Execution & Billing
+              </span>
+              <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight text-slate-900 dark:text-white mt-0.5">
+                Total Proposal Value
+              </h3>
             </div>
-            <div className="text-right">
-              <span className="text-3xl sm:text-4xl font-black text-emerald-400">
+            <div className="text-left sm:text-right">
+              <span className="text-2xl sm:text-3xl font-black text-teal-800 dark:text-emerald-400 font-mono">
                 ZAR {totalValue.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}
               </span>
-              <p className="text-[10px] text-slate-400 uppercase tracking-wider mt-1">
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider mt-0.5 font-bold">
                 Based on {guestCount} guests • Incl. logistics
               </p>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-1">
             <div>
-              <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">
+              <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
                 Price Per Head (ZAR)
               </label>
               <input
                 type="number"
                 value={perHeadPrice}
                 onChange={(e) => setPerHeadPrice(Number(e.target.value))}
-                className="w-full p-3 bg-slate-800 border border-slate-700 rounded-xl text-sm font-bold text-white outline-none focus:border-emerald-500"
+                className="w-full p-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white outline-none focus:border-teal-500 shadow-2xs"
               />
             </div>
 
             <div>
-              <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">
+              <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
                 Logistics & Transport Fee (ZAR)
               </label>
               <input
                 type="number"
                 value={deliveryFee}
                 onChange={(e) => setDeliveryFee(Number(e.target.value))}
-                className="w-full p-3 bg-slate-800 border border-slate-700 rounded-xl text-sm font-bold text-white outline-none focus:border-emerald-500"
+                className="w-full p-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-white outline-none focus:border-teal-500 shadow-2xs"
               />
             </div>
 
             <div>
-              <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">
+              <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5">
                 50% Booking Deposit
               </label>
-              <div className="p-3 bg-slate-800/80 border border-slate-700 rounded-xl flex items-center justify-between">
-                <span className="text-xs text-slate-300 font-bold">Required (50%)</span>
-                <span className="text-xs font-black text-emerald-400">
+              <div className="p-2.5 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl flex items-center justify-between shadow-2xs">
+                <span className="text-xs text-slate-600 dark:text-slate-300 font-bold">Required (50%)</span>
+                <span className="text-xs font-black text-teal-800 dark:text-emerald-400 font-mono">
                   ZAR {depositAmount.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}
                 </span>
               </div>

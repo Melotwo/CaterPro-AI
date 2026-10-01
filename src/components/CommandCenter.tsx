@@ -138,14 +138,14 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
   };
 
   return (
-    <div id="command-center-root" className="relative rounded-3xl bg-white text-slate-900 p-6 sm:p-8 md:p-10 border border-slate-200 shadow-sm overflow-hidden text-left space-y-8 animate-fade-in transition-all">
+    <div id="command-center-root" className="relative rounded-3xl bg-white text-slate-900 p-3.5 sm:p-5 md:p-8 border border-slate-200/90 shadow-sm overflow-hidden text-left space-y-4 sm:space-y-6 animate-fade-in transition-all">
       
       {/* Fresh energetic background ambient highlights (Lime to Teal / Turquoise) */}
-      <div className="absolute top-0 right-0 -mt-24 -mr-24 w-96 h-96 bg-gradient-to-br from-lime-400/15 via-teal-400/15 to-cyan-400/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 -mb-24 -ml-24 w-80 h-80 bg-gradient-to-tr from-teal-400/10 via-cyan-400/10 to-lime-300/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-0 right-0 -mt-24 -mr-24 w-80 h-80 bg-gradient-to-br from-lime-400/15 via-teal-400/15 to-cyan-400/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-0 -mb-24 -ml-24 w-72 h-72 bg-gradient-to-tr from-teal-400/10 via-cyan-400/10 to-lime-300/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* TOP HEADER: Brand Identity & Executive Status */}
-      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-6 border-b border-slate-100 pb-6">
+      <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2.5">
             <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-lime-500 via-teal-500 to-cyan-600 flex items-center justify-center text-white shadow-md shadow-teal-500/20 ring-2 ring-lime-400/30">
@@ -207,18 +207,18 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
       </div>
 
       {/* 1. MULTI-OUTLET SELECTOR BAR */}
-      <div className="relative z-10 space-y-3 bg-slate-50/70 p-4 sm:p-5 rounded-2xl border border-slate-200/80">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <span className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
-            <Building2 className="w-4 h-4 text-teal-600" />
+      <div className="relative z-10 space-y-2 bg-slate-50/70 p-3 sm:p-4 rounded-2xl border border-slate-200/80">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+          <span className="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+            <Building2 className="w-3.5 h-3.5 text-teal-600" />
             Active Hotel Outlet Awareness
           </span>
-          <span className="text-[11px] text-slate-500 font-medium">
+          <span className="text-[10px] text-slate-500 font-medium">
             Seamlessly switch between Banquets, Restaurant, Room Service, or Staff Meals
           </span>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
           {HOTEL_OUTLETS.map(outlet => {
             const isActive = selectedOutlet === outlet.id;
             return (
@@ -226,9 +226,9 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
                 key={outlet.id}
                 type="button"
                 onClick={() => handleOutletSelect(outlet)}
-                className={`p-3 rounded-xl text-left border transition-all flex flex-col justify-between gap-1.5 ${
+                className={`p-2 sm:p-2.5 rounded-xl text-left border transition-all flex flex-col justify-between gap-1 cursor-pointer ${
                   isActive 
-                    ? 'bg-gradient-to-br from-lime-500 to-teal-600 text-white border-teal-600 shadow-sm shadow-teal-500/20 scale-[1.02]' 
+                    ? 'bg-gradient-to-br from-lime-500 to-teal-600 text-white border-teal-600 shadow-xs scale-[1.01]' 
                     : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-200 hover:border-slate-300'
                 }`}
               >
@@ -236,11 +236,11 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
                   <div className={`text-xs font-black leading-tight ${isActive ? 'text-white' : 'text-slate-900'}`}>
                     {outlet.name}
                   </div>
-                  <div className={`text-[10px] font-medium leading-tight mt-0.5 ${isActive ? 'text-lime-100' : 'text-slate-500'}`}>
+                  <div className={`text-[9px] font-medium leading-tight mt-0.5 ${isActive ? 'text-lime-100' : 'text-slate-500'}`}>
                     {outlet.badge}
                   </div>
                 </div>
-                <div className={`text-[9px] font-black uppercase tracking-wider ${isActive ? 'text-white/90' : 'text-teal-700'}`}>
+                <div className={`text-[8px] font-black uppercase tracking-wider ${isActive ? 'text-white/90' : 'text-teal-700'}`}>
                   ~{outlet.typicalCovers} Covers
                 </div>
               </button>
@@ -250,22 +250,22 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
       </div>
 
       {/* 2. INSTANT MENU GENERATOR ENGINE (Command Center -> Calculator Pipeline) */}
-      <div className="relative z-10 bg-gradient-to-br from-white via-lime-50/20 to-teal-50/30 rounded-2xl border-2 border-teal-200/80 p-5 sm:p-6 shadow-sm space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-teal-100 pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-r from-lime-500 to-teal-600 flex items-center justify-center text-white text-xs font-bold shadow-2xs">
+      <div className="relative z-10 bg-gradient-to-br from-white via-lime-50/20 to-teal-50/30 rounded-2xl border-2 border-teal-200/80 p-3.5 sm:p-5 shadow-2xs space-y-3 sm:space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-teal-100 pb-2.5">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-md bg-gradient-to-r from-lime-500 to-teal-600 flex items-center justify-center text-white text-xs font-bold shadow-2xs shrink-0">
               ⚡
             </div>
             <div>
-              <h3 className="text-sm font-black uppercase tracking-wider text-slate-900">
+              <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-900">
                 Menu Generator & Costing Pipeline
               </h3>
-              <p className="text-[11px] text-slate-500 font-medium">
+              <p className="text-[10px] text-slate-500 font-medium">
                 Select parameters to auto-generate menu structure and push live costings to Calculator
               </p>
             </div>
           </div>
-          <span className="text-[10px] font-black uppercase tracking-wider bg-lime-100 text-lime-900 px-3 py-1 rounded-full border border-lime-300 shrink-0">
+          <span className="text-[9px] font-black uppercase tracking-wider bg-lime-100 text-lime-900 px-2.5 py-0.5 rounded-full border border-lime-300 self-start sm:self-auto shrink-0">
             Step 1 of 2: Configure & Generate
           </span>
         </div>
@@ -490,47 +490,47 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
         </div>
       </div>
 
-      {/* 3. PRIMARY FINANCIAL TELEMETRY HUD (4 Crisp Modern Cards) */}
-      <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+      {/* 3. PRIMARY FINANCIAL TELEMETRY HUD (2x2 on mobile, 4-col on desktop) */}
+      <div className="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         
         {/* Projected Revenue */}
-        <div className="bg-slate-50/90 rounded-2xl p-5 border border-slate-200/90 hover:border-teal-400 transition-all space-y-3 shadow-2xs">
+        <div className="bg-slate-50/90 rounded-2xl p-3 sm:p-4 border border-slate-200/90 hover:border-teal-400 transition-all space-y-2 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-              <Coins className="w-3.5 h-3.5 text-teal-600" />
-              Projected Revenue
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
+              <Coins className="w-3 h-3 text-teal-600" />
+              Revenue
             </span>
             <button
               type="button"
               onClick={() => setIsAdjustingPrice(!isAdjustingPrice)}
-              className="text-[10px] font-bold text-teal-700 hover:text-teal-900 underline cursor-pointer"
+              className="text-[9px] font-bold text-teal-700 hover:text-teal-900 underline cursor-pointer"
             >
-              {isAdjustingPrice ? 'Cancel' : 'Adjust'}
+              {isAdjustingPrice ? 'Done' : 'Edit'}
             </button>
           </div>
 
           <div>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            <div className="text-base sm:text-2xl font-black text-slate-900 tracking-tight font-mono">
               ZAR {totalValue.toLocaleString('en-ZA', { minimumFractionDigits: 0 })}
             </div>
-            <p className="text-[10px] font-bold text-slate-500 mt-1">
-              R{perHead} / guest • {guestCount} covers
+            <p className="text-[9px] sm:text-[10px] font-bold text-slate-500 mt-0.5">
+              R{perHead} / guest • {guestCount} pax
             </p>
           </div>
 
           {isAdjustingPrice && (
-            <div className="pt-2 border-t border-slate-200 space-y-2">
-              <div className="flex items-center gap-2">
+            <div className="pt-1.5 border-t border-slate-200 space-y-1">
+              <div className="flex items-center gap-1.5">
                 <input
                   type="number"
                   value={tempPrice}
                   onChange={(e) => setTempPrice(Number(e.target.value))}
-                  className="w-full p-1.5 bg-white border border-slate-300 rounded-lg text-xs font-bold text-slate-900"
+                  className="w-full p-1 bg-white border border-slate-300 rounded text-xs font-bold text-slate-900"
                 />
                 <button
                   type="button"
                   onClick={handleApplyPrice}
-                  className="px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-[10px] font-black uppercase"
+                  className="px-2 py-1 bg-teal-600 hover:bg-teal-700 text-white rounded text-[9px] font-black uppercase cursor-pointer"
                 >
                   Apply
                 </button>
@@ -538,152 +538,152 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
             </div>
           )}
 
-          <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-            <div className="bg-gradient-to-r from-lime-500 to-teal-500 h-1.5 rounded-full w-4/5" />
+          <div className="w-full bg-slate-200 rounded-full h-1 overflow-hidden">
+            <div className="bg-gradient-to-r from-lime-500 to-teal-500 h-1 rounded-full w-4/5" />
           </div>
         </div>
 
         {/* Escoffier Food Cost % Target */}
-        <div className="bg-slate-50/90 rounded-2xl p-5 border border-slate-200/90 hover:border-lime-400 transition-all space-y-3 shadow-2xs">
+        <div className="bg-slate-50/90 rounded-2xl p-3 sm:p-4 border border-slate-200/90 hover:border-lime-400 transition-all space-y-2 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-              <TrendingUp className="w-3.5 h-3.5 text-lime-600" />
-              Food Cost Ratio
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
+              <TrendingUp className="w-3 h-3 text-lime-600" />
+              Food Cost
             </span>
-            <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-lime-100 text-lime-800 border border-lime-300">
-              Target &lt; 30%
+            <span className="text-[8px] font-black px-1.5 py-0.2 rounded-full bg-lime-100 text-lime-800 border border-lime-300">
+              &lt; 30%
             </span>
           </div>
 
           <div>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-baseline gap-2">
+            <div className="text-base sm:text-2xl font-black text-slate-900 tracking-tight flex items-baseline gap-1 font-mono">
               <span>{foodCostPct}%</span>
-              <span className="text-xs font-bold text-lime-700">✓ On Target</span>
+              <span className="text-[9px] font-bold text-lime-700">✓ In Spec</span>
             </div>
-            <p className="text-[10px] font-bold text-slate-500 mt-1">
-              Est. Raw Food Spend: ZAR {estFoodCost.toLocaleString('en-ZA', { maximumFractionDigits: 0 })}
+            <p className="text-[9px] sm:text-[10px] font-bold text-slate-500 mt-0.5">
+              Spend: ZAR {estFoodCost.toLocaleString('en-ZA', { maximumFractionDigits: 0 })}
             </p>
           </div>
 
-          <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-            <div className="bg-lime-500 h-1.5 rounded-full" style={{ width: `${foodCostPct}%` }} />
+          <div className="w-full bg-slate-200 rounded-full h-1 overflow-hidden">
+            <div className="bg-lime-500 h-1 rounded-full" style={{ width: `${Math.min(100, foodCostPct * 2.5)}%` }} />
           </div>
         </div>
 
         {/* Contribution Margin */}
-        <div className="bg-slate-50/90 rounded-2xl p-5 border border-slate-200/90 hover:border-cyan-400 transition-all space-y-3 shadow-2xs">
+        <div className="bg-slate-50/90 rounded-2xl p-3 sm:p-4 border border-slate-200/90 hover:border-cyan-400 transition-all space-y-2 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-              <Coins className="w-3.5 h-3.5 text-cyan-600" />
-              Contribution Margin
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
+              <Coins className="w-3 h-3 text-cyan-600" />
+              Margin
             </span>
-            <span className="text-[9px] font-black text-cyan-800 bg-cyan-50 px-2 py-0.5 rounded-full border border-cyan-200">
-              {Math.round(100 - foodCostPct)}% Margin
+            <span className="text-[8px] font-black text-cyan-800 bg-cyan-50 px-1.5 py-0.2 rounded-full border border-cyan-200">
+              {Math.round(100 - foodCostPct)}%
             </span>
           </div>
 
           <div>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            <div className="text-base sm:text-2xl font-black text-slate-900 tracking-tight font-mono">
               ZAR {contributionMargin.toLocaleString('en-ZA', { maximumFractionDigits: 0 })}
             </div>
-            <p className="text-[10px] font-bold text-slate-500 mt-1">
-              Gross Profit before labor & venue overheads
+            <p className="text-[9px] sm:text-[10px] font-bold text-slate-500 mt-0.5">
+              Gross profit buffer
             </p>
           </div>
 
-          <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-            <div className="bg-gradient-to-r from-teal-500 to-cyan-500 h-1.5 rounded-full" style={{ width: `${100 - foodCostPct}%` }} />
+          <div className="w-full bg-slate-200 rounded-full h-1 overflow-hidden">
+            <div className="bg-gradient-to-r from-teal-500 to-cyan-500 h-1 rounded-full" style={{ width: `${100 - foodCostPct}%` }} />
           </div>
         </div>
 
         {/* Banquet Covers & Portion Scaling */}
-        <div className="bg-slate-50/90 rounded-2xl p-5 border border-slate-200/90 hover:border-teal-400 transition-all space-y-3 shadow-2xs">
+        <div className="bg-slate-50/90 rounded-2xl p-3 sm:p-4 border border-slate-200/90 hover:border-teal-400 transition-all space-y-2 shadow-2xs">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
-              <Users className="w-3.5 h-3.5 text-teal-600" />
-              Kitchen Yield Scaling
+            <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
+              <Users className="w-3 h-3 text-teal-600" />
+              Portions
             </span>
-            <span className="text-[9px] font-black text-teal-800 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200">
-              {coursesCount} Plated Courses
+            <span className="text-[8px] font-black text-teal-800 bg-teal-50 px-1.5 py-0.2 rounded-full border border-teal-200">
+              {coursesCount} Courses
             </span>
           </div>
 
           <div>
-            <div className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight flex items-baseline gap-2">
+            <div className="text-base sm:text-2xl font-black text-slate-900 tracking-tight flex items-baseline gap-1 font-mono">
               <span>{Math.round(guestCount * yieldMultiplier)}</span>
-              <span className="text-xs font-bold text-slate-500">Portions</span>
+              <span className="text-[10px] font-bold text-slate-500">Plates</span>
             </div>
-            <p className="text-[10px] font-bold text-slate-500 mt-1">
-              {yieldMultiplier > 1.0 ? `+${Math.round((yieldMultiplier - 1.0) * 100)}% production buffer applied` : 'Standard portion sync 1:1'}
+            <p className="text-[9px] sm:text-[10px] font-bold text-slate-500 mt-0.5">
+              {yieldMultiplier > 1.0 ? `+${Math.round((yieldMultiplier - 1.0) * 100)}% buffet buffer` : 'Standard portion sync'}
             </p>
           </div>
 
-          <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-            <div className="bg-teal-500 h-1.5 rounded-full w-full" />
+          <div className="w-full bg-slate-200 rounded-full h-1 overflow-hidden">
+            <div className="bg-teal-500 h-1 rounded-full w-full" />
           </div>
         </div>
 
       </div>
 
       {/* 4. EXECUTIVE ACTIONS CONTROL BAR */}
-      <div className="relative z-10 flex flex-wrap items-center justify-between gap-4 pt-4 border-t border-slate-100">
+      <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
         <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
           <span className="w-2 h-2 rounded-full bg-lime-500 animate-ping" />
           <span>Active BEO:</span>
           <span className="font-mono text-teal-800 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
             {proposal.beoNumber || 'BEO-2026-HOTEL-784'}
           </span>
-          <span className="text-slate-400">•</span>
-          <span>{proposal.roomLocation || 'Grand Ballroom & Banqueting Deck'}</span>
+          <span className="text-slate-400 hidden sm:inline">•</span>
+          <span className="hidden sm:inline">{proposal.roomLocation || 'Grand Ballroom & Banqueting Deck'}</span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={onOpenCalculator}
-            className="px-4 py-2.5 bg-gradient-to-r from-lime-500 to-teal-600 hover:from-lime-400 hover:to-teal-500 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5 cursor-pointer active:scale-95"
+            className="px-3.5 py-2 bg-gradient-to-r from-lime-500 to-teal-600 hover:from-lime-400 hover:to-teal-500 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5 cursor-pointer active:scale-95"
           >
             <Calculator className="w-3.5 h-3.5" />
-            <span>Open Mission Control Calculator</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <span>Calculator</span>
+            <ArrowRight className="w-3 h-3" />
           </button>
 
           {onOpenRecipe && (
             <button
               type="button"
               onClick={onOpenRecipe}
-              className="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5 cursor-pointer active:scale-95"
+              className="px-3.5 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5 cursor-pointer active:scale-95"
             >
               <BookOpen className="w-3.5 h-3.5" />
-              <span>Food Encyclopedia (Larousse)</span>
+              <span>Encyclopedia</span>
             </button>
           )}
 
           <button
             type="button"
             onClick={onOpenBeo}
-            className="px-4 py-2.5 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+            className="px-3 py-2 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
           >
             <FileText className="w-3.5 h-3.5 text-teal-600" />
-            <span>Banquet Event Order (BEO)</span>
+            <span>BEO</span>
           </button>
 
           <button
             type="button"
             onClick={onExportPdf}
-            className="px-4 py-2.5 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+            className="px-3 py-2 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
           >
             <Download className="w-3.5 h-3.5 text-slate-600" />
-            <span>Export PDF</span>
+            <span>PDF</span>
           </button>
 
           <button
             type="button"
             onClick={onSaveProposal}
-            className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+            className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
           >
             <Save className="w-3.5 h-3.5 text-lime-400" />
-            <span>Save State</span>
+            <span>Save</span>
           </button>
         </div>
       </div>
