@@ -417,7 +417,10 @@ Return valid JSON matching:
     } = req.body || {};
     
     const combinedContext = `${eventType} ${cuisineStyle} ${title} ${description}`.toLowerCase();
-    const isCocktail = /cocktail|canape|canap|reception|passed|hors d'?oeuvre|tapas|finger food|standing/i.test(combinedContext);
+    const isPicnic = /picnic|hamper|alfresco|al fresco|garden party|outdoor feast|blanket|meadow|pastoral|lawn party/i.test(combinedContext);
+    const isCocktail = /cocktail|canape|canap|reception|passed|hors d'?oeuvre|tapas|finger food|standing|appetizer/i.test(combinedContext);
+    const isWineTasting = /wine tasting|wine pairing|sommelier|cellar door|vineyard tasting|cheese and wine/i.test(combinedContext);
+    const isHighTea = /high tea|afternoon tea|tea party|scones|petit four/i.test(combinedContext);
     const isCaribbean = /caribbean|jerk|tropical|jamaican|creole|island|bahamian/i.test(combinedContext);
     const isSeafood = /seafood|linefish|scallop|salmon|prawn|crayfish|oyster|coastal|marine/i.test(combinedContext);
     const isWedding = /wedding|nuptial|bridal|marriage/i.test(combinedContext);
@@ -428,16 +431,26 @@ Return valid JSON matching:
     const isAsian = /asian|oriental|fusion|dim sum|thai|japanese|sushi/i.test(combinedContext);
     const isFrench = /french|escoffier|classic|haute cuisine|gourmet/i.test(combinedContext);
 
-    // Build rich, specific prompt explicitly focusing on plated food, canapé trays, or banquet tables (NO single drinks)
+    // Build rich, specific prompt explicitly focusing on plated food, canapé trays, picnic hampers, or banquet tables (NO single drinks or empty toasts)
     let defaultPrompt = '';
-    if (isCocktail) {
-      defaultPrompt = `Editorial catering food photography of "${title}". High-end evening standing cocktail reception and banquet presentation. Butler-passed silver and slate trays of exquisite artisan canapés, savory gourmet hors d'oeuvres, micro-greens, edible flower garnishes, bite-sized delicacies, and gourmet small plates. Atmosphere: sophisticated event venue with warm ambient lighting, elegant guests mingling at a standing reception in the soft background blur. ${description ? `Theme: ${description}.` : ''} Cuisine: ${cuisineStyle}. Focus purely on appetizing gourmet food presentation and passed canapé platters, no solitary drink glasses, commercial culinary photography, 8k resolution, photorealistic.`;
+    if (isPicnic) {
+      defaultPrompt = `Editorial catering food photography of "${title}". High-end luxury ${eventType} featuring authentic ${cuisineStyle} culinary delicacies. A lavish, artfully styled outdoor picnic feast on an elegant blanket in a sun-dappled garden or meadow with wildflowers at golden hour. Open artisan wicker hamper overflowing with crusty artisan breads and sourdough baguettes, a tiered cake and pastry stand with colorful pastel macarons and delicate berry tartlets, rustic wooden charcuterie grazing boards filled with fine cheeses, cured meats, fresh strawberries, grapes, and edible flowers, glass jars of layered fruit parfaits, and golden savory mini quiches. ${description ? `Details: ${description}.` : ''} High-end food styling, appetising and well-lit, natural warm sunlight, shallow depth of field, 8k resolution, crisp culinary commercial photography. Strictly focus on the gourmet food presentation and picnic spread—no solo drink glasses, no people toasting with empty glasses.`;
+    } else if (isCocktail) {
+      defaultPrompt = `Editorial catering food photography of "${title}". High-end evening standing cocktail reception and banquet presentation. Butler-passed silver and slate trays of exquisite artisan canapés, savory gourmet hors d'oeuvres, micro-greens, edible flower garnishes, bite-sized delicacies, and gourmet small plates. Atmosphere: sophisticated event venue with warm ambient lighting, elegant guests mingling at a standing reception in the soft background blur. ${description ? `Theme: ${description}.` : ''} Cuisine: ${cuisineStyle}. Strictly focus purely on appetizing gourmet food presentation and passed canapé platters, absolutely no solitary drink glasses or people holding wine glasses, commercial culinary photography, 8k resolution, photorealistic.`;
+    } else if (isWineTasting) {
+      defaultPrompt = `Editorial gourmet food and wine pairing photography of "${title}". An opulent sommelier tasting spread with ${cuisineStyle} flavors. Artisanal wooden cheese flight boards with aged cheeses, honeycomb, fresh figs, toasted walnuts, prosciutto ribbons, and artisan crackers, artfully arranged beside sommelier wine tasting glasses. ${description ? `Details: ${description}.` : ''} Focus heavily on the gourmet cheese, charcuterie, and food pairing presentation, warm cellar lighting, 8k resolution.`;
+    } else if (isHighTea) {
+      defaultPrompt = `Editorial luxury afternoon tea and high tea food presentation of "${title}". 3-tier fine bone china cake stands loaded with crustless gourmet finger sandwiches, freshly baked scones with clotted cream and strawberry preserves, miniature fruit tartlets, eclairs, and delicate pastel macarons. ${description ? `Context: ${description}.` : ''} Cuisine: ${cuisineStyle}. Elegant garden conservatory ambiance, soft natural lighting, commercial culinary photography, 8k resolution.`;
+    } else if (isBraai) {
+      defaultPrompt = `Editorial food photography of "${title}". Gourmet luxury ${cuisineStyle} braai and flame-grilled feast for a ${eventType}. Sizzling artisanal boerewors swirls, prime dry-aged steaks, rosemary lamb chops, flame-roasted heirloom vegetables, gourmet salads with feta and avocado, and warm crusty potbrood on rustic wooden carving boards. ${description ? `Details: ${description}.` : ''} Warm fire glow, golden hour outdoor catering, appetizing colors, 8k resolution.`;
     } else if (isCaribbean) {
       defaultPrompt = `Editorial catering food photography of "${title}". Vibrant upscale Caribbean banquet feast presentation for a ${eventType}. Featuring authentic ${cuisineStyle} dishes, jerk spiced roasted cuts, grilled seafood skewers, colorful tropical fruits and herb garnishes, rich sauces, and an opulent buffet table. ${description ? `Context: ${description}.` : ''} Warm island ambient lighting, festive luxury banquet ambiance, shallow depth of field, appetizing colors, 8k resolution, crisp commercial culinary masterpiece.`;
     } else if (isSeafood) {
       defaultPrompt = `Editorial catering food photography of "${title}". Spectacular coastal seafood banquet for a ${eventType}. Crispy-skin pan-seared linefish, scallops with saffron velouté, chilled shellfish platters, fresh lemon wedges, and micro-herbs. ${description ? `Context: ${description}.` : ''} Style: ${cuisineStyle}. Michelin-star hotel banquet plating, warm chandelier lighting, shallow depth of field, 8k resolution.`;
+    } else if (isWedding) {
+      defaultPrompt = `Editorial luxury wedding banquet food photography of "${title}". Fine dining plated courses for a ${eventType}, featuring authentic ${cuisineStyle} cuisine, delicate edible flower garnishes, artistic sauce reductions, crystal glassware, romantic candlelight, and pristine linen. ${description ? `Context: ${description}.` : ''} Focus on the exquisite culinary dishes and wedding table presentation, 8k resolution.`;
     } else {
-      defaultPrompt = `Editorial professional food photography of "${title}". Spectacular luxury catering presentation for a ${eventType}, featuring authentic ${cuisineStyle} cuisine, exquisitely plated multi-course gourmet dishes, banquet feasting tables, artistic sauce drizzles, and hotel dining atmosphere. ${description ? `Context: ${description}.` : ''} Warm ambient chandelier lighting, pristine linen, shallow depth of field, appetizing colors, 8k resolution, crisp commercial culinary masterpiece.`;
+      defaultPrompt = `Editorial professional food photography of "${title}". Spectacular luxury catering presentation for a ${eventType}, featuring authentic ${cuisineStyle} cuisine, exquisitely plated multi-course gourmet dishes, banquet feasting tables, artistic sauce drizzles, and hotel dining atmosphere. ${description ? `Context: ${description}.` : ''} Warm ambient chandelier lighting, pristine linen, shallow depth of field, appetizing colors, 8k resolution, crisp commercial culinary masterpiece. Focus strictly on the food dishes and culinary presentation.`;
     }
 
     const imagePrompt = prompt || defaultPrompt;
@@ -499,6 +512,13 @@ Return valid JSON matching:
 
     // Dynamic, high-resolution culinary photography pools (guaranteeing varied, fresh images per menu)
     const CULINARY_POOLS = {
+      // Picnic / Outdoor Hamper / Garden Grazing: luxury picnic hampers, grazing boards, tiered stands, artisan sourdough, parfait jars
+      picnic: [
+        "/images/spring_picnic_gourmet_feast_1790923177569.jpg", // Gourmet luxury spring picnic feast with open hamper, baguettes, tiered macarons & charcuterie
+        "/images/south_african_picnic_grazing_1790923193324.jpg", // South African artisanal picnic grazing spread with biltong, Cape cheeses & bobotie tarts
+        "https://images.unsplash.com/photo-1533777857889-4be7c70b33f7", // Outdoor alfresco picnic dining table spread
+        "https://images.unsplash.com/photo-1506084868230-bb9d95c24759"  // High-tea outdoor picnic spread
+      ],
       // Cocktail / Canapés / Reception: All images MUST feature canapé trays, passed hors d'oeuvres, or standing reception food (NO solo drink glasses)
       cocktail: [
         "/images/canape_cocktail_reception_1790839889744.jpg", // Artisan savory canapés on catering trays
@@ -516,7 +536,7 @@ Return valid JSON matching:
       banquet: [
         "/images/hotel_banquet_plated_dinner_1790839899546.jpg", // Michelin-star plated hotel banquet dinner
         "https://images.unsplash.com/photo-1555396273-367ea4eb4db5", // Luxury hotel banquet room with plated dining
-        "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3", // Michelin star fine dining banquet course
+        "https://images.unsplash.com/photo-1544025162-d76694265947", // Prime roasted rack and fondant presentation
         "https://images.unsplash.com/photo-1414235077428-338989a2e8c0"  // Chef plated course with microgreens
       ],
       // Wedding & Nuptial
@@ -565,7 +585,11 @@ Return valid JSON matching:
 
     // Determine candidate pool
     let pool: string[];
-    if (isCocktail) pool = CULINARY_POOLS.cocktail;
+    if (isPicnic) {
+      pool = (combinedContext.includes('south african') || combinedContext.includes('cape') || combinedContext.includes('braai'))
+        ? [CULINARY_POOLS.picnic[1], CULINARY_POOLS.picnic[0], ...CULINARY_POOLS.picnic.slice(2)]
+        : CULINARY_POOLS.picnic;
+    } else if (isCocktail) pool = CULINARY_POOLS.cocktail;
     else if (isCaribbean) pool = CULINARY_POOLS.caribbean;
     else if (isSeafood) pool = CULINARY_POOLS.seafood;
     else if (isWedding) pool = CULINARY_POOLS.wedding;

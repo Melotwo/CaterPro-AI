@@ -30,8 +30,77 @@ export function synthesizeHotelMenu(params: HotelMenuParams) {
   let description = `Executive hotel culinary showcase engineered for ${covers} covers in ${region}, compliant with SANS 10330 HACCP cold-chain standards.`;
   let perHead = 520;
   let items: any[] = [];
+  let heroImage: string | undefined = undefined;
 
-  if (eventLower.includes('graduat')) {
+  if (eventLower.includes('picnic') || eventLower.includes('hamper') || eventLower.includes('alfresco') || eventLower.includes('garden party') || eventLower.includes('grazing')) {
+    title = `${eventType.toLowerCase().includes('picnic') ? eventType : `${eventType} Garden Picnic`} & Gourmet Hamper Feast`;
+    description = `Chef-curated luxury alfresco picnic hamper feast engineered for ${covers} guests in ${outlet}, featuring artisanal charcuterie, Cape heritage grazing boards, rustic savory tarts, and delicate pastry finishes in SANS 10330 cold-chain compliant wicker hampers.`;
+    perHead = 460;
+    const isSA = cuisine.toLowerCase().includes('south african') || cuisine.toLowerCase().includes('cape') || region.toLowerCase().includes('south africa');
+    heroImage = isSA 
+      ? "/images/south_african_picnic_grazing_1790923193324.jpg" 
+      : "/images/spring_picnic_gourmet_feast_1790923177569.jpg";
+    items = [
+      {
+        name: isSA ? "Artisanal Charcuterie & Farmhouse Cheese Grazing Board" : "Artisan Charcuterie & European Cheese Grazing Platter",
+        description: isSA 
+          ? "Shaved biltong, cured prosciutto, Fairview camembert, aged cheddar, marinated olives, Cape fig preserve, and fresh grapes"
+          : "Cured prosciutto, saucisson sec, double-cream brie, aged gouda, honeycomb, marinated olives, and seedless grapes",
+        costPerHead: 36.00,
+        price: 120.00,
+        type: "appetizer",
+        allergens: ["Dairy"],
+        dietary: ["Gluten-Free"]
+      },
+      {
+        name: isSA ? "Mini Cape Bobotie & Spiced Lamb Phyllo Tartlets" : "Caramelized Leek & Gruyère Savory Tartlets",
+        description: isSA
+          ? "Crispy golden phyllo pastry cups filled with savory spiced bobotie mince, golden sultanas, and baked egg custard"
+          : "Flaky butter puff pastry with caramelized baby leeks, aged Gruyère cheese, and fresh thyme",
+        costPerHead: 24.50,
+        price: 85.00,
+        type: "appetizer",
+        allergens: ["Gluten", "Dairy", "Eggs"],
+        dietary: ["Halal-Friendly"]
+      },
+      {
+        name: "Oak-Smoked Franschhoek Trout & Herb Crème Quiche",
+        description: "Individual butter pastry quiche with cold-smoked trout ribbons, fresh dill, baby capers, and Gruyère custard",
+        costPerHead: 42.00,
+        price: 145.00,
+        type: "main",
+        allergens: ["Fish", "Dairy", "Gluten", "Eggs"],
+        dietary: ["Pescatarian"]
+      },
+      {
+        name: "Buttermilk Free-Range Roast Chicken & Tarragon Brioche Rolls",
+        description: "Tender herb-roasted chicken breast with crunchy celery, pickled cucumber ribbons, and tarragon aioli on soft mini brioche",
+        costPerHead: 38.00,
+        price: 135.00,
+        type: "main",
+        allergens: ["Gluten", "Eggs"],
+        dietary: ["Halal"]
+      },
+      {
+        name: "Fresh Strawberry & Madagascar Vanilla Mascarpone Parfait Jars",
+        description: "Individual Mason jars layered with macerated seasonal strawberries, whipped vanilla mascarpone, and pistachio crumb",
+        costPerHead: 22.00,
+        price: 80.00,
+        type: "dessert",
+        allergens: ["Dairy", "Nuts"],
+        dietary: ["Vegetarian", "Gluten-Free"]
+      },
+      {
+        name: "Pastel Spring Macaron & Mini Meyer Lemon Tartlet Duo",
+        description: "Handcrafted almond macarons and zesty lemon curd tartlets with fresh raspberries and edible flower petals",
+        costPerHead: 20.00,
+        price: 70.00,
+        type: "dessert",
+        allergens: ["Dairy", "Gluten", "Eggs", "Nuts"],
+        dietary: ["Vegetarian"]
+      }
+    ];
+  } else if (eventLower.includes('graduat')) {
     title = `Commencement Gala: ${eventType}`;
     description = `Celebratory hotel graduation banquet curated for ${covers} graduates and esteemed guests. Features celebratory harvest grazing, prime banquet proteins, and artisanal pastry finishes.`;
     perHead = 495;
@@ -382,6 +451,7 @@ export function synthesizeHotelMenu(params: HotelMenuParams) {
     title,
     menuTitle: title,
     description,
+    heroImage,
     targetProfitMargin: 76.5,
     totalProposalValue,
     perHeadPrice: perHead,

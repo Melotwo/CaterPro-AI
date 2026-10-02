@@ -296,10 +296,12 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
             {/* Quick-Click Event Type Badges */}
             <div className="flex flex-wrap gap-1 pt-0.5">
               {[
-                { label: 'Graduation Party', icon: '🎓' },
+                { label: 'Spring Picnic', icon: '🧺' },
                 { label: 'Hotel Banquet', icon: '🍽️' },
                 { label: 'Wedding Reception', icon: '💍' },
-                { label: 'Cocktail Party', icon: '🍸' },
+                { label: 'Cocktail Party', icon: '🥂' },
+                { label: 'Graduation Party', icon: '🎓' },
+                { label: 'Wine & Cheese Tasting', icon: '🧀' },
                 { label: 'Staff Meals', icon: '👨‍🍳' }
               ].map(preset => (
                 <button

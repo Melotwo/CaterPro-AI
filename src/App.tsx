@@ -209,6 +209,8 @@ export function App() {
           guestCount: params.covers,
           covers: params.covers,
           eventType: params.eventType,
+          cuisine: params.cuisine,
+          cuisineStyle: params.cuisine,
           heroImage: d.heroImage || d.image || getThemeFallbackImage(params.eventType, params.cuisine, d.title || `${params.outlet} — ${params.eventType}`, d.description),
           eventDate: new Date().toISOString().split('T')[0],
           roomLocation: params.outlet,

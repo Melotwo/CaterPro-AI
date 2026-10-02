@@ -72,6 +72,8 @@ export const NewProposalModal: React.FC<NewProposalModalProps> = ({
         guestCount: guestCount,
         covers: guestCount,
         eventType: effectiveEventType,
+        cuisine: cuisine,
+        cuisineStyle: cuisine,
         beoNumber: `BEO-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
         roomLocation: 'Main Dining Room & Terrace',
         eventDate: new Date().toISOString().split('T')[0],

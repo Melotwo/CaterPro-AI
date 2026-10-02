@@ -76,6 +76,7 @@ const cleanAndParseJson = (rawText: string): any => {
 };
 
 export const THEME_REPOSITORY: Record<string, string> = {
+  picnic: "/images/spring_picnic_gourmet_feast_1790923177569.jpg",
   cocktail: "/images/canape_cocktail_reception_1790839889744.jpg",
   banquet: "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
   caribbean: "/images/caribbean_banquet_feast_1790839910815.jpg",
@@ -98,6 +99,13 @@ export const THEME_REPOSITORY: Record<string, string> = {
 
 // Curated high-resolution food-only image pools by theme (strictly food & canapés, never solitary drinks)
 export const THEME_POOLS: Record<string, string[]> = {
+  // Picnic / Outdoor Hamper / Garden Grazing: luxury picnic hampers, grazing boards, tiered stands, artisan sourdough, parfait jars
+  picnic: [
+    "/images/spring_picnic_gourmet_feast_1790923177569.jpg", // Gourmet luxury spring picnic feast with open hamper, baguettes, tiered macarons & charcuterie
+    "/images/south_african_picnic_grazing_1790923193324.jpg", // South African artisanal picnic grazing spread with biltong, Cape cheeses & bobotie tarts
+    "https://images.unsplash.com/photo-1533777857889-4be7c70b33f7", // Outdoor alfresco picnic dining table spread
+    "https://images.unsplash.com/photo-1506084868230-bb9d95c24759"  // High-tea outdoor picnic spread
+  ],
   // Cocktail / Canapés: strictly butler-passed silver trays, artisan canapés, savory hors d'oeuvres (NO solo drinks)
   cocktail: [
     "/images/canape_cocktail_reception_1790839889744.jpg", // Artisan savory canapés on catering trays
@@ -113,7 +121,7 @@ export const THEME_POOLS: Record<string, string[]> = {
   banquet: [
     "/images/hotel_banquet_plated_dinner_1790839899546.jpg", // Michelin-star plated hotel banquet dinner
     "https://images.unsplash.com/photo-1555396273-367ea4eb4db5", // Luxury hotel banquet room with plated dining
-    "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3", // Michelin star fine dining banquet course
+    "https://images.unsplash.com/photo-1544025162-d76694265947", // Plated prime roast cut with reduction
     "https://images.unsplash.com/photo-1414235077428-338989a2e8c0"  // Chef plated course with microgreens
   ],
   wedding: [
@@ -202,7 +210,12 @@ export function getThemeFallbackImage(
   const combined = `${eventType || ''} ${cuisineStyle || ''} ${title || ''} ${description || ''}`.toLowerCase();
   
   let pool = THEME_POOLS.banquet;
-  if (combined.includes('cocktail') || combined.includes('canape') || combined.includes('canapé') || combined.includes('passed') || combined.includes('hors d')) {
+  if (combined.includes('picnic') || combined.includes('hamper') || combined.includes('alfresco') || combined.includes('al fresco') || combined.includes('garden party') || combined.includes('meadow') || combined.includes('grazing') || combined.includes('lawn')) {
+    pool = THEME_POOLS.picnic;
+    if (combined.includes('south african') || combined.includes('cape') || combined.includes('braai')) {
+      pool = [THEME_POOLS.picnic[1], THEME_POOLS.picnic[0], ...THEME_POOLS.picnic.slice(2)];
+    }
+  } else if (combined.includes('cocktail') || combined.includes('canape') || combined.includes('canapé') || combined.includes('passed') || combined.includes('hors d')) {
     pool = THEME_POOLS.cocktail;
   } else if (combined.includes('caribbean') || combined.includes('jerk') || combined.includes('tropical') || combined.includes('island')) {
     pool = THEME_POOLS.caribbean;
