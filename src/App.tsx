@@ -17,8 +17,9 @@ import RecipeGenerator from './components/RecipeGenerator';
 import { CommandCenter } from './components/CommandCenter';
 import AcademicHub from './components/academic/AcademicHub';
 import { HaccpLog } from './components/HaccpLog';
+import { LocalSuppliersHub } from './components/LocalSuppliersHub';
 import { GoogleAnalytics, trackEvent } from './GoogleAnalytics';
-import { ChefHat, GraduationCap, Calculator as CalcIcon, Utensils, Sparkles, BookOpen, ShieldCheck } from 'lucide-react';
+import { ChefHat, GraduationCap, Calculator as CalcIcon, Utensils, Sparkles, BookOpen, ShieldCheck, Truck, ShoppingBag } from 'lucide-react';
 import { Menu } from './types';
 
 // Toast Component
@@ -165,7 +166,7 @@ const AiChatBot: React.FC = () => {
 };
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<'proposal' | 'calculator' | 'haccp' | 'recipe' | 'commis' | 'academic'>('proposal');
+  const [activeTab, setActiveTab] = useState<'proposal' | 'calculator' | 'haccp' | 'suppliers' | 'recipe' | 'commis' | 'academic'>('proposal');
   const [proposal, setProposal] = useState<Menu>(() => {
     const saved = localStorage.getItem('caterpro_recent_proposal');
     if (saved) {
@@ -446,6 +447,20 @@ export function App() {
               </span>
             </button>
             <button
+              onClick={() => setActiveTab('suppliers')}
+              className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeTab === 'suppliers'
+                  ? 'bg-white text-slate-900 shadow-2xs'
+                  : 'text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              <Truck className="w-3.5 h-3.5 text-teal-600" />
+              <span>Local Suppliers</span>
+              <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-lime-100 text-lime-800">
+                GPS
+              </span>
+            </button>
+            <button
               onClick={() => setActiveTab('recipe')}
               className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'recipe'
@@ -560,6 +575,15 @@ export function App() {
           <span>HACCP</span>
         </button>
         <button
+          onClick={() => setActiveTab('suppliers')}
+          className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 shrink-0 ${
+            activeTab === 'suppliers' ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 bg-slate-100'
+          }`}
+        >
+          <Truck className="w-3.5 h-3.5 text-teal-400" />
+          <span>Suppliers</span>
+        </button>
+        <button
           onClick={() => setActiveTab('recipe')}
           className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 shrink-0 ${
             activeTab === 'recipe' ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 bg-slate-100'
@@ -640,6 +664,7 @@ export function App() {
               onOpenBeo={() => setIsBeoOpen(true)}
               onExportPdf={handleExportPdf}
               onOpenCalculator={() => setActiveTab('calculator')}
+              onOpenSuppliers={() => setActiveTab('suppliers')}
               onOpenRecipe={() => setActiveTab('recipe')}
               onSaveProposal={handleSaveProposal}
               onQuickGenerateMenu={handleQuickGenerateMenu}
@@ -669,11 +694,18 @@ export function App() {
                   Catering Workspace & Food Safety
                 </h4>
                 <p className="text-[11px] text-slate-500 font-medium">
-                  Share with banquet brigade, verify HACCP temperature checks, or export for Docs
+                  Share with banquet brigade, verify HACCP temperature checks, or source from local suppliers
                 </p>
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => setActiveTab('suppliers')}
+                  className="px-3 py-1.5 bg-lime-50 hover:bg-lime-100 text-teal-900 border border-lime-300 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                >
+                  <Truck className="w-3.5 h-3.5 text-teal-600" />
+                  <span>Local Suppliers</span>
+                </button>
                 <button
                   onClick={() => setActiveTab('haccp')}
                   className="px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-xl text-xs font-bold transition-colors flex items-center gap-1.5 cursor-pointer"
@@ -703,6 +735,7 @@ export function App() {
               onOpenBeo={() => setIsBeoOpen(true)}
               onOpenUpgrade={() => setIsUpgradeOpen(true)}
               onExportPdf={handleExportPdf}
+              onOpenSuppliers={() => setActiveTab('suppliers')}
             />
 
             {/* 6. EXTENDED OPERATIONS & LABS */}
@@ -721,6 +754,17 @@ export function App() {
           </>
         )}
 
+        {/* Local Suppliers & Procurement Hub */}
+        {activeTab === 'suppliers' && (
+          <div className="pt-2">
+            <LocalSuppliersHub
+              proposal={proposal}
+              onNotify={(msg) => setToast(msg)}
+              onOpenCalculator={() => setActiveTab('calculator')}
+            />
+          </div>
+        )}
+
         {/* HACCP Food Safety & Storage Log */}
         {activeTab === 'haccp' && (
           <div className="pt-2">
@@ -736,6 +780,7 @@ export function App() {
               region="South Africa"
               selectedItemName={proposal.menu?.[0]?.dish || ''}
               setSelectedItemName={() => {}}
+              onOpenSuppliers={() => setActiveTab('suppliers')}
               onUpdateMenu={(updated) => {
                 setProposal(updated);
                 localStorage.setItem('caterpro_recent_proposal', JSON.stringify(updated));

@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ZoomIn, ZoomOut, X, ChefHat, Sparkles } from 'lucide-react';
+import { ZoomIn, ZoomOut, X, ChefHat, Sparkles, Truck } from 'lucide-react';
 import { Menu, MenuItem } from '../types';
 import { getThemeFallbackImage } from '../services/geminiService';
 
@@ -11,6 +11,7 @@ interface ProposalViewerProps {
   onOpenUpgrade: () => void;
   onExportPdf: () => void;
   onOpenSocialModal?: (mode: 'create' | 'reel' | 'status') => void;
+  onOpenSuppliers?: () => void;
 }
 
 export const ProposalViewer: React.FC<ProposalViewerProps> = ({
@@ -19,7 +20,8 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
   onOpenBeo,
   onOpenUpgrade,
   onExportPdf,
-  onOpenSocialModal
+  onOpenSocialModal,
+  onOpenSuppliers
 }) => {
   const [guestCount, setGuestCount] = useState<number>(proposal.guestCount || 50);
   const [perHeadPrice, setPerHeadPrice] = useState<number>(proposal.manualPerHead || 450);
@@ -452,12 +454,23 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
                 <span className="w-6 h-6 rounded-full bg-slate-900 dark:bg-slate-700 text-white text-xs font-bold flex items-center justify-center">10</span>
                 <h3 className="text-sm font-black uppercase tracking-wider text-slate-900 dark:text-white">Shopping List & Wholesale Sourcing</h3>
               </div>
-              <button
-                onClick={() => setIsBulkEditing(!isBulkEditing)}
-                className="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-700 px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-600 shadow-2xs"
-              >
-                {isBulkEditing ? 'Done Editing' : 'Bulk Edit'}
-              </button>
+              <div className="flex items-center gap-2">
+                {onOpenSuppliers && (
+                  <button
+                    onClick={onOpenSuppliers}
+                    className="text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 px-3 py-1 rounded-lg border border-teal-200 shadow-2xs flex items-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <Truck className="w-3.5 h-3.5 text-teal-600" />
+                    <span>Find Local Suppliers →</span>
+                  </button>
+                )}
+                <button
+                  onClick={() => setIsBulkEditing(!isBulkEditing)}
+                  className="text-xs font-bold text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-white dark:bg-slate-700 px-3 py-1 rounded-lg border border-slate-200 dark:border-slate-600 shadow-2xs"
+                >
+                  {isBulkEditing ? 'Done Editing' : 'Bulk Edit'}
+                </button>
+              </div>
             </div>
 
             {/* Supplier Cards */}

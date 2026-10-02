@@ -20,7 +20,8 @@ import {
   Printer,
   Copy,
   RefreshCw,
-  Utensils
+  Utensils,
+  Truck
 } from 'lucide-react';
 import { Menu, MenuItem } from '../types';
 import { getCulinaryIngredientBreakdown } from '../services/culinaryCostingEngine';
@@ -31,6 +32,7 @@ interface CalculatorProps {
   selectedItemName?: string;
   setSelectedItemName?: (name: string) => void;
   onUpdateMenu?: (updated: Menu) => void;
+  onOpenSuppliers?: () => void;
 }
 
 export const Calculator: React.FC<CalculatorProps> = ({
@@ -38,7 +40,8 @@ export const Calculator: React.FC<CalculatorProps> = ({
   region = 'South Africa (ZAR • R)',
   selectedItemName = '',
   setSelectedItemName,
-  onUpdateMenu
+  onUpdateMenu,
+  onOpenSuppliers
 }) => {
   // Active Mission Control Sub-Tab
   const [activeTab, setActiveTab] = useState<'costings' | 'shopping' | 'allergens' | 'slicer' | 'beo'>('costings');
@@ -637,7 +640,17 @@ export const Calculator: React.FC<CalculatorProps> = ({
               </p>
             </div>
 
-            <div className="flex items-center gap-2 self-start sm:self-auto">
+            <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+              {onOpenSuppliers && (
+                <button
+                  type="button"
+                  onClick={onOpenSuppliers}
+                  className="px-3.5 py-1.5 bg-gradient-to-r from-lime-500 to-teal-600 hover:from-lime-400 hover:to-teal-500 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Truck className="w-3.5 h-3.5" />
+                  <span>Order from Local Wholesalers Hub →</span>
+                </button>
+              )}
               <span className="text-xs font-black text-slate-700 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
                 Est. Sourcing Total: ZAR {shoppingTotalSpend.toLocaleString()}
               </span>

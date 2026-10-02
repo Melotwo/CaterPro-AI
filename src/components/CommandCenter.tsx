@@ -21,7 +21,8 @@ import {
   Layers,
   Flame,
   AlertTriangle,
-  BookOpen
+  BookOpen,
+  Truck
 } from 'lucide-react';
 import { Menu } from '../types';
 
@@ -56,6 +57,7 @@ interface CommandCenterProps {
   onOpenBeo: () => void;
   onExportPdf: () => void;
   onOpenCalculator: () => void;
+  onOpenSuppliers?: () => void;
   onOpenRecipe?: () => void;
   onSaveProposal: () => void;
   region: string;
@@ -77,6 +79,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
   onOpenBeo,
   onExportPdf,
   onOpenCalculator,
+  onOpenSuppliers,
   onOpenRecipe,
   onSaveProposal,
   region,
@@ -176,14 +179,27 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
 
         {/* Region & Health Safety Status */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 shrink-0">
-          <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-3 px-4 flex items-center gap-3 shadow-2xs">
-            <div className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-teal-600 shadow-2xs">
-              <MapPin className="w-4 h-4" />
+          <div 
+            onClick={onOpenSuppliers}
+            className={`bg-slate-50 border border-slate-200/80 rounded-2xl p-3 px-4 flex items-center gap-3 shadow-2xs ${
+              onOpenSuppliers ? 'cursor-pointer hover:border-teal-400 hover:bg-teal-50/40 transition-all group' : ''
+            }`}
+            title={onOpenSuppliers ? 'Open Local Wholesale Suppliers Hub' : undefined}
+          >
+            <div className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-teal-600 shadow-2xs group-hover:scale-105 transition-transform">
+              <Truck className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">
-                Wholesale Index
-              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 block">
+                  Local Procurement
+                </span>
+                {onOpenSuppliers && (
+                  <span className="text-[8px] font-black uppercase px-1.5 py-0.5 rounded bg-teal-100 text-teal-800">
+                    Suppliers →
+                  </span>
+                )}
+              </div>
               <span className="text-xs font-black text-slate-900">
                 {region || 'South Africa (ZAR • R)'}
               </span>

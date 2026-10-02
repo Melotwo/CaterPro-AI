@@ -6,6 +6,7 @@ import { GoogleGenAI } from "@google/genai";
 import { getCulinaryIngredientBreakdown } from "./src/services/culinaryCostingEngine";
 import { synthesizeHotelMenu } from "./src/services/hotelMenuSynthesizer";
 import { synthesizeStudyGuide } from "./src/services/studyGuideEngine";
+import { VERIFIED_LOCAL_SUPPLIERS } from "./src/services/localSuppliersData";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -104,6 +105,132 @@ ${structurePrompt}`;
     // High-fidelity statutory fallback (ensures 100% uptime with 0-signal offline resilience)
     const fallback = getCulinaryIngredientBreakdown(itemName, region);
     res.json({ ...fallback, source: "culinary-engine-sans10330" });
+  });
+
+  /**
+   * Route: Find Local Food Suppliers with Google Maps Grounding
+   * Uses gemini-3.5-flash with googleMaps tool to extract live place answers and URLs.
+   */
+  app.post("/api/gemini/find-suppliers", async (req, res) => {
+    const { query = "", category = "all", location = "Cape Town, South Africa", latLng } = req.body || {};
+
+    const prompt = `You are a culinary procurement expert. Find authentic, highly-rated wholesale food suppliers, fresh produce markets, butcheries, seafood merchants, dairy distributors, or bakery supply depots near ${location || 'the area'}.
+Query / Focus: "${query || category || 'wholesale food supplier'}".
+Provide a helpful executive summary for chefs and restaurant operators detailing:
+1. The top local wholesale suppliers in this area
+2. What wholesale items/specialties they supply (e.g., pasture-reared meats, day-boat linefish, organic produce, imported cheeses)
+3. Delivery, cold-chain assurance, and order lead times.
+Focus on verified commercial suppliers that restaurants and caterers can source ingredients from.`;
+
+    try {
+      const ai = getGeminiClient();
+      if (ai) {
+        const config: any = {
+          tools: [{ googleMaps: {} }]
+        };
+
+        if (latLng && typeof latLng.latitude === "number" && typeof latLng.longitude === "number") {
+          config.toolConfig = {
+            retrievalConfig: {
+              latLng: {
+                latitude: Number(latLng.latitude),
+                longitude: Number(latLng.longitude)
+              }
+            }
+          };
+        }
+
+        let response: any = null;
+        try {
+          response = await ai.models.generateContent({
+            model: "gemini-3.5-flash",
+            contents: prompt,
+            config
+          });
+        } catch (modelErr: any) {
+          console.warn("gemini-3.5-flash with googleMaps notice, attempting gemini-3.8-flash:", modelErr?.message || modelErr);
+          response = await ai.models.generateContent({
+            model: "gemini-3.8-flash",
+            contents: prompt,
+            config
+          });
+        }
+
+        const text = response?.text || "";
+        const groundingMetadata = response?.candidates?.[0]?.groundingMetadata;
+        const groundingChunks = groundingMetadata?.groundingChunks || [];
+
+        // Extract Google Maps grounded places
+        const mapsPlaces: Array<{
+          name: string;
+          mapsUri: string;
+          title: string;
+          reviewSnippets?: string[];
+        }> = [];
+
+        for (const chunk of groundingChunks) {
+          if (chunk.maps && chunk.maps.uri) {
+            const reviews = chunk.maps.placeAnswerSources?.reviewSnippets?.map((r: any) => r.snippet || r) || [];
+            mapsPlaces.push({
+              name: chunk.maps.title || "Local Supplier",
+              title: chunk.maps.title || "Local Supplier",
+              mapsUri: chunk.maps.uri,
+              reviewSnippets: reviews
+            });
+          }
+        }
+
+        res.json({
+          text,
+          mapsPlaces,
+          groundingChunks,
+          webSearchQueries: groundingMetadata?.webSearchQueries || [],
+          source: mapsPlaces.length > 0 ? "gemini-google-maps" : "gemini-ai",
+          location,
+          query
+        });
+        return;
+      }
+    } catch (err: any) {
+      console.warn("Google Maps Grounding supplier search notice (using verified local supplier directory):", err?.message || err);
+    }
+
+    // High-fidelity fallback: return verified directory suppliers filtered by query or location
+    const qLower = (query || category || "").toLowerCase();
+    const locLower = (location || "").toLowerCase();
+
+    let matched = VERIFIED_LOCAL_SUPPLIERS;
+    if (locLower) {
+      const cityMatches = matched.filter(s => s.city.toLowerCase().includes(locLower) || s.region.toLowerCase().includes(locLower));
+      if (cityMatches.length > 0) matched = cityMatches;
+    }
+
+    if (category && category !== "all") {
+      matched = matched.filter(s => s.category === category);
+    }
+
+    if (qLower && qLower !== "all") {
+      const keywordMatches = matched.filter(s => 
+        s.name.toLowerCase().includes(qLower) || 
+        s.specialty.toLowerCase().includes(qLower) || 
+        s.popularItems.some(item => item.toLowerCase().includes(qLower))
+      );
+      if (keywordMatches.length > 0) matched = keywordMatches;
+    }
+
+    res.json({
+      text: `Verified culinary wholesale suppliers for ${location}. These distributors provide certified cold-chain and restaurant-grade provisioning.`,
+      mapsPlaces: matched.map(s => ({
+        name: s.name,
+        title: s.name,
+        mapsUri: s.mapsUri,
+        reviewSnippets: [s.chefNotes]
+      })),
+      suppliers: matched,
+      source: "verified-directory-fallback",
+      location,
+      query
+    });
   });
 
   /**
@@ -416,44 +543,67 @@ Return valid JSON matching:
       prompt
     } = req.body || {};
     
-    const combinedContext = `${eventType} ${cuisineStyle} ${title} ${description}`.toLowerCase();
-    const isPicnic = /picnic|hamper|alfresco|al fresco|garden party|outdoor feast|blanket|meadow|pastoral|lawn party/i.test(combinedContext);
-    const isCocktail = /cocktail|canape|canap|reception|passed|hors d'?oeuvre|tapas|finger food|standing|appetizer/i.test(combinedContext);
-    const isWineTasting = /wine tasting|wine pairing|sommelier|cellar door|vineyard tasting|cheese and wine/i.test(combinedContext);
-    const isHighTea = /high tea|afternoon tea|tea party|scones|petit four/i.test(combinedContext);
-    const isCaribbean = /caribbean|jerk|tropical|jamaican|creole|island|bahamian/i.test(combinedContext);
-    const isSeafood = /seafood|linefish|scallop|salmon|prawn|crayfish|oyster|coastal|marine/i.test(combinedContext);
-    const isWedding = /wedding|nuptial|bridal|marriage/i.test(combinedContext);
-    const isBraai = /braai|bbq|grill|barbecue|flame|fire|smoke/i.test(combinedContext);
-    const isGraduation = /graduat|commence|alumni|academic|matric|prom/i.test(combinedContext);
-    const isCorporate = /corporate|conference|summit|business|ddr|delegate/i.test(combinedContext);
-    const isPlant = /plant|vegan|vegetarian|harvest|organic/i.test(combinedContext);
-    const isAsian = /asian|oriental|fusion|dim sum|thai|japanese|sushi/i.test(combinedContext);
-    const isFrench = /french|escoffier|classic|haute cuisine|gourmet/i.test(combinedContext);
+    const effectiveEventType = (eventType || "Hotel Banquet").trim();
+    const effectiveCuisine = (cuisineStyle || "Contemporary Cape & Continental").trim();
+    const eventLower = effectiveEventType.toLowerCase();
+    const cuisineLower = effectiveCuisine.toLowerCase();
+    const combinedContext = `${effectiveEventType} ${effectiveCuisine} ${title} ${description}`.toLowerCase();
 
-    // Build rich, specific prompt explicitly focusing on plated food, canapé trays, picnic hampers, or banquet tables (NO single drinks or empty toasts)
+    // Specific mapping conditions
+    const isPicnic = /picnic|hamper|alfresco|al fresco|garden party|outdoor feast|blanket|meadow|lawn/i.test(eventLower) ||
+                     /picnic/i.test(combinedContext);
+    const isBraai = /braai|bbq|barbecue|grill|flame|fire|smoke|shisanyama/i.test(cuisineLower) || 
+                    /braai|bbq|barbecue|grill|flame|fire|smoke|shisanyama/i.test(eventLower);
+    const isCocktail = /cocktail|canape|canap|flying canap|reception|passed|hors d'?oeuvre|tapas|finger food|standing/i.test(eventLower) ||
+                       /cocktail|canape|canap|reception/i.test(cuisineLower);
+    const isWineTasting = /wine tasting|wine pairing|sommelier|cellar door|vineyard tasting|cheese and wine/i.test(eventLower) ||
+                          /wine tasting|wine pairing|sommelier/i.test(cuisineLower);
+    const isWedding = /wedding|nuptial|bridal|marriage/i.test(eventLower);
+    const isBanquet = /banquet|gala|plated|hotel banquet|fine dining|conference/i.test(eventLower);
+    const isCaribbean = /caribbean|jerk|tropical|jamaican|creole|island|bahamian/i.test(cuisineLower);
+    const isSeafood = /seafood|linefish|scallop|salmon|prawn|crayfish|oyster|coastal|marine/i.test(cuisineLower) ||
+                      /seafood|linefish/i.test(eventLower);
+    const isGraduation = /graduation|matric|prom|commencement/i.test(eventLower);
+    const isCorporate = /corporate|conference|business|ddr|boardroom/i.test(eventLower);
+    const isFrench = /french|escoffier|haute cuisine/i.test(cuisineLower);
+    const isPlant = /plant|vegan|vegetarian|harvest/i.test(cuisineLower);
+    const isAsian = /asian|oriental|fusion|dim sum/i.test(cuisineLower);
+
+    // Rule 3: Strict negative rules - never indoor café/coffee shop, never pasta, never generic stock people
+    const negativeConstraints = "Strict rules: Absolutely no indoor café or coffee shop, no restaurant interior, no diners eating pasta, no generic stock people, no empty glasses or solo drinks. Focus strictly on appetizing culinary food presentation.";
+
+    // Rule 1, 2, 4, 5: Construct strict image prompt using BOTH Event Type & Cuisine Style
+    // Example structure: “Professional food photography of a [Event Type] featuring [Cuisine Style], [specific relevant food elements], high quality, realistic, South African context if applicable”
     let defaultPrompt = '';
-    if (isPicnic) {
-      defaultPrompt = `Editorial catering food photography of "${title}". High-end luxury ${eventType} featuring authentic ${cuisineStyle} culinary delicacies. A lavish, artfully styled outdoor picnic feast on an elegant blanket in a sun-dappled garden or meadow with wildflowers at golden hour. Open artisan wicker hamper overflowing with crusty artisan breads and sourdough baguettes, a tiered cake and pastry stand with colorful pastel macarons and delicate berry tartlets, rustic wooden charcuterie grazing boards filled with fine cheeses, cured meats, fresh strawberries, grapes, and edible flowers, glass jars of layered fruit parfaits, and golden savory mini quiches. ${description ? `Details: ${description}.` : ''} High-end food styling, appetising and well-lit, natural warm sunlight, shallow depth of field, 8k resolution, crisp culinary commercial photography. Strictly focus on the gourmet food presentation and picnic spread—no solo drink glasses, no people toasting with empty glasses.`;
-    } else if (isCocktail) {
-      defaultPrompt = `Editorial catering food photography of "${title}". High-end evening standing cocktail reception and banquet presentation. Butler-passed silver and slate trays of exquisite artisan canapés, savory gourmet hors d'oeuvres, micro-greens, edible flower garnishes, bite-sized delicacies, and gourmet small plates. Atmosphere: sophisticated event venue with warm ambient lighting, elegant guests mingling at a standing reception in the soft background blur. ${description ? `Theme: ${description}.` : ''} Cuisine: ${cuisineStyle}. Strictly focus purely on appetizing gourmet food presentation and passed canapé platters, absolutely no solitary drink glasses or people holding wine glasses, commercial culinary photography, 8k resolution, photorealistic.`;
-    } else if (isWineTasting) {
-      defaultPrompt = `Editorial gourmet food and wine pairing photography of "${title}". An opulent sommelier tasting spread with ${cuisineStyle} flavors. Artisanal wooden cheese flight boards with aged cheeses, honeycomb, fresh figs, toasted walnuts, prosciutto ribbons, and artisan crackers, artfully arranged beside sommelier wine tasting glasses. ${description ? `Details: ${description}.` : ''} Focus heavily on the gourmet cheese, charcuterie, and food pairing presentation, warm cellar lighting, 8k resolution.`;
-    } else if (isHighTea) {
-      defaultPrompt = `Editorial luxury afternoon tea and high tea food presentation of "${title}". 3-tier fine bone china cake stands loaded with crustless gourmet finger sandwiches, freshly baked scones with clotted cream and strawberry preserves, miniature fruit tartlets, eclairs, and delicate pastel macarons. ${description ? `Context: ${description}.` : ''} Cuisine: ${cuisineStyle}. Elegant garden conservatory ambiance, soft natural lighting, commercial culinary photography, 8k resolution.`;
+
+    if ((isPicnic && isBraai) || (isPicnic && /braai|heritage/i.test(cuisineLower))) {
+      // Rule 2a & 5: Picnic or Picnic + Braai / Heritage Braai -> Outdoor South African picnic scene: picnic blanket on grass, wicker hamper, braai/grill elements, boerewors, pap, salads, cheese & charcuterie boards, natural daylight, trees or open field. Never indoor café or restaurant scenes. Force outdoor natural lighting and picnic/braai atmosphere.
+      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, an outdoor South African picnic scene: picnic blanket on grass, wicker hamper, braai/grill elements, boerewors, pap, salads, cheese & charcuterie boards, natural daylight, trees or open field. Forced outdoor natural lighting, authentic picnic and braai atmosphere, high quality, realistic, South African context. ${negativeConstraints}`;
+    } else if (isPicnic) {
+      // Rule 2a & 5: Pure Picnic -> Outdoor South African picnic scene: picnic blanket on grass, wicker hamper, salads, cheese & charcuterie boards, natural daylight, trees or open field. Force outdoor natural lighting.
+      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, an outdoor South African picnic scene: picnic blanket on grass, wicker hamper, fresh garden salads, cheese & charcuterie boards, artisan bread and preserves, natural daylight, trees or open field. Forced outdoor natural lighting, authentic picnic atmosphere, high quality, realistic, South African context if applicable. ${negativeConstraints}`;
     } else if (isBraai) {
-      defaultPrompt = `Editorial food photography of "${title}". Gourmet luxury ${cuisineStyle} braai and flame-grilled feast for a ${eventType}. Sizzling artisanal boerewors swirls, prime dry-aged steaks, rosemary lamb chops, flame-roasted heirloom vegetables, gourmet salads with feta and avocado, and warm crusty potbrood on rustic wooden carving boards. ${description ? `Details: ${description}.` : ''} Warm fire glow, golden hour outdoor catering, appetizing colors, 8k resolution.`;
+      // Rule 2d & 5: Any Braai-related event -> Outdoor fire, grill, smoke, traditional South African braai food and setting. Force outdoor natural lighting and braai atmosphere.
+      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, an outdoor fire, grill, smoke, traditional South African braai food and setting with sizzling boerewors coils, prime lamb chops, potbrood, pap and chakalaka on a rustic wooden table. Forced outdoor natural lighting, authentic braai atmosphere, high quality, realistic, South African context. ${negativeConstraints}`;
+    } else if (isCocktail) {
+      // Rule 2b: Cocktail Party / Flying Canapé -> Elegant butler-passed canapé trays, sophisticated standing reception food, high-end hors d’oeuvres.
+      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, elegant butler-passed canapé trays, sophisticated standing reception food, high-end hors d’oeuvres, delicate savory tartlets and appetizer spoons, warm ambient lighting, high quality, realistic, South African context if applicable. ${negativeConstraints}`;
+    } else if (isWedding || isBanquet) {
+      // Rule 2c: Hotel Banquet / Wedding -> Beautifully plated dishes or refined banquet table settings.
+      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, beautifully plated dishes or refined banquet table settings, exquisite multi-course culinary presentation, delicate sauce reductions, micro-greens, fine tableware, warm celebratory ambient lighting, high quality, realistic, South African context if applicable. ${negativeConstraints}`;
+    } else if (isWineTasting) {
+      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, sommelier wine flight and artisan cheese pairing boards, biltong ribbons, fresh figs, crackers, tasting cellar setting, warm golden ambient lighting, high quality, realistic, South African context if applicable. ${negativeConstraints}`;
     } else if (isCaribbean) {
-      defaultPrompt = `Editorial catering food photography of "${title}". Vibrant upscale Caribbean banquet feast presentation for a ${eventType}. Featuring authentic ${cuisineStyle} dishes, jerk spiced roasted cuts, grilled seafood skewers, colorful tropical fruits and herb garnishes, rich sauces, and an opulent buffet table. ${description ? `Context: ${description}.` : ''} Warm island ambient lighting, festive luxury banquet ambiance, shallow depth of field, appetizing colors, 8k resolution, crisp commercial culinary masterpiece.`;
+      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, vibrant upscale banquet presentation with jerk spiced roasted cuts, grilled seafood skewers, colorful tropical fruits and herb garnishes, rich sauces, festive banquet ambiance, high quality, realistic. ${negativeConstraints}`;
     } else if (isSeafood) {
-      defaultPrompt = `Editorial catering food photography of "${title}". Spectacular coastal seafood banquet for a ${eventType}. Crispy-skin pan-seared linefish, scallops with saffron velouté, chilled shellfish platters, fresh lemon wedges, and micro-herbs. ${description ? `Context: ${description}.` : ''} Style: ${cuisineStyle}. Michelin-star hotel banquet plating, warm chandelier lighting, shallow depth of field, 8k resolution.`;
-    } else if (isWedding) {
-      defaultPrompt = `Editorial luxury wedding banquet food photography of "${title}". Fine dining plated courses for a ${eventType}, featuring authentic ${cuisineStyle} cuisine, delicate edible flower garnishes, artistic sauce reductions, crystal glassware, romantic candlelight, and pristine linen. ${description ? `Context: ${description}.` : ''} Focus on the exquisite culinary dishes and wedding table presentation, 8k resolution.`;
+      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, spectacular coastal seafood banquet featuring crispy-skin linefish, scallops with saffron velouté, chilled shellfish platters, fresh lemon wedges, and micro-herbs, high quality, realistic. ${negativeConstraints}`;
     } else {
-      defaultPrompt = `Editorial professional food photography of "${title}". Spectacular luxury catering presentation for a ${eventType}, featuring authentic ${cuisineStyle} cuisine, exquisitely plated multi-course gourmet dishes, banquet feasting tables, artistic sauce drizzles, and hotel dining atmosphere. ${description ? `Context: ${description}.` : ''} Warm ambient chandelier lighting, pristine linen, shallow depth of field, appetizing colors, 8k resolution, crisp commercial culinary masterpiece. Focus strictly on the food dishes and culinary presentation.`;
+      // Rule 4: Default format explicitly including event type and cuisine style
+      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, beautifully presented culinary dishes, refined catering display, fresh garnishes, high quality, realistic, South African context if applicable. Appetizing food styling, natural ambient lighting, 8k resolution. ${negativeConstraints}`;
     }
 
-    const imagePrompt = prompt || defaultPrompt;
+    // Always strictly enforce the constructed prompt adhering to all user rules
+    const imagePrompt = (prompt && prompt.trim().length > 20) ? prompt.trim() : defaultPrompt;
 
     try {
       const ai = getGeminiClient();
@@ -512,12 +662,23 @@ Return valid JSON matching:
 
     // Dynamic, high-resolution culinary photography pools (guaranteeing varied, fresh images per menu)
     const CULINARY_POOLS = {
-      // Picnic / Outdoor Hamper / Garden Grazing: luxury picnic hampers, grazing boards, tiered stands, artisan sourdough, parfait jars
+      // Picnic + Braai / Heritage Braai: Outdoor picnic on blanket with wicker hamper, boerewors, pap, chakalaka, biltong
+      picnicBraai: [
+        "/images/sa_picnic_braai_feast_1790939053855.jpg", // Outdoor South African picnic on grass with wicker hamper and braai grill
+        "/images/south_african_braai_feast_1790939079000.jpg", // Authentic wood-fired South African braai feast with boerewors & chops
+        "/images/south_african_picnic_grazing_1790923193324.jpg" // South African artisanal grazing board with biltong & Cape cheeses
+      ],
+      // Pure Picnic / Alfresco Hamper: luxury picnic hampers, grazing boards, tiered stands, artisan sourdough, parfait jars
       picnic: [
         "/images/spring_picnic_gourmet_feast_1790923177569.jpg", // Gourmet luxury spring picnic feast with open hamper, baguettes, tiered macarons & charcuterie
         "/images/south_african_picnic_grazing_1790923193324.jpg", // South African artisanal picnic grazing spread with biltong, Cape cheeses & bobotie tarts
-        "https://images.unsplash.com/photo-1533777857889-4be7c70b33f7", // Outdoor alfresco picnic dining table spread
-        "https://images.unsplash.com/photo-1506084868230-bb9d95c24759"  // High-tea outdoor picnic spread
+        "/images/sa_picnic_braai_feast_1790939053855.jpg"  // Outdoor picnic feast on blanket in open field
+      ],
+      // Braai / BBQ / Flame: authentic wood fire, boerewors, lamb chops, potbrood, chakalaka
+      braai: [
+        "/images/south_african_braai_feast_1790939079000.jpg", // Authentic wood-fired South African braai feast with boerewors & chops
+        "/images/sa_picnic_braai_feast_1790939053855.jpg", // Outdoor South African braai grill on open lawn
+        "https://images.unsplash.com/photo-1555939594-58d7cb561ad1"  // Artisanal braai cuts & grilled banquet
       ],
       // Cocktail / Canapés / Reception: All images MUST feature canapé trays, passed hors d'oeuvres, or standing reception food (NO solo drink glasses)
       cocktail: [
@@ -556,11 +717,6 @@ Return valid JSON matching:
         "/images/coastal_seafood_banquet_1790839949705.jpg", // Pan-seared linefish & coastal seafood
         "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb"  // Plated seafood linefish & shellfish
       ],
-      // Braai & BBQ
-      braai: [
-        "/images/caribbean_banquet_feast_1790839910815.jpg",
-        "https://images.unsplash.com/photo-1555939594-58d7cb561ad1"  // Artisanal braai cuts & grilled banquet
-      ],
       // French Haute Cuisine
       french: [
         "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
@@ -580,22 +736,26 @@ Return valid JSON matching:
       graduation: [
         "https://images.unsplash.com/photo-1523580494863-6f3031224c94", // Commencement celebratory dinner
         "https://images.unsplash.com/photo-1555396273-367ea4eb4db5"  // Banquet hall celebration
+      ],
+      // Wine Tasting / Sommelier Cellar Pairing
+      wineTasting: [
+        "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3", // Sommelier wine flight and artisan cheese pairing
+        "https://images.unsplash.com/photo-1528823872057-9c018a7a7553"  // Vineyard cellar cheese and wine tasting table
       ]
     };
 
-    // Determine candidate pool
+    // Determine candidate pool strictly based on event & cuisine
     let pool: string[];
-    if (isPicnic) {
-      pool = (combinedContext.includes('south african') || combinedContext.includes('cape') || combinedContext.includes('braai'))
-        ? [CULINARY_POOLS.picnic[1], CULINARY_POOLS.picnic[0], ...CULINARY_POOLS.picnic.slice(2)]
-        : CULINARY_POOLS.picnic;
-    } else if (isCocktail) pool = CULINARY_POOLS.cocktail;
+    if (isPicnic && isBraai) pool = CULINARY_POOLS.picnicBraai;
+    else if (isPicnic) pool = CULINARY_POOLS.picnic;
+    else if (isBraai) pool = CULINARY_POOLS.braai;
+    else if (isCocktail) pool = CULINARY_POOLS.cocktail;
+    else if (isWineTasting) pool = CULINARY_POOLS.wineTasting;
+    else if (isWedding) pool = CULINARY_POOLS.wedding;
     else if (isCaribbean) pool = CULINARY_POOLS.caribbean;
     else if (isSeafood) pool = CULINARY_POOLS.seafood;
-    else if (isWedding) pool = CULINARY_POOLS.wedding;
     else if (isGraduation) pool = CULINARY_POOLS.graduation;
     else if (isCorporate) pool = CULINARY_POOLS.corporate;
-    else if (isBraai) pool = CULINARY_POOLS.braai;
     else if (isFrench) pool = CULINARY_POOLS.french;
     else if (isPlant) pool = CULINARY_POOLS.plant;
     else if (isAsian) pool = CULINARY_POOLS.asian;

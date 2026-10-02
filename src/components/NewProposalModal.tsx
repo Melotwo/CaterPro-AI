@@ -140,11 +140,13 @@ export const NewProposalModal: React.FC<NewProposalModalProps> = ({
                 onChange={(e) => setEventType(e.target.value)}
                 className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 outline-none focus:border-emerald-500"
               >
+                <option>Spring Picnic & Hamper Grazing</option>
+                <option>Hotel Banquet</option>
                 <option>Cocktail Party</option>
-                <option>Banquet</option>
                 <option>Wedding Reception</option>
                 <option>Corporate Gala</option>
                 <option>Private Chef Dinner</option>
+                <option>Wine & Cheese Tasting / Pairing</option>
                 <option>Braai & BBQ Experience</option>
                 <option>High Tea</option>
                 <option>Other</option>

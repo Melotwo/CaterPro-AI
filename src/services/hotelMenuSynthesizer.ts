@@ -17,6 +17,59 @@ export interface HotelMenuParams {
   specialDietaryNotes?: string;
 }
 
+/**
+ * Builds a strict image generation prompt adhering to Event Type and Cuisine Style rules.
+ */
+export function buildStrictImagePrompt(
+  eventType: string,
+  cuisineStyle?: string,
+  title?: string,
+  description?: string
+): string {
+  const effectiveEventType = (eventType || "Hotel Banquet").trim();
+  const effectiveCuisine = (cuisineStyle || "Contemporary Cape & Continental").trim();
+  const eventLower = effectiveEventType.toLowerCase();
+  const cuisineLower = effectiveCuisine.toLowerCase();
+  const combinedContext = `${effectiveEventType} ${effectiveCuisine} ${title || ''} ${description || ''}`.toLowerCase();
+
+  const isPicnic = /picnic|hamper|alfresco|al fresco|garden party|outdoor feast|blanket|meadow|lawn/i.test(eventLower) ||
+                   /picnic/i.test(combinedContext);
+  const isBraai = /braai|bbq|barbecue|grill|flame|fire|smoke|shisanyama/i.test(cuisineLower) || 
+                  /braai|bbq|barbecue|grill|flame|fire|smoke|shisanyama/i.test(eventLower);
+  const isCocktail = /cocktail|canape|canap|flying canap|reception|passed|hors d'?oeuvre|tapas|finger food|standing/i.test(eventLower) ||
+                     /cocktail|canape|canap|reception/i.test(cuisineLower);
+  const isWedding = /wedding|nuptial|bridal|marriage/i.test(eventLower);
+  const isBanquet = /banquet|gala|plated|hotel banquet|fine dining|conference/i.test(eventLower);
+  const isWineTasting = /wine tasting|wine pairing|sommelier|cellar door|vineyard tasting|cheese and wine/i.test(eventLower) ||
+                        /wine tasting|wine pairing|sommelier/i.test(cuisineLower);
+
+  // Rule 3: Strict negative rules - never indoor café/coffee shop, never pasta, never generic stock people
+  const negativeConstraints = "Strict rules: Absolutely no indoor café or coffee shop, no restaurant interior, no diners eating pasta, no generic stock people, no empty glasses or solo drinks. Focus strictly on appetizing culinary food presentation.";
+
+  // Rule 2: Specific mapping that must be followed
+  if ((isPicnic && isBraai) || (isPicnic && /braai|heritage/i.test(cuisineLower))) {
+    // Picnic or Picnic + Braai / Heritage Braai → Outdoor South African picnic scene: picnic blanket on grass, wicker hamper, braai/grill elements, boerewors, pap, salads, cheese & charcuterie boards, natural daylight, trees or open field. Never indoor café or restaurant scenes. Force outdoor natural lighting and picnic/braai atmosphere.
+    return `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, an outdoor South African picnic scene: picnic blanket on grass, wicker hamper, braai/grill elements, boerewors, pap, salads, cheese & charcuterie boards, natural daylight, trees or open field. Forced outdoor natural lighting, authentic picnic and braai atmosphere, high quality, realistic, South African context. ${negativeConstraints}`;
+  } else if (isPicnic) {
+    // Pure Picnic → Outdoor South African picnic scene: picnic blanket on grass, wicker hamper, salads, cheese & charcuterie boards, natural daylight, trees or open field. Never indoor café or restaurant scenes. Force outdoor natural lighting and picnic atmosphere.
+    return `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, an outdoor South African picnic scene: picnic blanket on grass, wicker hamper, fresh garden salads, cheese & charcuterie boards, artisan bread and preserves, natural daylight, trees or open field. Forced outdoor natural lighting, authentic picnic atmosphere, high quality, realistic, South African context if applicable. ${negativeConstraints}`;
+  } else if (isBraai) {
+    // Any Braai-related event → Outdoor fire, grill, smoke, traditional South African braai food and setting. Force outdoor natural lighting and braai atmosphere.
+    return `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, an outdoor fire, grill, smoke, traditional South African braai food and setting with sizzling boerewors coils, prime lamb chops, potbrood, pap and chakalaka on a rustic wooden table. Forced outdoor natural lighting, authentic braai atmosphere, high quality, realistic, South African context. ${negativeConstraints}`;
+  } else if (isCocktail) {
+    // Cocktail Party / Flying Canapé → Elegant butler-passed canapé trays, sophisticated standing reception food, high-end hors d’oeuvres.
+    return `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, elegant butler-passed canapé trays, sophisticated standing reception food, high-end hors d’oeuvres, delicate savory tartlets and appetizer spoons, warm ambient lighting, high quality, realistic, South African context if applicable. ${negativeConstraints}`;
+  } else if (isWedding || isBanquet) {
+    // Hotel Banquet / Wedding → Beautifully plated dishes or refined banquet table settings.
+    return `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, beautifully plated dishes or refined banquet table settings, exquisite multi-course culinary presentation, delicate sauce reductions, micro-greens, fine tableware, warm celebratory ambient lighting, high quality, realistic, South African context if applicable. ${negativeConstraints}`;
+  } else if (isWineTasting) {
+    return `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, sommelier wine flight and artisan cheese pairing boards, biltong ribbons, fresh figs, crackers, tasting cellar setting, warm golden ambient lighting, high quality, realistic, South African context if applicable. ${negativeConstraints}`;
+  } else {
+    // Rule 4: Example structure: “Professional food photography of a [Event Type] featuring [Cuisine Style], [specific relevant food elements], high quality, realistic, South African context if applicable”
+    return `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, beautifully plated dishes, refined catering display, fresh garnishes, appetizing food styling, high quality, realistic, South African context if applicable. ${negativeConstraints}`;
+  }
+}
+
 export function synthesizeHotelMenu(params: HotelMenuParams) {
   const covers = Number(params.guestCount || params.covers) || 80;
   const eventType = (params.eventType || 'Hotel Banquet').trim();
@@ -32,7 +85,132 @@ export function synthesizeHotelMenu(params: HotelMenuParams) {
   let items: any[] = [];
   let heroImage: string | undefined = undefined;
 
-  if (eventLower.includes('picnic') || eventLower.includes('hamper') || eventLower.includes('alfresco') || eventLower.includes('garden party') || eventLower.includes('grazing')) {
+  const isPicnic = eventLower.includes('picnic') || eventLower.includes('hamper') || eventLower.includes('alfresco') || eventLower.includes('garden party') || eventLower.includes('grazing');
+  const isBraai = cuisine.toLowerCase().includes('braai') || eventLower.includes('braai') || cuisine.toLowerCase().includes('bbq') || eventLower.includes('bbq') || cuisine.toLowerCase().includes('grill');
+
+  if (isPicnic && isBraai) {
+    title = `Outdoor South African Picnic & Heritage Braai Feast`;
+    description = `Chef-crafted luxury outdoor picnic blanket feast paired with traditional South African braai elements, featuring artisanal boerewors, spiced lamb cutlets, traditional stywe pap with chakalaka, cured biltong grazing boards, and fresh salads engineered for ${covers} guests in ${outlet}.`;
+    perHead = 480;
+    heroImage = "/images/sa_picnic_braai_feast_1790939053855.jpg";
+    items = [
+      {
+        name: "Artisanal Biltong & Cape Farmhouse Cheese Grazing Board",
+        description: "Thinly shaved game biltong, Fairview camembert, aged cheddar, marinated olives, Cape fig preserve, and fresh grapes",
+        costPerHead: 38.00,
+        price: 125.00,
+        type: "appetizer",
+        allergens: ["Dairy"],
+        dietary: ["Gluten-Free"]
+      },
+      {
+        name: "Mini Cape Bobotie & Spiced Lamb Phyllo Tartlets",
+        description: "Crispy golden phyllo pastry cups filled with savory spiced bobotie mince, golden sultanas, and baked egg custard",
+        costPerHead: 25.00,
+        price: 85.00,
+        type: "appetizer",
+        allergens: ["Gluten", "Dairy", "Eggs"],
+        dietary: ["Halal-Friendly"]
+      },
+      {
+        name: "Flame-Grilled Artisanal Boerewors & Rosemary Karoo Lamb Chops",
+        description: "Succulent traditional beef and coriander boerewors wheels with tender flame-seared lamb chops and braai relish glaze",
+        costPerHead: 65.00,
+        price: 210.00,
+        type: "main",
+        allergens: [],
+        dietary: ["Halal-Friendly", "Gluten-Free"]
+      },
+      {
+        name: "Cast-Iron Potjie Pap with Spicy Tomato Onion Chakalaka",
+        description: "Traditional crumbly stywe pap served with rich braised tomato, onion, sweet pepper, and baked bean chakalaka",
+        costPerHead: 20.00,
+        price: 75.00,
+        type: "main",
+        allergens: [],
+        dietary: ["Vegetarian", "Vegan", "Gluten-Free"]
+      },
+      {
+        name: "Fresh Avocado, Heritage Tomato & Feta Picnic Salad",
+        description: "Crisp garden greens with sliced Hass avocado, baby heirloom tomatoes, creamy Danish feta, and lemon herb vinaigrette",
+        costPerHead: 22.00,
+        price: 75.00,
+        type: "main",
+        allergens: ["Dairy"],
+        dietary: ["Vegetarian", "Gluten-Free"]
+      },
+      {
+        name: "Traditional Cape Malva Pudding with Vanilla Custard",
+        description: "Warm caramelized apricot sponge infused with cream sauce, served with velvety Madagascar vanilla bean custard",
+        costPerHead: 24.00,
+        price: 85.00,
+        type: "dessert",
+        allergens: ["Dairy", "Gluten", "Eggs"],
+        dietary: ["Vegetarian"]
+      }
+    ];
+  } else if (isBraai) {
+    title = `Executive South African Heritage Braai Showcase`;
+    description = `Authentic wood-fired South African braai banquet engineered for ${covers} guests in ${outlet}, featuring dry-aged steaks, coiled boerewors, cast-iron potbrood, and traditional accompaniments.`;
+    perHead = 520;
+    heroImage = "/images/south_african_braai_feast_1790939079000.jpg";
+    items = [
+      {
+        name: "Smoked Game Biltong Carpaccio with Shaved Parmesan",
+        description: "Finely sliced cured venison biltong, aged Parmigiano-Reggiano, wild rocket, and cold-pressed olive oil",
+        costPerHead: 36.00,
+        price: 120.00,
+        type: "appetizer",
+        allergens: ["Dairy"],
+        dietary: ["Gluten-Free"]
+      },
+      {
+        name: "Freshly Baked Cast-Iron Potbrood with Farmhouse Herb Butter",
+        description: "Warm crusty hearth-baked bread served with whipped garlic and fynbos herb butter",
+        costPerHead: 18.00,
+        price: 65.00,
+        type: "appetizer",
+        allergens: ["Gluten", "Dairy"],
+        dietary: ["Vegetarian"]
+      },
+      {
+        name: "Flame-Kissed Dry-Aged Beef Ribeye & Artisanal Boerewors",
+        description: "Prime 28-day aged ribeye steak seared over open fire with traditional coiled boerewors and smoked bone marrow jus",
+        costPerHead: 85.00,
+        price: 275.00,
+        type: "main",
+        allergens: [],
+        dietary: ["Gluten-Free", "Halal-Friendly"]
+      },
+      {
+        name: "Traditional Stywe Pap & Roasted Sweet Pepper Chakalaka",
+        description: "Slow-steamed maize pap served with charred bell pepper, onion, and cumin-spiced tomato reduction",
+        costPerHead: 22.00,
+        price: 75.00,
+        type: "main",
+        allergens: [],
+        dietary: ["Vegetarian", "Vegan", "Gluten-Free"]
+      },
+      {
+        name: "Charred Sweetcorn & Roasted Butternut Salad",
+        description: "Flame-grilled sweetcorn kernels, caramelized butternut cubes, baby spinach, pumpkin seeds, and tangy dressing",
+        costPerHead: 24.00,
+        price: 80.00,
+        type: "main",
+        allergens: [],
+        dietary: ["Vegetarian", "Vegan", "Gluten-Free"]
+      },
+      {
+        name: "Decadent Cape Malva Pudding with Amarula Crème",
+        description: "Rich sticky apricot sponge drenched in warm caramel sauce, topped with Amarula cream reduction",
+        costPerHead: 26.00,
+        price: 90.00,
+        type: "dessert",
+        allergens: ["Dairy", "Gluten", "Eggs"],
+        dietary: ["Vegetarian"]
+      }
+    ];
+  } else if (isPicnic) {
     title = `${eventType.toLowerCase().includes('picnic') ? eventType : `${eventType} Garden Picnic`} & Gourmet Hamper Feast`;
     description = `Chef-curated luxury alfresco picnic hamper feast engineered for ${covers} guests in ${outlet}, featuring artisanal charcuterie, Cape heritage grazing boards, rustic savory tarts, and delicate pastry finishes in SANS 10330 cold-chain compliant wicker hampers.`;
     perHead = 460;
@@ -217,6 +395,49 @@ export function synthesizeHotelMenu(params: HotelMenuParams) {
         price: 110.00,
         type: "dessert",
         allergens: ["Dairy", "Eggs", "Nuts"],
+        dietary: ["Vegetarian", "Gluten-Free"]
+      }
+    ];
+  } else if (eventLower.includes('wine') || eventLower.includes('sommelier') || eventLower.includes('cellar')) {
+    title = `Sommelier Wine & Artisanal Cheese Pairing`;
+    description = `Curated estate wine and regional cheese pairing engineered for ${covers} guests in ${outlet}, featuring artisanal charcuterie boards, aged goat crottin, and dark chocolate truffles.`;
+    perHead = 480;
+    heroImage = "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3";
+    items = [
+      {
+        name: "Artisan Estate Cheese Flight with Cape Fig Confit",
+        description: "Aged Gouda, Fairview goat's milk chevin, gorgonzola, fresh honeycomb, and green fig preserves",
+        costPerHead: 38.00,
+        price: 130.00,
+        type: "appetizer",
+        allergens: ["Dairy"],
+        dietary: ["Vegetarian", "Gluten-Free"]
+      },
+      {
+        name: "Cured Charcuterie Board with Biltong Ribbons & Prosciutto",
+        description: "Thinly sliced artisanal coppa, venison biltong, smoked pork loin, cornichons, and stoneground crackers",
+        costPerHead: 42.00,
+        price: 140.00,
+        type: "appetizer",
+        allergens: ["Gluten"],
+        dietary: ["Halal-Friendly"]
+      },
+      {
+        name: "Pan-Seared Duck Breast with Pinotage Cherry Glaze",
+        description: "Crispy skin duck breast with roasted heirloom baby beets, parsnip purée, and Pinotage reduction",
+        costPerHead: 78.00,
+        price: 250.00,
+        type: "main",
+        allergens: ["Dairy"],
+        dietary: ["Gluten-Free"]
+      },
+      {
+        name: "Handcrafted Dark Chocolate & Sea Salt Truffles",
+        description: "70% Valrhona dark chocolate truffles infused with espresso and dusting of Maldon sea salt flakes",
+        costPerHead: 24.00,
+        price: 85.00,
+        type: "dessert",
+        allergens: ["Dairy"],
         dietary: ["Vegetarian", "Gluten-Free"]
       }
     ];
@@ -458,7 +679,7 @@ export function synthesizeHotelMenu(params: HotelMenuParams) {
     eventType,
     covers,
     guestCount: covers,
-    generatedImagePrompt: `Professional culinary food photography for a high-end ${eventType} banquet, showing elegant plating, fresh herbs, warm ambient lighting, 8k resolution.`,
+    generatedImagePrompt: buildStrictImagePrompt(eventType, cuisine, title, description),
     items,
     allergenMatrix,
     shoppingList,
