@@ -47,6 +47,21 @@ export interface CheckedInGuest {
   checkInMethod?: 'qr_scan' | 'manual_host' | 'kiosk';
 }
 
+export interface ServiceScheduleEvent {
+  id: string;
+  title: string;
+  time: string; // e.g. "18:00"
+  durationMinutes?: number;
+  category: 'welcome' | 'starters' | 'mains' | 'dessert' | 'beverage' | 'ceremony' | 'custom';
+  phase?: string;
+  description?: string;
+  responsibleTeam?: string;
+  status?: 'scheduled' | 'in_prep' | 'active' | 'completed' | 'delayed';
+  temperatureControl?: string;
+  linkedDishes?: string[];
+  notes?: string;
+}
+
 export interface MenuItem {
   dish: string;
   notes: string;
@@ -101,6 +116,7 @@ export interface Menu {
   actualGuestCount?: number;
   checkedInGuests?: CheckedInGuest[];
   autoSyncActualPax?: boolean;
+  timeline?: ServiceScheduleEvent[];
   showDeposit?: boolean;
   manualTotal?: number;
   manualPerHead?: number;

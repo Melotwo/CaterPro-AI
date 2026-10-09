@@ -444,15 +444,33 @@ export const BanquetEventOrderModal: React.FC<BanquetEventOrderModalProps> = ({
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs text-slate-300">
                   <div className="bg-slate-800/30 p-5 rounded-2xl border border-white/5 space-y-3">
-                    <h6 className="font-black uppercase text-[10px] text-emerald-400 tracking-wider">Mise En Place Timeline</h6>
-                    <ul className="space-y-2">
-                      {(menu.miseEnPlace || []).map((step: string, si: number) => (
-                        <li key={si} className="flex gap-2">
-                          <span className="text-emerald-400 font-bold">•</span>
-                          <span>{step}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    <h6 className="font-black uppercase text-[10px] text-emerald-400 tracking-wider">
+                      Banquet Service Timeline & Run-Sheet
+                    </h6>
+                    {menu.timeline && menu.timeline.length > 0 ? (
+                      <div className="space-y-2 pt-1">
+                        {menu.timeline.map((step, si) => (
+                          <div key={si} className="flex items-start gap-2 text-xs">
+                            <span className="font-mono text-emerald-400 font-bold bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/50 shrink-0">
+                              {step.time}
+                            </span>
+                            <div>
+                              <span className="font-bold text-white">{step.title}</span>
+                              <span className="text-slate-400 text-[11px] block">{step.responsibleTeam || step.description}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <ul className="space-y-2">
+                        {(menu.miseEnPlace || []).map((step: string, si: number) => (
+                          <li key={si} className="flex gap-2">
+                            <span className="text-emerald-400 font-bold">•</span>
+                            <span>{step}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
 
                   <div className="bg-slate-800/30 p-5 rounded-2xl border border-white/5 space-y-3">

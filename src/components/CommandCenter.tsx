@@ -26,8 +26,9 @@ import {
   QrCode,
   UserCheck
 } from 'lucide-react';
-import { CheckedInGuest, Menu } from '../types';
+import { CheckedInGuest, Menu, ServiceScheduleEvent } from '../types';
 import { GuestCheckInQrStation } from './GuestCheckInQrStation';
+import { Timeline } from './Timeline';
 
 export type HotelOutlet = 
   | 'banquets'
@@ -76,6 +77,7 @@ interface CommandCenterProps {
     notes: string;
   }) => void;
   isGeneratingMenu?: boolean;
+  onUpdateTimeline?: (timeline: ServiceScheduleEvent[]) => void;
 }
 
 export const CommandCenter: React.FC<CommandCenterProps> = ({
@@ -93,7 +95,8 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
   onNotify,
   onUpdatePerHead,
   onQuickGenerateMenu,
-  isGeneratingMenu = false
+  isGeneratingMenu = false,
+  onUpdateTimeline
 }) => {
   const [selectedOutlet, setSelectedOutlet] = useState<HotelOutlet>('banquets');
   const [quickEventType, setQuickEventType] = useState('Hotel Banquet');
@@ -658,7 +661,23 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
 
       </div>
 
-      {/* 4. EXECUTIVE ACTIONS CONTROL BAR */}
+      {/* 5. BANQUET SERVICE SCHEDULE & EVENT TIMELINE (DRAG-AND-DROP RUN-SHEET) */}
+      <div id="banquet-timeline" className="relative z-10">
+        <Timeline
+          events={proposal.timeline}
+          onUpdateEvents={(updatedTimeline) => {
+            if (onUpdateTimeline) {
+              onUpdateTimeline(updatedTimeline);
+            }
+          }}
+          onNotify={onNotify}
+          eventDate={proposal.eventDate}
+          roomLocation={proposal.roomLocation}
+          beoNumber={proposal.beoNumber}
+        />
+      </div>
+
+      {/* 6. EXECUTIVE ACTIONS CONTROL BAR */}
       <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100">
         <div className="flex items-center gap-2 text-xs font-bold text-slate-600">
           <span className="w-2 h-2 rounded-full bg-lime-500 animate-ping" />
@@ -671,6 +690,14 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <a
+            href="#banquet-timeline"
+            className="px-3 py-2 bg-white hover:bg-slate-100 text-slate-800 border border-slate-300 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer no-underline"
+          >
+            <Clock className="w-3.5 h-3.5 text-teal-600" />
+            <span>Timeline</span>
+          </a>
+
           <button
             type="button"
             onClick={onOpenCalculator}

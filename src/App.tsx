@@ -22,7 +22,7 @@ import { SalesOperationsEngine } from './components/SalesOperationsEngine';
 import { GuestCheckInModal } from './components/GuestCheckInModal';
 import { GoogleAnalytics, trackEvent } from './GoogleAnalytics';
 import { ChefHat, GraduationCap, Calculator as CalcIcon, Utensils, Sparkles, BookOpen, ShieldCheck, Truck, ShoppingBag, MessageSquare, TrendingUp, Copy } from 'lucide-react';
-import { Menu, CheckedInGuest } from './types';
+import { Menu, CheckedInGuest, ServiceScheduleEvent } from './types';
 
 // Toast Component
 const Toast: React.FC<{ message: string | null; onDismiss: () => void }> = ({ message, onDismiss }) => {
@@ -287,6 +287,19 @@ export function App() {
         updated.guestCount = actualCount;
         updated.manualTotal = ((prev.manualPerHead || 520) * actualCount) + (prev.logistics?.deliveryFee || 2400);
       }
+      try {
+        localStorage.setItem('caterpro_recent_proposal', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+  };
+
+  const handleUpdateTimeline = (updatedTimeline: ServiceScheduleEvent[]) => {
+    setProposal(prev => {
+      const updated: Menu = {
+        ...prev,
+        timeline: updatedTimeline
+      };
       try {
         localStorage.setItem('caterpro_recent_proposal', JSON.stringify(updated));
       } catch (e) {}
@@ -813,6 +826,7 @@ export function App() {
               }}
               onUpdateActualGuestCount={handleUpdateActualGuestCount}
               onNotify={(msg) => setToast(msg)}
+              onUpdateTimeline={handleUpdateTimeline}
               onUpdatePerHead={(price) => {
                 setProposal(prev => ({
                   ...prev,
