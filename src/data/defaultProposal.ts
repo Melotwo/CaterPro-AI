@@ -6,6 +6,40 @@ export const DEFAULT_PROPOSAL: Menu = {
   description: "Executive four-course plated banquet engineered for high-volume service, featuring premium Karoo cuts, sustainable coastal seafood, and Escoffier pastry finishes.",
   guestCount: 120,
   covers: 120,
+  actualGuestCount: 84,
+  autoSyncActualPax: false,
+  checkedInGuests: [
+    {
+      id: "chk-1",
+      name: "Dr. Naledi Khumalo",
+      partySize: 2,
+      dietary: "Strictly Halal",
+      tableOrSeat: "Table 1 (VIP)",
+      notes: "Keynote Speaker",
+      checkedInAt: "2026-10-18T18:15:00Z",
+      checkInMethod: "qr_scan"
+    },
+    {
+      id: "chk-2",
+      name: "Francois & Elize Van der Merwe",
+      partySize: 2,
+      dietary: "Gluten-Free",
+      tableOrSeat: "Table 3",
+      notes: "Window seating preferred",
+      checkedInAt: "2026-10-18T18:22:30Z",
+      checkInMethod: "qr_scan"
+    },
+    {
+      id: "chk-3",
+      name: "Sipho Sithole (Nedbank Delegation)",
+      partySize: 4,
+      dietary: "Standard / No Pork",
+      tableOrSeat: "Table 5",
+      notes: "Executive Sponsor",
+      checkedInAt: "2026-10-18T18:31:10Z",
+      checkInMethod: "kiosk"
+    }
+  ],
   eventType: "Hotel Banquet",
   eventDate: "2026-10-18",
   roomLocation: "Grand Ballroom & Banqueting Deck • Tables 1-12",

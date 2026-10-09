@@ -22,9 +22,12 @@ import {
   Flame,
   AlertTriangle,
   BookOpen,
-  Truck
+  Truck,
+  QrCode,
+  UserCheck
 } from 'lucide-react';
-import { Menu } from '../types';
+import { CheckedInGuest, Menu } from '../types';
+import { GuestCheckInQrStation } from './GuestCheckInQrStation';
 
 export type HotelOutlet = 
   | 'banquets'
@@ -62,6 +65,8 @@ interface CommandCenterProps {
   onSaveProposal: () => void;
   region: string;
   onUpdateGuestCount: (count: number) => void;
+  onUpdateActualGuestCount?: (actualCount: number, guestList?: CheckedInGuest[]) => void;
+  onNotify?: (message: string) => void;
   onUpdatePerHead?: (price: number) => void;
   onQuickGenerateMenu?: (params: {
     outlet: string;
@@ -84,6 +89,8 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
   onSaveProposal,
   region,
   onUpdateGuestCount,
+  onUpdateActualGuestCount,
+  onNotify,
   onUpdatePerHead,
   onQuickGenerateMenu,
   isGeneratingMenu = false
@@ -508,7 +515,15 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
         </div>
       </div>
 
-      {/* 3. PRIMARY FINANCIAL TELEMETRY HUD (2x2 on mobile, 4-col on desktop) */}
+      {/* 3. LIVE GUEST CHECK-IN QR CODE & ATTENDANCE TELEMETRY ENGINE */}
+      <GuestCheckInQrStation
+        proposal={proposal}
+        onUpdateGuestCount={onUpdateGuestCount}
+        onUpdateActualGuestCount={onUpdateActualGuestCount}
+        onNotify={onNotify}
+      />
+
+      {/* 4. PRIMARY FINANCIAL TELEMETRY HUD (2x2 on mobile, 4-col on desktop) */}
       <div className="relative z-10 grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
         
         {/* Projected Revenue */}
@@ -619,20 +634,20 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
           <div className="flex items-center justify-between">
             <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-slate-500 flex items-center gap-1">
               <Users className="w-3 h-3 text-teal-600" />
-              Portions
+              Portions & Pax
             </span>
-            <span className="text-[8px] font-black text-teal-800 bg-teal-50 px-1.5 py-0.2 rounded-full border border-teal-200">
-              {coursesCount} Courses
+            <span className="text-[8px] font-black text-emerald-800 bg-emerald-50 px-1.5 py-0.2 rounded-full border border-emerald-200">
+              {proposal.actualGuestCount ?? (proposal.checkedInGuests?.reduce((sum, g) => sum + (g.partySize || 1), 0) ?? 0)} Checked In
             </span>
           </div>
 
           <div>
             <div className="text-base sm:text-2xl font-black text-slate-900 tracking-tight flex items-baseline gap-1 font-mono">
               <span>{Math.round(guestCount * yieldMultiplier)}</span>
-              <span className="text-[10px] font-bold text-slate-500">Plates</span>
+              <span className="text-[10px] font-bold text-slate-500">Plates ({guestCount} Covers)</span>
             </div>
             <p className="text-[9px] sm:text-[10px] font-bold text-slate-500 mt-0.5">
-              {yieldMultiplier > 1.0 ? `+${Math.round((yieldMultiplier - 1.0) * 100)}% buffet buffer` : 'Standard portion sync'}
+              {proposal.actualGuestCount ? `${proposal.actualGuestCount} actual arrivals recorded` : yieldMultiplier > 1.0 ? `+${Math.round((yieldMultiplier - 1.0) * 100)}% buffet buffer` : 'Standard portion sync'}
             </p>
           </div>
 

@@ -231,6 +231,11 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
               <span className="font-mono text-lime-300 font-bold bg-slate-900/80 px-2 py-0.5 rounded-md border border-lime-400/30">
                 Guaranteed: {guestCount} Covers
               </span>
+              {proposal.actualGuestCount !== undefined && (
+                <span className="font-mono text-teal-300 font-bold bg-slate-900/80 px-2 py-0.5 rounded-md border border-teal-400/30">
+                  Actual Check-In: {proposal.actualGuestCount} Pax
+                </span>
+              )}
             </div>
           </div>
         </div>

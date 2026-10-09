@@ -19,9 +19,10 @@ import AcademicHub from './components/academic/AcademicHub';
 import { HaccpLog } from './components/HaccpLog';
 import { LocalSuppliersHub } from './components/LocalSuppliersHub';
 import { SalesOperationsEngine } from './components/SalesOperationsEngine';
+import { GuestCheckInModal } from './components/GuestCheckInModal';
 import { GoogleAnalytics, trackEvent } from './GoogleAnalytics';
 import { ChefHat, GraduationCap, Calculator as CalcIcon, Utensils, Sparkles, BookOpen, ShieldCheck, Truck, ShoppingBag, MessageSquare, TrendingUp, Copy } from 'lucide-react';
-import { Menu } from './types';
+import { Menu, CheckedInGuest } from './types';
 
 // Toast Component
 const Toast: React.FC<{ message: string | null; onDismiss: () => void }> = ({ message, onDismiss }) => {
@@ -259,9 +260,39 @@ export function App() {
   const [isNewProposalOpen, setIsNewProposalOpen] = useState(false);
   const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
   const [isBeoOpen, setIsBeoOpen] = useState(false);
+  const [isQrCheckInModalOpen, setIsQrCheckInModalOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isGeneratingMenu, setIsGeneratingMenu] = useState(false);
   const [recipeSelectedDish, setRecipeSelectedDish] = useState<string>('');
+
+  // Auto-detect check-in action from scanned QR code URL params
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('checkin') === 'true' || params.get('action') === 'checkin') {
+        setIsQrCheckInModalOpen(true);
+        setActiveTab('proposal');
+      }
+    }
+  }, []);
+
+  const handleUpdateActualGuestCount = (actualCount: number, guestList?: CheckedInGuest[]) => {
+    setProposal(prev => {
+      const updated: Menu = {
+        ...prev,
+        actualGuestCount: actualCount,
+        checkedInGuests: guestList ?? prev.checkedInGuests
+      };
+      if (prev.autoSyncActualPax) {
+        updated.guestCount = actualCount;
+        updated.manualTotal = ((prev.manualPerHead || 520) * actualCount) + (prev.logistics?.deliveryFee || 2400);
+      }
+      try {
+        localStorage.setItem('caterpro_recent_proposal', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+  };
 
   // Quick menu generator directly invoked from Command Center
   const handleQuickGenerateMenu = async (params: {
@@ -780,6 +811,8 @@ export function App() {
                 }));
                 setToast(`Updated covers to ${count} guests`);
               }}
+              onUpdateActualGuestCount={handleUpdateActualGuestCount}
+              onNotify={(msg) => setToast(msg)}
               onUpdatePerHead={(price) => {
                 setProposal(prev => ({
                   ...prev,
@@ -1024,6 +1057,20 @@ export function App() {
           onClose={() => setIsBeoOpen(false)}
           menu={proposal}
           margin={72.4}
+        />
+      )}
+
+      {isQrCheckInModalOpen && (
+        <GuestCheckInModal
+          isOpen={isQrCheckInModalOpen}
+          onClose={() => setIsQrCheckInModalOpen(false)}
+          proposal={proposal}
+          onGuestCheckedIn={(guest) => {
+            const updatedList = [guest, ...(proposal.checkedInGuests || [])];
+            const newActual = updatedList.reduce((s, g) => s + (g.partySize || 1), 0);
+            handleUpdateActualGuestCount(newActual, updatedList);
+            setToast(`Check-In confirmed for ${guest.name} (+${guest.partySize} pax). Total: ${newActual} pax`);
+          }}
         />
       )}
 

@@ -36,6 +36,17 @@ export interface AllergenMatrixItem {
   notes?: string;
 }
 
+export interface CheckedInGuest {
+  id: string;
+  name: string;
+  partySize: number;
+  dietary?: string;
+  tableOrSeat?: string;
+  notes?: string;
+  checkedInAt: string;
+  checkInMethod?: 'qr_scan' | 'manual_host' | 'kiosk';
+}
+
 export interface MenuItem {
   dish: string;
   notes: string;
@@ -87,6 +98,9 @@ export interface Menu {
     serviceNotes?: string[];
   }; // Compatibility with App.tsx
   guestCount?: number;
+  actualGuestCount?: number;
+  checkedInGuests?: CheckedInGuest[];
+  autoSyncActualPax?: boolean;
   showDeposit?: boolean;
   manualTotal?: number;
   manualPerHead?: number;

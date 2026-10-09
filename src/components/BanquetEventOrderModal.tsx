@@ -220,6 +220,11 @@ export const BanquetEventOrderModal: React.FC<BanquetEventOrderModalProps> = ({
                 <div>
                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Guaranteed Covers</label>
                   <span className="font-black text-emerald-400 text-sm">{covers} Pax</span>
+                  {menu.actualGuestCount !== undefined && (
+                    <span className="block text-[9px] text-teal-300 font-bold mt-0.5">
+                      Actual Checked-In: {menu.actualGuestCount} Pax
+                    </span>
+                  )}
                 </div>
                 <div>
                   <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">Function Room</label>
