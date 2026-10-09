@@ -11,7 +11,7 @@ const AiChatBot: React.FC<{
     const [messages, setMessages] = useState<Message[]>([
         {
             role: 'model',
-            content: "Hello! I'm your AI Catering Consultant. Ask me for advice on event planning, menu pairings, or details about the proposal you just generated!",
+            content: "Warm greetings! I am CaterProAI Sales & Operations Engine, your executive banqueting and catering AI assistant. Ask me to discover event requirements, recommend 4-course menus, upsell high-margin canapé & wine stations, analyze 70% food margins in ZAR, or format instant WhatsApp follow-up quotes!",
         }
     ]);
     const [userInput, setUserInput] = useState('');
@@ -76,7 +76,7 @@ const AiChatBot: React.FC<{
                 body: JSON.stringify({ message: trimmedInput, history: promptHistory })
             });
 
-            let replyText = "Chef AI Consultant: Standing by. Ensure cold items remain under 4°C per SANS 10330 standards.";
+            let replyText = "CaterProAI Sales & Operations Engine: Standing by to formulate your proposal and margin breakdown.";
             if (res.ok) {
                 const data = await res.json();
                 replyText = data.reply || replyText;
@@ -94,7 +94,7 @@ const AiChatBot: React.FC<{
             setMessages(prev => {
                 const newMessages = [...prev];
                 if (newMessages.length > 0 && newMessages[newMessages.length - 1].role === 'model') {
-                    newMessages[newMessages.length - 1].content = "Executive Consultant (Offline Sync): SANS 10330 HACCP cold storage parameters active. Station ready.";
+                    newMessages[newMessages.length - 1].content = "CaterProAI Sales & Operations Engine (Active): Butler-Passed Starters, Plated Mains, Family-Style Harvest Sides & Dessert Shooters ready. Targeting 70% food margin in ZAR.";
                 }
                 return newMessages;
             });
@@ -118,13 +118,13 @@ const AiChatBot: React.FC<{
                         <header className="flex-shrink-0 p-8 bg-slate-900 flex items-center justify-between relative overflow-hidden">
                             <div className="flex items-center gap-4 relative z-10">
                                 <div className="w-12 h-12 bg-emerald-500/20 rounded-2xl flex items-center justify-center border border-emerald-500/30">
-                                    <span className="text-2xl">👨‍🍳</span>
+                                    <span className="text-2xl">🤖</span>
                                 </div>
                                 <div>
-                                    <h2 id="chat-heading" className="text-white font-black text-lg tracking-tight uppercase">Chef Mentor</h2>
+                                    <h2 id="chat-heading" className="text-white font-black text-lg tracking-tight uppercase">CaterProAI Sales</h2>
                                     <div className="flex items-center gap-2">
                                         <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                        <span className="text-emerald-400 text-[10px] font-black uppercase tracking-widest">Online & Ready</span>
+                                        <span className="text-emerald-400 text-[10px] font-black uppercase tracking-widest">Sales Engine Active</span>
                                     </div>
                                 </div>
                             </div>

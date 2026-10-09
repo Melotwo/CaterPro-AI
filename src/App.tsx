@@ -18,8 +18,9 @@ import { CommandCenter } from './components/CommandCenter';
 import AcademicHub from './components/academic/AcademicHub';
 import { HaccpLog } from './components/HaccpLog';
 import { LocalSuppliersHub } from './components/LocalSuppliersHub';
+import { SalesOperationsEngine } from './components/SalesOperationsEngine';
 import { GoogleAnalytics, trackEvent } from './GoogleAnalytics';
-import { ChefHat, GraduationCap, Calculator as CalcIcon, Utensils, Sparkles, BookOpen, ShieldCheck, Truck, ShoppingBag } from 'lucide-react';
+import { ChefHat, GraduationCap, Calculator as CalcIcon, Utensils, Sparkles, BookOpen, ShieldCheck, Truck, ShoppingBag, MessageSquare, TrendingUp, Copy } from 'lucide-react';
 import { Menu } from './types';
 
 // Toast Component
@@ -48,11 +49,14 @@ const Toast: React.FC<{ message: string | null; onDismiss: () => void }> = ({ me
   );
 };
 
-// AI Mentor Bot
-const AiChatBot: React.FC = () => {
+// CaterProAI Sales & Operations Engine Floating Assistant
+const AiChatBot: React.FC<{ onOpenSalesEngineTab?: () => void }> = ({ onOpenSalesEngineTab }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<{ role: 'user' | 'model'; content: string }[]>([
-    { role: 'model', content: "Welcome Chef! Ask me anything regarding menu adjustments, sauce lineages, regional pricing tips, or traditional French methodologies." }
+    {
+      role: 'model',
+      content: "Warm greetings! I am **CaterProAI Sales & Operations Engine**, your advanced AI assistant designed for caterers, banqueting managers, and hospitality entrepreneurs.\n\nI am configured to:\n• **Discover Events & Capture Leads** (Weddings, Corporate Galas, Banquets)\n• **Recommend Tailored 4-Course Menus** (Butler-Passed Starters, Mains, Family-Style Sides, Dessert Shooters)\n• **Suggest High-Margin Upsells** (Canapé receptions, wine flights, live action stations)\n• **Analyze Costs & 70% Food Margins** in ZAR\n• **Generate Instant WhatsApp & Email Follow-Ups** with contract lock-in disclaimers.\n\nWhat event type and guest count are you planning today?"
+    }
   ]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -62,30 +66,36 @@ const AiChatBot: React.FC = () => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const send = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || loading) return;
-    const msg = input;
+  const send = async (e?: React.FormEvent, customMsg?: string) => {
+    if (e) e.preventDefault();
+    const msgToSend = customMsg || input;
+    if (!msgToSend.trim() || loading) return;
     setInput('');
-    setMessages(prev => [...prev, { role: 'user', content: msg }]);
+    setMessages(prev => [...prev, { role: 'user', content: msgToSend }]);
     setLoading(true);
 
     try {
       const res = await fetch('/api/gemini/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: msg, history: messages })
+        body: JSON.stringify({ message: msgToSend, history: messages })
       });
       if (res.ok) {
         const data = await res.json();
-        const reply = data.reply || 'Chef AI did not return a response. Please try again.';
+        const reply = data.reply || 'CaterProAI Sales & Operations Engine standing by.';
         setMessages(prev => [...prev, { role: 'model', content: reply }]);
       } else {
-        setMessages(prev => [...prev, { role: 'model', content: 'Executive Culinary Consultant: For high-volume banquet service, maintain strict SANS 10330 HACCP cold-holding (<4°C) and target an Escoffier food cost benchmark under 30%.' }]);
+        throw new Error('Chat response error');
       }
     } catch (err: any) {
-      console.warn("Chat failed:", err);
-      setMessages(prev => [...prev, { role: 'model', content: 'Executive Culinary Consultant (Offline Subterranean Sync): SANS 10330 HACCP parameters loaded. Station ready.' }]);
+      console.warn("Chat failed, using local CaterProAI Sales Engine fallback:", err);
+      setMessages(prev => [
+        ...prev,
+        {
+          role: 'model',
+          content: `Warm hospitality greetings! CaterProAI Sales & Operations Engine is active.\n\n• **Course Structure:** Butler-Passed Starters, Plated Artisanal Mains, Family-Style Harvest Sides & Dessert Shooters.\n• **High-Margin Add-On:** Welcome Canapé Reception (+R95/head) & Live Braai Carving Station (+R3,500).\n• **Target Margin:** 70% Gross Food Margin (ZAR).\n• **Follow-Up Ready:** WhatsApp & Email closing summaries formatted with contract sign-off disclaimer.\n\n*Would you like to open the full Sales & Operations Engine workspace?*`
+        }
+      ]);
     } finally {
       setLoading(false);
     }
@@ -99,52 +109,121 @@ const AiChatBot: React.FC = () => {
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="w-[360px] h-[520px] flex flex-col shadow-2xl border border-slate-200 bg-white rounded-3xl overflow-hidden"
+            className="w-[380px] sm:w-[420px] h-[580px] flex flex-col shadow-2xl border border-slate-200 bg-white rounded-3xl overflow-hidden"
           >
             <header className="p-4 bg-slate-900 text-white flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center text-emerald-400 text-lg">
-                  👨‍🍳
+                <div className="w-9 h-9 bg-gradient-to-br from-teal-500 to-emerald-600 rounded-xl flex items-center justify-center text-white text-lg shadow-md shadow-teal-500/30">
+                  🤖
                 </div>
                 <div>
-                  <h4 className="font-black text-xs uppercase tracking-wider">Chef Mentor AI</h4>
-                  <p className="text-[10px] text-slate-400">Culinary & Costing Assistant</p>
+                  <h4 className="font-black text-xs uppercase tracking-wider text-white">
+                    CaterProAI Sales Engine
+                  </h4>
+                  <div className="flex items-center gap-1.5">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <p className="text-[10px] text-teal-300 font-bold uppercase tracking-wider">
+                      Sales & Banqueting Engine
+                    </p>
+                  </div>
                 </div>
               </div>
-              <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white font-bold text-lg">
-                ✕
-              </button>
+              <div className="flex items-center gap-2">
+                {onOpenSalesEngineTab && (
+                  <button
+                    onClick={() => {
+                      onOpenSalesEngineTab();
+                      setIsOpen(false);
+                    }}
+                    title="Open Full Sales Engine Tab"
+                    className="text-[10px] bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 px-2.5 py-1 rounded-lg font-bold transition-colors cursor-pointer border border-teal-500/30"
+                  >
+                    Open Hub ↗
+                  </button>
+                )}
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="text-slate-400 hover:text-white font-bold text-lg p-1"
+                >
+                  ✕
+                </button>
+              </div>
             </header>
+
+            {/* Quick Prompts Bar */}
+            <div className="bg-slate-100/90 border-b border-slate-200 p-2 flex items-center gap-1.5 overflow-x-auto scrollbar-none text-[10px]">
+              {[
+                '💍 Wedding (120 pax, R650)',
+                '🏢 Corporate Gala (80 pax)',
+                '🔥 Heritage Braai Feast',
+                '📲 WhatsApp Follow-Up'
+              ].map(chip => (
+                <button
+                  key={chip}
+                  onClick={() => send(undefined, chip)}
+                  className="px-2.5 py-1 bg-white hover:bg-slate-50 border border-slate-200 text-slate-700 font-bold rounded-lg shrink-0 transition-all hover:border-teal-500 cursor-pointer"
+                >
+                  {chip}
+                </button>
+              ))}
+            </div>
 
             <div className="flex-grow p-4 overflow-y-auto space-y-3 bg-slate-50">
               {messages.map((m, i) => (
                 <div key={i} className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div
-                    className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-xs font-medium ${
+                    className={`max-w-[88%] rounded-2xl px-4 py-2.5 text-xs font-medium leading-relaxed whitespace-pre-wrap ${
                       m.role === 'user'
-                        ? 'bg-emerald-600 text-white rounded-tr-none'
+                        ? 'bg-slate-900 text-white rounded-tr-none'
                         : 'bg-white text-slate-800 border border-slate-200 shadow-2xs rounded-tl-none'
                     }`}
                   >
                     {m.content}
+                    {m.role === 'model' && (
+                      <div className="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-400">
+                        <span>CaterProAI Sales & Operations</span>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(m.content);
+                          }}
+                          title="Copy response to clipboard"
+                          className="text-teal-600 hover:text-teal-700 font-bold flex items-center gap-1 cursor-pointer"
+                        >
+                          <Copy className="w-3 h-3" />
+                          <span>Copy</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
+              {loading && (
+                <div className="flex justify-start">
+                  <div className="bg-white border border-slate-200 p-3 rounded-2xl rounded-tl-none flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-teal-500 animate-bounce" />
+                    <div className="w-2 h-2 rounded-full bg-teal-500 animate-bounce [animation-delay:0.2s]" />
+                    <div className="w-2 h-2 rounded-full bg-teal-500 animate-bounce [animation-delay:0.4s]" />
+                    <span className="text-[11px] text-slate-500 font-medium">Formulating proposal & margins...</span>
+                  </div>
+                </div>
+              )}
               <div ref={endRef} />
             </div>
 
             <footer className="p-3 bg-white border-t border-slate-200">
-              <form onSubmit={send} className="relative">
+              <form onSubmit={e => send(e)} className="relative">
                 <input
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask Chef AI..."
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 pr-10 text-xs text-slate-900 outline-none focus:border-emerald-500"
+                  placeholder="Ask about discovery, courses, upsells, or margins..."
+                  disabled={loading}
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 pr-10 text-xs text-slate-900 outline-none focus:border-teal-500 focus:bg-white"
                 />
                 <button
                   type="submit"
-                  className="absolute right-1.5 top-1.5 w-7 h-7 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg flex items-center justify-center transition-all text-xs"
+                  disabled={!input.trim() || loading}
+                  className="absolute right-1.5 top-1.5 w-7 h-7 bg-teal-600 hover:bg-teal-700 disabled:opacity-40 text-white rounded-lg flex items-center justify-center transition-all text-xs cursor-pointer"
                 >
                   ➤
                 </button>
@@ -156,17 +235,18 @@ const AiChatBot: React.FC = () => {
 
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="w-14 h-14 bg-slate-900 hover:bg-slate-800 text-white rounded-2xl flex items-center justify-center shadow-xl border border-slate-700 transition-transform active:scale-95 text-2xl"
-        title="Open Chef Mentor"
+        className="w-14 h-14 bg-gradient-to-br from-slate-900 via-slate-800 to-teal-900 hover:from-slate-800 hover:to-teal-800 text-white rounded-2xl flex items-center justify-center shadow-2xl border border-teal-500/30 transition-transform active:scale-95 text-2xl cursor-pointer relative group"
+        title="Open CaterProAI Sales & Operations Engine"
       >
-        {isOpen ? '✕' : '💬'}
+        <span className="absolute -top-1 -right-1 w-3.5 h-3.5 bg-emerald-500 rounded-full border-2 border-white animate-pulse" />
+        {isOpen ? '✕' : '🤖'}
       </button>
     </div>
   );
 };
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<'proposal' | 'calculator' | 'haccp' | 'suppliers' | 'recipe' | 'commis' | 'academic'>('proposal');
+  const [activeTab, setActiveTab] = useState<'proposal' | 'calculator' | 'haccp' | 'suppliers' | 'recipe' | 'commis' | 'academic' | 'sales-engine'>('proposal');
   const [proposal, setProposal] = useState<Menu>(() => {
     const saved = localStorage.getItem('caterpro_recent_proposal');
     if (saved) {
@@ -493,6 +573,20 @@ export function App() {
               <GraduationCap className="w-3.5 h-3.5 text-red-600" />
               <span>Academic Hub</span>
             </button>
+            <button
+              onClick={() => setActiveTab('sales-engine')}
+              className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
+                activeTab === 'sales-engine'
+                  ? 'bg-slate-900 text-white shadow-2xs'
+                  : 'text-slate-500 hover:text-slate-900'
+              }`}
+            >
+              <TrendingUp className="w-3.5 h-3.5 text-teal-400" />
+              <span>Sales Engine</span>
+              <span className="text-[9px] font-black uppercase px-1.5 py-0.2 rounded bg-teal-100 text-teal-900">
+                AI Leads
+              </span>
+            </button>
           </div>
 
           {/* Right Actions */}
@@ -609,6 +703,15 @@ export function App() {
         >
           <GraduationCap className="w-3.5 h-3.5 text-red-500" />
           <span>Academic</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('sales-engine')}
+          className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 shrink-0 ${
+            activeTab === 'sales-engine' ? 'bg-slate-900 text-white shadow-2xs' : 'text-slate-600 bg-slate-100'
+          }`}
+        >
+          <TrendingUp className="w-3.5 h-3.5 text-teal-400" />
+          <span>Sales AI</span>
         </button>
       </div>
 
@@ -861,6 +964,21 @@ export function App() {
           </div>
         )}
 
+        {/* CaterProAI Sales & Operations Engine Hub */}
+        {activeTab === 'sales-engine' && (
+          <div className="pt-2">
+            <SalesOperationsEngine
+              proposal={proposal}
+              onApplyToProposal={(updated) => {
+                setProposal(updated);
+                localStorage.setItem('caterpro_recent_proposal', JSON.stringify(updated));
+                setToast('Applied CaterProAI Sales Engine specs to Proposal & BEO!');
+              }}
+              onNotify={(msg) => setToast(msg)}
+            />
+          </div>
+        )}
+
       </main>
 
       {/* 7. FOOTER (Exact match to PDF) */}
@@ -910,7 +1028,7 @@ export function App() {
       )}
 
       <Toast message={toast} onDismiss={() => setToast(null)} />
-      <AiChatBot />
+      <AiChatBot onOpenSalesEngineTab={() => setActiveTab('sales-engine')} />
     </div>
   );
 }

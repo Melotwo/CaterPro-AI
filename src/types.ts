@@ -39,7 +39,7 @@ export interface AllergenMatrixItem {
 export interface MenuItem {
   dish: string;
   notes: string;
-  cat: 'Appetizers' | 'Main Courses' | 'Desserts';
+  cat: 'Appetizers' | 'Main Courses' | 'Side Dishes' | 'Desserts' | string;
   cost: number;
   price: number;
   recipe?: string[];
@@ -64,6 +64,7 @@ export interface Menu {
   shoppingList?: any[]; // Flexible for both ShiftIngredient and ShoppingListItem
   recommendedEquipment?: RecommendedEquipment[];
   dietaryNotes?: string[];
+  specialDietaryNotes?: string;
   allergenMatrix?: AllergenMatrixItem[];
   eventType?: string;
   cuisine?: string;
