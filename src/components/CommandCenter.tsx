@@ -698,6 +698,17 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
             <span>Timeline</span>
           </a>
 
+          {onOpenSuppliers && (
+            <button
+              type="button"
+              onClick={onOpenSuppliers}
+              className="px-3.5 py-2 bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 rounded-xl text-xs font-bold transition-all shadow-2xs flex items-center gap-1.5 cursor-pointer"
+            >
+              <Truck className="w-3.5 h-3.5 text-teal-600" />
+              <span>Suppliers & Costing</span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={onOpenCalculator}

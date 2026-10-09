@@ -47,6 +47,40 @@ export interface CheckedInGuest {
   checkInMethod?: 'qr_scan' | 'manual_host' | 'kiosk';
 }
 
+export interface CustomSupplierItem {
+  itemName: string;
+  unitCost: number; // e.g. 110 (R110)
+  unit: string; // e.g. "kg", "g", "L", "each", "crate"
+  category?: string;
+  notes?: string;
+}
+
+export interface CustomSupplier {
+  id: string;
+  name: string; // e.g. "Uncle Joe's Meat Market"
+  phoneOrWhatsApp: string; // e.g. "+27 82 555 1234"
+  location: string; // e.g. "Mokopane" or "Polokwane, Limpopo"
+  category?: 'produce' | 'meat' | 'seafood' | 'dairy' | 'bakery' | 'beverage' | 'equipment' | 'specialty';
+  categoryLabel?: string;
+  suppliedItems: CustomSupplierItem[];
+  rawText?: string; // original entered string e.g. "Lamb Mince @ R110/kg"
+  addedAt: string;
+  isCustomFallback: boolean;
+  notes?: string;
+}
+
+export interface SourcingMatch {
+  dishName: string;
+  ingredientName: string;
+  matchedSupplierName: string;
+  supplierLocation: string;
+  supplierContact?: string;
+  unitCost: number;
+  unit: string;
+  estimatedPortionCost: number;
+  isCustomSupplier: boolean;
+}
+
 export interface ServiceScheduleEvent {
   id: string;
   title: string;
@@ -117,6 +151,8 @@ export interface Menu {
   checkedInGuests?: CheckedInGuest[];
   autoSyncActualPax?: boolean;
   timeline?: ServiceScheduleEvent[];
+  customSuppliers?: CustomSupplier[];
+  sourcingRegion?: string;
   showDeposit?: boolean;
   manualTotal?: number;
   manualPerHead?: number;

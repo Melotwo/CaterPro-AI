@@ -911,6 +911,12 @@ export function App() {
               proposal={proposal}
               onNotify={(msg) => setToast(msg)}
               onOpenCalculator={() => setActiveTab('calculator')}
+              onUpdateProposal={(updated) => {
+                setProposal(updated);
+                try {
+                  localStorage.setItem('caterpro_recent_proposal', JSON.stringify(updated));
+                } catch (e) {}
+              }}
             />
           </div>
         )}

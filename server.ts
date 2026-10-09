@@ -109,18 +109,18 @@ ${structurePrompt}`;
 
   /**
    * Route: Find Local Food Suppliers with Google Maps Grounding
-   * Uses gemini-3.5-flash with googleMaps tool to extract live place answers and URLs.
+   * Uses gemini-3.8-flash with googleMaps tool to extract live place answers and URLs.
    */
   app.post("/api/gemini/find-suppliers", async (req, res) => {
     const { query = "", category = "all", location = "Cape Town, South Africa", latLng } = req.body || {};
 
-    const prompt = `You are a culinary procurement expert. Find authentic, highly-rated wholesale food suppliers, fresh produce markets, butcheries, seafood merchants, dairy distributors, or bakery supply depots near ${location || 'the area'}.
+    const prompt = `You are the CaterProAI Local Sourcing & Supplier Engine. Find authentic, highly-rated wholesale food suppliers, butchers, fresh produce markets, cash & carries, seafood merchants, and beverage distributors within driving range near ${location || 'the area'}.
 Query / Focus: "${query || category || 'wholesale food supplier'}".
-Provide a helpful executive summary for chefs and restaurant operators detailing:
-1. The top local wholesale suppliers in this area
-2. What wholesale items/specialties they supply (e.g., pasture-reared meats, day-boat linefish, organic produce, imported cheeses)
-3. Delivery, cold-chain assurance, and order lead times.
-Focus on verified commercial suppliers that restaurants and caterers can source ingredients from.`;
+Provide a helpful executive summary for caterers and banquet managers detailing:
+1. The top local wholesale suppliers in this area (${location}) with their business name, address/suburban location, contact number/WhatsApp if available, and business category.
+2. What wholesale ingredients/specialties they supply (e.g. Lamb Mince, Salmon Fillets, Olive Oil, fresh produce, bulk dairy) and typical local procurement price ranges (in ZAR).
+3. Delivery terms, minimum orders, and cold-chain compliance (SANS 10330).
+Focus on verified commercial suppliers that caterers and hospitality entrepreneurs can source ingredients from.`;
 
     try {
       const ai = getGeminiClient();
@@ -143,14 +143,14 @@ Focus on verified commercial suppliers that restaurants and caterers can source 
         let response: any = null;
         try {
           response = await ai.models.generateContent({
-            model: "gemini-3.5-flash",
+            model: "gemini-3.8-flash",
             contents: prompt,
             config
           });
         } catch (modelErr: any) {
-          console.warn("gemini-3.5-flash with googleMaps notice, attempting gemini-3.8-flash:", modelErr?.message || modelErr);
+          console.warn("gemini-3.8-flash with googleMaps error:", modelErr?.message || modelErr);
           response = await ai.models.generateContent({
-            model: "gemini-3.8-flash",
+            model: "gemini-flash-latest",
             contents: prompt,
             config
           });

@@ -410,15 +410,52 @@ export const BanquetEventOrderModal: React.FC<BanquetEventOrderModalProps> = ({
 
               {/* Section 4: Scaled Hotel Shopping List & Supplies */}
               <div className="space-y-4">
-                <div className="flex items-center gap-2 border-b border-white/10 pb-3">
-                  <span className="text-emerald-400 text-sm">📦</span>
-                  <h4 className="text-xs font-black uppercase text-white tracking-[0.2em]">
-                    Section 4 • Bulk Hotel Supply & Procurement List
-                  </h4>
+                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-emerald-400 text-sm">📦</span>
+                    <h4 className="text-xs font-black uppercase text-white tracking-[0.2em]">
+                      Section 4 • Local Supplier Procurement & Sourcing List
+                    </h4>
+                  </div>
+                  {menu.sourcingRegion && (
+                    <span className="text-[10px] font-mono text-teal-300 bg-teal-950/60 px-2 py-0.5 rounded border border-teal-500/30">
+                      Region: {menu.sourcingRegion}
+                    </span>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                  {(menu.shoppingList || []).slice(0, 8).map((item: any, i: number) => (
+                  {/* Custom suppliers items */}
+                  {(menu.customSuppliers || []).flatMap(cs => cs.suppliedItems.map(si => ({
+                    name: si.itemName,
+                    supplier: cs.name,
+                    location: cs.location,
+                    phone: cs.phoneOrWhatsApp,
+                    unitPrice: si.unitCost,
+                    unit: si.unit,
+                    isCustom: true
+                  }))).slice(0, 4).map((item: any, i: number) => (
+                    <div key={`custom-${i}`} className="p-3 bg-slate-800/50 rounded-xl border border-lime-400/30 flex justify-between items-center">
+                      <div>
+                        <div className="flex items-center gap-1.5">
+                          <p className="font-bold text-white">{item.name}</p>
+                          <span className="text-[8px] font-black uppercase tracking-wider bg-lime-400 text-slate-950 px-1.5 py-0.2 rounded font-mono">
+                            Direct Vendor
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-teal-300 font-medium">
+                          {item.supplier} • {item.location} {item.phone ? `(${item.phone})` : ''}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <span className="font-black text-lime-400">R {item.unitPrice} / {item.unit}</span>
+                        <p className="text-[9px] text-slate-400">Direct Sourced</p>
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Standard Shopping List Items */}
+                  {(menu.shoppingList || []).slice(0, 6).map((item: any, i: number) => (
                     <div key={i} className="p-3 bg-slate-800/30 rounded-xl border border-white/5 flex justify-between items-center">
                       <div>
                         <p className="font-bold text-white">{item.name || item.item}</p>

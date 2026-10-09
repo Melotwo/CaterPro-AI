@@ -98,6 +98,26 @@ export const DEFAULT_PROPOSAL: Menu = {
       notes: "Warm berry coulis poured tableside"
     }
   ],
+  sourcingRegion: "Mokopane / Limpopo & Gauteng Regional",
+  customSuppliers: [
+    {
+      id: "supp-mokopane-meat",
+      name: "Uncle Joe's Meat Market",
+      phoneOrWhatsApp: "+27 82 555 1234",
+      location: "Mokopane (Potgietersrus), Limpopo",
+      category: "meat",
+      categoryLabel: "Wholesale Butchery & Meats",
+      suppliedItems: [
+        { itemName: "Lamb Mince", unitCost: 110, unit: "kg", category: "meat", notes: "A-Grade Karoo style regional lamb" },
+        { itemName: "Beef Fillet Primal Cut", unitCost: 195, unit: "kg", category: "meat", notes: "Grass-fed Bushveld beef" },
+        { itemName: "Artisan Boerewors", unitCost: 95, unit: "kg", category: "meat", notes: "Traditional spiced coarse grind" }
+      ],
+      rawText: "Lamb Mince @ R110/kg, Beef Fillet @ R195/kg",
+      addedAt: "2026-10-09T05:00:00Z",
+      isCustomFallback: true,
+      notes: "Direct abattoir supply. Certified Halal slaughter floor. Next-day cold truck delivery to local lodges and banquet venues."
+    }
+  ],
   heroImage: "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
   manualPerHead: 520,
   manualTotal: 64800,

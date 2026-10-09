@@ -65,7 +65,7 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
     return (proposal.menu || []).filter(m => (m.cat || '').toLowerCase().includes('dessert'));
   }, [proposal.menu]);
 
-  // Group shopping list items by supplier
+  // Group shopping list items by supplier, merging with active custom suppliers
   const groupedSuppliers = useMemo(() => {
     const list = proposal.shoppingList || [];
     const groups: { [supplier: string]: typeof list } = {};
@@ -74,8 +74,24 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
       if (!groups[sup]) groups[sup] = [];
       groups[sup].push(item);
     });
+
+    // Merge active custom suppliers if present
+    if (proposal.customSuppliers && proposal.customSuppliers.length > 0) {
+      proposal.customSuppliers.forEach(cs => {
+        if (!groups[cs.name]) {
+          groups[cs.name] = cs.suppliedItems.map(si => ({
+            item: si.itemName,
+            quantity: `1 ${si.unit}`,
+            estCost: `R ${si.unitCost} / ${si.unit}`,
+            category: cs.categoryLabel || 'Direct Wholesale',
+            supplier: cs.name
+          } as any));
+        }
+      });
+    }
+
     return groups;
-  }, [proposal.shoppingList]);
+  }, [proposal.shoppingList, proposal.customSuppliers]);
 
   // Sourcing procurement total
   const estimatedSourcingTotal = useMemo(() => {
