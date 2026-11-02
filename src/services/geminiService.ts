@@ -78,23 +78,23 @@ const cleanAndParseJson = (rawText: string): any => {
 export const THEME_REPOSITORY: Record<string, string> = {
   picnic: "/images/spring_picnic_gourmet_feast_1790923177569.jpg",
   cocktail: "/images/canape_cocktail_reception_1790839889744.jpg",
-  banquet: "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
+  banquet: "/images/gala_plated_dinner.jpg",
   caribbean: "/images/caribbean_banquet_feast_1790839910815.jpg",
-  wedding: "/images/wedding_banquet_table_1790839921478.jpg",
+  wedding: "/images/gala_plated_dinner.jpg",
   seafood: "/images/coastal_seafood_banquet_1790839949705.jpg",
-  graduation: "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
-  corporate: "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
-  gala: "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
-  dinner: "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
-  lunch: "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
+  graduation: "/images/gala_plated_dinner.jpg",
+  corporate: "/images/gala_plated_dinner.jpg",
+  gala: "/images/gala_plated_dinner.jpg",
+  dinner: "/images/gala_plated_dinner.jpg",
+  lunch: "/images/gala_plated_dinner.jpg",
   party: "/images/canape_cocktail_reception_1790839889744.jpg",
   bbq: "/images/caribbean_banquet_feast_1790839910815.jpg",
   braai: "/images/caribbean_banquet_feast_1790839910815.jpg",
   birthday: "/images/wedding_banquet_table_1790839921478.jpg",
-  french: "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
+  french: "/images/gala_plated_dinner.jpg",
   asian: "/images/canape_cocktail_reception_1790839889744.jpg",
   plant: "/images/wedding_banquet_table_1790839921478.jpg",
-  default: "/images/hotel_banquet_plated_dinner_1790839899546.jpg"
+  default: "/images/gala_plated_dinner.jpg"
 };
 
 // Curated high-resolution food-only image pools by theme (strictly food & canapés, never solitary drinks)
@@ -130,12 +130,14 @@ export const THEME_POOLS: Record<string, string[]> = {
     "https://images.unsplash.com/photo-1504674900247-0877df9cc836"  // Island feast spread with tropical garnishes
   ],
   banquet: [
+    "/images/gala_plated_dinner.jpg", // Elite Michelin-star commercial food photography: herb-crusted lamb, truffle risotto
     "/images/hotel_banquet_plated_dinner_1790839899546.jpg", // Michelin-star plated hotel banquet dinner
     "https://images.unsplash.com/photo-1555396273-367ea4eb4db5", // Luxury hotel banquet room with plated dining
     "https://images.unsplash.com/photo-1544025162-d76694265947", // Plated prime roast cut with reduction
     "https://images.unsplash.com/photo-1414235077428-338989a2e8c0"  // Chef plated course with microgreens
   ],
   wedding: [
+    "/images/gala_plated_dinner.jpg", // Elite commercial culinary photography
     "/images/wedding_banquet_table_1790839921478.jpg", // Luxury wedding banquet table setting
     "https://images.unsplash.com/photo-1519225421980-715cb0215aed", // Royal wedding banquet table setting
     "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3"  // Luxury outdoor banquet dinner

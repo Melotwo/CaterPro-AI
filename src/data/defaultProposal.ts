@@ -118,7 +118,7 @@ export const DEFAULT_PROPOSAL: Menu = {
       notes: "Direct abattoir supply. Certified Halal slaughter floor. Next-day cold truck delivery to local lodges and banquet venues."
     }
   ],
-  heroImage: "/images/hotel_banquet_plated_dinner_1790839899546.jpg",
+  heroImage: "/images/gala_plated_dinner.jpg",
   manualPerHead: 520,
   manualTotal: 64800,
   logistics: {

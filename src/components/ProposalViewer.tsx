@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ZoomIn, ZoomOut, X, ChefHat, Sparkles, Truck } from 'lucide-react';
+import { ZoomIn, ZoomOut, X, ChefHat, Sparkles, Truck, Camera } from 'lucide-react';
 import { Menu, MenuItem } from '../types';
 import { getThemeFallbackImage } from '../services/geminiService';
+import { CulinaryVisualStudioModal } from './CulinaryVisualStudioModal';
 
 interface ProposalViewerProps {
   proposal: Menu;
@@ -30,6 +31,7 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
   const [isBulkEditing, setIsBulkEditing] = useState<boolean>(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState<boolean>(false);
   const [isZoomed, setIsZoomed] = useState<boolean>(false);
+  const [isStudioOpen, setIsStudioOpen] = useState<boolean>(false);
 
   // Esc key and body scroll lock for lightbox
   useEffect(() => {
@@ -206,6 +208,18 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
               <span className="px-2 py-0.5 rounded-md bg-teal-600/90 backdrop-blur-md text-[10px] font-black uppercase tracking-wider text-white shadow-xs">
                 {proposal.eventType || 'Banquet'}
               </span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsStudioOpen(true);
+                }}
+                className="px-2.5 py-0.5 rounded-md bg-gradient-to-r from-lime-400 to-teal-400 hover:from-lime-300 hover:to-teal-300 text-slate-950 font-black text-[10px] flex items-center gap-1 shadow-md transition-all cursor-pointer"
+                title="Open Culinary Visual & Photography Studio"
+              >
+                <Camera className="w-3 h-3 text-slate-950" />
+                <span>Visual Studio</span>
+              </button>
               <button
                 type="button"
                 onClick={(e) => {
@@ -791,6 +805,22 @@ export const ProposalViewer: React.FC<ProposalViewerProps> = ({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Culinary Visual Studio & Photography Engine */}
+      <CulinaryVisualStudioModal
+        isOpen={isStudioOpen}
+        onClose={() => setIsStudioOpen(false)}
+        proposal={proposal}
+        onUpdateHeroImage={(url) => {
+          if (onUpdateProposal) {
+            onUpdateProposal({
+              ...proposal,
+              heroImage: url,
+              image: url
+            });
+          }
+        }}
+      />
     </div>
   );
 };
