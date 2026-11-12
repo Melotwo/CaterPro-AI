@@ -20,8 +20,9 @@ import { HaccpLog } from './components/HaccpLog';
 import { LocalSuppliersHub } from './components/LocalSuppliersHub';
 import { SalesOperationsEngine } from './components/SalesOperationsEngine';
 import { GuestCheckInModal } from './components/GuestCheckInModal';
+import { CulinaryVisualStudioModal } from './components/CulinaryVisualStudioModal';
 import { GoogleAnalytics, trackEvent } from './GoogleAnalytics';
-import { ChefHat, GraduationCap, Calculator as CalcIcon, Utensils, Sparkles, BookOpen, ShieldCheck, Truck, ShoppingBag, MessageSquare, TrendingUp, Copy } from 'lucide-react';
+import { ChefHat, GraduationCap, Calculator as CalcIcon, Utensils, Sparkles, BookOpen, ShieldCheck, Truck, ShoppingBag, MessageSquare, TrendingUp, Copy, Camera } from 'lucide-react';
 import { Menu, CheckedInGuest, ServiceScheduleEvent } from './types';
 
 // Toast Component
@@ -261,6 +262,7 @@ export function App() {
   const [isUpgradeOpen, setIsUpgradeOpen] = useState(false);
   const [isBeoOpen, setIsBeoOpen] = useState(false);
   const [isQrCheckInModalOpen, setIsQrCheckInModalOpen] = useState(false);
+  const [isStudioModalOpen, setIsStudioModalOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [isGeneratingMenu, setIsGeneratingMenu] = useState(false);
   const [recipeSelectedDish, setRecipeSelectedDish] = useState<string>('');
@@ -512,28 +514,31 @@ export function App() {
       
       {/* 1. TOP HEADER NAVIGATION BAR (Exact match to PDF) */}
       <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-2xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3 sm:gap-6">
           
-          {/* Logo */}
+          {/* Cohesive Brand Logo & Title */}
           <div
             onClick={() => setActiveTab('proposal')}
-            className="flex items-center gap-3 cursor-pointer select-none group"
+            className="flex items-center gap-3 cursor-pointer select-none shrink-0 group py-1"
           >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-lime-500 via-teal-600 to-cyan-600 flex items-center justify-center text-white shadow-md shadow-teal-500/20 group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-lime-500 via-teal-600 to-cyan-600 flex items-center justify-center text-white shadow-md shadow-teal-500/20 group-hover:scale-105 transition-transform shrink-0">
               <ChefHat className="w-6 h-6 stroke-[2.4]" />
             </div>
-            <div className="flex flex-col text-left">
-              <span className="text-xl font-black tracking-tight text-slate-900 leading-none">
-                CaterPro <span className="bg-gradient-to-r from-lime-600 to-teal-600 bg-clip-text text-transparent">AI</span>
-              </span>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+            <div className="flex flex-col justify-center text-left shrink-0">
+              <div className="flex items-baseline whitespace-nowrap leading-none select-none">
+                <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 flex items-baseline">
+                  <span>CaterPro</span>
+                  <span className="bg-gradient-to-r from-lime-600 to-teal-600 bg-clip-text text-transparent font-black ml-1">AI</span>
+                </span>
+              </div>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1 whitespace-nowrap">
                 Centralized Hotel Administration Hub
               </span>
             </div>
           </div>
 
           {/* Nav Tabs */}
-          <div className="hidden md:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold">
+          <div className="hidden lg:flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold shrink-0">
             <button
               onClick={() => setActiveTab('proposal')}
               className={`px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 cursor-pointer ${
@@ -635,6 +640,16 @@ export function App() {
 
           {/* Right Actions */}
           <div className="flex items-center gap-2">
+            {/* AI Studio Photography Engine */}
+            <button
+              onClick={() => setIsStudioModalOpen(true)}
+              className="px-2.5 sm:px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer border border-teal-500/40 shadow-xs"
+              title="Open CaterProAi Event Photography Engine & AI Studio Prompt Studio"
+            >
+              <Camera className="w-3.5 h-3.5 text-lime-400" />
+              <span className="hidden sm:inline">Visual Studio</span>
+            </button>
+
             {/* Upgrade (Fresh 4-tier plan modal) */}
             <button
               onClick={() => setIsUpgradeOpen(true)}
@@ -684,7 +699,7 @@ export function App() {
       </header>
 
       {/* Mobile Navigation Bar (Snug, thumb-friendly, compact) */}
-      <div className="md:hidden flex items-center gap-1 overflow-x-auto px-2.5 py-1.5 bg-white border-b border-slate-200 text-xs font-bold scrollbar-none shadow-2xs">
+      <div className="lg:hidden flex items-center gap-1 overflow-x-auto px-2.5 py-1.5 bg-white border-b border-slate-200 text-xs font-bold scrollbar-none shadow-2xs">
         <button
           onClick={() => setActiveTab('proposal')}
           className={`px-2.5 py-1.5 rounded-lg transition-all flex items-center gap-1 shrink-0 ${
@@ -813,6 +828,7 @@ export function App() {
               onOpenCalculator={() => setActiveTab('calculator')}
               onOpenSuppliers={() => setActiveTab('suppliers')}
               onOpenRecipe={() => setActiveTab('recipe')}
+              onOpenVisualStudio={() => setIsStudioModalOpen(true)}
               onSaveProposal={handleSaveProposal}
               onQuickGenerateMenu={handleQuickGenerateMenu}
               isGeneratingMenu={isGeneratingMenu}
@@ -1093,6 +1109,27 @@ export function App() {
           }}
         />
       )}
+
+      <CulinaryVisualStudioModal
+        isOpen={isStudioModalOpen}
+        onClose={() => setIsStudioModalOpen(false)}
+        proposal={proposal}
+        onUpdateHeroImage={(newUrl) => {
+          setProposal(prev => {
+            const updated = {
+              ...prev,
+              heroImage: newUrl,
+              image: newUrl
+            };
+            try {
+              localStorage.setItem('caterpro_recent_proposal', JSON.stringify(updated));
+            } catch (e) {}
+            return updated;
+          });
+          setToast('Applied new commercial photography cover asset to active proposal!');
+        }}
+        onNotify={(msg) => setToast(msg)}
+      />
 
       <Toast message={toast} onDismiss={() => setToast(null)} />
       <AiChatBot onOpenSalesEngineTab={() => setActiveTab('sales-engine')} />

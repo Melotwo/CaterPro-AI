@@ -24,7 +24,8 @@ import {
   BookOpen,
   Truck,
   QrCode,
-  UserCheck
+  UserCheck,
+  Camera
 } from 'lucide-react';
 import { CheckedInGuest, Menu, ServiceScheduleEvent } from '../types';
 import { GuestCheckInQrStation } from './GuestCheckInQrStation';
@@ -63,6 +64,7 @@ interface CommandCenterProps {
   onOpenCalculator: () => void;
   onOpenSuppliers?: () => void;
   onOpenRecipe?: () => void;
+  onOpenVisualStudio?: () => void;
   onSaveProposal: () => void;
   region: string;
   onUpdateGuestCount: (count: number) => void;
@@ -88,6 +90,7 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
   onOpenCalculator,
   onOpenSuppliers,
   onOpenRecipe,
+  onOpenVisualStudio,
   onSaveProposal,
   region,
   onUpdateGuestCount,
@@ -706,6 +709,18 @@ export const CommandCenter: React.FC<CommandCenterProps> = ({
             >
               <Truck className="w-3.5 h-3.5 text-teal-600" />
               <span>Suppliers & Costing</span>
+            </button>
+          )}
+
+          {onOpenVisualStudio && (
+            <button
+              type="button"
+              onClick={onOpenVisualStudio}
+              className="px-3.5 py-2 bg-gradient-to-r from-teal-900 to-slate-900 hover:from-teal-800 hover:to-slate-800 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-sm flex items-center gap-1.5 cursor-pointer active:scale-95 border border-teal-500/30"
+              title="Launch AI Studio Photography & Dynamic Prompt Engine"
+            >
+              <Camera className="w-3.5 h-3.5 text-lime-400" />
+              <span>Visual Studio</span>
             </button>
           )}
 

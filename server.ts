@@ -617,7 +617,11 @@ Return valid JSON matching:
   /**
    * Route: Generate Hero / Cover Image for Proposal
    * Uses Gemini Image generation with fallback to curated high-res culinary assets.
-   * Ensures every menu produces a unique, relevant hero image matching title, description, and event type.
+  /**
+   * Route: Generate Hero / Cover Image for Proposal
+   * Dynamically constructs prompt from Master Dynamic Prompt Template:
+   * [EVENT_TYPE], [DISH_OR_COURSE], [PLATING_STYLE], [VIBE_AND_LIGHTING]
+   * Uses Gemini Image generation with fallback to curated high-res culinary assets.
    */
   app.post("/api/gemini/generate-image", async (req, res) => {
     const {
@@ -625,14 +629,22 @@ Return valid JSON matching:
       eventType = "Hotel Banquet",
       cuisineStyle = "Contemporary",
       description = "",
+      dishOrCourse,
+      platingStyle,
+      presentationStyle,
+      vibeAndLighting,
+      atmosphereAndLighting,
       prompt
     } = req.body || {};
     
     const effectiveEventType = (eventType || "Hotel Banquet").trim();
     const effectiveCuisine = (cuisineStyle || "Contemporary Cape & Continental").trim();
+    const effectiveDish = (dishOrCourse || "").trim();
+    const effectivePlating = (platingStyle || presentationStyle || "").trim();
+    const effectiveVibe = (vibeAndLighting || atmosphereAndLighting || "").trim();
     const eventLower = effectiveEventType.toLowerCase();
     const cuisineLower = effectiveCuisine.toLowerCase();
-    const combinedContext = `${effectiveEventType} ${effectiveCuisine} ${title} ${description}`.toLowerCase();
+    const combinedContext = `${effectiveEventType} ${effectiveCuisine} ${title} ${description} ${effectiveDish}`.toLowerCase();
 
     // Specific mapping conditions
     const isPicnic = /picnic|hamper|alfresco|al fresco|garden party|outdoor feast|blanket|meadow|lawn/i.test(eventLower) ||
@@ -647,44 +659,42 @@ Return valid JSON matching:
     const isBanquet = /banquet|gala|plated|hotel banquet|fine dining|conference/i.test(eventLower);
     const isCaribbean = /caribbean|jerk|tropical|jamaican|creole|island|bahamian/i.test(cuisineLower);
     const isSeafood = /seafood|linefish|scallop|salmon|prawn|crayfish|oyster|coastal|marine/i.test(cuisineLower) ||
-                      /seafood|linefish/i.test(eventLower);
+                      /seafood|linefish/i.test(eventLower) || /scallop|salmon/i.test(effectiveDish);
     const isGraduation = /graduation|matric|prom|commencement/i.test(eventLower);
-    const isCorporate = /corporate|conference|business|ddr|boardroom/i.test(eventLower);
+    const isCorporate = /corporate|conference|business|ddr|boardroom|tech summit/i.test(eventLower);
     const isFrench = /french|escoffier|haute cuisine/i.test(cuisineLower);
-    const isPlant = /plant|vegan|vegetarian|harvest/i.test(cuisineLower);
+    const isPlant = /plant|vegan|vegetarian|harvest|farm-to-table|farm to table/i.test(cuisineLower) || /farm-to-table|sustainable/i.test(eventLower);
     const isAsian = /asian|oriental|fusion|dim sum/i.test(cuisineLower);
 
-    // Rule 3: Strict negative rules - never indoor café/coffee shop, never pasta, never generic stock people
+    // Strict negative constraints - edge-to-edge, zero text, no watermarks, no mockups
+    const strictNegativeRules = "Strict Constraints: Full-bleed, edge-to-edge composition. No text, no watermarks, no mockups, no frames, and no borders.";
     const negativeConstraints = "Strict rules: Absolutely no indoor café or coffee shop, no restaurant interior, no diners eating pasta, no generic stock people, no empty glasses or solo drinks. Focus strictly on appetizing culinary food presentation.";
 
-    // Rule 1, 2, 4, 5: Construct strict image prompt using BOTH Event Type & Cuisine Style
-    // Example structure: “Professional food photography of a [Event Type] featuring [Cuisine Style], [specific relevant food elements], high quality, realistic, South African context if applicable”
     let defaultPrompt = '';
 
-    if ((isPicnic && isBraai) || (isPicnic && /braai|heritage/i.test(cuisineLower))) {
-      // Rule 2a & 5: Picnic or Picnic + Braai / Heritage Braai -> Outdoor South African picnic scene: picnic blanket on grass, wicker hamper, braai/grill elements, boerewors, pap, salads, cheese & charcuterie boards, natural daylight, trees or open field. Never indoor café or restaurant scenes. Force outdoor natural lighting and picnic/braai atmosphere.
-      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, an outdoor South African picnic scene: picnic blanket on grass, wicker hamper, braai/grill elements, boerewors, pap, salads, cheese & charcuterie boards, natural daylight, trees or open field. Forced outdoor natural lighting, authentic picnic and braai atmosphere, high quality, realistic, South African context. ${negativeConstraints}`;
+    // If dynamic variable inputs are provided, adhere strictly to Master Dynamic Prompt Template
+    if (effectiveDish && (effectivePlating || effectiveVibe)) {
+      const plating = effectivePlating || "matte white porcelain fine dining plate";
+      const vibe = effectiveVibe || "dramatic low-key restaurant lighting with soft rim lighting highlighting the textures";
+      defaultPrompt = `A professional commercial food photograph for a ${effectiveEventType} event. The primary subject is ${effectiveDish} presented on ${plating}. The setting and atmosphere feature ${vibe}, emphasizing rich textures, precise culinary plating, and professional lighting. \n\n${strictNegativeRules}`;
+    } else if ((isPicnic && isBraai) || (isPicnic && /braai|heritage/i.test(cuisineLower))) {
+      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, an outdoor South African picnic scene: picnic blanket on grass, wicker hamper, braai/grill elements, boerewors, pap, salads, cheese & charcuterie boards, natural daylight, trees or open field. Forced outdoor natural lighting, authentic picnic and braai atmosphere, high quality, realistic, South African context. ${negativeConstraints} ${strictNegativeRules}`;
     } else if (isPicnic) {
-      // Rule 2a & 5: Pure Picnic -> Outdoor South African picnic scene: picnic blanket on grass, wicker hamper, salads, cheese & charcuterie boards, natural daylight, trees or open field. Force outdoor natural lighting.
-      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, an outdoor South African picnic scene: picnic blanket on grass, wicker hamper, fresh garden salads, cheese & charcuterie boards, artisan bread and preserves, natural daylight, trees or open field. Forced outdoor natural lighting, authentic picnic atmosphere, high quality, realistic, South African context if applicable. ${negativeConstraints}`;
+      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, an outdoor South African picnic scene: picnic blanket on grass, wicker hamper, fresh garden salads, cheese & charcuterie boards, artisan bread and preserves, natural daylight, trees or open field. Forced outdoor natural lighting, authentic picnic atmosphere, high quality, realistic, South African context if applicable. ${negativeConstraints} ${strictNegativeRules}`;
     } else if (isBraai) {
-      // Rule 2d & 5: Any Braai-related event -> Outdoor fire, grill, smoke, traditional South African braai food and setting. Force outdoor natural lighting and braai atmosphere.
-      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, an outdoor fire, grill, smoke, traditional South African braai food and setting with sizzling boerewors coils, prime lamb chops, potbrood, pap and chakalaka on a rustic wooden table. Forced outdoor natural lighting, authentic braai atmosphere, high quality, realistic, South African context. ${negativeConstraints}`;
+      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, an outdoor fire, grill, smoke, traditional South African braai food and setting with sizzling boerewors coils, prime lamb chops, potbrood, pap and chakalaka on a rustic wooden table. Forced outdoor natural lighting, authentic braai atmosphere, high quality, realistic, South African context. ${negativeConstraints} ${strictNegativeRules}`;
     } else if (isCocktail) {
-      // Rule 2b: Cocktail Party / Flying Canapé -> Elegant butler-passed canapé trays, sophisticated standing reception food, high-end hors d’oeuvres.
-      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, elegant butler-passed canapé trays, sophisticated standing reception food, high-end hors d’oeuvres, delicate savory tartlets and appetizer spoons, warm ambient lighting, high quality, realistic, South African context if applicable. ${negativeConstraints}`;
+      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, elegant butler-passed canapé trays, sophisticated standing reception food, high-end hors d’oeuvres, delicate savory tartlets and appetizer spoons, warm ambient lighting, high quality, realistic, South African context if applicable. ${negativeConstraints} ${strictNegativeRules}`;
     } else if (isWedding || isBanquet) {
-      // Rule 2c: Hotel Banquet / Wedding -> Beautifully plated dishes or refined banquet table settings.
-      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, beautifully plated dishes or refined banquet table settings, exquisite multi-course culinary presentation, delicate sauce reductions, micro-greens, fine tableware, warm celebratory ambient lighting, high quality, realistic, South African context if applicable. ${negativeConstraints}`;
+      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, beautifully plated dishes or refined banquet table settings, exquisite multi-course culinary presentation, delicate sauce reductions, micro-greens, fine tableware, warm celebratory ambient lighting, high quality, realistic, South African context if applicable. ${negativeConstraints} ${strictNegativeRules}`;
     } else if (isWineTasting) {
-      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, sommelier wine flight and artisan cheese pairing boards, biltong ribbons, fresh figs, crackers, tasting cellar setting, warm golden ambient lighting, high quality, realistic, South African context if applicable. ${negativeConstraints}`;
+      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, sommelier wine flight and artisan cheese pairing boards, biltong ribbons, fresh figs, crackers, tasting cellar setting, warm golden ambient lighting, high quality, realistic, South African context if applicable. ${negativeConstraints} ${strictNegativeRules}`;
     } else if (isCaribbean) {
-      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, vibrant upscale banquet presentation with jerk spiced roasted cuts, grilled seafood skewers, colorful tropical fruits and herb garnishes, rich sauces, festive banquet ambiance, high quality, realistic. ${negativeConstraints}`;
+      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, vibrant upscale banquet presentation with jerk spiced roasted cuts, grilled seafood skewers, colorful tropical fruits and herb garnishes, rich sauces, festive banquet ambiance, high quality, realistic. ${negativeConstraints} ${strictNegativeRules}`;
     } else if (isSeafood) {
-      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, spectacular coastal seafood banquet featuring crispy-skin linefish, scallops with saffron velouté, chilled shellfish platters, fresh lemon wedges, and micro-herbs, high quality, realistic. ${negativeConstraints}`;
+      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, spectacular coastal seafood banquet featuring crispy-skin linefish, scallops with saffron velouté, chilled shellfish platters, fresh lemon wedges, and micro-herbs, high quality, realistic. ${negativeConstraints} ${strictNegativeRules}`;
     } else {
-      // Rule 4: Default format explicitly including event type and cuisine style
-      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, beautifully presented culinary dishes, refined catering display, fresh garnishes, high quality, realistic, South African context if applicable. Appetizing food styling, natural ambient lighting, 8k resolution. ${negativeConstraints}`;
+      defaultPrompt = `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, beautifully presented culinary dishes, refined catering display, fresh garnishes, high quality, realistic, South African context if applicable. Appetizing food styling, natural ambient lighting, 8k resolution. ${negativeConstraints} ${strictNegativeRules}`;
     }
 
     // Always strictly enforce the constructed prompt adhering to all user rules
@@ -711,7 +721,9 @@ Return valid JSON matching:
               const mimeType = part.inlineData.mimeType || 'image/jpeg';
               res.json({
                 imageUrl: `data:${mimeType};base64,${part.inlineData.data}`,
-                isFallback: false
+                isFallback: false,
+                promptUsed: imagePrompt,
+                model: 'gemini-3.1-flash-lite-image'
               });
               return;
             }
@@ -732,7 +744,9 @@ Return valid JSON matching:
             if (b64) {
               res.json({
                 imageUrl: `data:image/jpeg;base64,${b64}`,
-                isFallback: false
+                isFallback: false,
+                promptUsed: imagePrompt,
+                model: 'imagen-3.0-generate-002'
               });
               return;
             }
@@ -780,6 +794,7 @@ Return valid JSON matching:
       ],
       // Hotel Banquet / Plated Courses / Gala
       banquet: [
+        "/images/gala_plated_dinner.jpg", // Michelin-star plated herb-crusted lamb cutlets & truffle risotto
         "/images/hotel_banquet_plated_dinner_1790839899546.jpg", // Michelin-star plated hotel banquet dinner
         "https://images.unsplash.com/photo-1555396273-367ea4eb4db5", // Luxury hotel banquet room with plated dining
         "https://images.unsplash.com/photo-1544025162-d76694265947", // Prime roasted rack and fondant presentation
@@ -787,6 +802,7 @@ Return valid JSON matching:
       ],
       // Wedding & Nuptial
       wedding: [
+        "/images/gala_plated_dinner.jpg", // Master wedding herb-crusted rack of lamb with parsnip purée ribbon
         "/images/wedding_banquet_table_1790839921478.jpg", // Luxury wedding banquet table setting
         "https://images.unsplash.com/photo-1519225421980-715cb0215aed", // Royal wedding banquet table setting
         "https://images.unsplash.com/photo-1464366400600-7168b8af9bc3"  // Luxury outdoor banquet dinner
@@ -809,6 +825,7 @@ Return valid JSON matching:
       ],
       // Plant-based & Harvest
       plant: [
+        "/images/spring_picnic_gourmet_feast_1790923177569.jpg", // Vibrant green pea purée and spring harvest
         "https://images.unsplash.com/photo-1540420773420-3366772f4999", // Fresh harvest vegetable banquet
         "https://images.unsplash.com/photo-1512621776951-a57141f2eefd"  // Gourmet organic salad spread
       ],
@@ -847,7 +864,7 @@ Return valid JSON matching:
     else pool = CULINARY_POOLS.banquet;
 
     // Use a hash of title, description, and time so every newly generated menu receives a different image
-    const seedString = `${title}-${description}-${eventType}-${Date.now()}-${Math.random()}`;
+    const seedString = `${title}-${description}-${effectiveEventType}-${Date.now()}-${Math.random()}`;
     let hash = 0;
     for (let i = 0; i < seedString.length; i++) {
       hash = ((hash << 5) - hash) + seedString.charCodeAt(i);
@@ -856,9 +873,9 @@ Return valid JSON matching:
     const selectedIndex = Math.abs(hash) % pool.length;
     const basePhoto = pool[selectedIndex];
     // Append query params for high-res format and unique cache-busting signature
-    const finalImageUrl = `${basePhoto}?auto=format&fit=crop&w=1600&q=85&caterpro_sig=${Date.now()}_${Math.floor(Math.random() * 10000)}`;
+    const finalImageUrl = basePhoto.startsWith('/') ? basePhoto : `${basePhoto}?auto=format&fit=crop&w=1600&q=85&caterpro_sig=${Date.now()}_${Math.floor(Math.random() * 10000)}`;
 
-    res.json({ imageUrl: finalImageUrl, isFallback: true });
+    res.json({ imageUrl: finalImageUrl, isFallback: true, promptUsed: imagePrompt });
   });
 
   // Vite Middleware Integration

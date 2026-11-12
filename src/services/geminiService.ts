@@ -317,8 +317,101 @@ export function buildStrictImagePrompt(
     return `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, sommelier wine flight and artisan cheese pairing boards, biltong ribbons, fresh figs, crackers, tasting cellar setting, warm golden ambient lighting, high quality, realistic, South African context if applicable. ${negativeConstraints}`;
   } else {
     // Rule 4: Example structure: “Professional food photography of a [Event Type] featuring [Cuisine Style], [specific relevant food elements], high quality, realistic, South African context if applicable”
-    return `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, beautifully plated dishes, refined catering display, fresh garnishes, appetizing food styling, high quality, realistic, South African context if applicable. ${negativeConstraints}`;
+    return `Professional food photography of a ${effectiveEventType} featuring ${effectiveCuisine}, beautifully presented culinary dishes, refined catering display, fresh garnishes, high quality, realistic, South African context if applicable. Appetizing food styling, natural ambient lighting, 8k resolution. ${negativeConstraints}`;
   }
+}
+
+export interface DynamicEventImageParams {
+  eventType: string;
+  dishOrCourse: string;
+  platingStyle: string;
+  vibeAndLighting: string;
+  prompt?: string;
+}
+
+export const DYNAMIC_IMAGE_PRESETS = [
+  {
+    id: 'luxury-wedding',
+    name: 'Luxury Wedding Reception',
+    eventType: 'Luxury Wedding Reception',
+    dishOrCourse: 'Perfectly seared golden-brown rack of lamb with an herb crust, accompanied by a smooth smoked parsnip purée ribbon and Cabernet Sauvignon reduction',
+    platingStyle: 'matte white porcelain',
+    vibeAndLighting: 'dramatic low-key restaurant lighting with soft rim lighting highlighting the textures',
+    icon: '💍',
+    badge: 'Fine Dining Signature'
+  },
+  {
+    id: 'tech-summit',
+    name: 'Corporate Tech Summit Gala',
+    eventType: 'Corporate Tech Summit Gala',
+    dishOrCourse: 'Gourmet canapés and U10 seared scallops with finger lime caviar and delicate micro-herb garnishes',
+    platingStyle: 'polished dark slate prep surfaces',
+    vibeAndLighting: 'clean, modern minimalist styling with warm ambient pendant lighting and soft background bokeh',
+    icon: '⚡',
+    badge: 'Executive Modern'
+  },
+  {
+    id: 'farm-to-table',
+    name: 'Farm-to-Table Sustainable Gala',
+    eventType: 'Farm-to-Table Sustainable Gala',
+    dishOrCourse: 'Vibrant green mint pea purée, organic spring vegetables, and edible flowers',
+    platingStyle: 'earthy, unglazed speckled ceramic plate',
+    vibeAndLighting: 'bright, natural morning window light filtering through linen curtains, casting soft shadows',
+    icon: '🌿',
+    badge: 'Artisanal Organic'
+  }
+];
+
+/**
+ * Builds prompt adhering to Master Dynamic Prompt Template:
+ * "A professional commercial food photograph for a [EVENT_TYPE] event. The primary subject is [DISH_OR_COURSE] presented on [PLATING_STYLE]. The setting and atmosphere feature [VIBE_AND_LIGHTING], emphasizing rich textures, precise culinary plating, and professional lighting. 
+ * Strict Constraints: Full-bleed, edge-to-edge composition. No text, no watermarks, no mockups, no frames, and no borders."
+ */
+export function buildMasterDynamicImagePrompt(params: DynamicEventImageParams): string {
+  const eventType = (params.eventType || 'Luxury Wedding Reception').trim();
+  const dish = (params.dishOrCourse || 'Gourmet banquet showcase').trim();
+  const plating = (params.platingStyle || 'matte white porcelain').trim();
+  const vibe = (params.vibeAndLighting || 'dramatic low-key restaurant lighting with soft rim lighting highlighting the textures').trim();
+
+  return `A professional commercial food photograph for a ${eventType} event. The primary subject is ${dish} presented on ${plating}. The setting and atmosphere feature ${vibe}, emphasizing rich textures, precise culinary plating, and professional lighting. \n\nStrict Constraints: Full-bleed, edge-to-edge composition. No text, no watermarks, no mockups, no frames, and no borders.`;
+}
+
+/**
+ * Invokes the AI Studio image generation route with dynamic parameters
+ */
+export async function generateDynamicEventImage(params: DynamicEventImageParams): Promise<{
+  imageUrl: string;
+  isFallback: boolean;
+  promptUsed: string;
+}> {
+  try {
+    const res = await fetch('/api/gemini/generate-image', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params)
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.imageUrl) {
+        return {
+          imageUrl: data.imageUrl,
+          isFallback: Boolean(data.isFallback),
+          promptUsed: data.promptUsed || buildMasterDynamicImagePrompt(params)
+        };
+      }
+    }
+  } catch (err) {
+    console.warn('Dynamic event image API invocation warning:', err);
+  }
+
+  // Graceful fallback using high-res local asset matching the selected event type
+  const fallbackUrl = getThemeFallbackImage(params.eventType, '', params.dishOrCourse, params.vibeAndLighting);
+  return {
+    imageUrl: fallbackUrl,
+    isFallback: true,
+    promptUsed: buildMasterDynamicImagePrompt(params)
+  };
 }
 
 export const generateMenuFromApi = async (params: {
